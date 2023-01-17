@@ -13,7 +13,7 @@ public class InnerCoreServer {
 
     }
 
-    private static long hash(int id, int data, int[] allStatesSorted) {
+    public static long hash(int id, int data, int[] allStatesSorted) {
         long hash = (long) id;
         hash = hash * 314159L + (long) data;
 
