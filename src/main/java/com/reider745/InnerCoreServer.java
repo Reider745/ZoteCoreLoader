@@ -1,7 +1,11 @@
 package com.reider745;
 
 import android.util.Log;
+import cn.nukkit.Server;
+import com.google.common.io.ByteStreams;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.nio.*;
 import java.util.ArrayList;
@@ -13,14 +17,12 @@ public class InnerCoreServer {
 
     }
 
-    public static long hash(int id, int data, int[] allStatesSorted) {
+    public static long hash(int id, int data, int[][] allStatesSorted) {
         long hash = (long) id;
         hash = hash * 314159L + (long) data;
 
-        int state_index = 0;
-        for (int state_value : allStatesSorted) {
-            state_index++;
-            hash = hash * 314159L + (long) (state_value | (state_index << 5));
+        for (int[] state : allStatesSorted) {
+            hash = hash * 314159L + (long) (state[1] | ((state[0] + 1) << 5));
         }
         return hash;
     }
@@ -46,19 +48,11 @@ public class InnerCoreServer {
             list.add(entry);
             return this;
         }
-        public RuntimeId add(int id, int data, int[] states, int runtimeId){
+        public RuntimeId add(int id, int data, int[][] states, int runtimeId){
             return add(hash(id, data, states), runtimeId);
         }
         public byte[] getRuntimeIds(){
-            ByteBuffer buffer = ByteBuffer.allocate(list.size()*SIZE);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            for (Entry entry : list){
-                buffer.putLong(entry.hash);
-                buffer.putInt(entry.runtimeId);
-                //if(!entry.end)
-                    buffer.putInt(0);
-            }
-            return buffer.array();
+            return null;
         }
        /* private ByteBuffer buffer;
 

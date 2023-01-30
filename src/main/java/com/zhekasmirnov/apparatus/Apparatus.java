@@ -60,18 +60,11 @@ public class Apparatus {
         NetworkEntity.loadClass();
         IdConversionMap.loadClass();
 
-        InnerCoreServer.RuntimeId runtimeIds = new InnerCoreServer.RuntimeId();
-
-        JSONArray jsonArray = new JSONArray(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
-        jsonArray.forEach((element) -> {
-            JSONObject value = (JSONObject) element;
-            //runtimeIds.add(value.getLong("dbgHash"), value.getInt("dbgStateId"));
-            runtimeIds.add(value.getLong("dbgHash"), GlobalBlockPalette.getOrCreateRuntimeId(value.getInt("newId"), value.getInt("data")));
-        });
 
 
 
-        RuntimeIdDataPacketSender.loadClass(runtimeIds);
+
+        RuntimeIdDataPacketSender.loadClass(null);
         Network.getSingleton().startLanServer();
         NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
        // Network.getSingleton().startLanServer(InnerCoreConfig.getInt("port"));

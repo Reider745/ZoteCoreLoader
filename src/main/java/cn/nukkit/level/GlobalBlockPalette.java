@@ -1,103 +1,139 @@
 package cn.nukkit.level;
 
+import android.util.Pair;
 import cn.nukkit.Server;
-import cn.nukkit.block.Block;
-import cn.nukkit.nbt.NBTIO;
-import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.block.BlockID;
 import com.google.common.io.ByteStreams;
-import com.reider745.InnerCoreServer;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Log4j2
 public class GlobalBlockPalette {
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
+    private static final ArrayList<Pair<Integer, Long>> assignedRuntimeIds = new ArrayList<>();
+
     private static final AtomicInteger runtimeIdAllocator = new AtomicInteger(0);
 
+    private static long computeStateHash(int id, int[][] allStatesSorted) {
+        long hash = (long) id;
+        //hash = hash * 314159L + (long) data;
 
-    private static final HashMap<Long, Integer> runtimeIds = new HashMap<>();
+        for (int[] state : allStatesSorted) {
+            hash = hash * 314159L + (long) (state[1] | ((state[0] + 1) << 5));
+        }
+        return hash;
+    }
+
+    private static long computeStateHash(int id, JSONObject statesJson, Map<String, Integer> stateIdByName) {
+        ArrayList<int[]> states = new ArrayList<>();
+        int i = 0;
+        for (String key : statesJson.keySet()) {
+            if (!stateIdByName.containsKey(key))
+                log.error("state not found: " + key);
+            states.add(new int[] {
+                    stateIdByName.get(key),
+                    statesJson.getInt(key)
+            });
+        }
+        states.sort(Comparator.comparingInt(a -> a[0]));
+        return computeStateHash(id, states.toArray(new int[0][0]));
+    }
 
     static {
         legacyToRuntimeId.defaultReturnValue(-1);
         runtimeIdToLegacy.defaultReturnValue(-1);
 
-        /*ListTag<CompoundTag> tag;
-        try (InputStream stream = Server.class.getClassLoader().getResourceAsStream("runtime_block_states.dat")) {
-            if (stream == null) {
-                throw new AssertionError("Unable to locate block state nbt");
-            }
-            //noinspection unchecked
-            tag = (ListTag<CompoundTag>) NBTIO.readTag(new ByteArrayInputStream(ByteStreams.toByteArray(stream)), ByteOrder.LITTLE_ENDIAN, false);
-        } catch (IOException e) {
-            throw new AssertionError("Unable to load block palette", e);
-        }
-
-        for (CompoundTag state : tag.getAll()) {
-            int runtimeId = runtimeIdAllocator.getAndIncrement();
-            if (!state.contains("LegacyStates")) continue;
-
-            List<CompoundTag> legacyStates = state.getList("LegacyStates", CompoundTag.class).getAll();
-
-            // Resolve to first legacy id
-            CompoundTag firstState = legacyStates.get(0);
-            runtimeIdToLegacy.put(runtimeId, firstState.getInt("id") << 6 | firstState.getShort("val"));
-
-            for (CompoundTag legacyState : legacyStates) {
-                int legacyId = legacyState.getInt("id") << 6 | legacyState.getShort("val");
-                legacyToRuntimeId.put(legacyId, runtimeId);
-            }
-        }*/
+        HashMap<String, Integer> stateIdByName = new HashMap<>();
         try {
-            JSONArray jsonArray = new JSONArray(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
-            jsonArray.forEach((element) -> {
-                JSONObject value = (JSONObject) element;
-                addRuntimeId(value.getInt("newId"), value.getInt("data"), value.getInt("dbgStateId"));
-            });
+            JSONObject json = new JSONObject(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("state-name-to-id.json"))));
+            for (String key : json.keySet()) {
+                stateIdByName.put(key, json.getInt(key));
+            }
         }catch (Exception e){log.error(e.getMessage());}
 
+        HashMap<Long, Integer> stateHashToLegacyIdData = new HashMap<>();
+        try {
+            JSONArray json = new JSONArray(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
+            for (Object elem : json) {
+                JSONObject e = (JSONObject) elem;
+                int legacyId = e.getInt("oldId");
+                int legacyData = e.getInt("data");
+                long hash = computeStateHash(e.getInt("newId"), e.getJSONObject("states"), stateIdByName);
+                if (stateHashToLegacyIdData.containsKey(hash))
+                    throw new RuntimeException("hash collision: " + hash);
+                // log.info(e.getString("nameId") + legacyId + ":" + legacyData + " -> " + hash);
+                stateHashToLegacyIdData.put(hash, (legacyId << 16) | legacyData);
+            }
+        }catch (Exception e){log.throwing(e);}
+
+        ArrayList<Long> sortedStateHash = new ArrayList<>(stateHashToLegacyIdData.keySet());
+        sortedStateHash.sort((a, b) -> {
+            // uint64_t comparator
+            if (a < 0 && b >= 0)
+                return 1;
+            if (a >= 0 && b < 0)
+                return -1;
+            return Long.compare(a, b);
+        });
+
+        for (int i = 0; i < sortedStateHash.size(); i++) {
+            long hash = sortedStateHash.get(i);
+            int legacyIdData = stateHashToLegacyIdData.get(hash);
+            int legacyId = legacyIdData >> 16;
+            int legacyData = legacyIdData & 0xffff;
+            if (legacyData < 64) {
+                legacyToRuntimeId.put((legacyId << 6) | legacyData, i);
+                legacyToRuntimeId.putIfAbsent((legacyId << 6), i);
+                runtimeIdToLegacy.put(i, (legacyId << 6) | legacyData);
+            }
+            assignedRuntimeIds.add(new Pair<>(i, hash));
+
+            // log.info("assigned runtime id " + i + " to " + (legacyIdData >> 16) + ":" + (legacyIdData & 0xffff) + " hash=" + hash);
+        }
+
+        log.info("debugging some runtime ids:");
+        log.info("  1:0 - " + getOrCreateRuntimeId(1, 0));
+        log.info("  12:0 - " + getOrCreateRuntimeId(12, 0));
+        log.info("  12:1 - " + getOrCreateRuntimeId(12, 1));
+        log.info("  17:0 - " + getOrCreateRuntimeId(17, 0));
+        log.info("  18:0 - " + getOrCreateRuntimeId(18, 0));
     }
 
-    public static void addRuntimeId(int id, int data, Integer runtimeId){
-        runtimeIds.put(InnerCoreServer.hash(id, data, new int[] {}), runtimeId);
+    public static ArrayList<Pair<Integer, Long>> getAssignedRuntimeIds() {
+        return assignedRuntimeIds;
     }
 
     public static int getOrCreateRuntimeId(int id, int meta) {
-        Long key = InnerCoreServer.hash(id, meta, new int[] {});
-        Integer runtimeId = runtimeIds.get(key);
-        if(runtimeId == null){
-            runtimeId = runtimeIdAllocator.getAndIncrement();
-            log.info("Creating new runtime ID for unknown block {}, {}", id, meta);
-            addRuntimeId(id, meta, runtimeId);
-        }
-        return runtimeId;
-        /*int legacyId = id << 6 | meta;
+        int legacyId = id << 6 | meta;
         int runtimeId = legacyToRuntimeId.get(legacyId);
         if (runtimeId == -1) {
             runtimeId = legacyToRuntimeId.get(id << 6);
-            if (runtimeId == -1) {
-                runtimeId = runtimeIdAllocator.getAndIncrement();
-                legacyToRuntimeId.put(id << 6, runtimeId);
-                runtimeIdToLegacy.put(runtimeId, id << 6);
+            if (runtimeId == -1 && id != BlockID.INFO_UPDATE) {
+                log.error("failed to locate state for id: " + id + ":" + meta);
+                runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << 6);
+                if (runtimeId == -1)
+                    throw new RuntimeException("failed to fallback to BlockID.INFO_UPDATE state "+id+" "+meta);
+                return runtimeId;
+            } else if (id == BlockID.INFO_UPDATE){
+                throw new IllegalStateException("BlockID.INFO_UPDATE state is missing! "+id+" "+meta);
             }
         }
-        return runtimeId;*/
+        return runtimeId;
     }
 
     public static int getOrCreateRuntimeId(int legacyId) throws NoSuchElementException {
         return getOrCreateRuntimeId(legacyId >> 4, legacyId & 0xf);
+    }
+
+    public static int getLegacyFullId(int runtimeId) {
+        return runtimeIdToLegacy.get(runtimeId);
     }
 }

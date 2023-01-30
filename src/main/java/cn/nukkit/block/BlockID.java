@@ -1,6 +1,7 @@
 package cn.nukkit.block;
 
 public interface BlockID {
+    int INFO_UPDATE = 248;
     int AIR = 0;
     int STONE = 1;
     int GRASS = 2;
