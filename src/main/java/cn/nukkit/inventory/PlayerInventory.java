@@ -1,5 +1,6 @@
 package cn.nukkit.inventory;
 
+import android.util.Log;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
@@ -11,8 +12,10 @@ import cn.nukkit.event.entity.EntityInventoryChangeEvent;
 import cn.nukkit.event.player.PlayerItemHeldEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
+import cn.nukkit.network.Network;
 import cn.nukkit.network.protocol.*;
 import cn.nukkit.network.protocol.types.ContainerIds;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.util.Collection;
 
@@ -514,6 +517,13 @@ public class PlayerInventory extends BaseInventory {
         pk.wasServerInitiated = who.getClosingWindowId() != pk.windowId;
         who.dataPacket(pk);
         // player can never stop viewing their own inventory
+        /*int size = this.getSize();
+        InventorySlotPacket slotPacket = new InventorySlotPacket();
+        for(int i = 0;i < size;i++){
+            who.getServer().getNetwork().getPacket(slotPacket.pid());
+            slotPacket.decode();
+            Logger.debug(slotPacket.item.getName());
+        }*/
         if (who != holder) {
             super.onClose(who);
         }

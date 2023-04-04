@@ -1,6 +1,7 @@
 package cn.nukkit.network.protocol;
 
 import cn.nukkit.network.protocol.types.ContainerIds;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import lombok.ToString;
 
 @ToString
@@ -18,6 +19,7 @@ public class PlayerHotbarPacket extends DataPacket {
 
     @Override
     public void decode() {
+        Logger.debug("hotbar decode");
         this.selectedHotbarSlot = (int) this.getUnsignedVarInt();
         this.windowId = this.getByte();
         this.selectHotbarSlot = this.getBoolean();
@@ -25,6 +27,7 @@ public class PlayerHotbarPacket extends DataPacket {
 
     @Override
     public void encode() {
+        Logger.debug("hotbar encode");
         this.reset();
         this.putUnsignedVarInt(this.selectedHotbarSlot);
         this.putByte((byte) this.windowId);

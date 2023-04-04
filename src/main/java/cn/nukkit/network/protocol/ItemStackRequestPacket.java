@@ -1,103 +1,236 @@
 package cn.nukkit.network.protocol;
 
+import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import lombok.Value;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
 public class ItemStackRequestPacket extends DataPacket {
-    public final List<Request> requests = new ArrayList<>();
-
     @Override
     public byte pid() {
         return ProtocolInfo.ITEM_STACK_REQUEST_PACKET;
     }
 
+    public ArrayList<ArrayData> list = new ArrayList<>();
+
+
+    public static class ItemInfo {
+        public int byte1;
+        public int slot_id;
+        public int id;
+
+        public boolean result = false;
+        public ItemStackRequestPacket self;
+        public boolean drop;
+        public int type;
+        public int createByte;
+        public int int1;
+        public int int2;
+
+        public long recipe_int;
+
+        public long recipe_optional;
+        public int recipe_optional_int;
+
+        public ItemInfo(ItemStackRequestPacket self){
+            this.self = self;
+        }
+
+        public void slotInfoRead(){
+            byte1 = self.getByte();
+            slot_id = self.getByte();
+            id = self.getVarInt();
+        }
+
+        public void transferBaseRead(boolean readSecondSlotInfo, boolean requiresReadByte){
+            int firstByte = 0;
+
+            if (requiresReadByte) {
+                firstByte = self.getByte();
+                result = (firstByte - 1 < 0x40); // ?
+            } else
+                result = true;
+
+
+            slotInfoRead(); // first
+            if (readSecondSlotInfo) {
+               slotInfoRead();// second
+            } else {
+                // reset second ItemStackRequestSlotInfo
+            }
+        }
+
+        public void take(){
+            transferBaseRead(true, true);
+        }
+
+        public void place(){
+            transferBaseRead(true, true);
+        }
+
+        public void swap(){
+            transferBaseRead(true, false);
+        }
+
+        public void drop(){
+            transferBaseRead(false, true);
+        }
+
+        public void destroy(){
+            transferBaseRead(false, true);
+        }
+
+        public void consume(){
+            transferBaseRead(false, true);
+        }
+
+        public void create(){
+            createByte = self.getByte();
+        }
+
+        public void dataless(){
+
+        }
+
+        public void recipe(){
+            recipe_int = self.getUnsignedVarInt();
+        }
+
+        public void recipeOptional(){
+            recipe_optional = self.getUnsignedVarInt();
+            //recipe_optional_int = self.get
+        }
+
+        public void beaconPayment(){
+            int1 = self.getInt();
+            int2 = self.getInt();
+        }
+
+        public void action(){
+            type = self.getByte();
+            Logger.debug("type:"+type);
+            switch (type){
+                case 0:
+                    take();
+                    break;
+                case 1:
+                    place();
+                    break;
+                case 2:
+                    swap();
+                    break;
+                case 3:
+                    drop();
+                    break;
+                case 4:
+                    destroy();
+                    break;
+                case 5:
+                    consume();
+                    break;
+                case 6:
+                    create();
+                    break;
+                case 7:
+                    dataless();
+                    break;
+                case 8:
+                    beaconPayment();
+                    break;
+                case 9:
+                    recipe();
+                    break;
+                case 10:
+                    recipe();
+                case 11:
+                    recipe();
+                    break;
+                case 12:
+                    recipeOptional();
+                    break;
+                case 13:
+                    break;
+                case 14:
+                    break;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "\n byte1:"+byte1+", slot_id:"+slot_id+", id:"+id+", result:"+result+", drop:"+drop+", type:"+type+", createByte:"+createByte+", int1:"+int1+", int2"+int2+", recipe_int:"+recipe_int+", recipe_optional"+recipe_optional+"\n";
+        }
+    }
+
+    interface IRead<T> {
+        T read();
+    }
+
+
+    public <T>ArrayList<T> readVectorList(IRead<T> self){
+        try {
+            ArrayList<T> items = new ArrayList<>();
+            long length = this.getUnsignedVarInt();
+            if (length > 4096) length = 4096;
+            for (int i = 0; i < length; i++) {
+                items.add(self.read());
+            }
+            return items;
+        }catch (Exception e){
+            Server.getInstance().getLogger().logException(e);
+        }
+        return null;
+    }
+
+    public static class ArrayData {
+        public int hz;
+        public ArrayList<ItemInfo> items;
+        public ArrayList<String> slots;
+
+        @Override
+        public String toString() {
+            return "ArrayData{" +
+                    "\nhz=" + hz +
+                    ", \nitems=" + items +
+                    ", \nslots=" + slots +
+                    '}';
+        }
+    }
+
+    public void BatchRead(){
+        try{
+            this.list = this.<ArrayData>readVectorList(this::DataRead);
+        }catch (Exception e){
+            Server.getInstance().getLogger().logException(e);
+        }
+    }
+
+
+    public ArrayData DataRead(){
+        ArrayData result = new ArrayData();
+        result.hz = this.getVarInt();
+        ItemStackRequestPacket self = this;
+        result.items = this.<ItemInfo>readVectorList(() -> {
+            ItemInfo item = new ItemInfo(self);
+            item.action();
+            return item;
+        });
+        result.slots = this.<String>readVectorList(this::getString);
+        return result;
+    }
+
     @Override
     public void decode() {
-
+        BatchRead();
+        Logger.debug(list.toString());
     }
 
     @Override
     public void encode() {
 
-    }
-
-    @Value
-    public static class Request {
-        private final int requestId;
-        private final List<ItemStackAction> actions;
-    }
-
-    @Value
-    public static class ItemStackAction {
-        private final byte type;
-        private final boolean bool0;
-        private final byte byte0;
-        private final int varInt0;
-        private final int varInt1;
-        private final byte baseByte0;
-        private final byte baseByte1;
-        private final byte baseByte2;
-        private final int baseVarInt0;
-        private final byte flagsByte0;
-        private final byte flagsByte1;
-        private final int flagsVarInt0;
-        private final List<Item> items;
-
-        @Override
-        public String toString() {
-            StringJoiner joiner = new StringJoiner(", ");
-            joiner.add("type=" + type);
-
-            switch (type) {
-                case 0:
-                case 1:
-                case 2:
-                    joiner.add("baseByte0=" + baseByte0)
-                            .add("baseByte1=" + baseByte1)
-                            .add("baseByte2=" + baseByte2)
-                            .add("baseVarInt0=" + baseVarInt0)
-                            .add("flagsByte0=" + flagsByte0)
-                            .add("flagsByte1=" + flagsByte1)
-                            .add("flagsVarInt0=" + flagsVarInt0);
-                    break;
-                case 3:
-                    joiner.add("bool0=" + bool0)
-                            .add("baseByte0=" + baseByte0)
-                            .add("baseByte1=" + baseByte1)
-                            .add("baseByte2=" + baseByte2)
-                            .add("baseVarInt0=" + baseVarInt0);
-                    break;
-                case 4:
-                case 5:
-                    joiner.add("baseByte0=" + baseByte0)
-                            .add("baseByte1=" + baseByte1)
-                            .add("baseByte2=" + baseByte2)
-                            .add("baseVarInt0=" + baseVarInt0);
-                    break;
-                case 6:
-                    joiner.add("byte0=" + byte0);
-                    break;
-                case 8:
-                    joiner.add("varInt0=" + varInt0)
-                            .add("varInt1=" + varInt1);
-                    break;
-                case 10:
-                case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                    joiner.add("varInt0=" + varInt0);
-                    break;
-                case 17:
-                    joiner.add("items=" + items);
-                    break;
-            }
-            return "ItemStackAction(" + joiner.toString() + ")";
-        }
     }
 }

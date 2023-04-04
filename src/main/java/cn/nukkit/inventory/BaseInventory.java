@@ -12,6 +12,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import cn.nukkit.network.protocol.InventoryContentPacket;
 import cn.nukkit.network.protocol.InventorySlotPacket;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.util.*;
 
@@ -448,6 +449,7 @@ public abstract class BaseInventory implements Inventory {
 
     @Override
     public void onSlotChange(int index, Item before, boolean send) {
+        Logger.debug("onSlotChange");
         if (send) {
             this.sendSlot(index, this.getViewers());
         }

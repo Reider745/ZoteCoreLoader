@@ -8,6 +8,7 @@ import cn.nukkit.network.protocol.InventoryContentPacket;
 import cn.nukkit.network.protocol.InventorySlotPacket;
 import cn.nukkit.network.protocol.MobEquipmentPacket;
 import cn.nukkit.network.protocol.types.ContainerIds;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 public class PlayerOffhandInventory extends BaseInventory {
 

@@ -5,6 +5,7 @@ import cn.nukkit.inventory.transaction.data.TransactionData;
 import cn.nukkit.inventory.transaction.data.UseItemData;
 import cn.nukkit.inventory.transaction.data.UseItemOnEntityData;
 import cn.nukkit.network.protocol.types.NetworkInventoryAction;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import lombok.ToString;
 
 import java.util.ArrayDeque;

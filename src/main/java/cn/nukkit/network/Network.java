@@ -9,6 +9,7 @@ import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.ThreadCache;
 import cn.nukkit.utils.Utils;
 import cn.nukkit.utils.VarInt;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -215,6 +216,7 @@ public class Network {
     }
 
     public void registerPacket(byte id, Class<? extends DataPacket> clazz) {
+        Logger.debug(clazz.getName()+"   "+id + " "+(id & 0xff));
         this.packetPool[id & 0xff] = clazz;
     }
 
@@ -296,15 +298,18 @@ public class Network {
         packets.forEach(player::handleDataPacket);
     }
 
-    public DataPacket getPacket(int id) {
+    public DataPacket getPacket(int id)  {
         Class<? extends DataPacket> clazz = this.packetPool[id];
+
         if (clazz != null) {
+            Logger.debug("get "+clazz.getName() + " pid: "+id);
             try {
                 return clazz.newInstance();
             } catch (Exception e) {
                 Server.getInstance().getLogger().logException(e);
             }
         }
+        Logger.debug("not packet "+id);
         return null;
     }
 
@@ -444,5 +449,8 @@ public class Network {
         this.registerPacket(ProtocolInfo.PLAYER_ENCHANT_OPTIONS_PACKET, PlayerEnchantOptionsPacket.class);
         this.registerPacket(ProtocolInfo.UPDATE_PLAYER_GAME_TYPE_PACKET, UpdatePlayerGameTypePacket.class);
         this.registerPacket(ProtocolInfo.FILTER_TEXT_PACKET, FilterTextPacket.class);
+        this.registerPacket(ProtocolInfo.ITEM_STACK_REQUEST_PACKET, ItemStackRequestPacket.class);
+
+        this.registerPacket(InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
     }
 }

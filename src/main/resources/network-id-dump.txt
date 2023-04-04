@@ -1,4 +1,4 @@
-Re-assigning runtime ids for 6659 block states:
+                                                            Re-assigning runtime ids for 6659 block states:
 assigned runtime id 0(ovd=1, old=134) to air(id=0 staticId=0 data=0) states: [ ] state hash: 0
 assigned runtime id 1(ovd=1, old=4188) to grass(id=2 staticId=2 data=0) states: [ ] state hash: 2
 assigned runtime id 2(ovd=1, old=1014) to cobblestone(id=4 staticId=4 data=0) states: [ ] state hash: 4
