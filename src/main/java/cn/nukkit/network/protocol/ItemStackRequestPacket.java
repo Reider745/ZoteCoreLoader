@@ -1,14 +1,14 @@
 package cn.nukkit.network.protocol;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import lombok.Value;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 
 public class ItemStackRequestPacket extends DataPacket {
     @Override
@@ -20,46 +20,33 @@ public class ItemStackRequestPacket extends DataPacket {
 
 
     public static class ItemInfo {
-        public int byte1;
-        public int slot_id;
-        public int id;
-
-        public boolean result = false;
         public ItemStackRequestPacket self;
-        public boolean drop;
-        public int type;
-        public int createByte;
-        public int int1;
-        public int int2;
-
-        public long recipe_int;
-
-        public long recipe_optional;
-        public int recipe_optional_int;
+        public HashMap<String, Object> info = new HashMap<>();
 
         public ItemInfo(ItemStackRequestPacket self){
             this.self = self;
         }
 
-        public void slotInfoRead(){
-            byte1 = self.getByte();
-            slot_id = self.getByte();
-            id = self.getVarInt();
+        public void slotInfoRead(String prefix){
+            info.put(prefix+"byte1", self.getByte());
+            info.put(prefix+"slot_id", self.getByte());
+            info.put(prefix+"id", self.getVarInt());
         }
 
         public void transferBaseRead(boolean readSecondSlotInfo, boolean requiresReadByte){
             int firstByte = 0;
 
+            boolean result = false;
             if (requiresReadByte) {
                 firstByte = self.getByte();
                 result = (firstByte - 1 < 0x40); // ?
             } else
                 result = true;
+            info.put("result", result);
 
-
-            slotInfoRead(); // first
+            slotInfoRead(""); // first
             if (readSecondSlotInfo) {
-               slotInfoRead();// second
+               slotInfoRead("second_");// second
             } else {
                 // reset second ItemStackRequestSlotInfo
             }
@@ -90,7 +77,7 @@ public class ItemStackRequestPacket extends DataPacket {
         }
 
         public void create(){
-            createByte = self.getByte();
+            info.put("createByte", self.getByte());
         }
 
         public void dataless(){
@@ -98,22 +85,22 @@ public class ItemStackRequestPacket extends DataPacket {
         }
 
         public void recipe(){
-            recipe_int = self.getUnsignedVarInt();
+            info.put("recipe_int", self.getUnsignedVarInt());
         }
 
         public void recipeOptional(){
-            recipe_optional = self.getUnsignedVarInt();
-            //recipe_optional_int = self.get
+            info.put("recipe_optional", self.getUnsignedVarInt());
+            info.put("recipe_optional_int", self.getUnsignedVarInt());
         }
 
         public void beaconPayment(){
-            int1 = self.getInt();
-            int2 = self.getInt();
+            info.put("beacon1", self.getInt());
+            info.put("beacon2", self.getInt());
         }
 
         public void action(){
-            type = self.getByte();
-            Logger.debug("type:"+type);
+            int type = self.getByte();
+            info.put("type", type);
             switch (type){
                 case 0:
                     take();
@@ -156,13 +143,16 @@ public class ItemStackRequestPacket extends DataPacket {
                 case 13:
                     break;
                 case 14:
+                    info.put("items", self.<Item>readVectorList(self::getSlot));
                     break;
             }
         }
 
         @Override
         public String toString() {
-            return "\n byte1:"+byte1+", slot_id:"+slot_id+", id:"+id+", result:"+result+", drop:"+drop+", type:"+type+", createByte:"+createByte+", int1:"+int1+", int2"+int2+", recipe_int:"+recipe_int+", recipe_optional"+recipe_optional+"\n";
+            return "ItemInfo{" +
+                    "info=" + info +
+                    '}';
         }
     }
 
@@ -226,6 +216,8 @@ public class ItemStackRequestPacket extends DataPacket {
     @Override
     public void decode() {
         BatchRead();
+        Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
+        players.forEach((k, v) -> Logger.debug(k.toString()+":"+v.getName()+":"+v.getId()));
         Logger.debug(list.toString());
     }
 
