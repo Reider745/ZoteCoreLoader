@@ -1,5 +1,6 @@
 package cn.nukkit.network.protocol;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.network.Network;
 import cn.nukkit.utils.Binary;
@@ -14,6 +15,7 @@ public abstract class DataPacket extends BinaryStream implements Cloneable {
 
     public volatile boolean isEncoded = false;
     private int channel = 0;
+    public Player client_player;
 
     public RakNetReliability reliability = RakNetReliability.RELIABLE_ORDERED;
 

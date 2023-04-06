@@ -227,14 +227,14 @@ public class Network {
     public void processBatch(BatchPacket packet, Player player) {
         List<DataPacket> packets = new ObjectArrayList<>();
         try {
-            processBatch(packet.payload, packets);
+            processBatch(packet.payload, packets, player);
         } catch (ProtocolException e) {
             player.close("", e.getMessage());
             log.error("Unable to process player packets ", e);
         }
     }
 
-    public void processBatch(byte[] payload, Collection<DataPacket> packets) throws ProtocolException {
+    public void processBatch(byte[] payload, Collection<DataPacket> packets, Player player) throws ProtocolException {
         byte[] data;
         try {
             data = Network.inflateRaw(payload);
@@ -262,6 +262,7 @@ public class Network {
                 int packetId = header & 0x3ff;
 
                 DataPacket pk = this.getPacket(packetId);
+                pk.client_player = player;
 
                 if (pk != null) {
                     pk.setBuffer(buf, buf.length - bais.available());

@@ -282,7 +282,7 @@ public class RakNetInterface implements RakNetServerListener, AdvancedSourceInte
                 buffer.readBytes(packetBuffer);
 
                 try {
-                    RakNetInterface.this.network.processBatch(packetBuffer, this.inbound);
+                    RakNetInterface.this.network.processBatch(packetBuffer, this.inbound, player);
                 } catch (ProtocolException e) {
                     this.disconnect("Sent malformed packet");
                     log.error("Unable to process batch packet", e);

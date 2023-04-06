@@ -7,6 +7,7 @@ import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import lombok.Value;
 
+import java.awt.event.ContainerAdapter;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -30,7 +31,7 @@ public class ItemStackRequestPacket extends DataPacket {
         public void slotInfoRead(String prefix){
             info.put(prefix+"byte1", self.getByte());
             info.put(prefix+"slot_id", self.getByte());
-            info.put(prefix+"id", self.getVarInt());
+            info.put(prefix+"_network_id", self.getVarInt());
         }
 
         public void transferBaseRead(boolean readSecondSlotInfo, boolean requiresReadByte){
@@ -39,17 +40,14 @@ public class ItemStackRequestPacket extends DataPacket {
             boolean result = false;
             if (requiresReadByte) {
                 firstByte = self.getByte();
-                result = (firstByte - 1 < 0x40); // ?
+                result = (firstByte - 1 < 0x40);
             } else
                 result = true;
             info.put("result", result);
 
-            slotInfoRead(""); // first
-            if (readSecondSlotInfo) {
-               slotInfoRead("second_");// second
-            } else {
-                // reset second ItemStackRequestSlotInfo
-            }
+            slotInfoRead("");
+            if (readSecondSlotInfo)
+               slotInfoRead("second_");
         }
 
         public void take(){
@@ -177,14 +175,14 @@ public class ItemStackRequestPacket extends DataPacket {
     }
 
     public static class ArrayData {
-        public int hz;
+        public int id_event;
         public ArrayList<ItemInfo> items;
         public ArrayList<String> slots;
 
         @Override
         public String toString() {
             return "ArrayData{" +
-                    "\nhz=" + hz +
+                    "\nid_event=" + id_event +
                     ", \nitems=" + items +
                     ", \nslots=" + slots +
                     '}';
@@ -202,7 +200,7 @@ public class ItemStackRequestPacket extends DataPacket {
 
     public ArrayData DataRead(){
         ArrayData result = new ArrayData();
-        result.hz = this.getVarInt();
+        result.id_event = this.getVarInt();
         ItemStackRequestPacket self = this;
         result.items = this.<ItemInfo>readVectorList(() -> {
             ItemInfo item = new ItemInfo(self);
@@ -216,9 +214,16 @@ public class ItemStackRequestPacket extends DataPacket {
     @Override
     public void decode() {
         BatchRead();
-        Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
-        players.forEach((k, v) -> Logger.debug(k.toString()+":"+v.getName()+":"+v.getId()));
-        Logger.debug(list.toString());
+
+        list.forEach((v) -> v.items.forEach((item_info) -> {
+            Integer slot_id = (Integer) item_info.info.get("slot_id");
+            Integer second_slot_id = (Integer) item_info.info.get("second_slot_id");
+
+            Item item = this.client_player.getInventory().getItem(slot_id);
+            this.client_player.getInventory().clear(slot_id);
+            if(second_slot_id != null)
+                this.client_player.getInventory().setItem(second_slot_id, item);
+        }));
     }
 
     @Override
