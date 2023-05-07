@@ -630,8 +630,6 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.rawUUID = null;
 
         this.creationTime = System.currentTimeMillis();
-
-        com.zhekasmirnov.apparatus.multiplayer.Network.getSingleton().onConnection(this);
     }
 
     @Override

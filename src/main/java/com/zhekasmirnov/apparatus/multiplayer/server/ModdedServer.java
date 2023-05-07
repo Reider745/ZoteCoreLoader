@@ -136,8 +136,8 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         onShutdownListeners.add(listener);
     }
 
-    public void onClientConnected(DataChannel channel) {
-        ConnectedClient client = new ConnectedClient(this, channel);
+    public void onClientConnected(DataChannel channel, String cl) {
+        ConnectedClient client = new ConnectedClient(this, channel, cl);
         client.setDisconnectListener(this);
         client.setStateChangedListener(this);
 
@@ -172,19 +172,19 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
 
     @Override
     public boolean onClientConnected(DataChannel channel, Socket socket, boolean isChannelAlreadyManaged) {
-        onClientConnected(channel);
+        onClientConnected(channel, socket.getInetAddress().toString());
         return true;
     }
 
     @Override
-    public void onNativeChannelConnected(NativeDataChannel channel) {
+    public void onNativeChannelConnected(NativeDataChannel channel,String sender) {
         if (EngineConfig.isDeveloperMode()) {
             Logger.debug("client connected via native protocol");
         }
-        onClientConnected(channel);
+        onClientConnected(channel, sender);
     }
 
-    public DataChannel openLocalClientChannel() {
+    public DataChannel openLocalClientChannel(String sender) {
         /*try {
             Socket socket = new Socket("localhost", getConfig().getDefaultPort());
             socket.getOutputStream().write(SocketDataChannel.PROTOCOL_ID);
@@ -203,7 +203,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
             return channel;
         } else {
             Pair<DirectDataChannel, DirectDataChannel> channelPair = DirectDataChannel.createDirectChannelPair();
-            onClientConnected(channelPair.first);
+            onClientConnected(channelPair.first, sender);
             return channelPair.second;
         }
     }

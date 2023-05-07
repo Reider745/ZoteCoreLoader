@@ -117,7 +117,7 @@ public abstract class DataChannel {
         while (!isClosed) {
             DataPacket packet = receive();
             if (packet != null) {
-                Logger.debug("receive:"+packet.name);
+                Logger.debug("socket receive:"+packet.name);
                 synchronized (packetListeners) {
                     for (IPacketListener listener : packetListeners) {
                         listener.receive(packet);

@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
+import cn.nukkit.network.protocol.SetLocalPlayerAsInitializedPacket;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
@@ -21,7 +22,7 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     private final ModdedServer server;
     private final ChannelInterface channel;
-    private long playerUid = -1;
+    public long playerUid = -1;
 
     private ClientState state = ClientState.CREATED;
     private OnStateChangedListener stateChangedListener;
@@ -46,18 +47,19 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         void onStateChanged(ConnectedClient client, ClientState newState);
     }
 
-    public ConnectedClient(ModdedServer server, DataChannel channel) {
+    public ConnectedClient(ModdedServer server, DataChannel channel, String client) {
         this.server = server;
         this.channel = new ChannelInterface(channel);
         this.channel.addListener(this);
-        this.addInitializationPacketListener("system.player_entity", (ConnectedClient client, Object data, Class<?> dataType) -> {
+        SetLocalPlayerAsInitializedPacket.clients.put(client, this);
+        /*this.addInitializationPacketListener("system.player_entity", (ConnectedClient client, Object data, Class<?> dataType) -> {
             try {
-                if(InnerCoreConfig.isDevelop()) Logger.debug("system.player_entity");
+                Logger.debug("system.player_entity");
                 playerUid = Long.parseLong(data.toString());
             } catch (NumberFormatException e) {
                 throw new InitializationPacketException("invalid player packet data: " + data, e);
             }
-        });
+        });*/
     }
 
     public void setClientState(ClientState state) {

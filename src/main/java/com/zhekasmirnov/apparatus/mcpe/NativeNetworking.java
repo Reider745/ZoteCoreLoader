@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NativeNetworking {
     public interface ConnectionListener {
-        void onNativeChannelConnected(NativeDataChannel channel);
+        void onNativeChannelConnected(NativeDataChannel channel, String sender);
     }
 
     private static final List<ConnectionListener> connectionListeners = new ArrayList<>();
@@ -197,10 +197,11 @@ public class NativeNetworking {
 
     public static void onServerPacketReceived(String sender, String name, int formatId) throws IOException {
         synchronized (serverToClientChannelMap) {
+            Logger.debug("onServerPacketReceived:"+sender+" "+name);
             Java8BackComp.computeIfAbsent(serverToClientChannelMap, sender, key -> {
                 NativeChannelImpl channel = new NativeChannelImpl(sender);
                 for (ConnectionListener listener : connectionListeners) {
-                    listener.onNativeChannelConnected(new NativeDataChannel(channel));
+                    listener.onNativeChannelConnected(new NativeDataChannel(channel), sender);
                 }
                 return channel;
             }).onReceived(new DataPacket(name, formatId, getCurrentNativePacketBytesNonNull()));

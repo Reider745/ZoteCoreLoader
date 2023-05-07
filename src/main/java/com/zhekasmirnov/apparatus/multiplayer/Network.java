@@ -191,7 +191,7 @@ public class Network {
         ).start();
 
         startServer(port);
-        client.start(server.openLocalClientChannel());
+        //client.start(server.openLocalClientChannel());
         isRunningLanServer = true;
 
         if (!client.awaitAllInitializationPackets(config.getInitializationTimeout())) {
@@ -204,8 +204,8 @@ public class Network {
         handler.stop();
     }
 
-    public void onConnection(Player player){
-        Network.getSingleton().getClient().setPlayerUid(player.getId());
+    public void onConnection(long eid){
+        Network.getSingleton().getClient().setPlayerUid(eid);
     }
 
     public void startLanServer() {

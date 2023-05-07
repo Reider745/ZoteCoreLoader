@@ -34,7 +34,7 @@ public class InnerCoreCommand extends VanillaCommand {
                 sender.getServer().getLogger().info("Не найден игрок " + args[1]);
                 return false;
             }
-            Network.getSingleton().onConnection(player);
+            Network.getSingleton().onConnection(player.getId());
             sender.getServer().getLogger().info("Успешно выполнено " + args[0]);
             return true;
         }else if(args[0].equals("id")){
