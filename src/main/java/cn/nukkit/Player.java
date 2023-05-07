@@ -630,6 +630,8 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.rawUUID = null;
 
         this.creationTime = System.currentTimeMillis();
+
+        com.zhekasmirnov.apparatus.multiplayer.Network.getSingleton().onConnection(this);
     }
 
     @Override
@@ -2055,7 +2057,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             }
 
             if (packet.pid() == ProtocolInfo.BATCH_PACKET) {
-                this.server.getNetwork().processBatch((BatchPacket) packet, this);
+                this.server.getNetwork().processBatch((BatchPacket) packet, this, this.getSocketAddress());
                 return;
             }
 

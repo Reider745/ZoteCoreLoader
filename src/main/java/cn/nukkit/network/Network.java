@@ -5,10 +5,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.nbt.stream.FastByteArrayOutputStream;
 import cn.nukkit.network.protocol.*;
-import cn.nukkit.utils.BinaryStream;
-import cn.nukkit.utils.ThreadCache;
-import cn.nukkit.utils.Utils;
-import cn.nukkit.utils.VarInt;
+import cn.nukkit.utils.*;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -215,8 +212,12 @@ public class Network {
         }
     }
 
+    public Class<? extends DataPacket>[] getPacketPool() {
+        return packetPool;
+    }
+
     public void registerPacket(byte id, Class<? extends DataPacket> clazz) {
-        Logger.debug(clazz.getName()+"   "+id + " "+(id & 0xff));
+        //Logger.debug(clazz.getName()+"   "+id + " "+(id & 0xff));
         this.packetPool[id & 0xff] = clazz;
     }
 
@@ -224,17 +225,34 @@ public class Network {
         return server;
     }
 
-    public void processBatch(BatchPacket packet, Player player) {
+    public void processBatch(BatchPacket packet, Player player, InetSocketAddress address) {
         List<DataPacket> packets = new ObjectArrayList<>();
         try {
-            processBatch(packet.payload, packets, player);
+            processBatch(packet.payload, packets, player, address);
         } catch (ProtocolException e) {
             player.close("", e.getMessage());
             log.error("Unable to process player packets ", e);
         }
     }
 
-    public void processBatch(byte[] payload, Collection<DataPacket> packets, Player player) throws ProtocolException {
+    public static BatchPacket create(DataPacket pk){
+        BatchPacket batch = new BatchPacket();
+
+        byte[][] batchPayload = new byte[2][];
+        byte[] buf = pk.getBuffer();
+        batchPayload[0] = Binary.writeUnsignedVarInt(buf.length);
+        batchPayload[1] = buf;
+        byte[] data = Binary.appendBytes(batchPayload);
+        try {
+            batch.payload = Network.deflateRaw(data, Server.getInstance().networkCompressionLevel);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return batch;
+    }
+
+    public void processBatch(byte[] payload, Collection<DataPacket> packets, Player player, InetSocketAddress address) throws ProtocolException {
         byte[] data;
         try {
             data = Network.inflateRaw(payload);
@@ -263,6 +281,7 @@ public class Network {
 
                 DataPacket pk = this.getPacket(packetId);
                 pk.client_player = player;
+                pk.address = address;
 
                 if (pk != null) {
                     pk.setBuffer(buf, buf.length - bais.available());
@@ -303,7 +322,7 @@ public class Network {
         Class<? extends DataPacket> clazz = this.packetPool[id];
 
         if (clazz != null) {
-            Logger.debug("get "+clazz.getName() + " pid: "+id);
+            //Logger.debug("get "+clazz.getName() + " pid: "+id);
             try {
                 return clazz.newInstance();
             } catch (Exception e) {
@@ -312,6 +331,11 @@ public class Network {
         }
         Logger.debug("not packet "+id);
         return null;
+    }
+
+    public void send(InetSocketAddress address, DataPacket packet){
+        for (AdvancedSourceInterface sourceInterface : this.advancedInterfaces)
+            sourceInterface.send(address, packet);
     }
 
     public void sendPacket(InetSocketAddress socketAddress, ByteBuf payload) {

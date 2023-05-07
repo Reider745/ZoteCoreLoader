@@ -177,6 +177,16 @@ public class RakNetInterface implements RakNetServerListener, AdvancedSourceInte
     }
 
     @Override
+    public void send(InetSocketAddress address, DataPacket packet){
+        NukkitRakNetSession session = this.sessions.get(address);
+
+        if (session != null) {
+            packet.tryEncode();
+            session.outbound.offer(packet);
+        }
+    }
+
+    @Override
     public void sendRawPacket(InetSocketAddress socketAddress, ByteBuf payload) {
         this.raknet.send(socketAddress, payload);
     }
@@ -282,7 +292,7 @@ public class RakNetInterface implements RakNetServerListener, AdvancedSourceInte
                 buffer.readBytes(packetBuffer);
 
                 try {
-                    RakNetInterface.this.network.processBatch(packetBuffer, this.inbound, player);
+                    RakNetInterface.this.network.processBatch(packetBuffer, this.inbound, player, this.raknet.getAddress());
                 } catch (ProtocolException e) {
                     this.disconnect("Sent malformed packet");
                     log.error("Unable to process batch packet", e);
@@ -337,7 +347,6 @@ public class RakNetInterface implements RakNetServerListener, AdvancedSourceInte
                 log.error("Unable to compress batched packets", e);
             }
         }
-
         private void sendPacket(byte[] payload) {
             ByteBuf byteBuf = ByteBufAllocator.DEFAULT.ioBuffer(1 + payload.length);
             byteBuf.writeByte(0xfe);

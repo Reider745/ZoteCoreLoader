@@ -31,7 +31,7 @@ public class NativeDataChannel extends DataChannel {
     public boolean pingPong(int timeout) {
         try {
             return nativeImpl.pingPong(timeout);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             return false;
         }
     }

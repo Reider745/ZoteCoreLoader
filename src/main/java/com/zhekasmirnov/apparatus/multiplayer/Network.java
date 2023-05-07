@@ -7,6 +7,7 @@ import com.zhekasmirnov.apparatus.job.InstantJobExecutor;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.job.MainThreadJobExecutor;
 //import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
+import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannelFactory;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.NativeDataChannel;
@@ -121,21 +122,20 @@ public class Network {
     }
 
     private DataChannel tryOpenClientToServerNativeDataChannel(int timeout) throws IOException {
-       /* NativeDataChannel channel = new NativeDataChannel(NativeNetworking.getOrCreateClientToServerChannel());
+        NativeDataChannel channel = new NativeDataChannel(NativeNetworking.getOrCreateClientToServerChannel());
         if (!channel.pingPong(timeout)) {
             throw new IOException("failed to open modded native channel");
         }
-        return channel;*/
-        return null;
+        return channel;
     }
 
     public void startClient(String address, int port) throws IOException {
         shutdown();
         isRunningLanServer = false;
 
-        /*NativeNetworking.NetworkLoopHandler handler = new NativeNetworking.NetworkLoopHandler(
+        NativeNetworking.NetworkLoopHandler handler = new NativeNetworking.NetworkLoopHandler(
                 NativeNetworking.NetworkLoopHandler.GLOBAL_HANDLER | NativeNetworking.NetworkLoopHandler.CLIENT_HANDLER
-        ).start();*/
+        ).start();
 
         getConfig().updateFromEngineConfig();
 
@@ -170,13 +170,13 @@ public class Network {
 
         if (!client.awaitAllInitializationPackets(config.getInitializationTimeout())) {
             //UserDialog.dialog("Connection Error", "Failed to connect to server - not all initialization packets were sent to client");
-            //handler.stop();
+            handler.stop();
             shutdown();
         } else {
             //UserDialog.toast("successfully started client");
         }
 
-       // handler.stop();
+        handler.stop();
     }
 
     public void startClient(String address) throws IOException {
@@ -186,9 +186,9 @@ public class Network {
     public void startLanServer(int port) {
         shutdown();
 
-       /* NativeNetworking.NetworkLoopHandler handler = new NativeNetworking.NetworkLoopHandler(
+        NativeNetworking.NetworkLoopHandler handler = new NativeNetworking.NetworkLoopHandler(
                 NativeNetworking.NetworkLoopHandler.GLOBAL_HANDLER | NativeNetworking.NetworkLoopHandler.SERVER_HANDLER | NativeNetworking.NetworkLoopHandler.CLIENT_HANDLER
-        ).start();*/
+        ).start();
 
         startServer(port);
         client.start(server.openLocalClientChannel());
@@ -198,10 +198,10 @@ public class Network {
             if (!client.isRunning()) {
                 ICLog.i("LAN Server Error", "Failed to startup LAN server - not all initialization packets were sent to client");
             }
-           // handler.stop();
+            handler.stop();
             shutdown();
         }
-        //handler.stop();
+        handler.stop();
     }
 
     public void onConnection(Player player){

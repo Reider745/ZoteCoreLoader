@@ -3,6 +3,7 @@ package cn.nukkit.network.protocol;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import lombok.Value;
@@ -64,6 +65,7 @@ public class ItemStackRequestPacket extends DataPacket {
 
         public void drop(){
             transferBaseRead(false, true);
+            info.put("drop", self.getBoolean());
         }
 
         public void destroy(){
@@ -88,7 +90,7 @@ public class ItemStackRequestPacket extends DataPacket {
 
         public void recipeOptional(){
             info.put("recipe_optional", self.getUnsignedVarInt());
-            info.put("recipe_optional_int", self.getUnsignedVarInt());
+            info.put("recipe_optional_int", self.getInt());
         }
 
         public void beaconPayment(){
@@ -216,12 +218,24 @@ public class ItemStackRequestPacket extends DataPacket {
         BatchRead();
 
         list.forEach((v) -> v.items.forEach((item_info) -> {
+            Logger.debug(item_info.toString());
             Integer slot_id = (Integer) item_info.info.get("slot_id");
             Integer second_slot_id = (Integer) item_info.info.get("second_slot_id");
+            Boolean drop = (Boolean) item_info.info.get("drop");
 
-            Item item = this.client_player.getInventory().getItem(slot_id);
-            this.client_player.getInventory().clear(slot_id);
-            if(second_slot_id != null)
+            if(drop != null){
+                this.client_player.dropItem(this.client_player.getInventory().getItem(slot_id));
+                return;
+            }
+
+            Item item = null;
+            ArrayList<Item> items = (ArrayList<Item>) item_info.info.get("items");
+            if(slot_id != null) {
+                item = this.client_player.getInventory().getItem(slot_id);
+                this.client_player.getInventory().clear(slot_id);
+            } else if(items != null)
+               item = items.get(0);
+            if(second_slot_id != null && item != null)
                 this.client_player.getInventory().setItem(second_slot_id, item);
         }));
     }

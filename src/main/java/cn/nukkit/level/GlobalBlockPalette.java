@@ -98,13 +98,6 @@ public class GlobalBlockPalette {
 
             // log.info("assigned runtime id " + i + " to " + (legacyIdData >> 16) + ":" + (legacyIdData & 0xffff) + " hash=" + hash);
         }
-
-        log.info("debugging some runtime ids:");
-        log.info("  1:0 - " + getOrCreateRuntimeId(1, 0));
-        log.info("  12:0 - " + getOrCreateRuntimeId(12, 0));
-        log.info("  12:1 - " + getOrCreateRuntimeId(12, 1));
-        log.info("  17:0 - " + getOrCreateRuntimeId(17, 0));
-        log.info("  18:0 - " + getOrCreateRuntimeId(18, 0));
     }
 
     public static ArrayList<Pair<Integer, Long>> getAssignedRuntimeIds() {

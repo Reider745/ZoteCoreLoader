@@ -7,6 +7,8 @@ import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
 import com.nukkitx.network.raknet.RakNetReliability;
 
+import java.net.InetSocketAddress;
+
 /**
  * author: MagicDroidX
  * Nukkit Project
@@ -16,6 +18,7 @@ public abstract class DataPacket extends BinaryStream implements Cloneable {
     public volatile boolean isEncoded = false;
     private int channel = 0;
     public Player client_player;
+    public InetSocketAddress address;
 
     public RakNetReliability reliability = RakNetReliability.RELIABLE_ORDERED;
 
