@@ -2,6 +2,7 @@ package com.zhekasmirnov.apparatus.multiplayer;
 
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.SocketDataChannel;
+import com.zhekasmirnov.innercore.mod.build.Config;
 
 public class NetworkConfig {
     private int defaultPort = 2304;
@@ -15,7 +16,7 @@ public class NetworkConfig {
     private boolean nativeProtocolPrioritizedForRemoteConnection = false;
 
     public boolean isSocketConnectionAllowed() {
-        return socketConnectionAllowed;
+        return EngineConfig.getBoolean("socket_server", false);
     }
 
     public void setSocketConnectionAllowed(boolean socketConnectionAllowed) {

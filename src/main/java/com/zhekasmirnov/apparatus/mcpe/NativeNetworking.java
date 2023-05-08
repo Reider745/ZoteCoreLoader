@@ -197,7 +197,6 @@ public class NativeNetworking {
 
     public static void onServerPacketReceived(String sender, String name, int formatId) throws IOException {
         synchronized (serverToClientChannelMap) {
-            Logger.debug("onServerPacketReceived:"+sender+" "+name);
             Java8BackComp.computeIfAbsent(serverToClientChannelMap, sender, key -> {
                 NativeChannelImpl channel = new NativeChannelImpl(sender);
                 for (ConnectionListener listener : connectionListeners) {

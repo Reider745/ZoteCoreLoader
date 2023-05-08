@@ -65,7 +65,6 @@ public class InnerCorePacket extends DataPacket{
         return bytes_cache;
     }
     public static void sendPacketToClient(String client, String name, int format_id, byte[] data){
-        Logger.debug("sendPacketToClient "+client+" "+name);
         InnerCorePacket packet = new InnerCorePacket();
         packet.name = name;
         packet.format_id = format_id;
@@ -77,7 +76,6 @@ public class InnerCorePacket extends DataPacket{
     }
 
     public static void sendPacketToServer(String name, int format_id, byte[] data){
-        Logger.debug("sendPacketToServer "+name);
         InnerCorePacket packet = new InnerCorePacket();
         packet.name = name;
         packet.format_id = format_id;
