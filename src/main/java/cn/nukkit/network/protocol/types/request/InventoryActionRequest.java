@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public abstract class InventoryAction {
     public void deserialize(DataPacket packet) throws Exception {};
-    abstract int weight();
+    public abstract int weight();
 
     interface IRead<T> {
         T read();
