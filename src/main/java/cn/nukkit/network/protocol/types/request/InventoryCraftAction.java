@@ -1,12 +1,11 @@
 package cn.nukkit.network.protocol.types.request;
 
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.types.request.InventoryAction;
 
 /**
  * @author geNAZt
  */
-public class InventoryCraftAction extends InventoryAction {
+public class InventoryCraftAction extends InventoryActionRequest {
 
     private long recipeId;
 

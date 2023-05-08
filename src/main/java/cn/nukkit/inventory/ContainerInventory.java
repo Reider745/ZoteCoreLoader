@@ -50,7 +50,7 @@ public abstract class ContainerInventory extends BaseInventory {
         }
 
         who.dataPacket(pk);
-
+        who.opened_container = this;
         this.sendContents(who);
     }
 
@@ -59,6 +59,7 @@ public abstract class ContainerInventory extends BaseInventory {
         ContainerClosePacket pk = new ContainerClosePacket();
         pk.windowId = who.getWindowId(this);
         pk.wasServerInitiated = who.getClosingWindowId() != pk.windowId;
+        who.opened_container = null;
         who.dataPacket(pk);
         super.onClose(who);
     }

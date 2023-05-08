@@ -449,7 +449,6 @@ public abstract class BaseInventory implements Inventory {
 
     @Override
     public void onSlotChange(int index, Item before, boolean send) {
-        Logger.debug("onSlotChange");
         if (send) {
             this.sendSlot(index, this.getViewers());
         }

@@ -6,7 +6,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import java.util.ArrayList;
 
 
-public class InventoryCraftingResultAction extends InventoryAction {
+public class InventoryCraftingResultAction extends InventoryActionRequest {
 
     private ArrayList<Item> resultItems;
     private int amount;
@@ -28,6 +28,10 @@ public class InventoryCraftingResultAction extends InventoryAction {
                 "resultItems=" + resultItems +
                 ", amount=" + amount +
                 '}';
+    }
+
+    public ArrayList<Item> getResultItems() {
+        return resultItems;
     }
 
     public int getAmount() {

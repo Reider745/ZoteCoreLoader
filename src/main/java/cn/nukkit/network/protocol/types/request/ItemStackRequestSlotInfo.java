@@ -2,8 +2,6 @@ package cn.nukkit.network.protocol.types.request;
 
 import cn.nukkit.network.protocol.DataPacket;
 
-
-
 public class ItemStackRequestSlotInfo {
 
     private int windowId;

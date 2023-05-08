@@ -226,6 +226,18 @@ public class CraftingManager {
         return recipes;
     }
 
+    public Recipe getRecipe(int recipeId){
+        if(recipes.size() >= recipeId) return null;
+        Recipe result = null;
+        int index = 0;
+        for (Recipe recipe : recipes) {
+            if(index == recipeId)
+                return recipe;
+            index++;
+        }
+        return result;
+    }
+
     public Map<Integer, FurnaceRecipe> getFurnaceRecipes() {
         return furnaceRecipes;
     }

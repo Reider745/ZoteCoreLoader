@@ -4593,6 +4593,8 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         return -1;
     }
 
+    public Inventory opened_container = null;
+
     public Inventory getWindowById(int id) {
         return this.windowIndex.get(id);
     }

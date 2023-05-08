@@ -2,7 +2,7 @@ package cn.nukkit.network.protocol.types.request;
 
 import cn.nukkit.network.protocol.DataPacket;
 
-public class InventoryTransferAction extends InventoryAction {
+public class InventoryTransferAction extends InventoryActionRequest {
 
     private final boolean hasAmount;
     private final boolean hasDestination;

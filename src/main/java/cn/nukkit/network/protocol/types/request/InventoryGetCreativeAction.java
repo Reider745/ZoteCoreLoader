@@ -1,12 +1,11 @@
 package cn.nukkit.network.protocol.types.request;
 
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.types.request.InventoryAction;
 
 /**
  * @author geNAZt
  */
-public class InventoryGetCreativeAction extends InventoryAction {
+public class InventoryGetCreativeAction extends InventoryActionRequest {
 
     private long creativeItemId;
 

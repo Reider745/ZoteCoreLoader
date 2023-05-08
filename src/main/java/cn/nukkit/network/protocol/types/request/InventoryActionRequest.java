@@ -4,7 +4,7 @@ import cn.nukkit.network.protocol.DataPacket;
 
 import java.util.ArrayList;
 
-public abstract class InventoryAction {
+public abstract class InventoryActionRequest {
     public void deserialize(DataPacket packet) throws Exception {};
     public abstract int weight();
 

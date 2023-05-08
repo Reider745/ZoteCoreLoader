@@ -2,7 +2,7 @@ package cn.nukkit.network.protocol.types.request;
 
 import cn.nukkit.network.protocol.DataPacket;
 
-public class InventoryDropAction extends InventoryAction {
+public class InventoryDropAction extends InventoryActionRequest {
 
     private int amount;
     private ItemStackRequestSlotInfo source;
