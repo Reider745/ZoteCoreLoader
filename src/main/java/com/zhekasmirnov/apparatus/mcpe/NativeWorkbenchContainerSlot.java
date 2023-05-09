@@ -1,11 +1,11 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
+import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 
-public class NativeWorkbenchContainerSlot implements AbstractSlot {
+public class NativeWorkbenchContainerSlot extends ItemContainerSlot {
     public int id, count, data;
     public NativeItemInstanceExtra extra;
 

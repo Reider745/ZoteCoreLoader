@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
+import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.innercore.api.NativeAPI;
@@ -8,8 +9,6 @@ import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
-import com.zhekasmirnov.innercore.api.mod.ui.container.Slot;
 
 import java.util.*;
 
@@ -150,7 +149,7 @@ public class WorkbenchRecipeRegistry {
 
         // TODO: only 2x2 and 3x3 recipes are supported, maybe change it
         for (int i = 0; i < 9; i++) {
-            AbstractSlot slot = field.getFieldSlot(i % 3, i / 3);
+            ItemContainerSlot slot = field.getFieldSlot(i % 3, i / 3);
             char c = (char) (slot != null && slot.getCount() > 0 ? slot.getId() : 0);
             shaped.append(c);
             if (c != 0) {
@@ -221,7 +220,7 @@ public class WorkbenchRecipeRegistry {
 
         NativePlayer player = new NativePlayer(playerUid);
         for (int i = 0; i < 9; i++) {
-            AbstractSlot slot = field.getFieldSlot(i);
+            ItemContainerSlot slot = field.getFieldSlot(i);
             slot.validate();
             if (slot.getId() != 0) {
                 player.addItemToInventory(slot.getId(), slot.getCount(), slot.getData(), slot.getExtra(), true);
@@ -290,7 +289,7 @@ public class WorkbenchRecipeRegistry {
 
         if (field != null) {
             for (int i = 0; i < 9; i++) {
-                AbstractSlot slot = field.getFieldSlot(i);
+                ItemContainerSlot slot = field.getFieldSlot(i);
                 if (slot.getId() != 0 && slot.getCount() > 0) {
                     addItemToInvMap(inventory, slot.getId(), slot.getCount(), slot.getData());
                     addRecipesThatContainItem(slot.getId(), slot.getData(), visibleRecipes);

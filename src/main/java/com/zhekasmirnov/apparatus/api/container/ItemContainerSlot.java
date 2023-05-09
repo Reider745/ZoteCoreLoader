@@ -1,16 +1,14 @@
 package com.zhekasmirnov.apparatus.api.container;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
-import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
-public class ItemContainerSlot implements AbstractSlot {
+public class ItemContainerSlot {
     public int id, count, data;
     public NativeItemInstanceExtra extra;
 
@@ -135,27 +133,22 @@ public class ItemContainerSlot implements AbstractSlot {
         return isSavingEnabled != null ? isSavingEnabled : (container != null && container.isGlobalSlotSavingEnabled());
     }
 
-    @Override
     public int getId() {
         return id;
     }
 
-    @Override
     public int getCount() {
         return count;
     }
 
-    @Override
     public int getData() {
         return data;
     }
 
-    @Override
     public NativeItemInstanceExtra getExtra() {
         return extra;
     }
 
-    @Override
     public void set(int id, int count, int data, NativeItemInstanceExtra extra) {
         setSlot(id, count, data, extra);
     }

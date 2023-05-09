@@ -1,4 +1,4 @@
-package com.zhekasmirnov.innercore;
+package com.zhekasmirnov.innercore.api;
 
 public class NativeShaderUniformSet {
     public final long pointer;

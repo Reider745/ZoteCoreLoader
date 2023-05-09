@@ -1,6 +1,5 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
@@ -11,7 +10,6 @@ import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.NativeTileEntity;
 import com.zhekasmirnov.innercore.api.commontypes.Coords;
-import com.zhekasmirnov.innercore.api.commontypes.FullBlock;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
@@ -114,15 +112,6 @@ public class NativeBlockSource {
     private void setNewPointer(long pointer, boolean isFinalizable) {
         this.pointer = pointer;
         this.isFinalizable = isFinalizable;
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        if (isFinalizable) {
-            // TODO: watch for possible fix, leave without GC for now
-            // nativeFinalize(pointer);
-        }
     }
 
     @Override

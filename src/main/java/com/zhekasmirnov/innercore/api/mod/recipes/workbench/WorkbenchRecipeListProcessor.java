@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;

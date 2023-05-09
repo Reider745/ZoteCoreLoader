@@ -20,7 +20,7 @@ import java.util.Base64;
 import java.util.HashMap;
 
 public class RuntimeIdDataPacketSender {
-    public static void loadClass(InnerCoreServer.RuntimeId runtimeIds) {
+    public static void loadClass() {
         Network.getSingleton().addServerInitializationPacket("system.runtime_id_data",
                 client -> RuntimeIdDataPacketSender.encode(getRuntimeIdDataToSend()),
                 (String data, String meta) -> onReceivedRuntimeIdData(decode(data))

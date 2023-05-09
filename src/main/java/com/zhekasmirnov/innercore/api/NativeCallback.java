@@ -1,8 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
-import android.util.Pair;
+/*import android.util.Pair;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
-import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
@@ -49,8 +48,10 @@ import com.zhekasmirnov.innercore.core.MinecraftActivity;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.ui.MainMenuBanner;
 import com.zhekasmirnov.innercore.utils.FileTools;
-import com.zhekasmirnov.innercore.utils.UIUtils;
-import com.zhekasmirnov.mcpe161.EnvironmentSetup;
+import com.zhekasmirnov.mcpe161.EnvironmentSetup;*/
+
+import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,20 +71,17 @@ public class NativeCallback {
     public static void onCallbackExceptionOccurred(String callback, Throwable error) {
         error.printStackTrace();
         ICLog.e(LOGGER_TAG, "uncaught error occurred in callback " + callback, error);
-        if (InnerCoreConfig.getBool("developer_mode")) {
-            UserDialog.insignificantError("error in " + callback, error);
-        }
     }
 
     public static native String getStringParam(String name);
 
-    /* TECHNICAL CALLBACKS */
+    public static void startOverrideBlockBreakResult(){
 
-    public static void onNativeGuiLoaded() {
-        MinecraftActivity.onNativeGuiLoaded();
     }
 
-    //private static native void assureCopyright(Context ctx);
+    public static BlockBreakResult endOverrideBlockBreakResult(){
+        return null;
+    }
 
     public static void onCopyrightCheck() {
         /*final Activity ctx = EnvironmentSetup.getCurrentActivity();
@@ -98,33 +96,24 @@ public class NativeCallback {
         });*/
     }
 
-    public static void onToastRequested() {
-        UserDialog.toast("Native Toast: " + getStringParam("toast"));
-    }
 
-    public static void onDialogRequested() {
-        UserDialog.dialog(getStringParam("dialog_title"), getStringParam("dialog_text"));
-    }
 
-    public static void onDebugLog() {
-        ICLog.d("NATIVE-DEBUG", "" + getStringParam("_log"));
-        ICLog.flush();
-    }
+
 
     // used for legacy method, that will return all entities
-    private static final Set<Long> allEntities = new HashSet<>(256);
+   /* private static final Set<Long> allEntities = new HashSet<>(256);
 
     public static Collection<Long> getAllEntities() {
         return allEntities;
     }
 
     private static void showExperimentalWorkbenchWarning() {
-        /*NameTranslation.refresh(false);
+        *//*NameTranslation.refresh(false);
         for (int i = 0; i < 2; i++) {
             HorizonApplication.getTopRunningActivity().runOnUiThread(() -> {
                 Toast.makeText(HorizonApplication.getTopRunningActivity(), NameTranslation.translate("system.experimental_workbench_warning"), Toast.LENGTH_LONG).show();
             });
-        }*/
+        }*//*
     }
 
     // called before minecraft final initialization
@@ -176,7 +165,7 @@ public class NativeCallback {
         }
     }
 
-    /* LEVEL CALLBACKS */
+    *//* LEVEL CALLBACKS *//*
 
     // called before entering the world, when directory is known, but nothing was loaded yet
     public static void onLocalServerStarted() {
@@ -747,7 +736,7 @@ public class NativeCallback {
         );
     }
 
-    /* PLAYER CALLBACKS */
+    *//* PLAYER CALLBACKS *//*
 
     public static void onPlayerEat(int food, float ratio, long player) {
         Callback.invokeAPICallback("FoodEaten", food, ratio, player);
@@ -767,7 +756,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("NativeCommand", command == null ? null : command.trim());
     }
 
-    /* ENTITY CALLBACKS */
+    *//* ENTITY CALLBACKS *//*
 
     public static void onEntityAttacked(long entity, long attacker) {
         Callback.invokeAPICallback("PlayerAttack", attacker, entity);
@@ -879,7 +868,7 @@ public class NativeCallback {
         NativePathNavigation.onNavigationResult(entity, result);
     }
 
-    /* BLOCK CALLBACKS */
+    *//* BLOCK CALLBACKS *//*
 
     public static void onRedstoneSignalChange(int x, int y, int z, int signal, boolean isLoadingChange, long region) {
         Callback.invokeAPICallback("RedstoneSignal", new Coords(x, y, z), new ScriptableParams(
@@ -917,7 +906,7 @@ public class NativeCallback {
         NativeBlockRenderer.onRenderCall(new NativeBlockRenderer.RenderAPI(tessellator), new Coords(x, y, z), new FullBlock(id, data), b);
     }
 
-    /* ITEM CALLBACKS */
+    *//* ITEM CALLBACKS *//*
 
     public static void onItemIconOverride(int id, int count, int data, int extra) {
         synchronized(NativeItem.DYNAMIC_ICON_LOCK) {
@@ -992,7 +981,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("ItemDispensed", coords, new ItemInstance(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra)), NativeBlockSource.getFromServerCallbackPointer(region), slot);
     }
 
-    /* ENCHANT CALLBACKS */
+    *//* ENCHANT CALLBACKS *//*
 
     public static void onEnchantPostAttack(int enchantId, int damage, long actor1, long actor2) {
         ItemStack item = new ItemStack();
@@ -1043,7 +1032,7 @@ public class NativeCallback {
         }
     }
 
-    /* WORKBENCH CALLBACKS */
+    *//* WORKBENCH CALLBACKS *//*
 
     public static void onWorkbenchCraft(long containerPtr, long player, int size) {
         NativeWorkbenchContainer container = new NativeWorkbenchContainer(containerPtr, size, player);
@@ -1074,7 +1063,7 @@ public class NativeCallback {
         }
     }
 
-    /* OTHER CALLBACKS */
+    *//* OTHER CALLBACKS *//*
 
     public static void onScreenChanged(boolean isPushEvent) {
 
@@ -1101,7 +1090,7 @@ public class NativeCallback {
         }
     }
 
-    /* WORLD GENERATION CALLBACKS */
+    *//* WORLD GENERATION CALLBACKS *//*
 
     private static final Object generationLock = new Object();
 
@@ -1122,7 +1111,7 @@ public class NativeCallback {
     }
 
 
-    /* NETWORK CALLBACKS */
+    *//* NETWORK CALLBACKS *//*
 
     public static void onModdedServerPacketReceived(int formatId) {
         String name = getStringParam("name");
@@ -1133,5 +1122,5 @@ public class NativeCallback {
     public static void onModdedClientPacketReceived(int formatId) {
         String name = getStringParam("name");
         NativeNetworking.onClientPacketReceived(name, formatId);
-    }
+    }*/
 }

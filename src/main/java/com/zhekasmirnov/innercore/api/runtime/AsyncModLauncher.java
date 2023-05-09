@@ -5,9 +5,9 @@ import com.zhekasmirnov.apparatus.minecraft.version.VanillaIdConversionMap;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.Version;
+//import com.zhekasmirnov.innercore.api.Version;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.log.ModLoaderEventHandler;
+//import com.zhekasmirnov.innercore.api.log.ModLoaderEventHandler;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.coreengine.CoreEngineAPI;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeLoader;
@@ -23,7 +23,6 @@ import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.ui.ModLoadingOverlay;
 import com.zhekasmirnov.innercore.utils.FileTools;
-import com.zhekasmirnov.innercore.utils.UIUtils;
 import com.zhekasmirnov.mcpe161.InnerCore;
 
 import java.io.InputStreamReader;
@@ -47,7 +46,7 @@ public class AsyncModLauncher {
 
     public void launchModsInCurrentThread() {
         // load apparatus classes and register listeners
-        Apparatus.loadClasses();
+        /*Apparatus.loadClasses();
 
         // select default modpack if none selected
         ModPackContext.getInstance().assurePackSelected();
@@ -93,7 +92,7 @@ public class AsyncModLauncher {
         
         // finalize
         ContentIdSource.getGlobal().save();
-        InnerCore.getInstance().onFinalLoadComplete();
+        InnerCore.getInstance().onFinalLoadComplete();*/
         ICLog.flush();
     }
 

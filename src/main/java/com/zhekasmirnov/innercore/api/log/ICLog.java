@@ -16,4 +16,5 @@ public class ICLog {
     public static void d(String title, String text){
         server.getLogger().info(buildMessage(title, text));
     }
+    public static void flush(){}
 }

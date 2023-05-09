@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import android.util.Pair;
+import cn.nukkit.block.Block;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;
@@ -121,6 +122,9 @@ public class NativeItemModel {
 
         }
         ICLog.d("ItemModels", "released " + releasedCount + " of total " + modelByPointer.size() + " cached item icons (" + releasedBytes + " of required " + bytes + " bytes)");
+    }
+    public void updateForBlockVariant(BlockVariant variant){
+
     }
 
     public NativeItemModel occupy() {

@@ -64,7 +64,7 @@ public class Apparatus {
 
 
 
-        RuntimeIdDataPacketSender.loadClass(null);
+        RuntimeIdDataPacketSender.loadClass();
         Network.getSingleton().startLanServer();
         NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
        // Network.getSingleton().startLanServer(InnerCoreConfig.getInt("port"));

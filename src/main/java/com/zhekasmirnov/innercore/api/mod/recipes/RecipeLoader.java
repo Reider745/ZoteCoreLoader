@@ -50,7 +50,7 @@ public class RecipeLoader {
     public void load() {
         // loadLegacy();
 
-        List<String> files = listRecipeDefinitions();
+        /*List<String> files = listRecipeDefinitions();
         AddonRecipeParser parser = AddonContext.getInstance().getRecipeParser();
 
         // get all recipes
@@ -102,7 +102,7 @@ public class RecipeLoader {
             } catch (IllegalArgumentException | NullPointerException e) {
                 ICLog.e(RecipeRegistry.LOGGER_TAG, "unable to read recipe definition " + recipe.getIdentifier(), e);
             }
-        }
+        }*/
     }
 
     private void loadLegacy(){

@@ -1,12 +1,12 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import android.util.Pair;
+import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
-import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.json.JSONObject;
@@ -154,12 +154,12 @@ public abstract class WorkbenchRecipe {
                     if (index > 8) {
                         continue;
                     }
-                    AbstractSlot slot = field.getFieldSlot(index);
+                    ItemContainerSlot slot = field.getFieldSlot(index);
                     slot.set(entry.id, 0, entry.data != -1 ? entry.data : 0, null);
                 }
             }
             else {
-                ArrayList<AbstractSlot> groupSlots = new ArrayList<>();
+                ArrayList<ItemContainerSlot> groupSlots = new ArrayList<>();
                 for (int i = 0; i < group.size(); i++) {
                     int index = group.get(i).first;
                     if (index >= 0 && index < 9) {

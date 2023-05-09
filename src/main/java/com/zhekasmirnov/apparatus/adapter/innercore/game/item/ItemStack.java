@@ -1,6 +1,5 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.item;
 
-import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.json.JSONException;
@@ -10,13 +9,13 @@ import org.mozilla.javascript.Wrapper;
 
 public class ItemStack {
     public int id, count, data;
-    //public NativeItemInstanceExtra extra;
+    public NativeItemInstanceExtra extra;
 
-    public ItemStack(int id, int count, int data, Object extra) {
+    public ItemStack(int id, int count, int data, NativeItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;
-        //this.extra = NativeItemInstanceExtra.cloneExtra(extra);
+        this.extra = NativeItemInstanceExtra.cloneExtra(extra);
     }
 
     public ItemStack(int id, int count, int data) {
@@ -31,8 +30,8 @@ public class ItemStack {
         this(stack.id, stack.count, stack.data, null);
     }
 
-    public ItemStack(Object itemInstance) {
-        //this(itemInstance.id, itemInstance.count, itemInstance.data, itemInstance.extra);
+    public ItemStack(NativeItemInstance itemInstance) {
+        this(itemInstance.id, itemInstance.count, itemInstance.data, itemInstance.extra);
     }
 
     public ItemStack(ScriptableObject scriptable) {
@@ -40,7 +39,7 @@ public class ItemStack {
                 ScriptableObjectHelper.getIntProperty(scriptable, "id", 0),
                 ScriptableObjectHelper.getIntProperty(scriptable, "count", 0),
                 ScriptableObjectHelper.getIntProperty(scriptable, "data", 0),
-                null//NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null))
+                NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null))
         );
     }
 

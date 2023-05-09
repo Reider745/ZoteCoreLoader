@@ -2,12 +2,12 @@ package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import android.util.Pair;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
+import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -124,7 +124,7 @@ public class WorkbenchShapedRecipe extends WorkbenchRecipe {
     public boolean isMatchingField(WorkbenchField field) {
         for (int y = 0; y < pattern.length; y++) {
             for (int x = 0; x < pattern[y].length; x++) {
-                AbstractSlot slot = field.getFieldSlot(x, y);
+                ItemContainerSlot slot = field.getFieldSlot(x, y);
                 if (!pattern[y][x].isMatching(slot)) {
                     return false;
                 }

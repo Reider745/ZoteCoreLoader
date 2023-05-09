@@ -10,7 +10,6 @@ import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchField;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegistry;
-import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import org.mozilla.javascript.Scriptable;
 
 import java.util.ArrayList;
@@ -64,12 +63,12 @@ public class NativeWorkbenchContainer implements WorkbenchField {
     }
 
     @Override
-    public AbstractSlot getFieldSlot(int slot) {
+    public ItemContainerSlot getFieldSlot(int slot) {
         return slot >= 0 && slot < slots.length ? this.slots[slot] : Java8BackComp.getOrDefault(slotPlaceholders, slot, new NativeWorkbenchContainerSlot());
     }
 
     @Override
-    public AbstractSlot getFieldSlot(int x, int y) {
+    public ItemContainerSlot getFieldSlot(int x, int y) {
         if (x >= 0 && y >= 0 && x < size && y < size) {
             return getFieldSlot(y * size + x);
         } else {

@@ -60,4 +60,75 @@ public class NativeAPI {
     public static void setEntityArmor(long entity, int slot, int id, int count, int data, long extra){
 
     }
+
+    public static void setPlayerArmor(int slot, int id, int count, int data, long extra){
+
+    }
+
+    public static String getGameLanguage(){
+        return "en";
+    }
+
+    public static void sendCachedItemNameOverride(int id, int data, String name){
+
+    }
+
+    public static boolean isValidEntity(long entity){
+        return true;
+    }
+
+    public static long getPlayer(){
+        return 0;
+    }
+
+    public static long getPlayerArmor(int player){
+        return 0;
+    }
+
+    public static String getStringIdAndTypeForIntegerId(int id){
+        return "";
+    }
+
+    public static int getSeed(){
+        return 0;
+    }
+    public static void forceLevelSave(){
+
+    }
+
+    public static boolean isDefaultPrevented(){
+        return false;
+    }
+
+    public static int getTile(int x, int y, int z){
+        return 0;
+    }
+
+    public static void addTextureToLoad(String name){
+
+    }
+
+    public static String convertNameId(String name){
+        return "";
+    }
+
+    public static boolean isGlintItemInstance(int id, int data, long extra){
+        return false;
+    }
+
+    public static void setItemRequiresIconOverride(int id, boolean enable){
+
+    }
+
+    public static void overrideItemIcon(String name, int index){
+
+    }
+
+    public static long getInventorySlot(int index){
+        return 0;
+    }
+
+    public static void setInventorySlot(int index, int id, int count, int data, long extra){
+
+    }
 }

@@ -1,7 +1,7 @@
 package com.zhekasmirnov.apparatus.multiplayer.mod;
 
-/*import com.zhekasmirnov.apparatus.modloader.ApparatusMod;
-import com.zhekasmirnov.apparatus.modloader.ApparatusModInfo;*/
+import com.zhekasmirnov.apparatus.modloader.ApparatusMod;
+import com.zhekasmirnov.apparatus.modloader.ApparatusModInfo;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.InitializationPacketException;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -41,15 +41,6 @@ public class MultiplayerModList {
             });
     }
 
-    public JSONObject toJson(){
-        return new JSONObject();
-    }
-
-    public String compareToJson(JSONObject json) {
-        return null;
-    }
-
-/*
 
     private final List<ApparatusMod> modList = new ArrayList<>();
 
@@ -159,7 +150,7 @@ public class MultiplayerModList {
         if (allSupported) {
             return true;
         }
-        return !UserDialog.awaitDecision("Warning", UserDialogLocalization.getLocalizedString("multiplayer_support_warning") + unsupportedMods, "LEAVE", "CONTINUE ANYWAY");
+        return !false;
     }
-*/
+
 }

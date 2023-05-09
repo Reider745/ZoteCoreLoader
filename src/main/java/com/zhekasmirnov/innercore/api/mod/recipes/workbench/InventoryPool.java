@@ -1,13 +1,12 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
+import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
-import com.zhekasmirnov.innercore.api.mod.ui.container.Slot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -159,7 +158,7 @@ public class InventoryPool {
             return "[" + set + "]";
         }
 
-        public void spreadItems(ArrayList<AbstractSlot> slots) {
+        public void spreadItems(ArrayList<ItemContainerSlot> slots) {
             if (isEmpty()) {
                 return;
             }
@@ -179,11 +178,11 @@ public class InventoryPool {
                 }
             }
 
-            ArrayList<AbstractSlot> remainingSlots = new ArrayList<>();
+            ArrayList<ItemContainerSlot> remainingSlots = new ArrayList<>();
             int countPerSlot = noExtraAmount / slots.size();
             int amountOfAdditionalSlots = noExtraAmount - countPerSlot * slots.size();
             for (int i = 0; i < slots.size(); i++) {
-                AbstractSlot slot = slots.get(i);
+                ItemContainerSlot slot = slots.get(i);
                 int amountToGet = countPerSlot + (i < amountOfAdditionalSlots ? 1 : 0);
                 
                 int gotAmount = 0; 
@@ -223,7 +222,7 @@ public class InventoryPool {
                 }
             }
 
-            for (AbstractSlot slot : remainingSlots) {
+            for (ItemContainerSlot slot : remainingSlots) {
                 if (remainingEntries.size() == 0) {
                     break;
                 }
