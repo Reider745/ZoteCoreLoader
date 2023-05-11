@@ -53,7 +53,9 @@ public class JsonMergeDirectoryUpdateStrategy extends DirectoryUpdateStrategy {
                     FileUtils.writeJSON(originalFile, updateJson);
                     return;
                 }
-            } catch (JSONException ignore) { }
+            } catch (JSONException ignore) { } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         try (FileOutputStream outputStream = new FileOutputStream(userFile)) {

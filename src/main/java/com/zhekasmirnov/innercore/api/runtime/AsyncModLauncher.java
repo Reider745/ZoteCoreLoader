@@ -44,25 +44,19 @@ public class AsyncModLauncher {
     }
 
     public void launchModsInCurrentThread() {
-        // load apparatus classes and register listeners
-        Apparatus.loadClasses();
-
-        // select default modpack if none selected
         ModPackContext.getInstance().assurePackSelected();
 
         // prepare basic modules for menu scripts and further loading
         LoadingUI.setTextAndProgressBar("Preparing...", 0.65f);
-        PrintStacking.prepare();
-        NameTranslation.refresh(false);
-        NativeAPI.setTileUpdateAllowed(true);
 
+        NameTranslation.refresh(false);
         // load menu scripts (workbench for example)
         loadAllMenuScripts();
 
         // switch to final loading stage
-        ICLog.setupEventHandlerForCurrentThread(new ModLoaderEventHandler());
+        //ICLog.setupEventHandlerForCurrentThread(new ModLoaderEventHandler());
         LoadingStage.setStage(LoadingStage.STAGE_FINAL_LOADING);
-        NativeAPI.setInnerCoreVersion(Version.INNER_CORE_VERSION.toString());
+        //NativeAPI.setInnerCoreVersion(Version.INNER_CORE_VERSION.toString());
 
         // prepare registries
         VanillaIdConversionMap.getSingleton().reloadFromAssets();
@@ -91,7 +85,7 @@ public class AsyncModLauncher {
         
         // finalize
         ContentIdSource.getGlobal().save();
-        InnerCore.getInstance().onFinalLoadComplete();
+        //InnerCore.getInstance().onFinalLoadComplete();
         ICLog.flush();
     }
 
@@ -104,7 +98,7 @@ public class AsyncModLauncher {
     }
 
     private static void loadAllMenuScripts() {
-        loadMenuScript("innercore/scripts/workbench", "screen_workbench");
+        //loadMenuScript("innercore/scripts/workbench", "screen_workbench");
     }
 
     private static void loadMenuScript(String asset, String name) {

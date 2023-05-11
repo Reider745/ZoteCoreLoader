@@ -10,7 +10,6 @@ public class PointClass  {
     private static PointerManager register(String name){
         if(pointers.containsKey(name))
             return pointers.get(name);
-        Logger.debug(name);
         PointerManager manager = new PointerManager();
         pointers.put(name, manager);
         return manager;

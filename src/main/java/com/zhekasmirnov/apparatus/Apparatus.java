@@ -18,6 +18,11 @@ import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
+import com.zhekasmirnov.innercore.mod.build.ModLoader;
+import com.zhekasmirnov.innercore.modpack.ModPack;
+import com.zhekasmirnov.innercore.modpack.ModPackContext;
+import com.zhekasmirnov.innercore.modpack.ModPackFactory;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,10 +48,10 @@ public class Apparatus {
 
     public static void init(Server server) throws Exception {
         long start = System.currentTimeMillis();
-        server.getLogger().info("start load inner core");
+        server.getLogger().info("start load inner core "+server.getDataPath());
         URL url = Server.class.getProtectionDomain().getCodeSource().getLocation();
         File f = new File(url.toURI());
-        PATH = URLDecoder.decode(f.getParentFile().getAbsolutePath(), "UTF-8");
+        PATH = server.getDataPath();
 
 
         Apparatus.server = server;
@@ -67,7 +72,15 @@ public class Apparatus {
         RuntimeIdDataPacketSender.loadClass();
         Network.getSingleton().startLanServer();
         NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
-       // Network.getSingleton().startLanServer(InnerCoreConfig.getInt("port"));
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
+        ModLoader.initialize();
+
+        ModPackContext.getInstance().setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(new File(server.getDataPath()+"innercore")));
+        ModLoader.instance.loadMods();
+        ModLoader.instance.startMods();
+        new AsyncModLauncher().launchModsInCurrentThread();
+
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
     }
 

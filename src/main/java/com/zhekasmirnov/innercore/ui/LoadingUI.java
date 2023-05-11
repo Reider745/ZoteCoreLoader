@@ -59,58 +59,7 @@ public class LoadingUI {
     }
 
     public static void open() {
-        if (!isOpened) {
-            isOpened = true;
-            runCustomUiThread();
 
-            (new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    postOnCustomUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            show();
-                           Logger.debug("LOADING-UI", "opened");
-                        }
-                    });
-
-                    while (isOpened) {
-                        boolean isOnTop = true;
-                        if (isOnTop && !isShowed) {
-                           Logger.debug("LOADING-UI", "application open, showing...");
-                            postOnCustomUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    show();
-                                }
-                            });
-                        }
-                        if (!isOnTop && isShowed) {
-                            postOnCustomUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    hide();
-                                }
-                            });
-                        }
-
-                        try {
-                            Thread.sleep(75);
-                        } catch (InterruptedException ignore) {
-                        }
-                    }
-
-                    postOnCustomUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            hide();
-                            stopCustomUiThread();
-                        }
-                    });
-
-                }
-            })).start();
-        }
     }
 
     public static void close() {
@@ -120,23 +69,18 @@ public class LoadingUI {
     }
 
     public static void setTextAndProgressBar(String text, float progressBar) {
-        ModLoadingOverlay.sendLoadingText(text);
-        ModLoadingOverlay.sendLoadingProgress(progressBar);
+        Logger.debug(text+":"+progressBar);
     }
 
     public static void setText(String text) {
         Logger.debug("INNERCORE", "updated loading ui text: " + text);
-        ModLoadingOverlay.sendLoadingText(text);
-        ModLoadingOverlay.sendLoadingTip("");
     }
 
     public static void setProgress(float progress) {
         Logger.debug("INNERCORE", "updated loading ui progress: " + progress);
-        ModLoadingOverlay.sendLoadingProgress(progress);
     }
 
     public static void setTip(String text) {
         Logger.debug("INNERCORE", "updated loading ui tip: " + text);
-        ModLoadingOverlay.sendLoadingTip(text);
     }
 }
