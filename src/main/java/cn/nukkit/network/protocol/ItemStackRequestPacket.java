@@ -4,7 +4,6 @@ import cn.nukkit.inventory.Inventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.types.request.*;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import sun.awt.im.SimpleInputMethodWindow;
 
 import java.util.ArrayList;
 

@@ -14,6 +14,7 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+.github
 
 # External tool builders
 .externalToolBuilders/
@@ -228,8 +229,6 @@ logs
 logs/*
 resource_packs
 resource_packs/*
-creativeitems.json
-recipes.json
 
 # a file that can be used for your helm chart values
 /helm-values.local.yaml

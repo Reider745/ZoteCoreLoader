@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
+
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
@@ -7,6 +8,7 @@ import cn.nukkit.level.Position;
 import com.zhekasmirnov.apparatus.Apparatus;
 
 public class NativeAPI {
+    
     public static Entity getEntityToLong(long ent){
         for (Level level : Apparatus.server.getLevels().values())
             for (Entity entity : level.getEntities())
@@ -44,8 +46,7 @@ public class NativeAPI {
     }
 
     public static long getEntityCarriedItem(long entity){
-        Entity ent = getEntityToLong(entity);
-        return 0;
+        return getEntityToLong(entity).getCarriedItem().getPointer();
     }
 
     public static long getEntityOffhandItem(long entity){

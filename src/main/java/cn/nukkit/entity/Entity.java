@@ -414,6 +414,16 @@ public abstract class Entity extends Location implements Metadatable {
         return 0;
     }
 
+    protected Item carriedItem = Item.get(Item.AIR).clone();
+
+    public Item getCarriedItem(){
+        return carriedItem;
+    }
+
+    public void setCarriedItem(Item carriedItem){
+        this.carriedItem = carriedItem;
+    }
+
     public Entity(FullChunk chunk, CompoundTag nbt) {
         if (this instanceof Player) {
             return;

@@ -288,6 +288,16 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         return viewingEnderChest;
     }
 
+    @Override
+    public Item getCarriedItem() {
+        return this.getInventory().getItemInHand();
+    }
+
+    @Override
+    public void setCarriedItem(Item carriedItem) {
+        this.getInventory().setItemInHand(carriedItem);
+    }
+
     public void setViewingEnderChest(BlockEnderChest chest) {
         if (chest == null && this.viewingEnderChest != null) {
             this.viewingEnderChest.getViewers().remove(this);
