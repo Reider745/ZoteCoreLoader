@@ -18,6 +18,7 @@ import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPack;
@@ -74,6 +75,7 @@ public class Apparatus {
         NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
+        API.loadAllAPIs();
         ModLoader.initialize();
 
         ModPackContext.getInstance().setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(new File(server.getDataPath()+"innercore")));

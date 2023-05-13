@@ -52,6 +52,7 @@ import com.zhekasmirnov.mcpe161.EnvironmentSetup;*/
 
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import org.mozilla.javascript.NativeArray;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,8 +97,17 @@ public class NativeCallback {
         });*/
     }
 
+    public static NativeArray getAllEntities() {
+        return null;
+    }
 
+    public static boolean isServerTickDisabledDueToError() {
+        return false;
+    }
 
+    public static int getGlobalServerTickCounter() {
+        return 0;
+    }
 
 
     // used for legacy method, that will return all entities

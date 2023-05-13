@@ -14,7 +14,6 @@ local.properties
 .settings/
 .loadpath
 .recommenders
-.github
 
 # External tool builders
 .externalToolBuilders/

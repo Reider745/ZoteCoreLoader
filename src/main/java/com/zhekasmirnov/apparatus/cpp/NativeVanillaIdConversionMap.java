@@ -1,9 +1,17 @@
 package com.zhekasmirnov.apparatus.cpp;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+
 public class NativeVanillaIdConversionMap {
-    public static native void clearAll();
+    public static void clearAll(){
 
-    public static native void addBlockId(String name, int id);
+    }
 
-    public static native void addItemId(String name, int id);
+    public static void addBlockId(String name, int id){
+
+    }
+
+    public static void addItemId(String name, int id){
+
+    }
 }

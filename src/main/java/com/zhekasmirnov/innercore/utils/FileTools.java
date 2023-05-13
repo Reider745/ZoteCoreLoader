@@ -79,7 +79,10 @@ public class FileTools {
     }
 
     public static byte[] getAssetBytes(String name) {
-        return null;
+        try{
+            return readFileText(DIR_WORK+"assets/"+name).getBytes();
+        }catch (Exception e){Logger.debug("Not resource "+name);}
+        return new byte[] {};
     }
 
     public static byte[] getAssetBytes(String name, String[] searchPaths, boolean includeAbsPath) {

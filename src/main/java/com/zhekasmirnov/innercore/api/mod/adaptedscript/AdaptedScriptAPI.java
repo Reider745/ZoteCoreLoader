@@ -2,10 +2,10 @@ package com.zhekasmirnov.innercore.api.mod.adaptedscript;
 
 import android.util.Pair;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
-//import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
-//import com.zhekasmirnov.apparatus.ecs.core.*;
-//import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
-//import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
+import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
+import com.zhekasmirnov.apparatus.ecs.core.*;
+import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
+import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkJsAdapter;
@@ -13,34 +13,32 @@ import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
 import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.annotations.*;
-//import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
-//import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
+import com.zhekasmirnov.innercore.api.biomes.CustomBiome;
+import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
+import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
 //import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
-//import com.zhekasmirnov.innercore.api.entities.NativeAttributeInstance;
-//import com.zhekasmirnov.innercore.api.entities.NativePathNavigation;
-//import com.zhekasmirnov.innercore.api.log.DialogHelper;
+import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
+import com.zhekasmirnov.innercore.api.entities.NativeAttributeInstance;
+import com.zhekasmirnov.innercore.api.entities.NativePathNavigation;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
-//import com.zhekasmirnov.innercore.api.mod.recipes.RecipeRegistry;
-//import com.zhekasmirnov.innercore.api.mod.util.DebugAPI;
-//import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
+import com.zhekasmirnov.innercore.api.mod.recipes.RecipeRegistry;
+import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 import com.zhekasmirnov.innercore.api.nbt.NativeListTag;
 import com.zhekasmirnov.innercore.api.nbt.NbtDataType;
-//import com.zhekasmirnov.innercore.api.particles.ParticleRegistry;
-//import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
+import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
-//import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
-//import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
-//import com.zhekasmirnov.innercore.api.runtime.other.PrintStacking;
-//import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaver;
-//import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
-//import com.zhekasmirnov.innercore.api.runtime.saver.serializer.ScriptableSerializer;
-//import com.zhekasmirnov.innercore.api.runtime.saver.world.ScriptableSaverScope;
-//import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
-//import com.zhekasmirnov.innercore.api.unlimited.BlockRegistry;
-//import com.zhekasmirnov.innercore.api.unlimited.SpecialType;
+import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
+import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
+import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaver;
+import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
+import com.zhekasmirnov.innercore.api.runtime.saver.serializer.ScriptableSerializer;
+import com.zhekasmirnov.innercore.api.runtime.saver.world.ScriptableSaverScope;
+import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
+import com.zhekasmirnov.innercore.api.unlimited.BlockRegistry;
+import com.zhekasmirnov.innercore.api.unlimited.SpecialType;
 import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
@@ -48,7 +46,8 @@ import com.zhekasmirnov.innercore.mod.executable.Executable;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
-//import com.zhekasmirnov.innercore.utils.UIUtils;
+import com.zhekasmirnov.innercore.api.particles.ParticleRegistry;
+
 import org.json.JSONException;
 import org.mozilla.javascript.*;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -128,10 +127,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-//public class AdaptedScriptAPI extends API {
-    /*
-
-
     @JSStaticFunction
     public static void preventDefault() {
         NativeAPI.preventDefault();
@@ -145,7 +140,11 @@ public class AdaptedScriptAPI extends API {
     @JSStaticFunction
     public static void print(final String str) {
         ICLog.d("MOD-PRINT", str);
-        PrintStacking.print(str);
+    }
+
+    @JSStaticFunction
+    public static String getRoot(){
+        return FileTools.DIR_ROOT;
     }
 
 
@@ -172,12 +171,10 @@ public class AdaptedScriptAPI extends API {
 
     @JSStaticFunction
     public static void clientMessage(String message) {
-        NativeAPI.clientMessage(message);
     }
 
     @JSStaticFunction
     public static void tipMessage(String message) {
-        NativeAPI.tipMessage(message);
     }
 
     @JSStaticFunction
@@ -343,12 +340,12 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void addParticle(int id, double x, double y, double z, double vx, double vy, double vz, int data) {
-            NativeAPI.addParticle(id, x, y, z, vx, vy, vz, data);
+
         }
 
         @JSStaticFunction
         public static void addFarParticle(int id, double x, double y, double z, double vx, double vy, double vz, int data) {
-            NativeAPI.addFarParticle(id, x, y, z, vx, vy, vz, data);
+
         }
 
         @JSStaticFunction
@@ -617,9 +614,9 @@ public class AdaptedScriptAPI extends API {
     public static class Entity {
 
         static long unwrapEntity(Object ent) {
-//            if (!NativeAPI.isValidEntity(entity)) {
-//                throw new IllegalArgumentException("invalid entity passed to api method: " + entity);
-//            }
+            /*if (!NativeAPI.isValidEntity(entity)) {
+                throw new IllegalArgumentException("invalid entity passed to api method: " + entity);
+            }*/
             return (long) (ent instanceof Wrapper ? ((Wrapper) ent).unwrap() : ((Number) ent).longValue());
         }
 
@@ -635,7 +632,6 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ArrayList<Long> getAllArrayList() {
-            logDeprecation("Entity.getAllArrayList()");
             return new ArrayList<>(NativeCallback.getAllEntities());
         }
 
@@ -765,7 +761,6 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static int getAnimalAge(Object entity) {
-            logDeprecation("Entity.getAnimalAge");
             return NativeAPI.getAge(unwrapEntity(entity));
         }
 
@@ -828,7 +823,6 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Placeholder
         public static String getSkin(Object entity) {
-            logDeprecation("Entity.getSkin");
             return "missing_texture.png";
         }
 
@@ -840,7 +834,6 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Placeholder
         public static String getMobSkin(Object entity) {
-            logDeprecation("Entity.getMobSkin");
             return "missing_texture.png";
         }
 
@@ -1022,7 +1015,7 @@ public class AdaptedScriptAPI extends API {
             NativeAPI.dealDamage(unwrapEntity(entity), damage, cause, attacker == null ? -1 : unwrapEntity(attacker), b1, b2);
         }
 
-        @JSStaticFunction
+        /*@JSStaticFunction
         public static NativeAttributeInstance getAttribute(Object entity, String attribute){
             return new NativeAttributeInstance(unwrapEntity(entity), attribute);
         }
@@ -1030,7 +1023,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         public static NativePathNavigation getPathNavigation(Object entity){
             return NativePathNavigation.getNavigation(unwrapEntity(entity));
-        }
+        }*/
 
         @JSStaticFunction
         public static NativeArray getEntitiesInsideBox(double x1, double y1, double z1, double x2, double y2, double z2, int type, boolean flag) {
@@ -1434,11 +1427,6 @@ public class AdaptedScriptAPI extends API {
             public CompoundTag(NativeCompoundTag tag) {
                 super(tag);
             }
-
-            @Override
-            protected void finalize() throws Throwable {
-                super.finalize();
-            }
         }
 
         public static class ListTag extends NativeListTag {
@@ -1756,7 +1744,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void forceRenderRebuild(int x, int y, int z, int mode) {
-            NativeAPI.forceRenderRefresh(x, y, z, mode);
+
         }
     }
 
@@ -1867,17 +1855,16 @@ public class AdaptedScriptAPI extends API {
     }
 
 
-
     @APIStaticModule
     public static class Saver {
         @APIIgnore
-        private interface IScopeSaver {
+        public static interface IScopeSaver {
             void read(Object scope);
             Object save();
         }
 
         @APIIgnore
-        private interface IObjectSaver {
+        public static interface IObjectSaver {
             Object read(ScriptableObject input);
             ScriptableObject save(Object input);
         }
@@ -2017,7 +2004,7 @@ public class AdaptedScriptAPI extends API {
     public static class WorldRenderer {
         @JSStaticFunction
         public static Object getGlobalUniformSet() {
-            return new NativeShaderUniformSet(NativeAPI.getGlobalShaderUniformSet());
+            return new NativeShaderUniformSet(0);
         }
     }
 
@@ -2150,7 +2137,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void debugStr(String s) {
-            DebugAPI.dialog(s);
+
         }
 
 
@@ -2198,7 +2185,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void forceNativeCrash() {
-            NativeAPI.forceCrash();
+
         }
         
         @JSStaticFunction
@@ -2224,17 +2211,17 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void setCustomFatalErrorCallback(Object callback) {
-            DialogHelper.setCustomFatalErrorCallback((DialogHelper.ICustomErrorCallback) Context.jsToJava(callback, DialogHelper.ICustomErrorCallback.class));
+
         }
 
         @JSStaticFunction
         public static void setCustomNonFatalErrorCallback(Object callback) {
-            DialogHelper.setCustomNonFatalErrorCallback((DialogHelper.ICustomErrorCallback) Context.jsToJava(callback, DialogHelper.ICustomErrorCallback.class));
+
         }
 
         @JSStaticFunction
         public static void setCustomStartupErrorCallback(Object callback) {
-            DialogHelper.setCustomStartupErrorCallback((DialogHelper.ICustomErrorCallback) Context.jsToJava(callback, DialogHelper.ICustomErrorCallback.class));
+
         }
 
         @JSStaticFunction
@@ -2431,11 +2418,6 @@ public class AdaptedScriptAPI extends API {
         public BlockSource(int dimension) {
             super(dimension);
         }
-
-        @Override
-        protected void finalize() {
-            super.finalize();
-        }
     }
 
     public static class BlockState extends com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState {
@@ -2625,5 +2607,5 @@ public class AdaptedScriptAPI extends API {
                 }
             }
         };
-    }*/
+    }
 }
