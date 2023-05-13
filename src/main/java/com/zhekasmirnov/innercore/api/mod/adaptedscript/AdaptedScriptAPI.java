@@ -24,6 +24,7 @@ import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeRegistry;
+import com.zhekasmirnov.innercore.api.mod.ui.window.*;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 import com.zhekasmirnov.innercore.api.nbt.NativeListTag;
@@ -2006,6 +2007,168 @@ public class AdaptedScriptAPI extends API {
         public static Object getGlobalUniformSet() {
             return new NativeShaderUniformSet(0);
         }
+    }
+
+    @APIStaticModule
+    public static class UI {
+        public static class Container {
+            public Container() {
+                super();
+            }
+
+            public Container(Object parent) {
+                super();
+            }
+        }
+
+        public static class Window extends UIWindow {
+            public Window(UIWindowLocation location) {
+                super(location);
+            }
+
+            public Window(ScriptableObject content) {
+                super(content);
+            }
+
+            public Window() {
+                super(ScriptableObjectHelper.createEmpty());
+            }
+        }
+
+        public static class WindowGroup extends UIWindowGroup {
+            public WindowGroup() {
+                super();
+            }
+        }
+
+        // legacy
+        public static class StandartWindow extends UIWindowStandard {
+            public StandartWindow(ScriptableObject content) {
+
+            }
+
+            public StandartWindow() {
+
+            }
+
+            protected boolean isLegacyFormat() {
+                return true;
+            }
+        }
+
+        // new one
+        public static class StandardWindow extends UIWindowStandard {
+            public StandardWindow(ScriptableObject content) {
+            }
+
+            public StandardWindow() {
+            }
+
+            protected boolean isLegacyFormat() {
+                return false;
+            }
+        }
+
+        public static class AdaptiveWindow extends UIAdaptiveWindow {
+            public AdaptiveWindow(ScriptableObject content) {
+            }
+
+            public AdaptiveWindow() {
+            }
+        }
+
+        public static class TabbedWindow extends UITabbedWindow {
+            public TabbedWindow(UIWindowLocation location) {
+            }
+
+            public TabbedWindow(ScriptableObject content) {
+            }
+
+            public TabbedWindow() {
+            }
+        }
+
+        public static class WindowLocation extends UIWindowLocation {
+            public WindowLocation() {
+                super();
+            }
+
+            public WindowLocation(ScriptableObject obj) {
+                super(obj);
+            }
+        }
+
+        public static class Font extends com.zhekasmirnov.innercore.api.mod.ui.types.Font {
+            public Font(int color, float size, float shadow) {
+                super(color, size, shadow);
+            }
+
+            public Font(ScriptableObject obj) {
+                super(obj);
+            }
+        }
+
+        public static class ConfigVisualizer {
+            public ConfigVisualizer(com.zhekasmirnov.innercore.mod.build.Config config, String prefix) {
+
+            }
+
+            public ConfigVisualizer(com.zhekasmirnov.innercore.mod.build.Config config) {
+
+            }
+        }
+
+        @APIStaticModule
+        public static class FrameTextureSource {
+            @JSStaticFunction
+            public static Object get(String name) {
+                return null;
+            }
+        }
+
+        @APIStaticModule
+        public static class TextureSource {
+            @JSStaticFunction
+            public static Object get(String name) {
+                return com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.getSafe(name);
+            }
+
+            @JSStaticFunction
+            public static Object getNullable(String name) {
+                return com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.get(name);
+            }
+
+            @JSStaticFunction
+            public static void put(String name, Object bmp) {
+                com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.put(name, null);
+            }
+        }
+
+        @JSStaticFunction
+        public static float getMinecraftUiScale() {
+            return 1;
+        }
+
+        @JSStaticFunction
+        public static float getRelMinecraftUiScale() {
+            return 1;
+        }
+
+        @JSStaticFunction
+        public static float getScreenRelativeHeight() {
+            return 1;
+        }
+
+        @JSStaticFunction
+        public static float getScreenHeight() {
+            return getScreenRelativeHeight();
+        }
+
+        @JSStaticFunction
+        public static Object getContext() {
+            return null;
+        }
+
     }
 
 

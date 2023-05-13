@@ -1,6 +1,5 @@
 package com.zhekasmirnov.apparatus.modloader;
 
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.mod.build.Mod;
 
 import java.io.File;

@@ -4,11 +4,12 @@ import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
-public class ItemContainerSlot {
+public class ItemContainerSlot implements AbstractSlot {
     public int id, count, data;
     public NativeItemInstanceExtra extra;
 

@@ -2,6 +2,7 @@ package com.zhekasmirnov.apparatus.modloader;
 
 import com.zhekasmirnov.apparatus.adapter.env.EnvironmentSetupProxy;
 import com.zhekasmirnov.apparatus.minecraft.version.ResourceGameVersion;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.mod.build.BuildConfig;
 import com.zhekasmirnov.innercore.mod.build.Mod;
@@ -123,11 +124,13 @@ public class LegacyInnerCoreMod extends DirectoryBasedMod {
 
     @Override
     public void onRunningMod(ModLoaderReporter reporter) {
+        legacyModInstance.loadModInfo();
         legacyModInstance.RunLauncherScripts();
-
         // update properties, after multiplayer info is set by launcher scripts
         getInfo().pullLegacyModProperties(legacyModInstance);
     }
+
+
 
     @Override
     public void onShuttingDown(ModLoaderReporter reporter) {

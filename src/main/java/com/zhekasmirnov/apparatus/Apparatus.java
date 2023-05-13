@@ -79,8 +79,19 @@ public class Apparatus {
         ModLoader.initialize();
 
         ModPackContext.getInstance().setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(new File(server.getDataPath()+"innercore")));
-        ModLoader.instance.loadMods();
+       /* ModLoader.instance.loadMods();
+        ModLoader.instance.runPreloaderScripts();
         ModLoader.instance.startMods();
+        ModLoader.loadModsAndSetupEnvViaNewModLoader();*/
+
+        ModLoader.loadModsAndSetupEnvViaNewModLoader(); // ModLoader.instance.loadMods();
+//        addAllResourcePacks();
+//        addAllModResources();
+        ModLoader.prepareResourcesViaNewModLoader(); // ModLoader.instance.runPreloaderScripts();
+//        ModLoader.addGlobalMinecraftPacks();
+//        ModLoader.instance.loadResourceAndBehaviorPacks();
+//        LoadingUI.setTextAndProgressBar("Generating Cache...", 0.4f);
+//        LoadingUI.setTextAndProgressBar("Starting Minecraft...", 0.5f);
         new AsyncModLauncher().launchModsInCurrentThread();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));

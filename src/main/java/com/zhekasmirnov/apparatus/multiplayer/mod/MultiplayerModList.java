@@ -2,10 +2,12 @@ package com.zhekasmirnov.apparatus.multiplayer.mod;
 
 import com.zhekasmirnov.apparatus.modloader.ApparatusMod;
 import com.zhekasmirnov.apparatus.modloader.ApparatusModInfo;
+import com.zhekasmirnov.apparatus.modloader.LegacyInnerCoreMod;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.InitializationPacketException;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+import com.zhekasmirnov.innercore.mod.build.Mod;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,9 +34,9 @@ public class MultiplayerModList {
                 if(InnerCoreConfig.isDevelop()) Logger.debug("system.mod_list");
                 if (data instanceof JSONObject) {
                     String compareResult = getSingleton().compareToJson((JSONObject) data);
-                    if (compareResult != null) {
+                    /*if (compareResult != null) {
                         throw new InitializationPacketException(compareResult);
-                    }
+                    }*/
                 } else {
                     throw new InitializationPacketException("system.mod_list received invalid packet of type " + dataType);
                 }
