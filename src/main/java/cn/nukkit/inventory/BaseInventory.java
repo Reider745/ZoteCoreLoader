@@ -428,7 +428,6 @@ public abstract class BaseInventory implements Inventory {
             return false;
         }
         this.onOpen(who);
-
         return true;
     }
 

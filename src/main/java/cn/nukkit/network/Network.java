@@ -322,7 +322,7 @@ public class Network {
         Class<? extends DataPacket> clazz = this.packetPool[id];
 
         if (clazz != null) {
-            //Logger.debug("get "+clazz.getName() + " pid: "+id);
+            Logger.debug("get "+clazz.getName() + " pid: "+id);
             try {
                 return clazz.newInstance();
             } catch (Exception e) {

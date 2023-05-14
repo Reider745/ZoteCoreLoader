@@ -39,7 +39,7 @@ public class Item extends PointClass implements Cloneable, BlockID, ItemID {
 
     protected Block block = null;
     protected final int id;
-    protected int meta;
+    public int meta;
     protected boolean hasMeta = true;
     private byte[] tags = new byte[0];
     private CompoundTag cachedNBT = null;

@@ -1,8 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
-
-import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import com.zhekasmirnov.apparatus.Apparatus;
@@ -25,6 +24,7 @@ public class NativeAPI {
 
     public static void getPosition(long entity, float[] pos){
         Entity ent = getEntityToLong(entity);
+        if(ent == null) return;
         Position position = ent.getPosition();
         pos[0] = (float) position.x;
         pos[1] = (float) position.y;
@@ -45,8 +45,14 @@ public class NativeAPI {
         return 0;
     }
 
+    private static long validItem(Item item){
+        if(item == null)
+            return Item.get(0).getPointer();
+        return item.getPointer();
+    }
+
     public static long getEntityCarriedItem(long entity){
-        return getEntityToLong(entity).getCarriedItem().getPointer();
+        return validItem(getEntityToLong(entity).getCarriedItem());
     }
 
     public static long getEntityOffhandItem(long entity){
@@ -599,5 +605,12 @@ public class NativeAPI {
     }
 
     public static void transferToDimension(long unwrapEntity, int dimension) {
+    }
+
+    public static boolean isTileUpdateAllowed() {
+        return false;
+    }
+
+    public static void forceRenderRefresh(int x, int y, int z, int i) {
     }
 }

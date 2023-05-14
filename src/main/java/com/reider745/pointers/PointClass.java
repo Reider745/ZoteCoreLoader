@@ -15,8 +15,23 @@ public class PointClass  {
         return manager;
     }
 
+    public static <T>T getClassByPointer(String name, long pointer, T def){
+        T v = (T) pointers.get(name).get(pointer);
+        if(v == null)
+            return def;
+        return v;
+    }
+
     public static <T>T getClassByPointer(String name, long pointer){
-        return (T) pointers.get(name).get(pointer);
+        return getClassByPointer(name, pointer, null);
+    }
+
+    public static void delete(String name, long pointer){
+        if(pointers.containsKey(name)) {
+            PointerManager manager = new PointerManager();
+            if(manager.has(pointer))
+                manager.clear(pointer);
+        }
     }
 
     private PointerManager pointerManager;

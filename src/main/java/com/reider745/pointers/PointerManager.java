@@ -9,14 +9,22 @@ public class PointerManager {
     private HashMap<Long, PointClass> pointers = new HashMap<>();
 
     public PointClass get(long pointer){
-        return pointers.get(pointer);
+        synchronized (pointers) {
+            return pointers.get(pointer);
+        }
     }
 
     public long put(PointClass object){
-        long pointer = start_pointer;
-        pointers.put(pointer, object);
-        start_pointer++;
-        return pointer;
+        synchronized (pointers) {
+            long pointer = start_pointer;
+            pointers.put(pointer, object);
+            start_pointer++;
+            return pointer;
+        }
+    }
+
+    public boolean has(long pointer){
+        return pointers.get(pointer) != null;
     }
 
     public void clear(long pointer){

@@ -1,5 +1,8 @@
 package com.zhekasmirnov.innercore.api;
 
+import cn.nukkit.item.Item;
+import com.reider745.pointers.PointClass;
+
 /**
  * Created by zheka on 26.07.2017.
  */
@@ -53,10 +56,18 @@ public class NativeItemInstance {
     }
 
 
-    public static native long createItemInstanceData(int id, int count, int data);
-    public static native int getId(long ptr);
-    public static native int getCount(long ptr);
-    public static native int getData(long ptr);
+    public static long createItemInstanceData(int id, int count, int data){
+        return Item.get(id, count, data).getPointer();
+    }
+    public static int getId(long ptr){
+        return PointClass.<Item>getClassByPointer("cn.nukkit.item.Item", ptr).getId();
+    }
+    public static int getCount(long ptr){
+        return PointClass.<Item>getClassByPointer("cn.nukkit.item.Item", ptr).getCount();
+    }
+    public static int getData(long ptr){
+        return PointClass.<Item>getClassByPointer("cn.nukkit.item.Item", ptr).meta;
+    }
     public static native int setItemInstance(long ptr, int id, int count, int data);
     public static native int destroy(long ptr);
     public static native long getExtra(long ptr);

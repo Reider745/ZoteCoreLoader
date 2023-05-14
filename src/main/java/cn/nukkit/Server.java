@@ -83,6 +83,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.zhekasmirnov.apparatus.Apparatus;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkJsAdapter;
+import com.zhekasmirnov.innercore.api.NativeCallback;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.log4j.Log4j2;
 import org.iq80.leveldb.CompressionType;

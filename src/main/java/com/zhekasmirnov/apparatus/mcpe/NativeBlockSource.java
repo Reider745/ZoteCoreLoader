@@ -1,5 +1,9 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
+import cn.nukkit.Server;
+import cn.nukkit.block.Block;
+import cn.nukkit.level.Level;
+import com.reider745.pointers.PointClass;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
@@ -23,6 +27,9 @@ import java.util.stream.Collectors;
 
 public class NativeBlockSource {
     private static final Map<Integer, NativeBlockSource> defaultBlockSourceForDimensions = new HashMap<>();
+    public static Level level_current;
+
+    private static String NAME = "cn.nukkit.level.Level";
 
     public static NativeBlockSource getDefaultForDimension(int dimension) {
         synchronized (defaultBlockSourceForDimensions) {
@@ -441,9 +448,15 @@ public class NativeBlockSource {
     }
 
 
-    private static native long constructNew(int dimension, boolean b1, boolean b2);
-    private static native long nativeGetForCurrentThread();
-    private static native long nativeGetForClientSide();
+    private static long constructNew(int dimension, boolean b1, boolean b2){
+        return Server.getInstance().getLevel(dimension).getPointer();
+    }
+    private static long nativeGetForCurrentThread(){
+        return level_current.getPointer();
+    }
+    private static Long nativeGetForClientSide(){
+        return null;
+    }
     private static native void nativeFinalize(long pointer);
 
     private static native boolean canSeeSky(long pointer, int x, int y, int z);
@@ -451,18 +464,41 @@ public class NativeBlockSource {
     private static native float getBiomeTemperatureAt(long pointer, int x, int y, int z);
     private static native float getBiomeDownfallAt(long pointer, int x, int y, int z);
     private static native int getBrightness(long pointer, int x, int y, int z);
-    private static native int getBlockId(long pointer, int x, int y, int z);
-    private static native int getBlockData(long pointer, int x, int y, int z);
+    private static int getBlockId(long pointer, int x, int y, int z){
+        Level level = PointClass.getClassByPointer(NAME, pointer);
+        if(level != null)
+            return level.getBlockIdAt(x, y, z);
+        return 0;
+    }
+    private static int getBlockData(long pointer, int x, int y, int z){
+        Level level = PointClass.getClassByPointer(NAME, pointer);
+        if(level != null)
+            return level.getBlockDataAt(x, y, z);
+        return 0;
+    }
     private static native long getBlockIdDataAndState(long pointer, int x, int y, int z);
     private static native long getExtraBlockIdDataAndState(long pointer, int x, int y, int z);
-    private static native void setBlock(long pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType);
+    private static void setBlock(long pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
+        Level level = PointClass.getClassByPointer(NAME, pointer);
+        if(level != null)
+            level.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
+    }
     private static native void setBlockByRuntimeId(long pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
     private static native void setExtraBlock(long pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType);
     private static native void setExtraBlockByRuntimeId(long pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
     private static native int getGrassColor(long pointer, int x, int y, int z);
     private static native long getBlockEntity(long pointer, int x, int y, int z);
-    private static native int getDimension(long pointer);
-    private static native void setBiome(long pointer, int chunkX, int chunkZ, int id);
+    private static int getDimension(long pointer){
+        Level level = PointClass.getClassByPointer(NAME, pointer);
+        if(level != null)
+            return level.getDimension();
+        return 0;
+    }
+    private static void setBiome(long pointer, int chunkX, int chunkZ, int id){
+        Level level = PointClass.getClassByPointer(NAME, pointer);
+        if(level != null)
+            level.setBiomeId(chunkX, chunkZ, (byte) id);
+    }
     private static native boolean isChunkLoaded(long pointer, int chunkX, int chunkZ);
     private static native int getChunkState(long pointer, int chunkX, int chunkZ);
     private static native void addToTickingQueue(long pointer, int x, int y, int z, int runtimeId /* = -1 */, int delay, int unknown /* = 0 */);

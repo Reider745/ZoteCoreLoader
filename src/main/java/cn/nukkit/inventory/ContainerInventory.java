@@ -48,9 +48,8 @@ public abstract class ContainerInventory extends BaseInventory {
         if (holder instanceof Entity) {
             pk.entityId = ((Entity) holder).getId();
         }
-
-        who.dataPacket(pk);
         who.opened_container = this;
+        who.dataPacket(pk);
         this.sendContents(who);
     }
 
@@ -59,8 +58,8 @@ public abstract class ContainerInventory extends BaseInventory {
         ContainerClosePacket pk = new ContainerClosePacket();
         pk.windowId = who.getWindowId(this);
         pk.wasServerInitiated = who.getClosingWindowId() != pk.windowId;
-        who.opened_container = null;
         who.dataPacket(pk);
+        who.opened_container = null;
         super.onClose(who);
     }
 

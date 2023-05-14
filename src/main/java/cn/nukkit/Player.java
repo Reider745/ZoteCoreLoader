@@ -73,6 +73,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkJsAdapter;
+import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+import com.zhekasmirnov.innercore.api.NativeCallback;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -296,6 +298,23 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     @Override
     public void setCarriedItem(Item carriedItem) {
         this.getInventory().setItemInHand(carriedItem);
+    }
+
+    private boolean inv_update = InnerCoreConfig.getBool("inventory_tick_send");
+    private int synchronized_tick = InnerCoreConfig.getInt("inventory_tick_send_time");
+
+    private byte tick = 0;
+
+    @Override
+    public  boolean entityBaseTick() {
+        if(!inv_update)
+            return super.entityBaseTick();
+        tick++;
+        if(tick % synchronized_tick == 0){
+            this.inventory.sendContents(this);
+            this.tick = 0;
+        }
+        return super.entityBaseTick();
     }
 
     public void setViewingEnderChest(BlockEnderChest chest) {
@@ -2052,6 +2071,9 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.server.onPlayerCompleteLoginSequence(this);
     }
 
+    public int cont_break = -1;
+    public int end_break = -1;
+
     public void handleDataPacket(DataPacket packet) {
         if (!connected) {
             return;
@@ -2437,11 +2459,14 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                                     pk.data = (int) (65535 / breakTime);
                                     this.getLevel().addChunkPacket(pos.getFloorX() >> 4, pos.getFloorZ() >> 4, pk);
                                 }
+
+                                this.end_break = (int) Math.ceil(breakTime);
                             }
 
                             this.breakingBlock = target;
                             this.lastBreak = currentBreak;
                             this.lastBreakPosition = currentBreakPosition;
+                            this.cont_break = 0;
                             break;
 
                         case PlayerActionPacket.ACTION_ABORT_BREAK:
@@ -2454,6 +2479,9 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                             pk.data = 0;
                             this.getLevel().addChunkPacket(pos.getFloorX() >> 4, pos.getFloorZ() >> 4, pk);
                             this.breakingBlock = null;
+                            this.cont_break = -1;
+                            this.end_break = -1;
+                            NativeCallback.onBlockDestroyed((int) pos.x, (int) pos.y, (int) pos.z, playerActionPacket.face, getId());
                             break;
                         case PlayerActionPacket.ACTION_GET_UPDATED_BLOCK:
                             //TODO
@@ -2534,6 +2562,8 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                             if (this.isBreakingBlock()) {
                                 block = this.level.getBlock(pos);
                                 this.level.addParticle(new PunchBlockParticle(pos, block, face));
+                                this.cont_break++;
+                                NativeCallback.onBlockDestroyContinued((int) x, (int) y, (int) z, playerActionPacket.face, this.cont_break/this.end_break, getId());
                             }
                             break;
                         case PlayerActionPacket.ACTION_START_SWIMMING:

@@ -1,6 +1,7 @@
 package cn.nukkit.network.protocol;
 
 import cn.nukkit.inventory.Inventory;
+import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.types.request.*;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -141,8 +142,10 @@ public class ItemStackRequestPacket extends DataPacket {
     public static final byte OFFHAND_DEPRECATED = 119;
     public static final byte ARMOR_DEPRECATED = 120;
     public static final byte CURSOR_DEPRECATED = 124;
+    public static final byte CONTAINER_FURNACE = 23;
 
     private Inventory getInventory(int windowId) {
+        Logger.debug(""+windowId);
         switch (windowId) {
             case OFFHAND:
                 return client_player.getOffhandInventory();
@@ -151,18 +154,17 @@ public class ItemStackRequestPacket extends DataPacket {
             case ARMOR:
             case CRAFTING_INPUT:
             case COMBINED_INVENTORY:
+            case CRAFTING_OUTPUT:
+            case CREATED_OUTPUT:
                 return client_player.getInventory();
             case CURSOR:
                 return client_player.getCursorInventory();
             case ENCHANTMENT_TABLE_INPUT:
             case ENCHANTMENT_TABLE_MATERIAL:
+            case CONTAINER_FURNACE:
             case CONTAINER:
                 return client_player.opened_container == null ? client_player.getInventory() : client_player.opened_container;
-            case CRAFTING_OUTPUT:
-            //case CREATED_OUTPUT:
-                //return client_player.getOutput();
         }
-        Logger.debug("Пизда:"+windowId);
         return client_player.getWindowById(windowId);
     }
     
@@ -184,7 +186,7 @@ public class ItemStackRequestPacket extends DataPacket {
 
                     if(getItem != null && input != null){
                         getItem = getItem.clone();
-                        getItem.setCount(64);
+                        getItem.setCount(getItem.getMaxStackSize());
                         input.setItem(transfer.getDestination().getSlot(), getItem);
                         continue;
                     }
@@ -198,8 +200,15 @@ public class ItemStackRequestPacket extends DataPacket {
 
 
                     if(input != null){
+                        if(transfer.getDestination().getWindowId() == CRAFTING_OUTPUT)
+                            continue;
+
+                        int slot = transfer.getDestination().getSlot();
+                        if(transfer.getDestination().getWindowId() == ARMOR)
+                            slot += input.getSize();
+
                         Item item_1 = output.getItem(transfer.getSource().getSlot());
-                        Item item_2 = input.getItem(transfer.getDestination().getSlot());
+                        Item item_2 = input.getItem(slot);
 
                         if(item_1.getCount() == transfer.getAmount())
                             output.setItem(transfer.getSource().getSlot(), item_2);

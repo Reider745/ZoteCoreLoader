@@ -267,7 +267,6 @@ public class PlayerInventory extends BaseInventory {
         Item old = this.getItem(index);
         this.slots.put(index, item.clone());
         this.onSlotChange(index, old, send);
-        this.sendSlot(index, this.getViewers());
         return true;
     }
 

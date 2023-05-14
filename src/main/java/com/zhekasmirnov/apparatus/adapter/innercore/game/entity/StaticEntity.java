@@ -4,6 +4,8 @@ import com.zhekasmirnov.apparatus.adapter.innercore.game.common.Vector3;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
+import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 
 /*import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -26,7 +28,7 @@ public class StaticEntity {
         return new ItemStack(new NativeItemInstance(NativeAPI.getEntityCarriedItem(entity)));
     }
 
-    /*public static int getType(long entity) {
+    public static int getType(long entity) {
         return NativeAPI.getEntityType(entity);
     }
 
@@ -36,9 +38,6 @@ public class StaticEntity {
         return new Vector3(position);
     }
 
-    public static ItemStack getCarriedItem(long entity) {
-        return new ItemStack(new NativeItemInstance(NativeAPI.getEntityCarriedItem(entity)));
-    }
 
     public static ItemStack getDroppedItem(long entity) {
         return new ItemStack(new NativeItemInstance(NativeAPI.getItemFromDrop(entity)));
@@ -52,5 +51,5 @@ public class StaticEntity {
 
     public static EntityActor newDroppedItem(float x, float y, float z, int id, int count, int data, NativeItemInstanceExtra extra) {
         return new EntityActor(NativeAPI.spawnDroppedItem(x, y, z, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra)));
-    }*/
+    }
 }

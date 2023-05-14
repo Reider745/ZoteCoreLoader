@@ -8,6 +8,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
+import com.zhekasmirnov.innercore.api.NativeCallback;
 
 /**
  * author: MagicDroidX
@@ -48,6 +49,9 @@ public class PlayerInteractEvent extends PlayerEvent implements Cancellable {
         this.item = item;
         this.blockFace = face;
         this.action = action;
+
+        //if(action == Action.RIGHT_CLICK_BLOCK)
+            //NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z, face.getIndex(), (float) touchVector.x, (float) touchVector.y, (float) touchVector.z, true, player.getHealth() > 0, player.getId());
     }
 
     public Action getAction() {

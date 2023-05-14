@@ -58,6 +58,7 @@ import cn.nukkit.utils.*;
 import co.aikar.timings.Timings;
 import co.aikar.timings.TimingsHistory;
 import com.google.common.base.Preconditions;
+import com.reider745.pointers.PointClass;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -74,7 +75,7 @@ import java.util.concurrent.*;
 /**
  * author: MagicDroidX Nukkit Project
  */
-public class Level implements ChunkManager, Metadatable {
+public class Level extends PointClass implements ChunkManager, Metadatable {
 
     private static int levelIdCounter = 1;
     private static int chunkLoaderCounter = 1;
