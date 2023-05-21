@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
+import cn.nukkit.item.Item;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
@@ -158,7 +159,7 @@ public class NativeWorkbenchContainer implements WorkbenchField {
 
     // native impl
 
-    private static native long getSlot(long pointer, int slot);
+    private static native Item getSlot(long pointer, int slot);
     private static native void setSlot(long pointer, int slot, int id, int count, int data, long extra);
     private static native void apply(long pointer);
 }

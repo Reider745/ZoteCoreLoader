@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import android.util.Pair;
+import cn.nukkit.level.Level;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
@@ -626,7 +627,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), new FullBlock(NativeAPI.getTileAndData(x, y, z)), player);
     }
 
-    public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int i1, int i2, long region) {
+    public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int i1, int i2, Level region) {
         Callback.invokeAPICallback("BlockChanged", new Coords(x, y, z), new FullBlock(id1, data1), new FullBlock(id2, data2), i1, i2, NativeBlockSource.getFromServerCallbackPointer(region));
     }
 
@@ -642,13 +643,8 @@ public class NativeCallback {
             Callback.invokeAPICallback("ItemUseServer", coords, new ItemInstance(NativeAPI.getEntityCarriedItem(player)), new FullBlock(player, x, y, z), player);
 
             // if tile update is disabled
-            if (!NativeAPI.isTileUpdateAllowed()) {
-                // if tile update is disabled, manually run refresh
+            if (!NativeAPI.isTileUpdateAllowed())
                 NativeAPI.forceRenderRefresh(x, y, z, 0);
-
-                // this should not usually happen, so log it
-                ICLog.d("DEBUG", "item was used by player in BlockSource with disabled tile update, this should not occur");
-            }
         } else {
             // call client callback
             Callback.invokeAPICallback("ItemUseLocal", coords, new ItemInstance(NativeAPI.getEntityCarriedItem(player)), new FullBlock(NativeAPI.getTileAndData(x, y, z)), player);
@@ -765,7 +761,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("EntityPickUpDrop", entity, dropEntity, dropStack, count);
     } 
 
-    public static void onExpOrbsSpawned(long region, int amount, float x, float y, float z, long player) {
+    public static void onExpOrbsSpawned(Level region, int amount, float x, float y, float z, long player) {
         Callback.invokeAPICallback("ExpOrbsSpawned", NativeBlockSource.getFromServerCallbackPointer(region), amount, new Coords(x, y, z), player);
     }
 
@@ -797,7 +793,7 @@ public class NativeCallback {
         NativePathNavigation.onNavigationResult(entity, result);
     }
 
-    public static void onRedstoneSignalChange(int x, int y, int z, int signal, boolean isLoadingChange, long region) {
+    public static void onRedstoneSignalChange(int x, int y, int z, int signal, boolean isLoadingChange, Level region) {
         Callback.invokeAPICallback("RedstoneSignal", new Coords(x, y, z), new ScriptableParams(
             new Pair<String, Object>("power", signal),
             new Pair<String, Object>("signal", signal),
@@ -805,7 +801,7 @@ public class NativeCallback {
         ), new FullBlock(NativeAPI.getTileAndData(x, y, z)), NativeBlockSource.getFromServerCallbackPointer(region));
     }
 
-    public static void onRandomBlockTick(int x, int y, int z, int id, int data, long region) {
+    public static void onRandomBlockTick(int x, int y, int z, int id, int data, Level region) {
         NativeBlock.onRandomTickCallback(x, y, z, id, data, NativeBlockSource.getFromServerCallbackPointer(region));
     }
 
@@ -813,7 +809,7 @@ public class NativeCallback {
         NativeBlock.onAnimateTickCallback(x, y, z, id, data);
     }
 
-    public static void onBlockSpawnResources(int x, int y, int z, int id, int data, float f, int i, long region) {
+    public static void onBlockSpawnResources(int x, int y, int z, int id, int data, float f, int i, Level region) {
         Callback.invokeAPICallback("PopBlockResources", new Coords(x, y, z), new FullBlock(id, data), (double) f, i, NativeBlockSource.getFromServerCallbackPointer(region));
     }
 
@@ -825,7 +821,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("BlockEventEntityStepOn", new Coords(x, y, z), new FullBlock(NativeAPI.getTileAndData(x, y, z)), entity);
     }
 
-    public static void onBlockEventNeighbourChange(int x, int y, int z, int changedX, int changedY, int changedZ, long region) {
+    public static void onBlockEventNeighbourChange(int x, int y, int z, int changedX, int changedY, int changedZ, Level region) {
         Callback.invokeAPICallback("BlockEventNeighbourChange", new Coords(x, y, z), new FullBlock(NativeAPI.getTileAndData(x, y, z)), new Coords(changedX, changedY, changedZ), NativeBlockSource.getFromServerCallbackPointer(region));
     }
 
@@ -874,7 +870,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("ItemUsingComplete", new ItemInstance(NativeAPI.getEntityCarriedItem(player)), player);
     }
 
-    public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data, long extra, long region, int slot) {
+    public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data, long extra, Level region, int slot) {
         int rx = (int) Math.floor(x);
         int ry = (int) Math.floor(y);
         int rz = (int) Math.floor(z);

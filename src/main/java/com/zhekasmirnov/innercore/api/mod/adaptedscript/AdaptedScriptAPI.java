@@ -2425,7 +2425,7 @@ public class AdaptedScriptAPI extends API {
             try {
                 blockSource = (NativeBlockSource) Context.jsToJava(blockSource0, NativeBlockSource.class);
             } catch (Exception ignore) { }
-            return NativeAPI.executeCommand(command, 0, 0, 0, blockSource != null ? blockSource.getPointer() : 0);
+            return NativeAPI.executeCommand(command, 0, 0, 0, blockSource != null ? blockSource.getPointer() : null);
         }
 
         @JSStaticFunction
@@ -2434,7 +2434,7 @@ public class AdaptedScriptAPI extends API {
             try {
                 blockSource = (NativeBlockSource) Context.jsToJava(blockSource0, NativeBlockSource.class);
             } catch (Exception ignore) { }
-            return NativeAPI.executeCommand(command, x, y, z, blockSource != null ? blockSource.getPointer() : 0);
+            return NativeAPI.executeCommand(command, x, y, z, blockSource != null ? blockSource.getPointer() : null);
         }
     }
 

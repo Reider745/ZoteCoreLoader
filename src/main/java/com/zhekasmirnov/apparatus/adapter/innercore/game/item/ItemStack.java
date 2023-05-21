@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.item;
 
+import cn.nukkit.item.Item;
 import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.json.JSONException;
@@ -43,10 +44,9 @@ public class ItemStack {
         );
     }
 
-    public static ItemStack fromPtr(long ptr) {
-        if (ptr != 0) {
-            //return new ItemStack(new NativeItemInstance(ptr));
-            return null;
+    public static ItemStack fromPtr(Item ptr) {
+        if (ptr != null) {
+            return new ItemStack(new NativeItemInstance(ptr));
         } else {
             return new ItemStack();
         }
@@ -71,10 +71,10 @@ public class ItemStack {
                 return null;
             }
             return new ItemStack(json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0),null /*NativeItemInstanceExtra.fromJson(json.optJSONObject("extra"))*/);
-        } /*else if (obj instanceof NativeItemInstance) {
+        } else if (obj instanceof NativeItemInstance) {
             return new ItemStack((NativeItemInstance) obj);
-        }*/ else if (obj instanceof Long) {
-            return ItemStack.fromPtr((Long) obj);
+        } else if (obj instanceof Item) {
+            return ItemStack.fromPtr((Item) obj);
         }
         return null;
     }

@@ -3,12 +3,12 @@ package com.zhekasmirnov.apparatus.mcpe;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
-import com.reider745.pointers.PointClass;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -36,6 +36,7 @@ public class NativeBlockSource {
             try {
                 return Java8BackComp.computeIfAbsent(defaultBlockSourceForDimensions, dimension, key -> new NativeBlockSource(dimension));
             } catch (IllegalArgumentException e) {
+                Logger.error(e.getMessage());
                 return null;
             }
         }
@@ -43,35 +44,31 @@ public class NativeBlockSource {
 
     public static NativeBlockSource getDefaultForActor(long actor) {
         if (!NativeStaticUtils.isExistingEntity(actor)) {
+            Logger.debug("not actor return null blocksource");
             return null;
         }
         int dimension = NativeAPI.getEntityDimension(actor);
+        Logger.debug("dim:"+dimension);
         return getDefaultForDimension(dimension);
     }
 
     public static NativeBlockSource getCurrentWorldGenRegion() {
-        long pointer = nativeGetForCurrentThread();
-        return pointer != 0 ? new NativeBlockSource(pointer, false) : null;
+        Level pointer = nativeGetForCurrentThread();
+        return pointer != null ? new NativeBlockSource(pointer, false) : null;
     }
 
-    private static final NativeBlockSource clientBlockSource = new NativeBlockSource(0, false, null);
+    private static final NativeBlockSource clientBlockSource = new NativeBlockSource(null, false, null);
     public static NativeBlockSource getCurrentClientRegion() {
-        long pointer = nativeGetForClientSide();
-        if (pointer != 0) {
-            clientBlockSource.setNewPointer(pointer, false);
-            return clientBlockSource;
-        } else {
-            return null;
-        }
+        return null;
     }
 
 
-    public static NativeBlockSource getFromCallbackPointer(long ptr) {
+    public static NativeBlockSource getFromCallbackPointer(Level ptr) {
         return new NativeBlockSource(ptr, false);
     }
 
-    private static final NativeBlockSource serverCallbackBlockSource = new NativeBlockSource(0, false, null);
-    public static NativeBlockSource getFromServerCallbackPointer(long ptr) {
+    private static final NativeBlockSource serverCallbackBlockSource = new NativeBlockSource(null, false, null);
+    public static NativeBlockSource getFromServerCallbackPointer(Level ptr) {
         serverCallbackBlockSource.setNewPointer(ptr, false);
         return serverCallbackBlockSource;
     }
@@ -84,27 +81,27 @@ public class NativeBlockSource {
     }
 
 
-    private long pointer;
+    private Level pointer;
     private boolean isFinalizable;
 
     private boolean allowUpdate = true;
     private boolean destroyParticles = true;
     private int updateType = 3;
 
-    public NativeBlockSource(long pointer, boolean isFinalizable) {
-        if (pointer == 0) {
+    public NativeBlockSource(Level pointer, boolean isFinalizable) {
+        if (pointer == null) {
             throw new IllegalArgumentException("cannot pass null pointer to NativeBlockSource constructor");
         }
         this.pointer = pointer;
         this.isFinalizable = isFinalizable;
     }
 
-    private NativeBlockSource(long pointer, boolean isFinalizable, Object nullablePointerTag) {
+    private NativeBlockSource(Level pointer, boolean isFinalizable, Object nullablePointerTag) {
         this.pointer = pointer;
         this.isFinalizable = isFinalizable;
     }
 
-    public long getPointer() {
+    public Level getPointer() {
         return pointer;
     }
 
@@ -116,7 +113,7 @@ public class NativeBlockSource {
         this(dimension, true, false);
     }
 
-    private void setNewPointer(long pointer, boolean isFinalizable) {
+    private void setNewPointer(Level pointer, boolean isFinalizable) {
         this.pointer = pointer;
         this.isFinalizable = isFinalizable;
     }
@@ -131,7 +128,7 @@ public class NativeBlockSource {
 
     @Override
     public int hashCode() {
-        return (int) (pointer ^ (pointer >>> 32));
+        return pointer.hashCode();
     }
 
 
@@ -448,69 +445,56 @@ public class NativeBlockSource {
     }
 
 
-    private static long constructNew(int dimension, boolean b1, boolean b2){
-        return Server.getInstance().getLevel(dimension).getPointer();
+    private static Level constructNew(int dimension, boolean b1, boolean b2){
+        return Server.getInstance()._getLevel(dimension);
     }
-    private static long nativeGetForCurrentThread(){
-        return level_current.getPointer();
+    private static Level nativeGetForCurrentThread(){
+        return level_current;
     }
     private static Long nativeGetForClientSide(){
         return null;
     }
     private static native void nativeFinalize(long pointer);
 
-    private static native boolean canSeeSky(long pointer, int x, int y, int z);
-    private static native int getBiome(long pointer, int x, int y, int z);
-    private static native float getBiomeTemperatureAt(long pointer, int x, int y, int z);
-    private static native float getBiomeDownfallAt(long pointer, int x, int y, int z);
-    private static native int getBrightness(long pointer, int x, int y, int z);
-    private static int getBlockId(long pointer, int x, int y, int z){
-        Level level = PointClass.getClassByPointer(NAME, pointer);
-        if(level != null)
-            return level.getBlockIdAt(x, y, z);
-        return 0;
+    private static native boolean canSeeSky(Level pointer, int x, int y, int z);
+    private static native int getBiome(Level pointer, int x, int y, int z);
+    private static native float getBiomeTemperatureAt(Level pointer, int x, int y, int z);
+    private static native float getBiomeDownfallAt(Level pointer, int x, int y, int z);
+    private static native int getBrightness(Level Level, int x, int y, int z);
+    private static int getBlockId(Level pointer, int x, int y, int z){
+        return pointer.getBlockIdAt(x, y, z);
     }
-    private static int getBlockData(long pointer, int x, int y, int z){
-        Level level = PointClass.getClassByPointer(NAME, pointer);
-        if(level != null)
-            return level.getBlockDataAt(x, y, z);
-        return 0;
+    private static int getBlockData(Level pointer, int x, int y, int z){
+        return pointer.getBlockDataAt(x, y, z);
     }
-    private static native long getBlockIdDataAndState(long pointer, int x, int y, int z);
-    private static native long getExtraBlockIdDataAndState(long pointer, int x, int y, int z);
-    private static void setBlock(long pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
-        Level level = PointClass.getClassByPointer(NAME, pointer);
-        if(level != null)
-            level.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
+    private static native long getBlockIdDataAndState(Level pointer, int x, int y, int z);
+    private static native long getExtraBlockIdDataAndState(Level pointer, int x, int y, int z);
+    private static void setBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
+        pointer.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
     }
-    private static native void setBlockByRuntimeId(long pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
-    private static native void setExtraBlock(long pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType);
-    private static native void setExtraBlockByRuntimeId(long pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
-    private static native int getGrassColor(long pointer, int x, int y, int z);
-    private static native long getBlockEntity(long pointer, int x, int y, int z);
-    private static int getDimension(long pointer){
-        Level level = PointClass.getClassByPointer(NAME, pointer);
-        if(level != null)
-            return level.getDimension();
-        return 0;
+    private static native void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
+    private static native void setExtraBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType);
+    private static native void setExtraBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
+    private static native int getGrassColor(Level pointer, int x, int y, int z);
+    private static native long getBlockEntity(Level pointer, int x, int y, int z);
+    private static int getDimension(Level pointer){
+        return pointer.getDimension();
     }
-    private static void setBiome(long pointer, int chunkX, int chunkZ, int id){
-        Level level = PointClass.getClassByPointer(NAME, pointer);
-        if(level != null)
-            level.setBiomeId(chunkX, chunkZ, (byte) id);
+    private static void setBiome(Level pointer, int chunkX, int chunkZ, int id){
+        pointer.setBiomeId(chunkX, chunkZ, (byte) id);
     }
-    private static native boolean isChunkLoaded(long pointer, int chunkX, int chunkZ);
-    private static native int getChunkState(long pointer, int chunkX, int chunkZ);
-    private static native void addToTickingQueue(long pointer, int x, int y, int z, int runtimeId /* = -1 */, int delay, int unknown /* = 0 */);
+    private static native boolean isChunkLoaded(Level pointer, int chunkX, int chunkZ);
+    private static native int getChunkState(Level pointer, int chunkX, int chunkZ);
+    private static native void addToTickingQueue(Level pointer, int x, int y, int z, int runtimeId /* = -1 */, int delay, int unknown /* = 0 */);
 
-    private static native void explode(long pointer, float x, float y, float z, float power, boolean fire);
-    private static native void destroyBlock(long pointer, int x, int y, int z, boolean drop, int updateType, boolean destroyParticles);
-    private static native long clip(long pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] joutput);
+    private static native void explode(Level pointer, float x, float y, float z, float power, boolean fire);
+    private static native void destroyBlock(Level pointer, int x, int y, int z, boolean drop, int updateType, boolean destroyParticles);
+    private static native long clip(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] joutput);
 
-    private static native long[] fetchEntitiesInAABB(long pointer, float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag);
-    private static native long[] fetchEntitiesOfTypeInAABB(long pointer, float x1, float y1, float z1, float x2, float y2, float z2, String namespace, String name);
-    private static native long spawnEntity(long pointer, int type, float x, float y, float z);
-    private static native long spawnNamespacedEntity(long pointer, float x, float y, float z, String str1, String str2, String str3);
-    private static native long spawnExpOrbs(long pointer, float x, float y, float z, int amount);
-    private static native long spawnDroppedItem(long pointer, float x, float y, float z, int id, int count, int data, long extra);
+    private static native long[] fetchEntitiesInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag);
+    private static native long[] fetchEntitiesOfTypeInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, String namespace, String name);
+    private static native long spawnEntity(Level pointer, int type, float x, float y, float z);
+    private static native long spawnNamespacedEntity(Level pointer, float x, float y, float z, String str1, String str2, String str3);
+    private static native long spawnExpOrbs(Level pointer, float x, float y, float z, int amount);
+    private static native long spawnDroppedItem(Level pointer, float x, float y, float z, int id, int count, int data, long extra);
 }

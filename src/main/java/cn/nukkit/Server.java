@@ -1879,10 +1879,16 @@ public class Server {
         return this.getLevelByName(name) != null;
     }
 
+    public Level _getLevel(int levelId){
+        for(Level level : levels.values())
+            if(level.getDimension() == levelId)
+                return level;
+        return null;
+    }
+
     public Level getLevel(int levelId) {
-        if (this.levels.containsKey(levelId)) {
-            return this.levels.get(levelId);
-        }
+        if(levels.containsKey(levelId))
+            return levels.get(levelId);
         return null;
     }
 

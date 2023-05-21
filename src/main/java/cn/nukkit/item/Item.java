@@ -20,7 +20,6 @@ import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
-import com.reider745.pointers.PointClass;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -31,7 +30,7 @@ import java.util.regex.Pattern;
  * author: MagicDroidX
  * Nukkit Project
  */
-public class Item extends PointClass implements Cloneable, BlockID, ItemID {
+public class Item implements Cloneable, BlockID, ItemID {
     //Normal Item IDs
 
     protected static String UNKNOWN_STR = "Unknown";
@@ -46,6 +45,7 @@ public class Item extends PointClass implements Cloneable, BlockID, ItemID {
     public int count;
     protected int durability = 0;
     protected String name;
+    public int orgMeta;
 
     public Item(int id) {
         this(id, 0, 1, UNKNOWN_STR);
@@ -62,8 +62,10 @@ public class Item extends PointClass implements Cloneable, BlockID, ItemID {
     public Item(int id, Integer meta, int count, String name) {
         this.id = id & 0xffff;
         if (meta != null && meta >= 0) {
+            this.orgMeta = meta;
             this.meta = meta & 0xffff;
         } else {
+            this.orgMeta = 0;
             this.hasMeta = false;
         }
         this.count = count;

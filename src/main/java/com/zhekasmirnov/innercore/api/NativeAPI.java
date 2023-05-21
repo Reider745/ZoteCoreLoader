@@ -45,27 +45,30 @@ public class NativeAPI {
         return 0;
     }
 
-    private static long validItem(Item item){
+    private static Item validItem(Item item){
         if(item == null)
-            return Item.get(0).getPointer();
-        return item.getPointer();
+            return Item.get(0).clone();
+        return item;
     }
 
-    public static long getEntityCarriedItem(long entity){
-        return validItem(getEntityToLong(entity).getCarriedItem());
+    public static Item getEntityCarriedItem(long entity){
+        Entity ent = getEntityToLong(entity);
+        if(ent == null) return Item.get(0).clone();
+        return validItem(ent.getCarriedItem());
     }
 
-    public static long getEntityOffhandItem(long entity){
+    public static Item getEntityOffhandItem(long entity){
         Entity ent = getEntityToLong(entity);
-        return 0;
+        if(ent == null) return Item.get(0).clone();
+        return ent.getOffhandItem();
     }
-    public static long getEntityArmor(long entity, int armor){
+    public static Item getEntityArmor(long entity, int armor){
         Entity ent = getEntityToLong(entity);
-        return 0;
+        return null;
     }
 
     public static void setEntityArmor(long entity, int slot, int id, int count, int data, long extra){
-
+        Entity ent = getEntityToLong(entity);
     }
 
     public static void setPlayerArmor(int slot, int id, int count, int data, long extra){
@@ -88,8 +91,8 @@ public class NativeAPI {
         return 0;
     }
 
-    public static long getPlayerArmor(int player){
-        return 0;
+    public static Item getPlayerArmor(int player){
+        return null;
     }
 
     public static String getStringIdAndTypeForIntegerId(int id){
@@ -138,8 +141,8 @@ public class NativeAPI {
 
     }
 
-    public static long getInventorySlot(int index){
-        return 0;
+    public static Item getInventorySlot(int index){
+        return null;
     }
 
     public static void setInventorySlot(int index, int id, int count, int data, long extra){
@@ -402,12 +405,12 @@ public class NativeAPI {
     public static void setRenderType(long unwrapEntity, int type) {
     }
 
-    public static long getItemFromDrop(long unwrapEntity) {
-        return 0;
+    public static Item getItemFromDrop(long unwrapEntity) {
+        return null;
     }
 
-    public static long getItemFromProjectile(long unwrapEntity) {
-        return 0;
+    public static Item getItemFromProjectile(long unwrapEntity) {
+        return null;
     }
 
     public static void setItemToDrop(long unwrapEntity, int id, int count, int data, long unwrapValue) {
@@ -600,7 +603,7 @@ public class NativeAPI {
     public static void getAtlasTextureCoords(String name, int id, float[] coords) {
     }
 
-    public static String executeCommand(String command, int i, int i1, int i2, long l) {
+    public static String executeCommand(String command, int i, int i1, int i2, Level l) {
         return "";
     }
 

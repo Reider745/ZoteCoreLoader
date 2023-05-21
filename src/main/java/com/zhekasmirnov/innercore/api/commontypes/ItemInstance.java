@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.commontypes;
 
+import cn.nukkit.item.Item;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
@@ -32,7 +33,7 @@ public class ItemInstance extends ScriptableObject {
         this(nativeItemInstance.id, nativeItemInstance.count, nativeItemInstance.data, nativeItemInstance.extra);
     }
 
-    public ItemInstance(long ptr) {
+    public ItemInstance(Item ptr) {
         this(new NativeItemInstance(ptr));
     }
 

@@ -11,6 +11,8 @@ import cn.nukkit.event.entity.EntityPortalEnterEvent.PortalType;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerInteractEvent.Action;
 import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.inventory.EntityEquipmentInventory;
+import cn.nukkit.inventory.Inventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.*;
 import cn.nukkit.level.format.FullChunk;
@@ -415,13 +417,26 @@ public abstract class Entity extends Location implements Metadatable {
     }
 
     protected Item carriedItem = Item.get(Item.AIR).clone();
+    protected EntityEquipmentInventory inventoty;
 
     public Item getCarriedItem(){
-        return carriedItem;
+        return inventoty.getItemInHand();
     }
 
     public void setCarriedItem(Item carriedItem){
-        this.carriedItem = carriedItem;
+        this.inventoty.setItemInHand(carriedItem, true);
+    }
+
+    public Item getOffhandItem(){
+        return inventoty.getItemInOffhand();
+    }
+
+    public void setOffhandItem(Item carriedItem){
+        this.inventoty.setItemInOffhand(carriedItem, true);
+    }
+
+    public EntityEquipmentInventory getInventoty(){
+        return inventoty;
     }
 
     public Entity(FullChunk chunk, CompoundTag nbt) {
@@ -430,6 +445,7 @@ public abstract class Entity extends Location implements Metadatable {
         }
 
         this.init(chunk, nbt);
+        inventoty = new EntityEquipmentInventory(this);
     }
 
     protected void initEntity() {

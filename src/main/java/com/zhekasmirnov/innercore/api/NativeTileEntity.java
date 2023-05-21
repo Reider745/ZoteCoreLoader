@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
+import cn.nukkit.item.Item;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 
 /**
@@ -32,8 +33,8 @@ public class NativeTileEntity {
     public NativeItemInstance getSlot(int slot) {
         if (slot < 0 || slot >= size)
             return null;
-        long itemPtr = getSlot(pointer, slot);
-        if (itemPtr == 0)
+        Item itemPtr = getSlot(pointer, slot);
+        if (itemPtr == null)
             return null;
         return new NativeItemInstance(itemPtr);
     }
@@ -53,7 +54,7 @@ public class NativeTileEntity {
     public void setSlot(int slot, NativeItemInstance item) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot2(pointer, slot, item.getPointer());
+        setSlot2(pointer, slot, item.item);
     }
 
     public NativeCompoundTag getCompoundTag() {
@@ -94,11 +95,11 @@ public class NativeTileEntity {
 
     public static native int getSize(long pointer);
 
-    public static native long getSlot(long pointer, int slot);
+    public static native Item getSlot(long pointer, int slot);
 
     public static native void setSlot(long pointer, int slot, int id, int count, int data, long extra);
 
-    public static native void setSlot2(long pointer, int slot, long itemInstance);
+    public static native void setSlot2(long pointer, int slot, Item itemInstance);
 
     public static native long getCompoundTag(long pointer);
 

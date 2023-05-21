@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
+import cn.nukkit.item.Item;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -160,8 +161,8 @@ public class NativePlayer {
     private static native void addExperience(long pointer, int amount);
     private static native int getDimension(long pointer);
     private static native int getGameMode(long pointer);
-    private static native long getInventorySlot(long pointer, int slot);
-    private static native long getArmor(long pointer, int slot);
+    private static native Item getInventorySlot(long pointer, int slot);
+    private static native Item getArmor(long pointer, int slot);
     private static native float getExhaustion(long pointer);
     private static native float getExperience(long pointer);
     private static native float getHunger(long pointer);
