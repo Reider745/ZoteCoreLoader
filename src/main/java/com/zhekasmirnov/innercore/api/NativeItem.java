@@ -270,7 +270,7 @@ public class NativeItem {
 
 
     public static void addToCreativeInternal(int id, int count, int data, long extra){
-        Item.addCreativeItem(new Item(id, count, data));
+        Item.addCreativeItem(Item.get(id, data, count));
     }
 
     @JSStaticFunction
