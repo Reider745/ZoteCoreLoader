@@ -7,6 +7,7 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.reider745.InnerCoreServer;
+import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkJsAdapter;
@@ -20,6 +21,7 @@ import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
+import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
@@ -79,26 +81,17 @@ public class Apparatus {
         ModLoader.initialize();
 
         ModPackContext.getInstance().setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(new File(server.getDataPath()+"innercore")));
-       /* ModLoader.instance.loadMods();
-        ModLoader.instance.runPreloaderScripts();
-        ModLoader.instance.startMods();
-        ModLoader.loadModsAndSetupEnvViaNewModLoader();*/
 
-        ModLoader.loadModsAndSetupEnvViaNewModLoader(); // ModLoader.instance.loadMods();
-//        addAllResourcePacks();
-//        addAllModResources();
-        ModLoader.prepareResourcesViaNewModLoader(); // ModLoader.instance.runPreloaderScripts();
-//        ModLoader.addGlobalMinecraftPacks();
-//        ModLoader.instance.loadResourceAndBehaviorPacks();
-//        LoadingUI.setTextAndProgressBar("Generating Cache...", 0.4f);
-//        LoadingUI.setTextAndProgressBar("Starting Minecraft...", 0.5f);
+        ModLoader.loadModsAndSetupEnvViaNewModLoader();
+        ModLoader.prepareResourcesViaNewModLoader();
         new AsyncModLauncher().launchModsInCurrentThread();
+        IDRegistry.rebuildNetworkIdMap();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
     }
 
     public static void postInit(){
-
+        CustomItem.init();
     }
 
     public static int getVersionCode() {

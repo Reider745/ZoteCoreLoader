@@ -13,6 +13,7 @@ import cn.nukkit.event.player.PlayerInteractEvent.Action;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.inventory.EntityEquipmentInventory;
 import cn.nukkit.inventory.Inventory;
+import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.*;
 import cn.nukkit.level.format.FullChunk;
@@ -44,7 +45,7 @@ import static cn.nukkit.network.protocol.SetEntityLinkPacket.*;
 /**
  * @author MagicDroidX
  */
-public abstract class Entity extends Location implements Metadatable {
+public abstract class Entity extends Location implements Metadatable, InventoryHolder {
 
     public static final int NETWORK_ID = -1;
 
@@ -435,7 +436,8 @@ public abstract class Entity extends Location implements Metadatable {
         this.inventoty.setItemInOffhand(carriedItem, true);
     }
 
-    public EntityEquipmentInventory getInventoty(){
+    @Override
+    public Inventory getInventory(){
         return inventoty;
     }
 

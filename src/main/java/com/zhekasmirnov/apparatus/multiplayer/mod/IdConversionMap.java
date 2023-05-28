@@ -1,7 +1,9 @@
 package com.zhekasmirnov.apparatus.multiplayer.mod;
 
+import com.zhekasmirnov.apparatus.cpp.NativeIdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -15,8 +17,12 @@ public class IdConversionMap {
 
     static {
         Network.getSingleton().addServerInitializationPacket("system.id_map",
-                client -> getSingleton().localMapAsJson(),
+                client -> {
+                    Logger.debug("system.id_map");
+                    return getSingleton().localMapAsJson();
+                },
                 (JSONObject data, String meta) -> {
+                    Logger.debug("hui"+data);
                     getSingleton().updateConversionMap(data);
                     // NativeIdPlaceholderGenerator.rebuildFromServerPacket(data);
                 });
@@ -71,7 +77,10 @@ public class IdConversionMap {
     }
 
     public void rebuildNativeConversionMap() {
-
+        /*NativeIdConversionMap.clearAll();
+        for (Map.Entry<Integer, Integer> entry : fromLocalToServerMap.entrySet()) {
+            NativeIdConversionMap.mapConversion(entry.getKey(), entry.getValue());
+        }*/
     }
 
 

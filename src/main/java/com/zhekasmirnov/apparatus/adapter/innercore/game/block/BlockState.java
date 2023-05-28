@@ -1,5 +1,8 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.block;
 
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockMeta;
+import cn.nukkit.level.GlobalBlockPalette;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.Scriptable;
@@ -23,11 +26,18 @@ public class BlockState {
         this.runtimeId = -1;
     }
 
-    public BlockState(long idDataAndState) {
-        long idData = idDataAndState & (long) 0xFFFFFFFF;
+    public BlockState(Block idDataAndState) {
+        /*long idData = idDataAndState & (long) 0xFFFFFFFF;
         this.id = (int) (idData >> (long) 16) & 0xFFFF;
         this.data = (int) (idData & (long) 0xFFFF);
-        this.runtimeId = (int) (idDataAndState >> (long) 32);
+        this.runtimeId = (int) (idDataAndState >> (long) 32);*/
+        this.id = idDataAndState.getId();
+        if(idDataAndState instanceof BlockMeta) {
+            BlockMeta meta = (BlockMeta) idDataAndState;
+            this.data = meta.getDamage();
+        }else
+            this.data = 0;
+        this.runtimeId = GlobalBlockPalette.getOrCreateRuntimeId(id, data);
     }
 
     public BlockState(int id, Map<?, Integer> map) {

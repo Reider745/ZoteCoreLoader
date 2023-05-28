@@ -3700,6 +3700,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     }
 
     public void close(TextContainer message, String reason) {
+        com.zhekasmirnov.apparatus.multiplayer.Network.getSingleton().getServer().getConnectedClientForPlayer(this.getId()).disconnect("");
         this.close(message, reason, true);
     }
 

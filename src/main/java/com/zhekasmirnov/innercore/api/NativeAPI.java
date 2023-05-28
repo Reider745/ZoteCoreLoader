@@ -126,7 +126,7 @@ public class NativeAPI {
     }
 
     public static String convertNameId(String name){
-        return "";
+        return name.replace(" ", "_").toLowerCase();
     }
 
     public static boolean isGlintItemInstance(int id, int data, long extra){

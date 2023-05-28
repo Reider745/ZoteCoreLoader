@@ -48,7 +48,6 @@ public class NativeBlockSource {
             return null;
         }
         int dimension = NativeAPI.getEntityDimension(actor);
-        Logger.debug("dim:"+dimension);
         return getDefaultForDimension(dimension);
     }
 
@@ -467,8 +466,12 @@ public class NativeBlockSource {
     private static int getBlockData(Level pointer, int x, int y, int z){
         return pointer.getBlockDataAt(x, y, z);
     }
-    private static native long getBlockIdDataAndState(Level pointer, int x, int y, int z);
-    private static native long getExtraBlockIdDataAndState(Level pointer, int x, int y, int z);
+    private static Block getBlockIdDataAndState(Level pointer, int x, int y, int z){
+        return pointer.getBlock(x, y, z);
+    }
+    private static Block getExtraBlockIdDataAndState(Level pointer, int x, int y, int z){
+        return pointer.getBlock(x, y, z);
+    }
     private static void setBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
         pointer.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
     }

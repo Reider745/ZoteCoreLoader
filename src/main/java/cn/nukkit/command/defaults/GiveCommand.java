@@ -50,8 +50,11 @@ public class GiveCommand extends VanillaCommand {
 
             return true;
         }
-
-        Player player = sender.getServer().getPlayer(args[0]);
+        Player player;
+        if(args[0] == "@s")
+            player = (Player) sender;
+        else
+            player = sender.getServer().getPlayer(args[0]);
         Item item;
 
         try {

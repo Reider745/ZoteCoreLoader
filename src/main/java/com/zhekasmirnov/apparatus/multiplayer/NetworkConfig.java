@@ -16,7 +16,7 @@ public class NetworkConfig {
     private boolean nativeProtocolPrioritizedForRemoteConnection = false;
 
     public boolean isSocketConnectionAllowed() {
-        return EngineConfig.getBoolean("socket_server", false);
+        return socketConnectionAllowed;
     }
 
     public void setSocketConnectionAllowed(boolean socketConnectionAllowed) {

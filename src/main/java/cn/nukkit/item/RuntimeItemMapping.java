@@ -4,9 +4,13 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 
 public class RuntimeItemMapping {
 
-    private final Int2IntMap legacyNetworkMap;
-    private final Int2IntMap networkLegacyMap;
-    private final byte[] itemDataPalette;
+    public final Int2IntMap legacyNetworkMap;
+    public final Int2IntMap networkLegacyMap;
+    private byte[] itemDataPalette;
+
+    public void setItemDataPalette(byte[] bytes){
+        itemDataPalette = bytes;
+    }
 
     public RuntimeItemMapping(byte[] itemDataPalette, Int2IntMap legacyNetworkMap, Int2IntMap networkLegacyMap) {
         this.itemDataPalette = itemDataPalette;

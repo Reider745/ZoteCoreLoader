@@ -1,11 +1,14 @@
 package com.zhekasmirnov.innercore.api;
 
+import cn.nukkit.item.Item;
+import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
 import com.zhekasmirnov.apparatus.ecs.types.ECSTags;
 import com.zhekasmirnov.apparatus.ecs.types.item.ArmorItemComponent;
 import com.zhekasmirnov.apparatus.ecs.types.item.ItemComponent;
+import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
@@ -26,7 +29,7 @@ public class NativeItem {
     private static NativeItem[] itemById = new NativeItem[MAX_ITEM_ID];
 
     public int id;
-    private long pointer;
+    private CustomItem.ItemManager pointer;
     public final String nameId;
     public final String nameToDisplay;
 
@@ -35,7 +38,7 @@ public class NativeItem {
     private static final ComponentCollection initCC = new ComponentCollection()
             .setTypes(ItemComponent.COMPONENT_ID, ECSTags.CONTENT_ID);
 
-    protected NativeItem(int id, long ptr, String nameId, String nameToDisplay) {
+    protected NativeItem(int id, CustomItem.ItemManager ptr, String nameId, String nameToDisplay) {
         this.id = id;
         this.pointer = ptr;
         this.nameId = nameId;
@@ -143,12 +146,12 @@ public class NativeItem {
     public static NativeItem createItem(int id, String nameId, String name, String iconName, int iconIndex) {
         nameId = NativeAPI.convertNameId(nameId); // any name id must be lowercase
 
-        if (!ResourcePackManager.isValidItemTexture(iconName, iconIndex)) {
+        /*if (!ResourcePackManager.isValidItemTexture(iconName, iconIndex)) {
             Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
             iconName = "missing_icon";
             iconIndex = 0;
         }
-        registerIcon(id, iconName, iconIndex);
+        registerIcon(id, iconName, iconIndex);*/
         return new NativeItem(id, constructItem(id, nameId, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), iconName, iconIndex), nameId, name);
     }
 
@@ -199,41 +202,49 @@ public class NativeItem {
      * native part
      */
 
-    public static native long constructItem(int id, String nameId, String name, String iconName, int iconIndex);
+    public static CustomItem.ItemManager constructItem(int id, String nameId, String name, String iconName, int iconIndex){
+        return CustomItem.registerItem(nameId, id, name);
+    }
 
-    public static native long constructArmorItem(int id, String nameId, String name, String iconName, int iconIndex, String texture, int slot, int defense, int durability, float knockbackResist);
+    public static CustomItem.ItemManager constructArmorItem(int id, String nameId, String name, String iconName, int iconIndex, String texture, int slot, int defense, int durability, float knockbackResist){
+        return CustomItem.registerItem(nameId, id, name);
+    }
 
-    public static native long constructThrowableItem(int id, String nameId, String name, String iconName, int iconIndex);
+    public static CustomItem.ItemManager constructThrowableItem(int id, String nameId, String name, String iconName, int iconIndex){
+        return CustomItem.registerItem(nameId, id, name);
+    }
 
 
 
-    public static native void setGlint(long ptr, boolean val);
+    public static native void setGlint(CustomItem.ItemManager ptr, boolean val);
 
-    public static native void setHandEquipped(long ptr, boolean val);
+    public static native void setHandEquipped(CustomItem.ItemManager ptr, boolean val);
 
-    public static native void setLiquidClip(long ptr, boolean val);
+    public static native void setLiquidClip(CustomItem.ItemManager ptr, boolean val);
 
-    public static native void setUseAnimation(long ptr, int val);
+    public static native void setUseAnimation(CustomItem.ItemManager ptr, int val);
 
-    public static native void setMaxUseDuration(long ptr, int val);
+    public static native void setMaxUseDuration(CustomItem.ItemManager ptr, int val);
 
-    public static native void setMaxDamage(long ptr, int val);
+    public static native void setMaxDamage(CustomItem.ItemManager ptr, int val);
 
-    public static native void setMaxStackSize(long ptr, int val);
+    public static void setMaxStackSize(CustomItem.ItemManager ptr, int val){
+        ptr.put("max_stack", val);
+    }
     
-    public static native void setStackedByData(long ptr, boolean val);
+    public static native void setStackedByData(CustomItem.ItemManager ptr, boolean val);
     
-    public static native void setAllowedInOffhand(long ptr, boolean val);
+    public static native void setAllowedInOffhand(CustomItem.ItemManager ptr, boolean val);
 
-    public static native void setCreativeCategory(long ptr, int val);
+    public static native void setCreativeCategory(CustomItem.ItemManager ptr, int val);
 
-    public static native void setProperties(long ptr, String val);
+    public static native void setProperties(CustomItem.ItemManager ptr, String val);
 
-    public static native void setEnchantability(long ptr, int type, int value);
+    public static native void setEnchantability(CustomItem.ItemManager ptr, int type, int value);
 
-    public static native void setArmorDamageable(long ptr, boolean value);
+    public static native void setArmorDamageable(CustomItem.ItemManager ptr, boolean value);
     
-    public static native void addRepairItemId(long ptr, int id);
+    public static native void addRepairItemId(CustomItem.ItemManager ptr, int id);
 
 
 
@@ -243,7 +254,9 @@ public class NativeItem {
 
     public static native String getNameForId(int id, int data, long extra);
 
-    public static native void setCreativeCategoryForId(int id, int category);
+    public static void setCreativeCategoryForId(int id, int category){
+        CustomItem.getItemManager(id).put("category", category);
+    }
     
     public static String getNameForId(int id, int data) {
         return getNameForId(id, data, 0);
@@ -256,7 +269,9 @@ public class NativeItem {
     }
 
 
-    public static native void addToCreativeInternal(int id, int count, int data, long extra);
+    public static void addToCreativeInternal(int id, int count, int data, long extra){
+        Item.addCreativeItem(new Item(id, count, data));
+    }
 
     @JSStaticFunction
     public static native void addToCreativeGroup(String groupName, String displayName, int id);

@@ -455,7 +455,7 @@ public class Server {
         log.info(this.getLanguage().translateString("nukkit.server.networkStart", new String[]{this.getIp().equals("") ? "*" : this.getIp(), String.valueOf(this.getPort())}));
         this.serverID = UUID.randomUUID();
 
-        Apparatus.init(this);
+
 
         this.network = new Network(this);
         this.network.setName(this.getMotd());
@@ -469,6 +469,8 @@ public class Server {
 
         // Initialize metrics
         new NukkitMetrics(this);
+
+        Apparatus.init(this);
 
         this.registerEntities();
         this.registerBlockEntities();

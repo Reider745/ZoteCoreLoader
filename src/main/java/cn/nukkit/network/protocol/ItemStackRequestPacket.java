@@ -145,7 +145,6 @@ public class ItemStackRequestPacket extends DataPacket {
     public static final byte CONTAINER_FURNACE = 23;
 
     private Inventory getInventory(int windowId) {
-        Logger.debug(""+windowId);
         switch (windowId) {
             case OFFHAND:
                 return client_player.getOffhandInventory();

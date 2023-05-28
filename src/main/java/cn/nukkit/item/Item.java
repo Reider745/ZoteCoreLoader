@@ -20,6 +20,8 @@ import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
+import com.reider745.item.CustomItem;
+import com.zhekasmirnov.innercore.api.runtime.Callback;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -82,6 +84,12 @@ public class Item implements Cloneable, BlockID, ItemID {
 
     public boolean canBeActivated() {
         return false;
+    }
+
+    public static void registerItem(int id, Class item){
+        if (list == null)
+            list = new Class[65535];
+        list[id] = item;
     }
 
     public static void init() {
@@ -342,7 +350,6 @@ public class Item implements Cloneable, BlockID, ItemID {
 
     @SuppressWarnings("unchecked")
     private static void initCreativeItems() {
-        clearCreativeItems();
 
         Config config = new Config(Config.JSON);
         config.load(Server.class.getClassLoader().getResourceAsStream("creativeitems.json"));

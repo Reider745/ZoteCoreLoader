@@ -4,6 +4,8 @@ import cn.nukkit.Server;
 import cn.nukkit.utils.BinaryStream;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.reider745.item.CustomItem;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 @UtilityClass
 public class RuntimeItems {
@@ -23,10 +26,12 @@ public class RuntimeItems {
     private static final Gson GSON = new Gson();
     private static final Type ENTRY_TYPE = new TypeToken<ArrayList<Entry>>(){}.getType();
 
-    private static final RuntimeItemMapping itemPalette;
+    public static final RuntimeItemMapping itemPalette;
+
+
 
     static {
-        Server.getInstance().getLogger().debug("Loading runtime items...");
+        Server.getInstance().getLogger().info("Loading runtime items...");
         InputStream stream = Server.class.getClassLoader().getResourceAsStream("runtime_item_ids.json");
         if (stream == null) {
             throw new AssertionError("Unable to load runtime_item_ids.json");
@@ -36,7 +41,7 @@ public class RuntimeItems {
         Collection<Entry> entries = GSON.fromJson(reader, ENTRY_TYPE);
 
         BinaryStream paletteBuffer = new BinaryStream();
-        paletteBuffer.putUnsignedVarInt(entries.size());
+        paletteBuffer.putUnsignedVarInt(entries.size()+ CustomItem.customItems.size());
 
         Int2IntMap legacyNetworkMap = new Int2IntOpenHashMap();
         Int2IntMap networkLegacyMap = new Int2IntOpenHashMap();
@@ -51,6 +56,17 @@ public class RuntimeItems {
                 networkLegacyMap.put(entry.id, fullId | (hasData ? 1 : 0));
             }
         }
+
+
+        CustomItem.customItems.forEach((name, id) -> {
+            paletteBuffer.putString(name);
+            paletteBuffer.putLShort(id);
+            paletteBuffer.putBoolean(false); // Component item
+
+            int fullId = getFullId(id, 0);
+            legacyNetworkMap.put(fullId, (id << 1) | 1);
+            networkLegacyMap.put((int) id, fullId | 1);
+        });
 
         byte[] itemDataPalette = paletteBuffer.getBuffer();
         itemPalette = new RuntimeItemMapping(itemDataPalette, legacyNetworkMap, networkLegacyMap);

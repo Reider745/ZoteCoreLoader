@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.adaptedscript;
 
 import android.util.Pair;
+import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
 import com.zhekasmirnov.apparatus.ecs.core.*;
@@ -1322,8 +1323,8 @@ public class AdaptedScriptAPI extends API {
 
     @APIStaticModule
     public static class Item extends NativeItem {
-        protected Item(int id, long ptr, String nameId, String nameToDisplay) {
-            super(id, ptr, nameId, nameToDisplay);
+        protected Item(int id, Object ptr, String nameId, String nameToDisplay) {
+            super(id, CustomItem.getItemManager(id), nameId, nameToDisplay);
         }
 
         @JSStaticFunction
