@@ -2,6 +2,7 @@ package cn.nukkit.block;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
@@ -18,6 +19,7 @@ import cn.nukkit.metadata.Metadatable;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.BlockColor;
+import com.reider745.block.CustomBlock;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -29,38 +31,37 @@ import java.util.Optional;
  * Nukkit Project
  */
 public abstract class Block extends Position implements Metadatable, Cloneable, AxisAlignedBB, BlockID {
-    public static Class[] list = null;
+    /*public static Class[] list = null;
     public static Block[] fullList = null;
     public static int[] light = null;
     public static int[] lightFilter = null;
     public static boolean[] solid = null;
     public static double[] hardness = null;
     public static boolean[] transparent = null;
-    /**
+    *//**
      * if a block has can have variants
-     */
-    public static boolean[] hasMeta = null;
+     *//*
+    public static boolean[] hasMeta = null;*/
 
     protected Block() {}
 
     public static Block getById(String id){
-        for (Block block : fullList)
-            if(block.getSaveId() == id)
-                    return block;
-        return null;
+        return BlockStorage.get(id);
     }
 
     @SuppressWarnings("unchecked")
     public static void init() {
-        if (list == null) {
-            list = new Class[256];
-            fullList = new Block[4096];
-            light = new int[256];
-            lightFilter = new int[256];
-            solid = new boolean[256];
-            hardness = new double[256];
-            transparent = new boolean[256];
-            hasMeta = new boolean[256];
+        BlockStorage.init();
+       /* if (list == null) {
+            final int size = 10000;
+            list = new Class[size];
+            fullList = new Block[size * size];
+            light = new int[size];
+            lightFilter = new int[size];
+            solid = new boolean[size];
+            hardness = new double[size];
+            transparent = new boolean[size];
+            hasMeta = new boolean[size];
 
             list[AIR] = BlockAir.class; //0
             list[STONE] = BlockStone.class; //1
@@ -305,9 +306,9 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
 
             //TODO: list[PISTON_EXTENSION] = BlockPistonExtension.class; //250
 
-            list[OBSERVER] = BlockObserver.class; //251
+            list[OBSERVER] = BlockObserver.class; //251*/
 
-            for (int id = 0; id < 256; id++) {
+            /*for (int id = 0; id < 256; id++) {
                 Class c = list[id];
                 if (c != null) {
                     Block block;
@@ -358,23 +359,20 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
                     }
                 }
             }
-        }
+        }*/
     }
 
     public static Block get(int id) {
-        return fullList[id << 4].clone();
+        return BlockStorage.get(id).clone();
     }
 
     public static Block get(int id, Integer meta) {
-        if (meta != null) {
-            return fullList[(id << 4) + meta].clone();
-        } else {
-            return fullList[id << 4].clone();
-        }
+        if(meta == null) meta = 0;
+        return BlockStorage.get(id, meta).clone();
     }
 
     public static Block get(int id, Integer meta, Position pos) {
-        Block block = fullList[(id << 4) | (meta == null ? 0 : meta)].clone();
+        Block block = BlockStorage.get(id, meta);
         if (pos != null) {
             block.x = pos.x;
             block.y = pos.y;
@@ -385,11 +383,12 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
     }
 
     public static Block get(int id, int data) {
-        return fullList[(id << 4) + data].clone();
+        return BlockStorage.get(id, data);
     }
 
     public static Block get(int fullId, Level level, int x, int y, int z) {
-        Block block = fullList[fullId].clone();
+//        Block block = fullList[fullId].clone();
+        Block block = BlockStorage.getFullId(fullId);
         block.x = x;
         block.y = y;
         block.z = z;
@@ -546,7 +545,7 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
     }
 
     public Item[] getDrops(Item item) {
-        if (this.getId() < 0 || this.getId() > list.length) { //Unknown blocks
+        if (this.getId() < 0) { //Unknown blocks
             return new Item[0];
         } else {
             return new Item[]{

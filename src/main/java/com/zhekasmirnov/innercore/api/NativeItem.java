@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.item.Item;
+import com.reider745.api.CustomManager;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
@@ -29,7 +30,7 @@ public class NativeItem {
     private static NativeItem[] itemById = new NativeItem[MAX_ITEM_ID];
 
     public int id;
-    private CustomItem.ItemManager pointer;
+    private CustomManager pointer;
     public final String nameId;
     public final String nameToDisplay;
 
@@ -38,7 +39,7 @@ public class NativeItem {
     private static final ComponentCollection initCC = new ComponentCollection()
             .setTypes(ItemComponent.COMPONENT_ID, ECSTags.CONTENT_ID);
 
-    protected NativeItem(int id, CustomItem.ItemManager ptr, String nameId, String nameToDisplay) {
+    protected NativeItem(int id, CustomManager ptr, String nameId, String nameToDisplay) {
         this.id = id;
         this.pointer = ptr;
         this.nameId = nameId;
@@ -202,49 +203,49 @@ public class NativeItem {
      * native part
      */
 
-    public static CustomItem.ItemManager constructItem(int id, String nameId, String name, String iconName, int iconIndex){
+    public static CustomManager constructItem(int id, String nameId, String name, String iconName, int iconIndex){
         return CustomItem.registerItem(nameId, id, name);
     }
 
-    public static CustomItem.ItemManager constructArmorItem(int id, String nameId, String name, String iconName, int iconIndex, String texture, int slot, int defense, int durability, float knockbackResist){
+    public static CustomManager constructArmorItem(int id, String nameId, String name, String iconName, int iconIndex, String texture, int slot, int defense, int durability, float knockbackResist){
         return CustomItem.registerItem(nameId, id, name);
     }
 
-    public static CustomItem.ItemManager constructThrowableItem(int id, String nameId, String name, String iconName, int iconIndex){
+    public static CustomManager constructThrowableItem(int id, String nameId, String name, String iconName, int iconIndex){
         return CustomItem.registerItem(nameId, id, name);
     }
 
 
 
-    public static native void setGlint(CustomItem.ItemManager ptr, boolean val);
+    public static native void setGlint(CustomManager ptr, boolean val);
 
-    public static native void setHandEquipped(CustomItem.ItemManager ptr, boolean val);
+    public static native void setHandEquipped(CustomManager ptr, boolean val);
 
-    public static native void setLiquidClip(CustomItem.ItemManager ptr, boolean val);
+    public static native void setLiquidClip(CustomManager ptr, boolean val);
 
-    public static native void setUseAnimation(CustomItem.ItemManager ptr, int val);
+    public static native void setUseAnimation(CustomManager ptr, int val);
 
-    public static native void setMaxUseDuration(CustomItem.ItemManager ptr, int val);
+    public static native void setMaxUseDuration(CustomManager ptr, int val);
 
-    public static native void setMaxDamage(CustomItem.ItemManager ptr, int val);
+    public static native void setMaxDamage(CustomManager ptr, int val);
 
-    public static void setMaxStackSize(CustomItem.ItemManager ptr, int val){
+    public static void setMaxStackSize(CustomManager ptr, int val){
         ptr.put("max_stack", val);
     }
     
-    public static native void setStackedByData(CustomItem.ItemManager ptr, boolean val);
+    public static native void setStackedByData(CustomManager ptr, boolean val);
     
-    public static native void setAllowedInOffhand(CustomItem.ItemManager ptr, boolean val);
+    public static native void setAllowedInOffhand(CustomManager ptr, boolean val);
 
-    public static native void setCreativeCategory(CustomItem.ItemManager ptr, int val);
+    public static native void setCreativeCategory(CustomManager ptr, int val);
 
-    public static native void setProperties(CustomItem.ItemManager ptr, String val);
+    public static native void setProperties(CustomManager ptr, String val);
 
-    public static native void setEnchantability(CustomItem.ItemManager ptr, int type, int value);
+    public static native void setEnchantability(CustomManager ptr, int type, int value);
 
-    public static native void setArmorDamageable(CustomItem.ItemManager ptr, boolean value);
+    public static native void setArmorDamageable(CustomManager ptr, boolean value);
     
-    public static native void addRepairItemId(CustomItem.ItemManager ptr, int id);
+    public static native void addRepairItemId(CustomManager ptr, int id);
 
 
 
@@ -255,7 +256,6 @@ public class NativeItem {
     public static native String getNameForId(int id, int data, long extra);
 
     public static void setCreativeCategoryForId(int id, int category){
-        CustomItem.getItemManager(id).put("category", category);
     }
     
     public static String getNameForId(int id, int data) {
@@ -270,7 +270,8 @@ public class NativeItem {
 
 
     public static void addToCreativeInternal(int id, int count, int data, long extra){
-        Item.addCreativeItem(Item.get(id, data, count));
+        CustomItem.creative.add(new int[] {id, count, data});
+        //Item.addCreativeItem(Item.get(id, data, count));
     }
 
     @JSStaticFunction

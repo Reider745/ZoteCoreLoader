@@ -1,5 +1,6 @@
 package cn.nukkit.level.generator.populator.impl;
 
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.format.FullChunk;
@@ -36,7 +37,7 @@ public class PopulatorLava extends Populator {
                 int y = this.getHighestWorkableBlock(chunk, x, z);
                 if (y != -1 && chunk.getBlockId(x, y, z) == Block.AIR) {
                     chunk.setBlock(x, y, z, Block.LAVA);
-                    chunk.setBlockLight(x, y, z, Block.light[Block.LAVA]);
+                    chunk.setBlockLight(x, y, z, BlockStorage.getLight(Block.LAVA));
                     this.lavaSpread(bx + x, y, bz + z);
                 }
             }

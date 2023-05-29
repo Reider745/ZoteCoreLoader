@@ -57,7 +57,7 @@ public class BlockStorage {
     }
 
     private int getAndSetFullBlock(int index, short value) {
-        Preconditions.checkArgument(value < 0xfff, "Invalid full block");
+        //Preconditions.checkArgument(value < 0xfff, "Invalid full block");
         byte oldBlock = blockIds[index];
         byte oldData = blockData.get(index);
         byte newBlock = (byte) ((value & 0xff0) >> 4);

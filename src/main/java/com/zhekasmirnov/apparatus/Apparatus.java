@@ -2,11 +2,13 @@ package com.zhekasmirnov.apparatus;
 
 import android.util.Log;
 import cn.nukkit.Server;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.GlobalBlockPalette;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.reider745.InnerCoreServer;
+import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
@@ -91,7 +93,10 @@ public class Apparatus {
     }
 
     public static void postInit(){
+        CustomBlock.init();
         CustomItem.init();
+
+        CustomItem.creative.forEach(item -> Item.addCreativeItem(Item.get(item[0], item[2], item[1])));
     }
 
     public static int getVersionCode() {

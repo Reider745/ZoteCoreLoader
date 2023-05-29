@@ -3,7 +3,6 @@ package com.zhekasmirnov.innercore.api.unlimited;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
-import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -61,11 +60,7 @@ public class BlockVariant {
                         if (tex[0] instanceof CharSequence && tex[1] instanceof Number) {
                             textures[i] = tex[0].toString();
                             textureIds[i] = ((Number) tex[1]).intValue();
-                            if(!ResourcePackManager.isValidBlockTexture(textures[i], textureIds[i])){
-                                Logger.debug("WARNING", "invalid block texture: " + textures[i] + " " + textureIds[i]);
-                                textures[i] = "missing_block";
-                                textureIds[i] = 0;
-                            }
+
                         }
                     }
                 }
@@ -87,13 +82,7 @@ public class BlockVariant {
             }
         }
 
-        for (int i = 0; i < 6; i++) {
-            if (!ResourcePackManager.isValidBlockTexture(textures[i], textureIds[i])) {
-                Logger.debug(BlockRegistry.LOGGER_TAG, "invalid block texture will be replaced with default: " + textures[i] + " " + textureIds[i]);
-                textures[i] = "missing_block";
-                textureIds[i] = 0;
-            }
-        }
+
     }
 
     public Object getGuiBlockModel() {
@@ -101,6 +90,6 @@ public class BlockVariant {
     }
 
     public String getSpriteTexturePath() {
-        return ResourcePackManager.getBlockTextureName(textures[0], textureIds[0]);
+        return "";
     }
 }

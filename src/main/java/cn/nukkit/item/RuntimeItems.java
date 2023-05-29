@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.utils.BinaryStream;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -41,7 +42,7 @@ public class RuntimeItems {
         Collection<Entry> entries = GSON.fromJson(reader, ENTRY_TYPE);
 
         BinaryStream paletteBuffer = new BinaryStream();
-        paletteBuffer.putUnsignedVarInt(entries.size()+ CustomItem.customItems.size());
+        paletteBuffer.putUnsignedVarInt(entries.size() + CustomItem.customItems.size()+ CustomBlock.customBlocks.size());
 
         Int2IntMap legacyNetworkMap = new Int2IntOpenHashMap();
         Int2IntMap networkLegacyMap = new Int2IntOpenHashMap();
@@ -59,6 +60,16 @@ public class RuntimeItems {
 
 
         CustomItem.customItems.forEach((name, id) -> {
+            paletteBuffer.putString(name);
+            paletteBuffer.putLShort(id);
+            paletteBuffer.putBoolean(false); // Component item
+
+            int fullId = getFullId(id, 0);
+            legacyNetworkMap.put(fullId, (id << 1) | 1);
+            networkLegacyMap.put((int) id, fullId | 1);
+        });
+
+        CustomBlock.customBlocks.forEach((name, id) -> {
             paletteBuffer.putString(name);
             paletteBuffer.putLShort(id);
             paletteBuffer.putBoolean(false); // Component item

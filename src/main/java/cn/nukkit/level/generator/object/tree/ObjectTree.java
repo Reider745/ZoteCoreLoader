@@ -1,5 +1,6 @@
 package cn.nukkit.level.generator.object.tree;
 
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockSapling;
 import cn.nukkit.level.ChunkManager;
@@ -105,7 +106,7 @@ public abstract class ObjectTree {
                     if (xOff == mid && zOff == mid && (yOff == 0 || random.nextBoundedInt(2) == 0)) {
                         continue;
                     }
-                    if (!Block.solid[level.getBlockIdAt(xx, yy, zz)]) {
+                    if (!BlockStorage.canSolid(level.getBlockIdAt(xx, yy, zz))) {
                         level.setBlockAt(xx, yy, zz, this.getLeafBlock(), this.getType());
                     }
                 }

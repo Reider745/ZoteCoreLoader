@@ -1,6 +1,7 @@
 package cn.nukkit.level.format.mcregion;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
@@ -204,7 +205,7 @@ public class Chunk extends BaseFullChunk {
             changed = true;
         }
 
-        if (Block.hasMeta[blockId]) {
+        if (BlockStorage.canMeta(blockId)) {
             i >>= 1;
             int old = this.data[i] & 0xff;
             if ((y & 1) == 0) {
@@ -244,7 +245,7 @@ public class Chunk extends BaseFullChunk {
         int old = this.data[i] & 0xff;
         if ((y & 1) == 0) {
             previousData = old & 0x0f;
-            if (Block.hasMeta[block.getId()]) {
+            if (BlockStorage.canMeta(block.getId())) {
                 this.data[i] = (byte) ((old & 0xf0) | (block.getDamage() & 0x0f));
                 if (block.getDamage() != previousData) {
                     changed = true;
@@ -252,7 +253,7 @@ public class Chunk extends BaseFullChunk {
             }
         } else {
             previousData = old >> 4;
-            if (Block.hasMeta[block.getId()]) {
+            if (BlockStorage.canMeta(block.getId())) {
                 this.data[i] = (byte) (((block.getDamage() & 0x0f) << 4) | (old & 0x0f));
                 if (block.getDamage() != previousData) {
                     changed = true;

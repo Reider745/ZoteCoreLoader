@@ -1,6 +1,7 @@
 package cn.nukkit.blockentity;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.inventory.BeaconInventory;
@@ -157,7 +158,7 @@ public class BlockEntityBeacon extends BlockEntitySpawnable {
         //Check every block from our y coord to the top of the world
         for (int y = tileY + 1; y <= 255; y++) {
             int testBlockId = level.getBlockIdAt(tileX, y, tileZ);
-            if (!Block.transparent[testBlockId]) {
+            if (!BlockStorage.canTransparent(testBlockId)) {
                 //There is no sky access
                 return false;
             }

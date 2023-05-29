@@ -1,5 +1,6 @@
 package cn.nukkit.level.generator.object.mushroom;
 
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.level.ChunkManager;
@@ -173,7 +174,7 @@ public class BigMushroom extends BasicGenerator {
                                 if (position.getY() >= position.getY() + i - 1 || meta != ALL_INSIDE) {
                                     Vector3 blockPos = new Vector3(l1, l2, i2);
 
-                                    if (!Block.solid[level.getBlockIdAt(blockPos.getFloorX(), blockPos.getFloorY(), blockPos.getFloorZ())]) {
+                                    if (!BlockStorage.canSolid(level.getBlockIdAt(blockPos.getFloorX(), blockPos.getFloorY(), blockPos.getFloorZ()))) {
                                         mushroom.setDamage(meta);
                                         this.setBlockAndNotifyAdequately(level, blockPos, mushroom);
                                     }
@@ -186,7 +187,7 @@ public class BigMushroom extends BasicGenerator {
                         Vector3 pos = position.up(i3);
                         int id = level.getBlockIdAt(pos.getFloorX(), pos.getFloorY(), pos.getFloorZ());
 
-                        if (!Block.solid[id]) {
+                        if (BlockStorage.canSolid(id)) {
                             mushroom.setDamage(STEM);
                             this.setBlockAndNotifyAdequately(level, pos, mushroom);
                         }

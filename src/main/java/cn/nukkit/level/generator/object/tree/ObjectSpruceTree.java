@@ -1,5 +1,6 @@
 package cn.nukkit.level.generator.object.tree;
 
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockWood;
 import cn.nukkit.level.ChunkManager;
@@ -60,7 +61,7 @@ public class ObjectSpruceTree extends ObjectTree {
                         continue;
                     }
 
-                    if (!Block.solid[level.getBlockIdAt(xx, yyy, zz)]) {
+                    if (!BlockStorage.canSolid(level.getBlockIdAt(xx, yyy, zz))) {
                         level.setBlockAt(xx, yyy, zz, this.getLeafBlock(), this.getType());
                     }
                 }

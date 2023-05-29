@@ -2,6 +2,7 @@ package cn.nukkit.level.format.anvil;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
@@ -450,7 +451,7 @@ public class Chunk extends BaseChunk {
                 if (height < y) {
                     return 15;
                 } else if (height == y) {
-                    return Block.transparent[getBlockId(x, y, z)] ? 15 : 0;
+                    return BlockStorage.canTransparent(getBlockId(x, y, z)) ? 15 : 0;
                 } else {
                     return section.getBlockSkyLight(x, y & 0x0f, z);
                 }

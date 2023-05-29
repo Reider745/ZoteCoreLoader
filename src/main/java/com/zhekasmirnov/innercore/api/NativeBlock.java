@@ -1,5 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
+import com.reider745.api.CustomManager;
+import com.reider745.block.CustomBlock;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
@@ -19,7 +21,7 @@ import java.util.HashMap;
 
 public class NativeBlock {
 
-    private long pointer;
+    private CustomManager pointer;
 
     private int id;
     private String basicName = "Unknown Block";
@@ -30,7 +32,7 @@ public class NativeBlock {
     private static final ComponentCollection initCC = new ComponentCollection()
             .setTypes(BlockComponent.COMPONENT_ID, ECSTags.CONTENT_ID);
 
-    protected NativeBlock(long ptr, int id, String nameId, String name) {
+    protected NativeBlock(CustomManager ptr, int id, String nameId, String name) {
         this.pointer = ptr;
         this.id = id;
         this.basicName = name;
@@ -60,7 +62,7 @@ public class NativeBlock {
 
     public static NativeBlock[] createLiquidBlock(int id1, String nameId1, int id2, String nameId2, String name, int materialBase, int tickDelay, boolean isRenewable) {
         name = NameTranslation.fixUnicodeIfRequired("block." + nameId1, name);
-        long[] pointers = constructLiquidBlockPair(id1, nameId1, id2, nameId2, name, materialBase, tickDelay, isRenewable);
+        CustomManager[] pointers = constructLiquidBlockPair(id1, nameId1, id2, nameId2, name, materialBase, tickDelay, isRenewable);
         return new NativeBlock[]{ new NativeBlock(pointers[0], id1, nameId1, name), new NativeBlock(pointers[1], id2, nameId2, name) };
     }
 
@@ -68,9 +70,16 @@ public class NativeBlock {
      * native part
      */
 
-    public static native long constructBlock(int id, String nameId, String name, int materialBaseId);
-    public static native long[] constructLiquidBlockPair(int id1, String nameId1, int id2, String nameId2, String name, int materialBaseId, int tickDelay, boolean isRenewable);
-    public static native long addVariant(long pointer, String name, String[] textureNames, int[] textureIds);
+    public static CustomManager constructBlock(int id, String nameId, String name, int materialBaseId){
+        return CustomBlock.registerBlock(nameId, id, name);
+    }
+    public static native CustomManager[] constructLiquidBlockPair(int id1, String nameId1, int id2, String nameId2, String name, int materialBaseId, int tickDelay, boolean isRenewable);
+    public static long addVariant(CustomManager pointer, String name, String[] textureNames, int[] textureIds){
+        ArrayList<String> variants = pointer.get("variants", new ArrayList<>());
+        variants.add(name);
+        pointer.put("variants", variants);
+        return variants.size()-1;
+    }
 
     public static native int getMaterial(int id);
     public static native boolean isSolid(int id);

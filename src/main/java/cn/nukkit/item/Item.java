@@ -2,6 +2,7 @@ package cn.nukkit.item;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.Entity;
@@ -84,12 +85,6 @@ public class Item implements Cloneable, BlockID, ItemID {
 
     public boolean canBeActivated() {
         return false;
-    }
-
-    public static void registerItem(int id, Class item){
-        if (list == null)
-            list = new Class[65535];
-        list[id] = item;
     }
 
     public static void init() {
@@ -336,11 +331,12 @@ public class Item implements Cloneable, BlockID, ItemID {
 
             list[RECORD_PIGSTEP] = ItemRecordPigstep.class; //759
 
-            for (int i = 0; i < 256; ++i) {
+            BlockStorage.forEach((id, block) -> list[id] = block);
+            /*for (int i = 0; i < 256; ++i) {
                 if (Block.list[i] != null) {
                     list[i] = Block.list[i];
                 }
-            }
+            }*/
         }
 
         initCreativeItems();
@@ -423,7 +419,13 @@ public class Item implements Cloneable, BlockID, ItemID {
             Item item;
 
             if (c == null) {
-                item = new Item(id, meta, count);
+                if(id > 8000)
+                    if (meta >= 0)
+                        item = new ItemBlock(Block.get(id, meta), meta, count);
+                    else
+                        item = new ItemBlock(Block.get(id), meta, count);
+                else
+                    item = new Item(id, meta, count);
             } else if (id < 256) {
                 if (meta >= 0) {
                     item = new ItemBlock(Block.get(id, meta), meta, count);

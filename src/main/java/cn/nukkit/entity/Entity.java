@@ -2,6 +2,7 @@ package cn.nukkit.entity;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.*;
 import cn.nukkit.entity.data.*;
 import cn.nukkit.event.Event;
@@ -1200,13 +1201,13 @@ public abstract class Entity extends Location implements Metadatable, InventoryH
         double diffY = y - j;
         double diffZ = z - k;
 
-        if (!Block.transparent[this.level.getBlockIdAt(i, j, k)]) {
-            boolean flag = Block.transparent[this.level.getBlockIdAt(i - 1, j, k)];
-            boolean flag1 = Block.transparent[this.level.getBlockIdAt(i + 1, j, k)];
-            boolean flag2 = Block.transparent[this.level.getBlockIdAt(i, j - 1, k)];
-            boolean flag3 = Block.transparent[this.level.getBlockIdAt(i, j + 1, k)];
-            boolean flag4 = Block.transparent[this.level.getBlockIdAt(i, j, k - 1)];
-            boolean flag5 = Block.transparent[this.level.getBlockIdAt(i, j, k + 1)];
+        if (!BlockStorage.canTransparent(this.level.getBlockIdAt(i, j, k))) {
+            boolean flag = BlockStorage.canTransparent(this.level.getBlockIdAt(i - 1, j, k));
+            boolean flag1 = BlockStorage.canTransparent(this.level.getBlockIdAt(i + 1, j, k));
+            boolean flag2 = BlockStorage.canTransparent(this.level.getBlockIdAt(i, j - 1, k));
+            boolean flag3 = BlockStorage.canTransparent(this.level.getBlockIdAt(i, j + 1, k));
+            boolean flag4 = BlockStorage.canTransparent(this.level.getBlockIdAt(i, j, k - 1));
+            boolean flag5 = BlockStorage.canTransparent(this.level.getBlockIdAt(i, j, k + 1));
 
             int direction = -1;
             double limit = 9999;

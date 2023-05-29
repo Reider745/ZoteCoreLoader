@@ -4,6 +4,8 @@ import android.util.Pair;
 import cn.nukkit.Server;
 import cn.nukkit.block.BlockID;
 import com.google.common.io.ByteStreams;
+import com.reider745.block.CustomBlock;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import lombok.extern.log4j.Log4j2;
@@ -34,7 +36,6 @@ public class GlobalBlockPalette {
 
     private static long computeStateHash(int id, JSONObject statesJson, Map<String, Integer> stateIdByName) {
         ArrayList<int[]> states = new ArrayList<>();
-        int i = 0;
         for (String key : statesJson.keySet()) {
             if (!stateIdByName.containsKey(key))
                 log.error("state not found: " + key);
@@ -48,6 +49,7 @@ public class GlobalBlockPalette {
     }
 
     static {
+        Server.getInstance().getLogger().info("Loading runtime blocks...");
         legacyToRuntimeId.defaultReturnValue(-1);
         runtimeIdToLegacy.defaultReturnValue(-1);
 
@@ -72,6 +74,20 @@ public class GlobalBlockPalette {
                 // log.info(e.getString("nameId") + legacyId + ":" + legacyData + " -> " + hash);
                 stateHashToLegacyIdData.put(hash, (legacyId << 16) | legacyData);
             }
+        }catch (Exception e){log.throwing(e);}
+
+        try {
+            CustomBlock.blocks.forEach((id, manager) -> {
+                ArrayList<String> variants = manager.get("variants", new ArrayList<>());
+
+                for(int i = 0;i < variants.size();i++) {
+                    Logger.debug(id+":"+i);
+                    long hash = computeStateHash(id, new JSONObject().put("color", i), stateIdByName);
+                    if (stateHashToLegacyIdData.containsKey(hash))
+                        throw new RuntimeException("hash collision: " + hash);
+                    stateHashToLegacyIdData.put(hash, (id << 16) | i);
+                }
+            });
         }catch (Exception e){log.throwing(e);}
 
         ArrayList<Long> sortedStateHash = new ArrayList<>(stateHashToLegacyIdData.keySet());

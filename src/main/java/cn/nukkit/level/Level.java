@@ -2,6 +2,7 @@ package cn.nukkit.level;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.block.BlockRedstoneDiode;
@@ -1544,7 +1545,8 @@ public class Level implements ChunkManager, Metadatable {
         } else {
             fullState = 0;
         }
-        Block block = Block.fullList[fullState & 0xFFF].clone();
+        //Block block = Block.fullList[fullState & 0xFFF].clone();
+        Block block = BlockStorage.getFullId(fullState & 0xFFF);
         block.x = x;
         block.y = y;
         block.z = z;
@@ -1592,7 +1594,7 @@ public class Level implements ChunkManager, Metadatable {
                     int lcx = x & 0xF;
                     int lcz = z & 0xF;
                     int oldLevel = chunk.getBlockLight(lcx, y, lcz);
-                    int newLevel = Block.light[chunk.getBlockId(lcx, y, lcz)];
+                    int newLevel = BlockStorage.getLight(chunk.getBlockId(lcx, y, lcz)); //Block.light[chunk.getBlockId(lcx, y, lcz)];
                     if (oldLevel != newLevel) {
                         this.setBlockLightAt(x, y, z, newLevel);
                         if (newLevel < oldLevel) {
@@ -1638,7 +1640,7 @@ public class Level implements ChunkManager, Metadatable {
             int z = Hash.hashBlockZ(node);
 
             int lightLevel = this.getBlockLightAt(x, y, z)
-                    - Block.lightFilter[this.getBlockIdAt(x, y, z)];
+                    - BlockStorage.getLightFilter(this.getBlockIdAt(x, y, z));
 
             if (lightLevel >= 1) {
                 this.computeSpreadBlockLight(x - 1, y, z, lightLevel, lightPropagationQueue, visited);
@@ -1702,7 +1704,7 @@ public class Level implements ChunkManager, Metadatable {
 
     @Override
     public synchronized void setBlockFullIdAt(int x, int y, int z, int fullId) {
-        setBlock(x, y, z, Block.fullList[fullId], false, false);
+        setBlock(x, y, z, BlockStorage.getFullId(fullId), false, false);
     }
 
     public synchronized boolean setBlock(Vector3 pos, Block block) {
@@ -2072,6 +2074,7 @@ public class Level implements ChunkManager, Metadatable {
 
 
     public Item useItemOn(Vector3 vector, Item item, BlockFace face, float fx, float fy, float fz, Player player, boolean playSound) {
+        Server.getInstance().getLogger().info("useItemOn");
         Block target = this.getBlock(vector);
         Block block = target.getSide(face);
 
@@ -2087,6 +2090,7 @@ public class Level implements ChunkManager, Metadatable {
             return null;
         }
 
+        Server.getInstance().getLogger().info("plugin");
         if (player != null) {
             PlayerInteractEvent ev = new PlayerInteractEvent(player, item, target, face,
                     target.getId() == 0 ? Action.RIGHT_CLICK_AIR : Action.RIGHT_CLICK_BLOCK);
@@ -2132,13 +2136,14 @@ public class Level implements ChunkManager, Metadatable {
             return item;
         }
         Block hand;
+        Server.getInstance().getLogger().info("canBePlaced "+item.canBePlaced()+" "+(item.getBlock()==null));
         if (item.canBePlaced()) {
             hand = item.getBlock();
             hand.position(block);
         } else {
             return null;
         }
-
+        Server.getInstance().getLogger().info("canBeReplaced");
         if (!(block.canBeReplaced() || (hand.getId() == Item.SLAB && block.getId() == Item.SLAB))) {
             return null;
         }
@@ -2148,6 +2153,7 @@ public class Level implements ChunkManager, Metadatable {
             hand.position(block);
         }
 
+        Server.getInstance().getLogger().info("canPassThrough");
         if (!hand.canPassThrough() && hand.getBoundingBox() != null) {
             Entity[] entities = this.getCollidingEntities(hand.getBoundingBox());
             int realCount = 0;
@@ -2172,7 +2178,7 @@ public class Level implements ChunkManager, Metadatable {
                 return null; // Entity in block
             }
         }
-
+        Server.getInstance().getLogger().info("BlockPlaceEvent");
         if (player != null) {
             BlockPlaceEvent event = new BlockPlaceEvent(player, hand, block, target, item);
             if (player.getGamemode() == 2) {
@@ -2202,7 +2208,7 @@ public class Level implements ChunkManager, Metadatable {
                 return null;
             }
         }
-
+        Server.getInstance().getLogger().info("place");
         if (!hand.place(item, block, target, face, fx, fy, fz, player)) {
             return null;
         }
@@ -2220,6 +2226,7 @@ public class Level implements ChunkManager, Metadatable {
         if (item.getCount() <= 0) {
             item = new ItemBlock(Block.get(BlockID.AIR), 0, 0);
         }
+        Server.getInstance().getLogger().info("final place");
         return item;
     }
 

@@ -1,6 +1,7 @@
 package cn.nukkit.level.format.generic;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
@@ -274,7 +275,7 @@ public abstract class BaseFullChunk implements FullChunk, ChunkManager {
                     this.setBlockSkyLight(x, y, z, 15);
                 }
                 for (int y = top; y >= 0; --y) {
-                    if (Block.solid[this.getBlockId(x, y, z)]) {
+                    if (BlockStorage.canSolid(this.getBlockId(x, y, z))) {
                         break;
                     }
                     this.setBlockSkyLight(x, y, z, 15);
