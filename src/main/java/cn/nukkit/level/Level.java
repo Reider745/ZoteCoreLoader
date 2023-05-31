@@ -1546,7 +1546,7 @@ public class Level implements ChunkManager, Metadatable {
             fullState = 0;
         }
         //Block block = Block.fullList[fullState & 0xFFF].clone();
-        Block block = BlockStorage.getFullId(fullState & 0xFFF);
+        Block block = BlockStorage.getFullId(fullState).clone();
         block.x = x;
         block.y = y;
         block.z = z;
@@ -2074,7 +2074,6 @@ public class Level implements ChunkManager, Metadatable {
 
 
     public Item useItemOn(Vector3 vector, Item item, BlockFace face, float fx, float fy, float fz, Player player, boolean playSound) {
-        Server.getInstance().getLogger().info("useItemOn");
         Block target = this.getBlock(vector);
         Block block = target.getSide(face);
 
@@ -2090,7 +2089,6 @@ public class Level implements ChunkManager, Metadatable {
             return null;
         }
 
-        Server.getInstance().getLogger().info("plugin");
         if (player != null) {
             PlayerInteractEvent ev = new PlayerInteractEvent(player, item, target, face,
                     target.getId() == 0 ? Action.RIGHT_CLICK_AIR : Action.RIGHT_CLICK_BLOCK);
@@ -2136,14 +2134,12 @@ public class Level implements ChunkManager, Metadatable {
             return item;
         }
         Block hand;
-        Server.getInstance().getLogger().info("canBePlaced "+item.canBePlaced()+" "+(item.getBlock()==null));
         if (item.canBePlaced()) {
             hand = item.getBlock();
             hand.position(block);
         } else {
             return null;
         }
-        Server.getInstance().getLogger().info("canBeReplaced");
         if (!(block.canBeReplaced() || (hand.getId() == Item.SLAB && block.getId() == Item.SLAB))) {
             return null;
         }
@@ -2153,7 +2149,6 @@ public class Level implements ChunkManager, Metadatable {
             hand.position(block);
         }
 
-        Server.getInstance().getLogger().info("canPassThrough");
         if (!hand.canPassThrough() && hand.getBoundingBox() != null) {
             Entity[] entities = this.getCollidingEntities(hand.getBoundingBox());
             int realCount = 0;
@@ -2178,7 +2173,7 @@ public class Level implements ChunkManager, Metadatable {
                 return null; // Entity in block
             }
         }
-        Server.getInstance().getLogger().info("BlockPlaceEvent");
+
         if (player != null) {
             BlockPlaceEvent event = new BlockPlaceEvent(player, hand, block, target, item);
             if (player.getGamemode() == 2) {
@@ -2208,11 +2203,9 @@ public class Level implements ChunkManager, Metadatable {
                 return null;
             }
         }
-        Server.getInstance().getLogger().info("place");
         if (!hand.place(item, block, target, face, fx, fy, fz, player)) {
             return null;
         }
-
         if (player != null) {
             if (!player.isCreative()) {
                 item.setCount(item.getCount() - 1);
@@ -2226,7 +2219,6 @@ public class Level implements ChunkManager, Metadatable {
         if (item.getCount() <= 0) {
             item = new ItemBlock(Block.get(BlockID.AIR), 0, 0);
         }
-        Server.getInstance().getLogger().info("final place");
         return item;
     }
 

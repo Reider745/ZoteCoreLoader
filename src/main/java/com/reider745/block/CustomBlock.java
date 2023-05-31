@@ -1,6 +1,7 @@
 package com.reider745.block;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.*;
 import cn.nukkit.item.Item;
@@ -87,10 +88,5 @@ public class CustomBlock extends BlockSolidMeta {
         customBlock.name = name;
         customBlock.manager = manager;
         return customBlock;
-    }
-
-    @Override
-    public boolean place(Item item, Block block, Block target, BlockFace face, double fx, double fy, double fz, Player player) {
-        return player.getLevel().setBlock(this, this, true);
     }
 }

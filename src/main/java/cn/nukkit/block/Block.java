@@ -387,8 +387,7 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
     }
 
     public static Block get(int fullId, Level level, int x, int y, int z) {
-//        Block block = fullList[fullId].clone();
-        Block block = BlockStorage.getFullId(fullId);
+        Block block = BlockStorage.getFullId(fullId).clone();
         block.x = x;
         block.y = y;
         block.z = z;

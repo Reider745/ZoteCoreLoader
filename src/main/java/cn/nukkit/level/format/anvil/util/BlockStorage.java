@@ -1,23 +1,26 @@
 package cn.nukkit.level.format.anvil.util;
 
+import cn.nukkit.Server;
 import cn.nukkit.level.GlobalBlockPalette;
 import cn.nukkit.level.util.PalettedBlockStorage;
 import cn.nukkit.utils.BinaryStream;
 import com.google.common.base.Preconditions;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public class BlockStorage {
     private static final int SECTION_SIZE = 4096;
-    private final byte[] blockIds;
+    private final int[] blockIds;
     private final NibbleArray blockData;
 
     public BlockStorage() {
-        blockIds = new byte[SECTION_SIZE];
+        blockIds = new int[SECTION_SIZE];
         blockData = new NibbleArray(SECTION_SIZE);
     }
 
-    private BlockStorage(byte[] blockIds, NibbleArray blockData) {
+    private BlockStorage(int[] blockIds, NibbleArray blockData) {
         this.blockIds = blockIds;
         this.blockData = blockData;
     }
@@ -33,11 +36,11 @@ public class BlockStorage {
     }
 
     public int getBlockId(int x, int y, int z) {
-        return blockIds[getIndex(x, y, z)] & 0xFF;
+        return blockIds[getIndex(x, y, z)];
     }
 
     public void setBlockId(int x, int y, int z, int id) {
-        blockIds[getIndex(x, y, z)] = (byte) (id & 0xff);
+        blockIds[getIndex(x, y, z)] = id;
     }
 
     public void setBlockData(int x, int y, int z, int data) {
@@ -49,18 +52,18 @@ public class BlockStorage {
     }
 
     public void setFullBlock(int x, int y, int z, int value) {
-        this.setFullBlock(getIndex(x, y, z), (short) value);
+        this.setFullBlock(getIndex(x, y, z), value);
     }
 
     public int getAndSetFullBlock(int x, int y, int z, int value) {
-        return getAndSetFullBlock(getIndex(x, y, z), (short) value);
+        return getAndSetFullBlock(getIndex(x, y, z), value);
     }
 
-    private int getAndSetFullBlock(int index, short value) {
+    private int getAndSetFullBlock(int index, int value) {
         //Preconditions.checkArgument(value < 0xfff, "Invalid full block");
-        byte oldBlock = blockIds[index];
+        int oldBlock = blockIds[index];
         byte oldData = blockData.get(index);
-        byte newBlock = (byte) ((value & 0xff0) >> 4);
+        int newBlock = value >> 4;
         byte newData = (byte) (value & 0xf);
         if (oldBlock != newBlock) {
             blockIds[index] = newBlock;
@@ -68,25 +71,25 @@ public class BlockStorage {
         if (oldData != newData) {
             blockData.set(index, newData);
         }
-        return ((oldBlock & 0xff) << 4) | oldData;
+        return (oldBlock << 4) | oldData;
     }
 
     private int getFullBlock(int index) {
-        byte block = blockIds[index];
+        int block = blockIds[index];
         byte data = blockData.get(index);
-        return ((block & 0xff) << 4) | data;
+        return (block << 4) | data;
     }
 
-    private void setFullBlock(int index, short value) {
-        Preconditions.checkArgument(value < 0xfff, "Invalid full block");
-        byte block = (byte) ((value & 0xff0) >> 4);
+    private void setFullBlock(int index, int value) {
+        //Preconditions.checkArgument(value < 0xfff, "Invalid full block");
+        int block = (value >> 4);
         byte data = (byte) (value & 0xf);
 
         blockIds[index] = block;
         blockData.set(index, data);
     }
 
-    public byte[] getBlockIds() {
+    public int[] getBlockIds() {
         return Arrays.copyOf(blockIds, blockIds.length);
     }
 
@@ -97,7 +100,7 @@ public class BlockStorage {
     public void writeTo(BinaryStream stream) {
         PalettedBlockStorage storage = new PalettedBlockStorage();
         for (int i = 0; i < SECTION_SIZE; i++) {
-            storage.setBlock(i, GlobalBlockPalette.getOrCreateRuntimeId(blockIds[i] & 0xff, blockData.get(i)));
+            storage.setBlock(i, GlobalBlockPalette.getOrCreateRuntimeId(blockIds[i], blockData.get(i)));
         }
         storage.writeTo(stream);
     }

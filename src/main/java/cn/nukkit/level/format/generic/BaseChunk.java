@@ -55,6 +55,8 @@ public abstract class BaseChunk extends BaseFullChunk implements Chunk {
 
     @Override
     public Block getAndSetBlock(int x, int y, int z, Block block) {
+
+        Server.getInstance().getLogger().info("id set: "+block.getId());
         int Y = y >> 4;
         try {
             setChanged();
