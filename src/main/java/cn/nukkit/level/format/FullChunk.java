@@ -138,7 +138,7 @@ public interface FullChunk extends Cloneable {
 
     byte[] getHeightMapArray();
 
-    byte[] getBlockIdArray();
+    int[] getBlockIdArray();
 
     byte[] getBlockDataArray();
 

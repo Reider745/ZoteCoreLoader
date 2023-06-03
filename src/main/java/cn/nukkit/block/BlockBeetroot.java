@@ -22,6 +22,11 @@ public class BlockBeetroot extends BlockCrops {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "Beetroot Block";
     }

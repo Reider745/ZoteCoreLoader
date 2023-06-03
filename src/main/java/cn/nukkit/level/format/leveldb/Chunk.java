@@ -57,8 +57,8 @@ public class Chunk extends BaseFullChunk {
     public Chunk(LevelProvider level, int chunkX, int chunkZ, byte[] terrain, List<CompoundTag> entityData, List<CompoundTag> tileData, Map<Integer, Integer> extraData) {
         ByteBuffer buffer = ByteBuffer.wrap(terrain).order(ByteOrder.BIG_ENDIAN);
 
-        byte[] blocks = new byte[32768];
-        buffer.get(blocks);
+        int[] blocks = new int[32768];
+        Binary.readIntArray(buffer, blocks);
 
         byte[] data = new byte[16384];
         buffer.get(data);
@@ -116,12 +116,12 @@ public class Chunk extends BaseFullChunk {
 
     @Override
     public int getBlockId(int x, int y, int z) {
-        return this.blocks[(x << 11) | (z << 7) | y] & 0xff;
+        return this.blocks[(x << 11) | (z << 7) | y];
     }
 
     @Override
     public void setBlockId(int x, int y, int z, int id) {
-        this.blocks[(x << 11) | (z << 7) | y] = (byte) id;
+        this.blocks[(x << 11) | (z << 7) | y] = id;
         setChanged();
     }
 
@@ -150,7 +150,7 @@ public class Chunk extends BaseFullChunk {
     @Override
     public int getFullBlock(int x, int y, int z) {
         int i = (x << 11) | (z << 7) | y;
-        int block = this.blocks[i] & 0xff;
+        int block = this.blocks[i];
         int data = this.data[i >> 1] & 0xff;
         if ((y & 1) == 0) {
             return (block << 4) | (data & 0x0f);
@@ -163,9 +163,9 @@ public class Chunk extends BaseFullChunk {
     public Block getAndSetBlock(int x, int y, int z, Block block) {
         int i = (x << 11) | (z << 7) | y;
         boolean changed = false;
-        byte id = (byte) block.getId();
+        int id = block.getId();
 
-        byte previousId = this.blocks[i];
+        int previousId = this.blocks[i];
 
         if (previousId != id) {
             this.blocks[i] = id;
@@ -208,7 +208,7 @@ public class Chunk extends BaseFullChunk {
     public boolean setBlock(int x, int y, int z, int blockId, int meta) {
         int i = (x << 11) | (z << 7) | y;
         boolean changed = false;
-        byte id = (byte) blockId;
+        int id = blockId;
         if (this.blocks[i] != id) {
             this.blocks[i] = id;
             changed = true;
@@ -501,7 +501,7 @@ public class Chunk extends BaseFullChunk {
             return Binary.appendBytes(
                     Binary.writeLInt(this.getX()),
                     Binary.writeLInt(this.getZ()),
-                    this.getBlockIdArray(),
+                    Binary.writeArrayInt(this.getBlockIdArray()),
                     this.getBlockDataArray(),
                     this.getBlockSkyLightArray(),
                     this.getBlockLightArray(),

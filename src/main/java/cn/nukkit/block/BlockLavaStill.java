@@ -22,6 +22,11 @@ public class BlockLavaStill extends BlockLava {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "Still Lava";
     }

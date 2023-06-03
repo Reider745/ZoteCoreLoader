@@ -105,37 +105,6 @@ public class Level implements ChunkManager, Metadatable {
     // Lower values use less memory
     public static final int MAX_BLOCK_CACHE = 512;
 
-    // The blocks that can randomly tick
-    private static final boolean[] randomTickBlocks = new boolean[256];
-
-    static {
-        randomTickBlocks[Block.GRASS] = true;
-        randomTickBlocks[Block.FARMLAND] = true;
-        randomTickBlocks[Block.MYCELIUM] = true;
-        randomTickBlocks[Block.SAPLING] = true;
-        randomTickBlocks[Block.LEAVES] = true;
-        randomTickBlocks[Block.LEAVES2] = true;
-        randomTickBlocks[Block.SNOW_LAYER] = true;
-        randomTickBlocks[Block.ICE] = true;
-        randomTickBlocks[Block.LAVA] = true;
-        randomTickBlocks[Block.STILL_LAVA] = true;
-        randomTickBlocks[Block.CACTUS] = true;
-        randomTickBlocks[Block.BEETROOT_BLOCK] = true;
-        randomTickBlocks[Block.CARROT_BLOCK] = true;
-        randomTickBlocks[Block.POTATO_BLOCK] = true;
-        randomTickBlocks[Block.MELON_STEM] = true;
-        randomTickBlocks[Block.PUMPKIN_STEM] = true;
-        randomTickBlocks[Block.WHEAT_BLOCK] = true;
-        randomTickBlocks[Block.SUGARCANE_BLOCK] = true;
-        randomTickBlocks[Block.RED_MUSHROOM] = true;
-        randomTickBlocks[Block.BROWN_MUSHROOM] = true;
-        randomTickBlocks[Block.NETHER_WART_BLOCK] = true;
-        randomTickBlocks[Block.FIRE] = true;
-        randomTickBlocks[Block.GLOWING_REDSTONE_ORE] = true;
-        randomTickBlocks[Block.COCOA_BLOCK] = true;
-        randomTickBlocks[Block.VINE] = true;
-    }
-
     private final Long2ObjectOpenHashMap<BlockEntity> blockEntities = new Long2ObjectOpenHashMap<>();
 
     private final Long2ObjectOpenHashMap<Player> players = new Long2ObjectOpenHashMap<>();
@@ -1155,7 +1124,7 @@ public class Level implements ChunkManager, Metadatable {
 
                                     int fullId = section.getFullBlock(x, y, z);
                                     int blockId = fullId >> 4;
-                                    if (randomTickBlocks[blockId]) {
+                                    if (BlockStorage.canRandomTicksBlock(blockId)) {
                                         Block block = Block.get(fullId, this, chunkX * 16 + x, (Y << 4) + y, chunkZ * 16 + z);
                                         block.onUpdate(BLOCK_UPDATE_RANDOM);
                                     }
@@ -1174,7 +1143,7 @@ public class Level implements ChunkManager, Metadatable {
                                 int fullId = chunk.getFullBlock(x, y + (Y << 4), z);
                                 int blockId = fullId >> 4;
                                 blockTest |= fullId;
-                                if (Level.randomTickBlocks[blockId]) {
+                                if (BlockStorage.canRandomTicksBlock(blockId)) {
                                     Block block = Block.get(fullId, this, x, y + (Y << 4), z);
                                     block.onUpdate(BLOCK_UPDATE_RANDOM);
                                 }
@@ -1546,7 +1515,13 @@ public class Level implements ChunkManager, Metadatable {
             fullState = 0;
         }
         //Block block = Block.fullList[fullState & 0xFFF].clone();
-        Block block = BlockStorage.getFullId(fullState).clone();
+        Block block = BlockStorage.get(BlockID.INFO_UPDATE);
+        try{
+            block = BlockStorage.getFullId(fullState).clone();
+        }catch (Exception e){
+            Server.getInstance().getLogger().info((fullState >> 4)+":"+(fullState & 0xf), e);
+        }
+
         block.x = x;
         block.y = y;
         block.z = z;

@@ -4,7 +4,7 @@ import cn.nukkit.Nukkit;
 import cn.nukkit.Server;
 import cn.nukkit.lang.BaseLang;
 import cn.nukkit.utils.Utils;
-import com.sun.management.OperatingSystemMXBean;
+// com.sun.management.OperatingSystemMXBean;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,7 +82,7 @@ public class BugReportGenerator extends Thread {
         String content = Utils.readFile(this.getClass().getClassLoader().getResourceAsStream("report_template.md"));
 
         String cpuType = System.getenv("PROCESSOR_IDENTIFIER");
-        OperatingSystemMXBean osMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        /*OperatingSystemMXBean osMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         content = content.replace("${NUKKIT_VERSION}", Nukkit.VERSION);
         content = content.replace("${JAVA_VERSION}", System.getProperty("java.vm.name") + " (" + System.getProperty("java.runtime.version") + ")");
         content = content.replace("${HOSTOS}", osMXBean.getName() + "-" + osMXBean.getArch() + " [" + osMXBean.getVersion() + "]");
@@ -92,7 +92,7 @@ public class BugReportGenerator extends Thread {
         content = content.replace("${AVAILABLE_CORE}", String.valueOf(osMXBean.getAvailableProcessors()));
         content = content.replace("${STACKTRACE}", stringWriter.toString());
         content = content.replace("${PLUGIN_ERROR}", Boolean.toString(pluginError).toUpperCase());
-        content = content.replace("${STORAGE_TYPE}", model.toString());
+        content = content.replace("${STORAGE_TYPE}", model.toString());*/
 
         Utils.writeFile(mdReport, content);
 

@@ -29,6 +29,11 @@ public class BlockCarrot extends BlockCrops {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public Item[] getDrops(Item item) {
         if (getDamage() >= 0x07) {
             return new Item[]{

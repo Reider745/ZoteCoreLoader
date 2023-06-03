@@ -27,6 +27,11 @@ public class BlockOreRedstoneGlowing extends BlockOreRedstone {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public int getLightLevel() {
         return 9;
     }

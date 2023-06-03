@@ -12,6 +12,7 @@ import cn.nukkit.level.generator.Generator;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.scheduler.AsyncTask;
+import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.ChunkException;
 
@@ -108,7 +109,7 @@ public class McRegion extends BaseLevelProvider {
         BinaryStream stream = new BinaryStream();
         stream.putByte((byte) 0); // subchunk version
 
-        stream.put(chunk.getBlockIdArray());
+        stream.put(Binary.writeArrayInt(chunk.getBlockIdArray()));
         stream.put(chunk.getBlockDataArray());
         stream.put(chunk.getBlockSkyLightArray());
         stream.put(chunk.getBlockLightArray());

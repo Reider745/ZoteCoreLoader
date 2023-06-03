@@ -399,6 +399,12 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
         return this.getLevel().setBlock(this, this, true, true);
     }
 
+    public boolean canRandomTickBlocks(){
+        return false;
+    }
+
+    public boolean hasMeta() {return false;}
+
     //http://minecraft.gamepedia.com/Breaking
     public boolean canHarvestWithHand() {  //used for calculating breaking time
         return true;

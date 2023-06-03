@@ -52,6 +52,11 @@ public class BlockFarmland extends BlockTransparentMeta {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_RANDOM) {
             Vector3 v = new Vector3();

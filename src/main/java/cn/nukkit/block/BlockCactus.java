@@ -33,6 +33,11 @@ public class BlockCactus extends BlockTransparentMeta {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public double getHardness() {
         return 0.4;
     }

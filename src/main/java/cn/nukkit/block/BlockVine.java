@@ -42,6 +42,11 @@ public class BlockVine extends BlockTransparentMeta {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public double getHardness() {
         return 0.2;
     }

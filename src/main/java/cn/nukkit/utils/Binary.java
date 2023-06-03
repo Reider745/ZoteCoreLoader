@@ -99,6 +99,44 @@ public class Binary {
         return appendBytes(writeLLong(uuid.getMostSignificantBits()), writeLLong(uuid.getLeastSignificantBits()));
     }
 
+    public static byte[] writeArrayInt(int[] array){
+        byte[] bytes = new byte[array.length*4];
+        for(int i = 0;i < array.length*4;i+=4){
+            byte[] values = writeInt(array[i]);
+
+            for(int a = 0;a < 4;a++)
+                bytes[i+a] = values[a];
+        }
+        return bytes;
+    }
+
+    public static void readIntArray(ByteBuffer buffer, int[] result){
+        for(int i = 0;i < result.length;i++){
+            byte[] bytes = new byte[4];
+
+            for(int a = 0;a < 4;a++)
+                bytes[a] = buffer.get();
+
+            result[i] = readInt(bytes);
+        }
+    }
+
+    public static int[] _readIntArray(byte[] buffer, int offset, int size){
+        int length = size - offset;
+        int[] result = new int[length];
+
+        for(int i = 0;i < length*4;i+=4){
+            byte[] bytes = new byte[4];
+
+            for(int a = 0;a < 4;a++)
+                bytes[i+a] = buffer[a];
+
+            result[i] = readInt(bytes);
+        }
+
+        return result;
+    }
+
     public static byte[] writeMetadata(EntityMetadata metadata) {
         BinaryStream stream = new BinaryStream();
         Map<Integer, EntityData> map = metadata.getMap();

@@ -55,8 +55,6 @@ public abstract class BaseChunk extends BaseFullChunk implements Chunk {
 
     @Override
     public Block getAndSetBlock(int x, int y, int z, Block block) {
-
-        Server.getInstance().getLogger().info("id set: "+block.getId());
         int Y = y >> 4;
         try {
             setChanged();
@@ -209,7 +207,7 @@ public abstract class BaseChunk extends BaseFullChunk implements Chunk {
 
     @Override
     public boolean setSection(float fY, ChunkSection section) {
-        byte[] emptyIdArray = new byte[4096];
+        int[] emptyIdArray = new int[4096];
         byte[] emptyDataArray = new byte[2048];
         if (Arrays.equals(emptyIdArray, section.getIdArray()) && Arrays.equals(emptyDataArray, section.getDataArray())) {
             this.sections[(int) fY] = EmptyChunkSection.EMPTY[(int) fY];
@@ -236,12 +234,18 @@ public abstract class BaseChunk extends BaseFullChunk implements Chunk {
     }
 
     @Override
-    public byte[] getBlockIdArray() {
-        ByteBuffer buffer = ByteBuffer.allocate(4096 * SECTION_COUNT);
+    public int[] getBlockIdArray() {
+        //ByteBuffer buffer = ByteBuffer.allocate(4096 * SECTION_COUNT);
+        int[] result = new int[4096 * SECTION_COUNT];
+        int index = 0;
         for (int y = 0; y < SECTION_COUNT; y++) {
-            buffer.put(this.sections[y].getIdArray());
+            int[] array = this.sections[y].getIdArray();
+            for(int v : array) {
+                result[index] = v;
+                index++;
+            }
         }
-        return buffer.array();
+        return result;
     }
 
     @Override

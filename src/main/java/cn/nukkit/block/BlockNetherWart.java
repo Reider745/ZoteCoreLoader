@@ -79,6 +79,11 @@ public class BlockNetherWart extends BlockFlowable {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public Item[] getDrops(Item item) {
         if (this.getDamage() == 0x03) {
             return new Item[]{

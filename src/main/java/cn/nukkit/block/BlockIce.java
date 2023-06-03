@@ -21,6 +21,11 @@ public class BlockIce extends BlockTransparent {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "Ice";
     }

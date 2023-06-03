@@ -29,6 +29,11 @@ public class BlockMycelium extends BlockSolid {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public int getToolType() {
         return ItemTool.TYPE_SHOVEL;
     }

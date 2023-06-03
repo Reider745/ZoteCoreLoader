@@ -39,7 +39,18 @@ public class BlockStorage {
         return blockIds[getIndex(x, y, z)];
     }
 
+    public static void er() {
+        try {
+            throw new IOException("Уебан");
+        }catch (IOException e){
+            Server.getInstance().getLogger().info("Et,fy", e);
+        }
+    }
+
     public void setBlockId(int x, int y, int z, int id) {
+        if(id == -11){
+            er();
+        }
         blockIds[getIndex(x, y, z)] = id;
     }
 
@@ -52,6 +63,9 @@ public class BlockStorage {
     }
 
     public void setFullBlock(int x, int y, int z, int value) {
+        if(value == ((-11 << 4) | 0) || value == ((-82 << 4) | 2) || value == ((-82 << 4) | 10)){
+            Server.getInstance().getLogger().info("Уебан setFullBlock");
+        }
         this.setFullBlock(getIndex(x, y, z), value);
     }
 
@@ -65,6 +79,11 @@ public class BlockStorage {
         byte oldData = blockData.get(index);
         int newBlock = value >> 4;
         byte newData = (byte) (value & 0xf);
+
+        if(newBlock == -11 || newBlock == -82){
+            Server.getInstance().getLogger().info("Уебан getAndSetFullBlock "+newBlock+":"+newData+((newBlock << 4) | newData));
+        }
+
         if (oldBlock != newBlock) {
             blockIds[index] = newBlock;
         }
@@ -77,6 +96,9 @@ public class BlockStorage {
     private int getFullBlock(int index) {
         int block = blockIds[index];
         byte data = blockData.get(index);
+        if(block == -11 || block == -82){
+            Server.getInstance().getLogger().info(block+":"+data+":"+((block << 4) | data));
+        }
         return (block << 4) | data;
     }
 
@@ -84,6 +106,10 @@ public class BlockStorage {
         //Preconditions.checkArgument(value < 0xfff, "Invalid full block");
         int block = (value >> 4);
         byte data = (byte) (value & 0xf);
+
+        if(block == -11 || block == -82){
+            Server.getInstance().getLogger().info("Уебан setFullBlock " + block+":"+data+((block << 4) | data));
+        }
 
         blockIds[index] = block;
         blockData.set(index, data);

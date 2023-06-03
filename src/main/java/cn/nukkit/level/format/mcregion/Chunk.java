@@ -79,7 +79,7 @@ public class Chunk extends BaseFullChunk {
         }
 
         if (!(this.nbt.contains("Blocks"))) {
-            this.nbt.putByteArray("Blocks", new byte[32768]);
+            this.nbt.putIntArray("Blocks", new int[32768]);
         }
 
         if (!(this.nbt.contains("Data"))) {
@@ -101,7 +101,7 @@ public class Chunk extends BaseFullChunk {
         }
 
         this.setPosition(this.nbt.getInt("xPos"), this.nbt.getInt("zPos"));
-        this.blocks = this.nbt.getByteArray("Blocks");
+        this.blocks = this.nbt.getIntArray("Blocks");
         this.data = this.nbt.getByteArray("Data");
         this.skyLight = this.nbt.getByteArray("SkyLight");
         this.blockLight = this.nbt.getByteArray("BlockLight");
@@ -233,7 +233,7 @@ public class Chunk extends BaseFullChunk {
         boolean changed = false;
         byte id = (byte) block.getId();
 
-        byte previousId = this.blocks[i];
+        int previousId = this.blocks[i];
 
         if (previousId != id) {
             this.blocks[i] = id;
@@ -395,7 +395,7 @@ public class Chunk extends BaseFullChunk {
             int chunkZ = (Binary.readInt(Arrays.copyOfRange(data, offset, offset + 3)));
             chunk.setPosition(chunkX, chunkZ);
             offset += 4;
-            chunk.blocks = Arrays.copyOfRange(data, offset, offset + 32767);
+            chunk.blocks = Binary._readIntArray(data, offset, offset + 32767);
             offset += 32768;
             chunk.data = Arrays.copyOfRange(data, offset, offset + 16383);
             offset += 16384;
@@ -423,7 +423,7 @@ public class Chunk extends BaseFullChunk {
         BinaryStream stream = new BinaryStream(new byte[65536]);
         stream.put(Binary.writeInt(this.getX()));
         stream.put(Binary.writeInt(this.getZ()));
-        stream.put(this.getBlockIdArray());
+        stream.put(Binary.writeArrayInt(this.getBlockIdArray()));
         stream.put(this.getBlockDataArray());
         stream.put(this.getBlockSkyLightArray());
         stream.put(this.getBlockLightArray());
@@ -442,7 +442,7 @@ public class Chunk extends BaseFullChunk {
         nbt.putInt("zPos", this.getZ());
 
         if (this.isGenerated()) {
-            nbt.putByteArray("Blocks", this.getBlockIdArray());
+            nbt.putIntArray("Blocks", this.getBlockIdArray());
             nbt.putByteArray("Data", this.getBlockDataArray());
             nbt.putByteArray("SkyLight", this.getBlockSkyLightArray());
             nbt.putByteArray("BlockLight", this.getBlockLightArray());
@@ -516,7 +516,7 @@ public class Chunk extends BaseFullChunk {
 
             chunk.setPosition(chunkX, chunkZ);
             chunk.data = new byte[16384];
-            chunk.blocks = new byte[32768];
+            chunk.blocks = new int[32768];
             byte[] skyLight = new byte[16384];
             Arrays.fill(skyLight, (byte) 0xff);
             chunk.skyLight = skyLight;

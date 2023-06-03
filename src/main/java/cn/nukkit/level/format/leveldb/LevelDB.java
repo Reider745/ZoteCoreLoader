@@ -173,7 +173,7 @@ public class LevelDB implements LevelProvider {
         BinaryStream stream = new BinaryStream();
         stream.putByte((byte) 0); // subchunk version
 
-        stream.put(chunk.getBlockIdArray());
+        stream.put(Binary.writeArrayInt(chunk.getBlockIdArray()));
         stream.put(chunk.getBlockDataArray());
         stream.put(chunk.getBlockSkyLightArray());
         stream.put(chunk.getBlockLightArray());

@@ -18,6 +18,11 @@ public class BlockLeaves2 extends BlockLeaves {
         super(meta);
     }
 
+    @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
     public String getName() {
         String[] names = new String[]{
                 "Acacia Leaves",

@@ -71,6 +71,12 @@ public class BlockSnowLayer extends BlockFallable {
         return (this.getDamage() & 0x7) != 0x7;
     }
 
+
+    @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
     @Override
     public boolean place(Item item, Block block, Block target, BlockFace face, double fx, double fy, double fz, Player player) {
         if (this.canSurvive()) {

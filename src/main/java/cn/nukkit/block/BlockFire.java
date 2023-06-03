@@ -42,6 +42,11 @@ public class BlockFire extends BlockFlowable {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public boolean hasEntityCollision() {
         return true;
     }

@@ -2,14 +2,10 @@ package cn.nukkit.api;
 
 import cn.nukkit.Server;
 import cn.nukkit.block.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class BlockStorage implements BlockID {
     private static HashMap<Integer, Class<? extends Block>> classes = new HashMap<>();
@@ -24,6 +20,8 @@ public class BlockStorage implements BlockID {
     private static HashMap<Integer, Double> hardness = new HashMap<>();
     private static HashMap<Integer, Boolean> transparent = new HashMap<>();
     private static HashMap<Integer, Boolean> hasMeta = new HashMap<>();
+
+    private static HashMap<Integer, Boolean> canRandomTick = new HashMap<>();
     private static HashMap<Integer, Block> fullId = new HashMap<>();
 
     public static Integer getLight(int id){
@@ -50,6 +48,11 @@ public class BlockStorage implements BlockID {
         return result == null ? false : result;
     }
 
+    public static boolean canRandomTicksBlock(int id){
+        Boolean result = canRandomTick.get(id);
+        return result == null ? false : result;
+    }
+
     public static Block get(String id){
         return hashStringIds.get(id);
     }
@@ -63,17 +66,21 @@ public class BlockStorage implements BlockID {
     }
 
     //public static Block getFullStete
+    public static void registerBlock(int id, Block block){
+        registerBlock(id, 0, block);
+    }
 
     public static void registerBlock(int id, int data, Block block){
         blocks.put(id+":"+data, block);
         fullId.put((id << 4) | data, block);
 
-        hasMeta.put(id, true);
+        hasMeta.put(id, block.hasMeta());
 
         solid.put(id, block.isSolid());
         transparent.put(id, block.isTransparent());
         hardness.put(id, block.getHardness());
         light.put(id, block.getLightLevel());
+        canRandomTick.put(id, block.canRandomTickBlocks());
 
         if (block.isSolid()) {
             if (block.isTransparent()) {
@@ -123,6 +130,7 @@ public class BlockStorage implements BlockID {
         transparent.put(id, block.isTransparent());
         hardness.put(id, block.getHardness());
         light.put(id, block.getLightLevel());
+        canRandomTick.put(id, block.canRandomTickBlocks());
 
         if (block.isSolid()) {
             if (block.isTransparent()) {

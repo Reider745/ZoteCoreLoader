@@ -35,6 +35,11 @@ public class BlockSugarcane extends BlockFlowable {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public Item toItem() {
         return new ItemSugarcane();
     }

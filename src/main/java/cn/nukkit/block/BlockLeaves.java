@@ -49,6 +49,11 @@ public class BlockLeaves extends BlockTransparentMeta {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         String[] names = new String[]{
                 "Oak Leaves",

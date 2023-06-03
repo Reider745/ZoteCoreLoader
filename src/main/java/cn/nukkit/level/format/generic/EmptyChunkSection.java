@@ -68,8 +68,8 @@ public class EmptyChunkSection implements ChunkSection {
     }
 
     @Override
-    public byte[] getIdArray() {
-        return new byte[4096];
+    public int[] getIdArray() {
+        return new int[4096];
     }
 
     @Override

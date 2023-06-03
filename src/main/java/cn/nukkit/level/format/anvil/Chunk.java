@@ -278,7 +278,7 @@ public class Chunk extends BaseChunk {
             }
             CompoundTag s = new CompoundTag(null);
             s.putByte("Y", section.getY());
-            s.putByteArray("Blocks", section.getIdArray());
+            s.putIntArray("Blocks", section.getIdArray());
             s.putByteArray("Data", section.getDataArray());
             s.putByteArray("BlockLight", section.getLightArray());
             s.putByteArray("SkyLight", section.getSkyLightArray());
@@ -361,7 +361,7 @@ public class Chunk extends BaseChunk {
             }
             CompoundTag s = new CompoundTag(null);
             s.putByte("Y", (section.getY()));
-            s.putByteArray("Blocks", section.getIdArray());
+            s.putIntArray("Blocks", section.getIdArray());
             s.putByteArray("Data", section.getDataArray());
             s.putByteArray("BlockLight", section.getLightArray());
             s.putByteArray("SkyLight", section.getSkyLightArray());

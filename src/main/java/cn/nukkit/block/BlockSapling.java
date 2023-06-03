@@ -49,6 +49,11 @@ public class BlockSapling extends BlockFlowable {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         String[] names = new String[]{
                 "Oak Sapling",

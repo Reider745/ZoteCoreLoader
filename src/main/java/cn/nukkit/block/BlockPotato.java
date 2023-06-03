@@ -29,6 +29,11 @@ public class BlockPotato extends BlockCrops {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public Item toItem() {
         return new ItemPotato();
     }

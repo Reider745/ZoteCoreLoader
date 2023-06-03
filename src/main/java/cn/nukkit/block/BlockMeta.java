@@ -8,6 +8,11 @@ public abstract class BlockMeta extends Block {
     }
 
     @Override
+    public boolean hasMeta() {
+        return true;
+    }
+
+    @Override
     public int getFullId() {
         return (getId() << 4) + getDamage();
     }

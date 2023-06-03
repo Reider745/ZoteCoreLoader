@@ -28,6 +28,11 @@ public class BlockStemMelon extends BlockCrops {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "Melon Stem";
     }

@@ -1,7 +1,6 @@
 package cn.nukkit.network.protocol;
 
 import cn.nukkit.inventory.Inventory;
-import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.types.request.*;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;

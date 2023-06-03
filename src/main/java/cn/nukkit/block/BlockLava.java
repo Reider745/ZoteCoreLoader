@@ -44,6 +44,11 @@ public class BlockLava extends BlockLiquid {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "Lava";
     }

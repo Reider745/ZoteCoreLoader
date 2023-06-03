@@ -24,6 +24,11 @@ public class BlockMushroomRed extends BlockMushroom {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     protected int getType() {
         return 1;
     }

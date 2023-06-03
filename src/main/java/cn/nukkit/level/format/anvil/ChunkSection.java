@@ -51,7 +51,7 @@ public class ChunkSection implements cn.nukkit.level.format.ChunkSection {
     public ChunkSection(CompoundTag nbt) {
         this.y = nbt.getByte("Y");
 
-        byte[] blocks = nbt.getByteArray("Blocks");
+        int[] blocks = nbt.getIntArray("Blocks");
         NibbleArray data = new NibbleArray(nbt.getByteArray("Data"));
 
         storage = new BlockStorage();
@@ -97,7 +97,7 @@ public class ChunkSection implements cn.nukkit.level.format.ChunkSection {
     @Override
     public boolean setFullBlockId(int x, int y, int z, int fullId) {
         synchronized (storage) {
-            storage.setFullBlock(x, y, z, (char) fullId);
+            storage.setFullBlock(x, y, z, fullId);
         }
         return true;
     }
@@ -218,14 +218,14 @@ public class ChunkSection implements cn.nukkit.level.format.ChunkSection {
     }
 
     @Override
-    public byte[] getIdArray() {
+    public int[] getIdArray() {
         synchronized (storage) {
-            byte[] anvil = new byte[4096];
+            int[] anvil = new int[4096];
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
                     for (int y = 0; y < 16; y++) {
                         int index = getAnvilIndex(x, y, z);
-                        anvil[index] = (byte) storage.getBlockId(x, y, z);
+                        anvil[index] = storage.getBlockId(x, y, z);
                     }
                 }
             }

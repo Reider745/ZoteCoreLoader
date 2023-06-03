@@ -41,6 +41,11 @@ public class BlockCocoa extends BlockTransparentMeta implements Faceable {
     }
 
     @Override
+    public boolean canRandomTickBlocks() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "Cocoa";
     }
