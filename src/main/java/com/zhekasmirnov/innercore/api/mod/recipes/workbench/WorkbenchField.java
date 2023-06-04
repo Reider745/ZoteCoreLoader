@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import org.mozilla.javascript.Scriptable;
 
 /**
@@ -11,9 +12,9 @@ public interface WorkbenchField {
     /**
      * @return returns slot, that field slot i is linked to
      */
-    ItemContainerSlot getFieldSlot(int i);
+    AbstractSlot getFieldSlot(int i);
 
-    ItemContainerSlot getFieldSlot(int x, int y);
+    AbstractSlot getFieldSlot(int x, int y);
 
     /**
      * @return returns a scriptable array of slots, that can be linked or modified

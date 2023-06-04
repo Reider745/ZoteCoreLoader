@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 
 /**
  * Created by zheka on 10.09.2017.
@@ -15,12 +16,12 @@ public class WorkbenchFieldAPI {
         this.container = field;
     }
 
-    public ItemContainerSlot getFieldSlot(int i) {
+    public AbstractSlot getFieldSlot(int i) {
         return container.getFieldSlot(i);
     }
 
     public void decreaseFieldSlot(int i) {
-        ItemContainerSlot slot = getFieldSlot(i);
+        AbstractSlot slot = getFieldSlot(i);
         slot.set(slot.getId(), Math.max(0, slot.getCount() - 1), slot.getData(), slot.getExtra());
         //slot.validate();
     }

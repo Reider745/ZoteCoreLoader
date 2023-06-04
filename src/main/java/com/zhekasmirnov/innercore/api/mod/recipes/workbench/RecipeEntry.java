@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 
 /**
  * Created by zheka on 10.09.2017.
@@ -32,7 +33,7 @@ public class RecipeEntry {
         return getCodeByItem(id, data);
     }
 
-    public boolean isMatching(ItemContainerSlot slot) {
+    public boolean isMatching(AbstractSlot slot) {
         if (slot == null) {
             return id == 0;
         }

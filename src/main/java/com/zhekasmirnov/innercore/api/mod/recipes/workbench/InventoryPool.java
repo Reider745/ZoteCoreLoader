@@ -7,6 +7,7 @@ import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,7 +159,7 @@ public class InventoryPool {
             return "[" + set + "]";
         }
 
-        public void spreadItems(ArrayList<ItemContainerSlot> slots) {
+        public void spreadItems(ArrayList<AbstractSlot> slots) {
             if (isEmpty()) {
                 return;
             }
@@ -178,11 +179,11 @@ public class InventoryPool {
                 }
             }
 
-            ArrayList<ItemContainerSlot> remainingSlots = new ArrayList<>();
+            ArrayList<AbstractSlot> remainingSlots = new ArrayList<>();
             int countPerSlot = noExtraAmount / slots.size();
             int amountOfAdditionalSlots = noExtraAmount - countPerSlot * slots.size();
             for (int i = 0; i < slots.size(); i++) {
-                ItemContainerSlot slot = slots.get(i);
+                AbstractSlot slot = slots.get(i);
                 int amountToGet = countPerSlot + (i < amountOfAdditionalSlots ? 1 : 0);
                 
                 int gotAmount = 0; 
@@ -222,7 +223,7 @@ public class InventoryPool {
                 }
             }
 
-            for (ItemContainerSlot slot : remainingSlots) {
+            for (AbstractSlot slot : remainingSlots) {
                 if (remainingEntries.size() == 0) {
                     break;
                 }

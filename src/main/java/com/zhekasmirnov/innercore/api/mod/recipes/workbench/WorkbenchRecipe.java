@@ -7,6 +7,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.json.JSONObject;
@@ -154,12 +155,12 @@ public abstract class WorkbenchRecipe {
                     if (index > 8) {
                         continue;
                     }
-                    ItemContainerSlot slot = field.getFieldSlot(index);
+                    AbstractSlot slot = field.getFieldSlot(index);
                     slot.set(entry.id, 0, entry.data != -1 ? entry.data : 0, null);
                 }
             }
             else {
-                ArrayList<ItemContainerSlot> groupSlots = new ArrayList<>();
+                ArrayList<AbstractSlot> groupSlots = new ArrayList<>();
                 for (int i = 0; i < group.size(); i++) {
                     int index = group.get(i).first;
                     if (index >= 0 && index < 9) {
