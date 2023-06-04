@@ -21,7 +21,7 @@ public class CustomBlock extends BlockSolidMeta {
             //Block.list[id] = value.clazz;
 
             CustomManager manager = getBlockManager(id);
-            ArrayList<String> variants = manager.get("variants", new ArrayList<>());
+            ArrayList<String> variants = getVariants(manager);
             for(int data = 0;data < variants.size();data++)
                 BlockStorage.registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));
         });
@@ -29,6 +29,23 @@ public class CustomBlock extends BlockSolidMeta {
 
     public static CustomManager getBlockManager(int id){
         return blocks.get(id);
+    }
+
+    public static ArrayList<String> getVariants(int id){
+        return getVariants(getBlockManager(id));
+    }
+
+    public static ArrayList<String> getVariants(CustomManager manager){
+        ArrayList<String> variants = (ArrayList<String>) manager.get("variants", new ArrayList<>()).clone();
+        if(variants.size() >= 16)
+            return variants;
+
+        int size = 16-variants.size();
+        String name = variants.get(0);
+        for(int i = 0;i < size;i++)
+            variants.add(name);
+
+        return variants;
     }
 
     public static HashMap<String, Integer> customBlocks = new HashMap<>();
