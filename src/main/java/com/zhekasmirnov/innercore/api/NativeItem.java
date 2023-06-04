@@ -217,7 +217,9 @@ public class NativeItem {
 
 
 
-    public static native void setGlint(CustomManager ptr, boolean val);
+    public static void setGlint(CustomManager ptr, boolean val){
+
+    }
 
     public static native void setHandEquipped(CustomManager ptr, boolean val);
 
@@ -275,7 +277,7 @@ public class NativeItem {
     }
 
     @JSStaticFunction
-    public static native void addToCreativeGroup(String groupName, String displayName, int id);
+    public static void addToCreativeGroup(String groupName, String displayName, int id){}
 
     @JSStaticFunction
     public static void addToCreative(int id, int count, int data, Object extra) {

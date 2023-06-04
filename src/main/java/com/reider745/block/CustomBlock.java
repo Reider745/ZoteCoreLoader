@@ -6,9 +6,12 @@ import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.*;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
+import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockFace;
 import com.reider745.api.CustomManager;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.NativeBlock;
+import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,14 +72,22 @@ public class CustomBlock extends BlockSolidMeta {
     private int id;
     private String name;
 
+    private boolean TickingTile;
+
     protected CustomBlock(int id, int meta, CustomManager manager, String name) {
         super(meta);
 
         this.manager = manager;
         this.id = id;
         this.name = name;
+
+        TickingTile = manager.get("TickingTile:"+meta, false);
     }
 
+    @Override
+    public boolean canRandomTickBlocks() {
+        return TickingTile;
+    }
 
     @Override
     public String getName() {
@@ -96,6 +107,14 @@ public class CustomBlock extends BlockSolidMeta {
     @Override
     public Item[] getDrops(Item item) {
         return new Item[]{Item.get(id, this.getDamage(), 1)};
+    }
+
+    @Override
+    public int onUpdate(int type) {
+        if (type == Level.BLOCK_UPDATE_RANDOM) {
+            NativeBlock.onRandomTickCallback((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(), AdaptedScriptAPI.BlockSource.getFromCallbackPointer(this.level));
+        }
+        return 0;
     }
 
     @Override

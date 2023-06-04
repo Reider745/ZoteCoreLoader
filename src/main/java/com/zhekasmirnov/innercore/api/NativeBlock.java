@@ -103,7 +103,9 @@ public class NativeBlock {
     public static native void setRedstoneTileNative(int id, int data, boolean redstone);
     public static native void setRedstoneConnectorNative(int id, int data, boolean redstone);
     public static native void setRedstoneEmitterNative(int id, int data, boolean redstone);
-    public static native void setTickingTile(int id, int data, boolean ticking);
+    public static void setTickingTile(int id, int data, boolean ticking){
+        CustomBlock.getBlockManager(id).put("TickingTile:"+data, ticking);
+    }
     public static native void setAnimatedTile(int id, int data, boolean ticking);
     public static native void setReceivingEntityInsideEvent(int id, boolean value);
     public static native void setReceivingEntityStepOnEvent(int id, boolean value);
@@ -120,7 +122,9 @@ public class NativeBlock {
     public static native void setMapColor(int id, int mapColor);
     public static native void setCanContainLiquid(int id, boolean canContainLiquid);
     public static native void setCanBeExtraBlock(int id, boolean canBeExtraBlock);
-    public static native void setShape(int id, int data, float x1, float y1, float z1, float x2, float y2, float z2);
+    public static void setShape(int id, int data, float x1, float y1, float z1, float x2, float y2, float z2){
+
+    }
 
 
     private static HashMap<Integer, Float> blockDestroyTimes = new HashMap<>();

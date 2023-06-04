@@ -11,6 +11,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
+import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkJsAdapter;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
@@ -97,6 +98,8 @@ public class Apparatus {
         CustomItem.init();
 
         CustomItem.creative.forEach(item -> Item.addCreativeItem(Item.get(item[0], item[2], item[1])));
+
+        NativeWorkbench.init();
     }
 
     public static int getVersionCode() {
