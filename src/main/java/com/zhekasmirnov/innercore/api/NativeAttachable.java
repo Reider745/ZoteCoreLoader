@@ -45,14 +45,30 @@ public class NativeAttachable {
         nativeFinalize(pointer);
     }
 
-    private static native long nativeConstruct(long actorUid);
-    private static native long nativeGetUniformSet(long pointer);
-    private static native void nativeDestroy(long pointer);
-    private static native void nativeFinalize(long pointer);
-    private static native boolean nativeIsAttached(long pointer);
-    private static native void nativeSetRenderer(long pointer, long renderer);
-    private static native void nativeSetTexture(long pointer, String name);
-    private static native void nativeSetMaterial(long pointer, String name);
+    private static long nativeConstruct(long actorUid){
+        return 0;
+    }
+    private static long nativeGetUniformSet(long pointer){
+        return 0;
+    }
+    private static void nativeDestroy(long pointer){
+
+    }
+    private static void nativeFinalize(long pointer){
+
+    }
+    private static boolean nativeIsAttached(long pointer){
+        return false;
+    }
+    private static void nativeSetRenderer(long pointer, long renderer){
+
+    }
+    private static void nativeSetTexture(long pointer, String name){
+
+    }
+    private static void nativeSetMaterial(long pointer, String name){
+
+    }
 
 
     public static void attachRendererToItem(int id, NativeActorRenderer renderer, String texture, String material) {

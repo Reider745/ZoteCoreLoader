@@ -172,24 +172,60 @@ public class NativeActorRenderer {
     }
 
 
-    private static native long nativeConstruct();
-    private static native long nativeGetUniformSet(long pointer);
-    private static native long nativeConstructFromTemplate(int template);
-    private static native void nativeSetRendererTexture(long pointer, String name);
-    private static native void nativeSetRendererMaterial(long pointer, String name);
+    private static long nativeConstruct(){
+        return 0;
+    }
+    private static long nativeGetUniformSet(long pointer){
+        return 0;
+    }
+    private static long nativeConstructFromTemplate(int template){
+        return 0;
+    }
+    private static void nativeSetRendererTexture(long pointer, String name){
 
-    private static native long nativeGetPart(long pointer, String name);
-    private static native long nativeAddRootPart(long pointer, String name);
-    private static native long nativeAddPart(long pointer, long parent, String name);
+    }
+    private static void nativeSetRendererMaterial(long pointer, String name){
 
-    private static native void nativePartClear(long part);
-    private static native void nativePartAddBox(long part, float x, float y, float z, float xs, float ys, float zs, float inflate, float u, float v);
-    private static native void nativePartSetMesh(long part, long mesh);
-    private static native void nativePartSetTexture(long part, String name);
-    private static native void nativePartSetMaterial(long part, String name);
-    private static native void nativePartSetTextureSize(long part, float width, float height);
-    private static native void nativePartSetOffset(long part, float x, float y, float z);
-    private static native void nativePartSetRotation(long part, float x, float y, float z);
-    private static native void nativePartSetPivot(long part, float x, float y, float z);
-    private static native void nativePartSetMirrored(long part, boolean mirrored);
+    }
+
+    private static long nativeGetPart(long pointer, String name){
+        return 0;
+    }
+    private static long nativeAddRootPart(long pointer, String name){
+        return 0;
+    }
+    private static long nativeAddPart(long pointer, long parent, String name){
+        return 0;
+    }
+
+    private static void nativePartClear(long part){
+
+    }
+    private static void nativePartAddBox(long part, float x, float y, float z, float xs, float ys, float zs, float inflate, float u, float v){
+
+    }
+    private static void nativePartSetMesh(long part, long mesh){
+
+    }
+    private static void nativePartSetTexture(long part, String name){
+
+    }
+    private static void nativePartSetMaterial(long part, String name){
+
+    }
+    private static void nativePartSetTextureSize(long part, float width, float height){
+
+    }
+    private static void nativePartSetOffset(long part, float x, float y, float z){
+
+    }
+    private static void nativePartSetRotation(long part, float x, float y, float z){
+
+    }
+    private static void nativePartSetPivot(long part, float x, float y, float z){
+
+    }
+    private static void nativePartSetMirrored(long part, boolean mirrored){
+
+    }
 }

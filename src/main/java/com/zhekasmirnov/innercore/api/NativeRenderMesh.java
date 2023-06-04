@@ -205,31 +205,77 @@ public class NativeRenderMesh {
     }
 
 
-    private static native long nativeConstructNew();
-    private static native void nativeClear(long ptr);
-    private static native void nativeInvalidate(long ptr);
-    private static native void nativeRebuild(long ptr);
-    private static native int nativeGetMeshDataSize(long ptr);
-    private static native void nativeGetMeshData(long ptr, short[] indices, float[] vertices, float[] colors, float[] uvs);
+    private static long nativeConstructNew(){
+        return 0;
+    }
+    private static void nativeClear(long ptr){
 
-    private static native void nativeSetLightParams(long ptr, float min, float max, float smooth);
-    private static native void nativeSetLightIgnore(long ptr, boolean block, boolean sky);
-    private static native void nativeSetLightDir(long ptr, float x, float y, float z);
-    private static native void nativeSetLightPos(long ptr, int x, int y, int z);
-    private static native void nativeSetTintSource(long ptr, boolean foliage, boolean grass, boolean water, int foliageData);
+    }
+    private static void nativeInvalidate(long ptr){
 
-    private static native void nativeAddVertex(long ptr, float x, float y, float z, float u, float v);
-    private static native void nativeAddMeshToMesh(long ptr, long mesh, float tx, float ty, float tz, float sx, float sy, float sz);
-    private static native void nativeSetColor(long ptr, float r, float g, float b, float a);
-    private static native void nativeSetNormal(long ptr, float x, float y, float z);
-    private static native void nativeResetColor(long ptr);
-    private static native void nativeSetTargetBlockTexture(long ptr, String name, int id);
-    private static native void nativeResetTargetTexture(long ptr);
+    }
+    private static void nativeRebuild(long ptr){
 
-    private static native void nativeTranslate(long ptr, float x, float y, float z);
-    private static native void nativeScale(long ptr, float x, float y, float z);
-    private static native void nativeRotate(long ptr, float x, float y, float z, float rx, float ry, float rz);
-    private static native void nativeFitIn(long ptr, float x1, float y1, float z1, float x2, float y2, float z2, boolean keepRatio);
+    }
+    private static int nativeGetMeshDataSize(long ptr){
+        return 0;
+    }
+    private static void nativeGetMeshData(long ptr, short[] indices, float[] vertices, float[] colors, float[] uvs){
 
-    private static native void nativeImportFromFile(long ptr, String name, String type, float tx, float ty, float tz, float sx, float sy, float sz, boolean invertV);
+    }
+
+    private static void nativeSetLightParams(long ptr, float min, float max, float smooth){
+
+    }
+    private static void nativeSetLightIgnore(long ptr, boolean block, boolean sky){
+
+    }
+    private static void nativeSetLightDir(long ptr, float x, float y, float z){
+
+    }
+    private static void nativeSetLightPos(long ptr, int x, int y, int z){
+
+    }
+    private static void nativeSetTintSource(long ptr, boolean foliage, boolean grass, boolean water, int foliageData){
+
+    }
+
+    private static void nativeAddVertex(long ptr, float x, float y, float z, float u, float v){
+
+    }
+    private static void nativeAddMeshToMesh(long ptr, long mesh, float tx, float ty, float tz, float sx, float sy, float sz){
+
+    }
+    private static void nativeSetColor(long ptr, float r, float g, float b, float a){
+
+    }
+    private static void nativeSetNormal(long ptr, float x, float y, float z){
+
+    }
+    private static void nativeResetColor(long ptr){
+
+    }
+    private static void nativeSetTargetBlockTexture(long ptr, String name, int id){
+
+    }
+    private static void nativeResetTargetTexture(long ptr){
+
+    }
+
+    private static void nativeTranslate(long ptr, float x, float y, float z){
+
+    }
+    private static void nativeScale(long ptr, float x, float y, float z){
+
+    }
+    private static void nativeRotate(long ptr, float x, float y, float z, float rx, float ry, float rz){
+
+    }
+    private static void nativeFitIn(long ptr, float x1, float y1, float z1, float x2, float y2, float z2, boolean keepRatio){
+
+    }
+
+    private static void nativeImportFromFile(long ptr, String name, String type, float tx, float ty, float tz, float sx, float sy, float sz, boolean invertV){
+
+    }
 }

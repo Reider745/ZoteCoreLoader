@@ -19,53 +19,99 @@ import java.util.HashMap;
 
 public class NativeBlockRenderer {
 
-    public static native void nativeSetCollisionShape(int id, int data, long collisionShape);
+    public static void nativeSetCollisionShape(int id, int data, long collisionShape){
 
-    public static native void nativeSetRaycastShape(int id, int data, long raycastShape);
+    }
 
-    public static native void nativeEnableCustomRender(int id, int data);
+    public static void nativeSetRaycastShape(int id, int data, long raycastShape){
 
-    public static native void nativeDisableCustomRender(int id, int data);
+    }
 
-    public static native void nativeEnableStaticModel(int id, int data, long icRender);
+    public static void nativeEnableCustomRender(int id, int data){
 
-    public static native void nativeEnableCoordMapping(int id, int data, long icRender);
+    }
 
-    public static native void nativeMapModelAtCoords(int x, int y, int z, long model);
+    public static void nativeDisableCustomRender(int id, int data){
 
-    public static native void nativeMapICRenderAtCoords(int x, int y, int z, long icRender);
+    }
 
-    public static native void nativeMapCollisionModelAtCoords(int dimension, int x, int y, int z, long model);
+    public static void nativeEnableStaticModel(int id, int data, long icRender){
 
-    public static native void nativeMapRaycastModelAtCoords(int dimension, int x, int y, int z, long model);
+    }
 
-    public static native void nativeUnmapAtCoords(int x, int y, int z);
+    public static void nativeEnableCoordMapping(int id, int data, long icRender){
+
+    }
+
+    public static void nativeMapModelAtCoords(int x, int y, int z, long model){
+
+    }
+
+    public static void nativeMapICRenderAtCoords(int x, int y, int z, long icRender){
+
+    }
+
+    public static void nativeMapCollisionModelAtCoords(int dimension, int x, int y, int z, long model){
+
+    }
+
+    public static void nativeMapRaycastModelAtCoords(int dimension, int x, int y, int z, long model){
+
+    }
+
+    public static void nativeUnmapAtCoords(int x, int y, int z){
+
+    }
 
 
 
-    public static native void renderBoxPtr(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, long block, int data, boolean b);
+    public static void renderBoxPtr(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, long block, int data, boolean b){
 
-    public static native void renderBoxPtrHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, long block, int data, boolean b);
+    }
 
-    public static native void renderBoxId(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, int blockId, int data, boolean b);
+    public static void renderBoxPtrHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, long block, int data, boolean b){
 
-    public static native void renderBoxIdHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, int blockId, int data, boolean b);
+    }
 
-    public static native void renderBoxTexture(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, String tex, int id);
+    public static void renderBoxId(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, int blockId, int data, boolean b){
 
-    public static native void renderBoxTextureHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, String tex, int id);
+    }
 
-    public static native void renderBoxTextureSet(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, String tex1, int id1, String tex2, int id2, String tex3, int id3, String tex4, int id4, String tex5, int id5, String tex6, int id6);
+    public static void renderBoxIdHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, int blockId, int data, boolean b){
 
-    public static native void renderBoxTextureSetHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, String tex1, int id1, String tex2, int id2, String tex3, int id3, String tex4, int id4, String tex5, int id5, String tex6, int id6);
+    }
 
-    public static native void renderBlock(long tess, int x, int y, int z, int blockId, int data, boolean b);
+    public static void renderBoxTexture(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, String tex, int id){
 
-    public static native void renderBlockHere(long tess, int blockId, int data, boolean b);
+    }
 
-    public static native void renderModel(long tess, int x, int y, int z, long model);
+    public static void renderBoxTextureHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, String tex, int id){
 
-    public static native void renderModelHere(long tess, long model);
+    }
+
+    public static void renderBoxTextureSet(long tess, int x, int y, int z, float x1, float y1, float z1, float x2, float y2, float z2, String tex1, int id1, String tex2, int id2, String tex3, int id3, String tex4, int id4, String tex5, int id5, String tex6, int id6){
+
+    }
+
+    public static void renderBoxTextureSetHere(long tess, float x1, float y1, float z1, float x2, float y2, float z2, String tex1, int id1, String tex2, int id2, String tex3, int id3, String tex4, int id4, String tex5, int id5, String tex6, int id6){
+
+    }
+
+    public static void renderBlock(long tess, int x, int y, int z, int blockId, int data, boolean b){
+
+    }
+
+    public static void renderBlockHere(long tess, int blockId, int data, boolean b){
+
+    }
+
+    public static void renderModel(long tess, int x, int y, int z, long model){
+
+    }
+
+    public static void renderModelHere(long tess, long model){
+
+    }
 
 
 

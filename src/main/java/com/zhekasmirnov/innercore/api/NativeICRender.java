@@ -13,13 +13,26 @@ import java.util.List;
  */
 
 public class NativeICRender {
-    public static native long constructICRender();
-    public static native long constructICRenderGroup();
-    public static native void icRenderGroupAddBlock(long group, int id, int data);
-    public static native long icRenderClear(long model);
-    public static native long icRenderAddEntry(long model);
-    public static native void icRenderEntrySetModel(long entry, int x, int y, int z, long model);
-    public static native void icRenderEntrySetupCondition(long entry, long condition);
+    public static long constructICRender(){
+        return 0;
+    }
+    public static long constructICRenderGroup(){
+        return 0;
+    }
+    public static void icRenderGroupAddBlock(long group, int id, int data){
+
+    }
+    public static long icRenderClear(long model){
+        return 0;
+    }
+    public static long icRenderAddEntry(long model){
+        return 0;
+    }
+    public static void icRenderEntrySetModel(long entry, int x, int y, int z, long model){
+
+    }
+    public static void icRenderEntrySetupCondition(long entry, long condition){}
+
 
     /* GROUPS */
 
@@ -165,12 +178,24 @@ public class NativeICRender {
 
     /* COLLISION SHAPE */
 
-    public static native long constructCollisionShape();
-    public static native void collisionShapeClear(long shape);
-    public static native void collisionShapeAddEntry(long shape, long entry);
-    public static native long constructCollisionShapeEntry();
-    public static native void collisionShapeEntryAddBox(long entry, float x1, float y1, float z1, float x2, float y2, float z2);
-    public static native void collisionShapeEntrySetCondition(long entry, long condition);
+    public static long constructCollisionShape(){
+        return 0;
+    }
+    public static void collisionShapeClear(long shape){
+
+    }
+    public static void collisionShapeAddEntry(long shape, long entry){
+
+    }
+    public static long constructCollisionShapeEntry(){
+        return 0;
+    }
+    public static void collisionShapeEntryAddBox(long entry, float x1, float y1, float z1, float x2, float y2, float z2){
+
+    }
+    public static void collisionShapeEntrySetCondition(long entry, long condition){
+
+    }
 
     public static class CollisionShape {
         private long ptr;
@@ -214,14 +239,30 @@ public class NativeICRender {
 
     /* CONDITIONS */
 
-    public static native long newConditionBlock(int x, int y, int z, long group, boolean mode);
-    public static native long newConditionRandom(int value, int max, int seed);
-    public static native long conditionRandomSetAxisEnabled(long condition, int axis, boolean enabled);
-    public static native long newConditionOperatorNot(long condition);
-    public static native long newConditionOperatorAnd();
-    public static native void addToConditionOperatorAnd(long opAnd, long condition);
-    public static native long newConditionOperatorOr();
-    public static native void addToConditionOperatorOr(long opOr, long condition);
+    public static long newConditionBlock(int x, int y, int z, long group, boolean mode){
+        return 0;
+    }
+    public static long newConditionRandom(int value, int max, int seed){
+        return 0;
+    }
+    public static long conditionRandomSetAxisEnabled(long condition, int axis, boolean enabled){
+        return 0;
+    }
+    public static long newConditionOperatorNot(long condition){
+        return 0;
+    }
+    public static long newConditionOperatorAnd(){
+        return 0;
+    }
+    public static void addToConditionOperatorAnd(long opAnd, long condition){
+
+    }
+    public static long newConditionOperatorOr(){
+        return 0;
+    }
+    public static void addToConditionOperatorOr(long opOr, long condition){
+
+    }
 
 
     private static class CONDITION {

@@ -189,49 +189,95 @@ public class NativeStaticRenderer {
      * native part
      */
 
-    public static native long createStaticRenderer(long rendererPointer, float x, float y, float z);
+    public static long createStaticRenderer(long rendererPointer, float x, float y, float z){
+        return 0;
+    }
     
-    public static native long nativeGetShaderUniformSet(long pointer);
+    public static long nativeGetShaderUniformSet(long pointer){
+        return 0;
+    }
 
-    public static native boolean nativeExists(long pointer);
+    public static boolean nativeExists(long pointer){
+        return false;
+    }
 
-    public static native void setPos(long pointer, float x, float y, float z);
+    public static void setPos(long pointer, float x, float y, float z){
 
-    public static native void setInterpolationEnabled(long pointer, boolean enabled);
+    }
 
-    public static native void setIgnoreBlocklight(long pointer, boolean ignore);
+    public static void setInterpolationEnabled(long pointer, boolean enabled){
 
-    public static native void setBlockLightPos(long pointer, float x, float y, float z);
+    }
 
-    public static native void resetBlockLightPos(long pointer);
+    public static void setIgnoreBlocklight(long pointer, boolean ignore){
 
-    public static native void setScale(long pointer, float scale);
+    }
 
-    public static native void transformClear(long pointer);
+    public static void setBlockLightPos(long pointer, float x, float y, float z){
+
+    }
+
+    public static void resetBlockLightPos(long pointer){
+
+    }
+
+    public static void setScale(long pointer, float scale){
+
+    }
+
+    public static void transformClear(long pointer){
+
+    }
     
-    public static native void transformLock(long pointer);
+    public static void transformLock(long pointer){}
 
-    public static native void transformUnlock(long pointer);
 
-    public static native void transformAddTransform(long pointer, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15);
+    public static void transformUnlock(long pointer){
 
-    public static native void transformScale(long pointer, float x, float y, float z);
+    }
 
-    public static native void transformScaleLegacy(long pointer, float scale);
+    public static void transformAddTransform(long pointer, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15){
 
-    public static native void transformRotate(long pointer, float x, float y, float z);
+    }
 
-    public static native void transformTranslate(long pointer, float x, float y, float z);
+    public static void transformScale(long pointer, float x, float y, float z){
 
-    public static native void setSkin(long pointer, String skin);
+    }
 
-    public static native void setRenderer(long pointer, long rendererPointer);
 
-    public static native void setMesh(long pointer, long meshPointer);
+    public static void transformScaleLegacy(long pointer, float scale){
 
-    public static native void setMeshMaterial(long pointer, String material);
+    }
 
-    public static native void remove(long pointer);
 
-    public static native void finalizeNative(long pointer);
+    public static void transformRotate(long pointer, float x, float y, float z){
+
+    }
+
+    public static void transformTranslate(long pointer, float x, float y, float z){}
+
+
+    public static void setSkin(long pointer, String skin){
+
+    }
+
+    public static void setRenderer(long pointer, long rendererPointer){
+
+    }
+
+    public static void setMesh(long pointer, long meshPointer){
+
+    }
+
+    public static void setMeshMaterial(long pointer, String material){
+
+    }
+
+    public static void remove(long pointer){
+
+    }
+
+    public static void finalizeNative(long pointer){
+
+    }
 }

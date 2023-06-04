@@ -12,19 +12,33 @@ import org.mozilla.javascript.ScriptableObject;
 
 public class NativeBlockModel {
 
-    public static native long constructBlockModel();
+    public static long constructBlockModel(){
+        return 0;
+    }
 
-    public static native void clear(long model);
+    public static void clear(long model){
 
-    public static native void addBoxId(long model, float x1, float y1, float z1, float x2, float y2, float z2, int id, int data);
+    }
 
-    public static native void addBoxTexture(long model, float x1, float y1, float z1, float x2, float y2, float z2, String name, int index);
+    public static void addBoxId(long model, float x1, float y1, float z1, float x2, float y2, float z2, int id, int data){
 
-    public static native void addBoxTextureSet(long model, float x1, float y1, float z1, float x2, float y2, float z2, String tex1, int id1, String tex2, int id2, String tex3, int id3, String tex4, int id4, String tex5, int id5, String tex6, int id6);
+    }
 
-    public static native void addBlock(long model, int id, int data, boolean par);
+    public static void addBoxTexture(long model, float x1, float y1, float z1, float x2, float y2, float z2, String name, int index){
 
-    public static native void addMesh(long model, long mesh);
+    }
+
+    public static void addBoxTextureSet(long model, float x1, float y1, float z1, float x2, float y2, float z2, String tex1, int id1, String tex2, int id2, String tex3, int id3, String tex4, int id4, String tex5, int id5, String tex6, int id6){
+
+    }
+
+    public static void addBlock(long model, int id, int data, boolean par){
+
+    }
+
+    public static void addMesh(long model, long mesh){
+
+    }
 
 
 

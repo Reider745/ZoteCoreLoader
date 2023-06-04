@@ -63,21 +63,21 @@ public class LegacyInnerCoreMod extends DirectoryBasedMod {
     @Override
     public void onSettingUpEnvironment(EnvironmentSetupProxy proxy, ModLoaderReporter reporter) {
         // resource & gui
-        for (BuildConfig.ResourceDir resourceDir : legacyModInstance.buildConfig.resourceDirs) {
+        /*for (BuildConfig.ResourceDir resourceDir : legacyModInstance.buildConfig.resourceDirs) {
             if (resourceDir.gameVersion.isCompatible()) {
                 switch (resourceDir.resourceType) {
                     case RESOURCE:
-                        proxy.addResourceDirectory(this, new File(getDirectory(), resourceDir.path));
+                        //proxy.addResourceDirectory(this, new File(getDirectory(), resourceDir.path));
                         break;
                     case GUI:
                         proxy.addGuiAssetsDirectory(this, new File(getDirectory(), resourceDir.path));
-                        break;
+                        //break;
                 }
             }
-        }
+        }*/
 
         // addon behavior packs
-        String behaviorPackDirName = legacyModInstance.buildConfig.defaultConfig.behaviorPacksDir;
+       /* String behaviorPackDirName = legacyModInstance.buildConfig.defaultConfig.behaviorPacksDir;
         if (behaviorPackDirName != null) {
             File[] behaviorPacks = new File(getDirectory(), behaviorPackDirName).listFiles();
             if (behaviorPacks != null) {
@@ -100,7 +100,7 @@ public class LegacyInnerCoreMod extends DirectoryBasedMod {
                     }
                 }
             }
-        }
+        }*/
 
         // java directories
         for (BuildConfig.DeclaredDirectory directory : legacyModInstance.buildConfig.javaDirectories) {

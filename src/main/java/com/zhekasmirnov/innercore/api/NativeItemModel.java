@@ -579,24 +579,62 @@ public class NativeItemModel {
         return getForWithFallback(id, data).getMeshTextureName();
     }
 
-    private static native long nativeConstructStandalone();
-    private static native long nativeGetFor(int id, int data);
-    private static native long nativeGetShaderUniformSet(long pointer);
-    private static native boolean nativeIsEmpty(long pointer);
-    private static native boolean nativeOverridesHand(long pointer);
-    private static native boolean nativeOverridesUi(long pointer);
-    private static native boolean nativeSetHasOverrideCallback(long pointer, boolean value);
+    private static long nativeConstructStandalone(){
+        return 0;
+    }
+    private static long nativeGetFor(int id, int data){
+        return 0;
+    }
+    private static long nativeGetShaderUniformSet(long pointer){
+        return 0;
+    }
+    private static boolean nativeIsEmpty(long pointer){
+        return false;
+    }
+    private static boolean nativeOverridesHand(long pointer){
+        return false;
+    }
+    private static boolean nativeOverridesUi(long pointer){
+        return false;
+    }
+    private static boolean nativeSetHasOverrideCallback(long pointer, boolean value){
+        return false;
+    }
 
-    private static native long nativeSetSpriteInUi(long pointer, boolean isSprite);
-    private static native long nativeSetSpriteInHand(long pointer, boolean isSprite);
-    private static native long nativeSetHandMesh(long pointer, long mesh);
-    private static native long nativeSetHandBlockRender(long pointer, long render);
-    private static native long nativeSetHandTexture(long pointer, String name);
-    private static native long nativeSetHandMaterial(long pointer, String name);
-    private static native long nativeSetHandGlintMaterial(long pointer, String name);
-    private static native long nativeSetUiMesh(long pointer, long mesh);
-    private static native long nativeSetUiBlockRender(long pointer, long render);
-    private static native long nativeSetUiTexture(long pointer, String name);
-    private static native long nativeSetUiMaterial(long pointer, String name);
-    private static native long nativeSetUiGlintMaterial(long pointer, String name);
+    private static long nativeSetSpriteInUi(long pointer, boolean isSprite){
+        return 0;
+    }
+    private static long nativeSetSpriteInHand(long pointer, boolean isSprite){
+        return 0;
+    }
+    private static long nativeSetHandMesh(long pointer, long mesh){
+        return 0;
+    }
+    private static long nativeSetHandBlockRender(long pointer, long render){
+        return 0;
+    }
+    private static long nativeSetHandTexture(long pointer, String name){
+        return 0;
+    }
+    private static long nativeSetHandMaterial(long pointer, String name){
+        return 0;
+    }
+    private static long nativeSetHandGlintMaterial(long pointer, String name){
+        return 0;
+    }
+    private static long nativeSetUiMesh(long pointer, long mesh){
+        return 0;
+    }
+    private static long nativeSetUiBlockRender(long pointer, long render){
+        return 0;
+    }
+    private static long nativeSetUiTexture(long pointer, String name){
+        return 0;
+    }
+    private static long nativeSetUiMaterial(long pointer, String name){
+        return 0;
+    }
+    private static long nativeSetUiGlintMaterial(long pointer, String name){
+        return 0;
+    }
 }
