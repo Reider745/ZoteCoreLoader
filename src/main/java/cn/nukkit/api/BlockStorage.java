@@ -61,6 +61,10 @@ public class BlockStorage implements BlockID {
         return blocks.get(id+":"+data);
     }
 
+    public static boolean canBlock(int id, int data){
+        return blocks.containsKey(id+":"+data);
+    }
+
     public static Block get(int id){
         return get(id, 0);
     }
@@ -71,6 +75,7 @@ public class BlockStorage implements BlockID {
     }
 
     public static void registerBlock(int id, int data, Block block){
+        classes.put(id, block.getClass());
         blocks.put(id+":"+data, block);
         fullId.put((id << 4) | data, block);
 
@@ -149,6 +154,17 @@ public class BlockStorage implements BlockID {
 
     public static void forEach(BiConsumer<Integer, Class<? extends Block>> block){
         classes.forEach(block);
+    }
+
+    public static interface IForEachStates {
+        void call(int id, int data, Block block);
+    }
+
+    public static void forEachStates(IForEachStates func){
+        blocks.forEach((str, block) -> {
+            String[] bl = str.split(":");
+            func.call(Integer.parseInt(bl[0]), Integer.parseInt(bl[1]), block);
+        });
     }
 
     public static void init(){

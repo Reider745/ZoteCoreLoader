@@ -15,6 +15,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.ContainerSetDataPacket;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -188,8 +189,21 @@ public class BlockEntityFurnace extends BlockEntitySpawnable implements Inventor
         return inventory;
     }
 
+    public static HashMap<String, Short> fuels = new HashMap<>();
+
+    public short getFuelTime(Item item){
+        Short time = fuels.get(item.getId()+":"+item.getDamage());
+        if(time == null) {
+            time = fuels.get(item.getId()+":-1");
+            if(time != null)
+                return time;
+            return item.getFuelTime() == null ? 0 : item.getFuelTime();
+        }
+        return time;
+    }
+
     protected void checkFuel(Item fuel) {
-        FurnaceBurnEvent ev = new FurnaceBurnEvent(this, fuel, fuel.getFuelTime() == null ? 0 : fuel.getFuelTime());
+        FurnaceBurnEvent ev = new FurnaceBurnEvent(this, fuel, getFuelTime(fuel));
         this.server.getPluginManager().callEvent(ev);
         if (ev.isCancelled()) {
             return;

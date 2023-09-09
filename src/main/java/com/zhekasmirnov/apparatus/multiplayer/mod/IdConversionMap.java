@@ -17,12 +17,8 @@ public class IdConversionMap {
 
     static {
         Network.getSingleton().addServerInitializationPacket("system.id_map",
-                client -> {
-                    Logger.debug("system.id_map");
-                    return getSingleton().localMapAsJson();
-                },
+                client -> getSingleton().localMapAsJson(),
                 (JSONObject data, String meta) -> {
-                    Logger.debug("hui"+data);
                     getSingleton().updateConversionMap(data);
                     // NativeIdPlaceholderGenerator.rebuildFromServerPacket(data);
                 });

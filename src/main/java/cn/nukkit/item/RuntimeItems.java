@@ -42,7 +42,7 @@ public class RuntimeItems {
         Collection<Entry> entries = GSON.fromJson(reader, ENTRY_TYPE);
 
         BinaryStream paletteBuffer = new BinaryStream();
-        paletteBuffer.putUnsignedVarInt(entries.size() + CustomItem.customItems.size()+ CustomBlock.customBlocks.size());
+        paletteBuffer.putUnsignedVarInt(entries.size() + CustomItem.customItems.size()+ (CustomBlock.customBlocks.size()*16));
 
         Int2IntMap legacyNetworkMap = new Int2IntOpenHashMap();
         Int2IntMap networkLegacyMap = new Int2IntOpenHashMap();
@@ -70,13 +70,14 @@ public class RuntimeItems {
         });
 
         CustomBlock.customBlocks.forEach((name, id) -> {
-            paletteBuffer.putString(name);
-            paletteBuffer.putLShort(id);
-            paletteBuffer.putBoolean(false); // Component item
-
-            int fullId = getFullId(id, 0);
-            legacyNetworkMap.put(fullId, (id << 1) | 1);
-            networkLegacyMap.put((int) id, fullId | 1);
+            for(int data = 0;data < 16;data++) {
+                paletteBuffer.putString(name);
+                paletteBuffer.putLShort(id);
+                paletteBuffer.putBoolean(false); // Component item
+                int fullId = getFullId(id, data);
+                legacyNetworkMap.put(fullId, (id << 1) | data);
+                networkLegacyMap.put((int) id, fullId | data);
+            }
         });
 
         byte[] itemDataPalette = paletteBuffer.getBuffer();
@@ -88,7 +89,7 @@ public class RuntimeItems {
     }
 
     public static int getId(int fullId) {
-        return (short) (fullId >> 16);
+        return (fullId >> 16);
     }
 
     public static int getData(int fullId) {

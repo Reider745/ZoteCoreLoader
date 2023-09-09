@@ -21,8 +21,6 @@ public class CustomBlock extends BlockSolidMeta {
 
     public static void init(){
         blocks.forEach((id, value) -> {
-            //Block.list[id] = value.clazz;
-
             CustomManager manager = getBlockManager(id);
             ArrayList<String> variants = getVariants(manager);
             for(int data = 0;data < variants.size();data++)
@@ -123,6 +121,7 @@ public class CustomBlock extends BlockSolidMeta {
         customBlock.id = id;
         customBlock.name = name;
         customBlock.manager = manager;
+        customBlock.setDamage(getDamage());
         return customBlock;
     }
 }

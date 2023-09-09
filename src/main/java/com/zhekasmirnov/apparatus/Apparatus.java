@@ -2,6 +2,7 @@ package com.zhekasmirnov.apparatus;
 
 import android.util.Log;
 import cn.nukkit.Server;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.GlobalBlockPalette;
 import com.google.common.io.ByteStreams;
@@ -21,6 +22,7 @@ import com.zhekasmirnov.apparatus.multiplayer.mod.RuntimeIdDataPacketSender;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
@@ -90,16 +92,25 @@ public class Apparatus {
         new AsyncModLauncher().launchModsInCurrentThread();
         IDRegistry.rebuildNetworkIdMap();
 
+        CustomBlock.init();
+
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
     }
 
-    public static void postInit(){
-        CustomBlock.init();
-        CustomItem.init();
+    public static void initCreativeItems(){
 
-        CustomItem.creative.forEach(item -> Item.addCreativeItem(Item.get(item[0], item[2], item[1])));
+    }
+
+    public static void postInit(){
+        Logger.debug("Post loaded innercore...");
+
+        Item.clearCreativeItems();
 
         NativeWorkbench.init();
+        NativeFurnaceRegistry.init();
+        CustomItem.initCreativeItems();
+
+        Item.initCreativeItems();
     }
 
     public static int getVersionCode() {

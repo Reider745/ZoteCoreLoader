@@ -25,6 +25,7 @@ import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeRegistry;
+import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
 import com.zhekasmirnov.innercore.api.mod.ui.window.*;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
@@ -2012,13 +2013,13 @@ public class AdaptedScriptAPI extends API {
 
     @APIStaticModule
     public static class UI {
-        public static class Container {
+        public static class Container extends com.zhekasmirnov.innercore.api.mod.ui.container.Container {
             public Container() {
                 super();
             }
 
             public Container(Object parent) {
-                super();
+                super(parent);
             }
         }
 

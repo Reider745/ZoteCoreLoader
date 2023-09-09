@@ -1,6 +1,14 @@
 package com.reider745;
 public class InnerCoreServer {
-    public static void loadMods(){
+    public void loadMods(){
+
+    }
+
+    public void preLoad(){
+
+    }
+
+    public void postLoad(){
 
     }
 }

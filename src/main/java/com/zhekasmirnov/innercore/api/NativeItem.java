@@ -277,7 +277,9 @@ public class NativeItem {
     }
 
     @JSStaticFunction
-    public static void addToCreativeGroup(String groupName, String displayName, int id){}
+    public static void addToCreativeGroup(String groupName, String displayName, int id){
+        CustomItem.addToCreativeGroup(groupName, id);
+    }
 
     @JSStaticFunction
     public static void addToCreative(int id, int count, int data, Object extra) {

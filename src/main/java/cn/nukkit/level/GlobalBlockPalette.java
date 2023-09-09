@@ -2,6 +2,7 @@ package cn.nukkit.level;
 
 import android.util.Pair;
 import cn.nukkit.Server;
+import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.BlockID;
 import com.google.common.io.ByteStreams;
 import com.reider745.block.CustomBlock;
@@ -76,7 +77,7 @@ public class GlobalBlockPalette {
 
                 long hash = computeStateHash(e.getInt("newId"), e.getJSONObject("states"), stateIdByName);
                 if (stateHashToLegacyIdData.containsKey(hash))
-                    throw new RuntimeException("hash collision: " + hash + " "+e.toString());
+                    throw new RuntimeException("hash collision: " + hash + " "+e);
                 debug_hash.put(hash, e);
                 // log.info(e.getString("nameId") + legacyId + ":" + legacyData + " -> " + hash);
                 stateHashToLegacyIdData.put(hash, (legacyId << 16) | legacyData);
@@ -119,7 +120,7 @@ public class GlobalBlockPalette {
             }
             assignedRuntimeIds.add(new Pair<>(i, hash));
 
-            // log.info("assigned runtime id " + i + " to " + (legacyIdData >> 16) + ":" + (legacyIdData & 0xffff) + " hash=" + hash);
+//            log.info("assigned runtime id " + i + " to " + (legacyIdData >> 16) + ":" + (legacyIdData & 0xffff) + " hash=" + hash);
         }
     }
 

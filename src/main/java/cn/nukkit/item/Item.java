@@ -22,6 +22,8 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
 import com.reider745.item.CustomItem;
+import com.zhekasmirnov.apparatus.Apparatus;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 
 import java.io.IOException;
@@ -65,8 +67,8 @@ public class Item implements Cloneable, BlockID, ItemID {
     public Item(int id, Integer meta, int count, String name) {
         this.id = id & 0xffff;
         if (meta != null && meta >= 0) {
+            this.meta = meta;
             this.orgMeta = meta;
-            this.meta = meta & 0xffff;
         } else {
             this.orgMeta = 0;
             this.hasMeta = false;
@@ -254,7 +256,7 @@ public class Item implements Cloneable, BlockID, ItemID {
             list[GOLD_HORSE_ARMOR] = ItemHorseArmorGold.class; //418
             list[DIAMOND_HORSE_ARMOR] = ItemHorseArmorDiamond.class; //419
             //TODO: list[LEAD] = ItemLead.class; //420
-            list[NAME_TAG] = ItemNameTag.class; //421
+            //TODO: list[NAME_TAG] = ItemNameTag.class; //421
             list[PRISMARINE_CRYSTALS] = ItemPrismarineCrystals.class; //422
             list[RAW_MUTTON] = ItemMuttonRaw.class; //423
             list[COOKED_MUTTON] = ItemMuttonCooked.class; //424
@@ -292,10 +294,8 @@ public class Item implements Cloneable, BlockID, ItemID {
             list[DRIED_KELP] = ItemDriedKelp.class; //464
 
             list[GOLDEN_APPLE_ENCHANTED] = ItemAppleGoldEnchanted.class; //466
-            
-            list[TURTLE_SHELL] = ItemTurtleShell.class; //469
 
-            list[CROSSBOW] = ItemCrossbow.class; //471
+            list[TURTLE_SHELL] = ItemTurtleShell.class; //469
 
             list[SWEET_BERRIES] = ItemSweetBerries.class; //477
 
@@ -313,25 +313,6 @@ public class Item implements Cloneable, BlockID, ItemID {
             list[RECORD_WAIT] = ItemRecordWait.class;
 
             list[SHIELD] = ItemShield.class; //513
-
-            list[HONEYCOMB] = ItemHoneycomb.class; //736
-            list[HONEY_BOTTLE] = ItemHoneyBottle.class; //737
-
-            list[NETHERITE_INGOT] = ItemIngotNetherite.class; //742
-            list[NETHERITE_SWORD] = ItemSwordNetherite.class; //743
-            list[NETHERITE_SHOVEL] = ItemShovelNetherite.class; //744
-            list[NETHERITE_PICKAXE] = ItemPickaxeNetherite.class; //745
-            list[NETHERITE_AXE] = ItemAxeNetherite.class; //746
-            list[NETHERITE_HOE] = ItemHoeNetherite.class; //747
-            list[NETHERITE_HELMET] = ItemHelmetNetherite.class; //748
-            list[NETHERITE_CHESTPLATE] = ItemChestplateNetherite.class; //749
-            list[NETHERITE_LEGGINGS] = ItemLeggingsNetherite.class; //750
-            list[NETHERITE_BOOTS] = ItemBootsNetherite.class; //751
-            list[NETHERITE_SCRAP] = ItemScrapNetherite.class; //752
-
-            list[RECORD_PIGSTEP] = ItemRecordPigstep.class; //759
-
-            BlockStorage.forEach((id, block) -> list[id] = block);
             /*for (int i = 0; i < 256; ++i) {
                 if (Block.list[i] != null) {
                     list[i] = Block.list[i];
@@ -345,11 +326,13 @@ public class Item implements Cloneable, BlockID, ItemID {
     private static final ArrayList<Item> creative = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
-    private static void initCreativeItems() {
+    public static void initCreativeItems() {
 
         Config config = new Config(Config.JSON);
         config.load(Server.class.getClassLoader().getResourceAsStream("creativeitems.json"));
         List<Map> list = config.getMapList("items");
+
+        Apparatus.initCreativeItems();
 
         for (Map map : list) {
             try {
@@ -419,21 +402,18 @@ public class Item implements Cloneable, BlockID, ItemID {
             Item item;
 
             if (c == null) {
-                if(id > 8000)
-                    if (meta >= 0)
-                        item = new ItemBlock(Block.get(id, meta), meta, count);
-                    else
-                        item = new ItemBlock(Block.get(id), meta, count);
-                else
-                    item = new Item(id, meta, count);
-            } else if (id < 256) {
-                if (meta >= 0) {
+                item = new Item(id, meta, count);
+            } else if (id < 256 || id > 8000){
+                if (meta != null) {
                     item = new ItemBlock(Block.get(id, meta), meta, count);
                 } else {
                     item = new ItemBlock(Block.get(id), meta, count);
                 }
-            } else {
-                item = ((Item) c.getConstructor(Integer.class, int.class).newInstance(meta, count));
+            }else{
+                if(id > 2000)
+                    item = ((Item) c.getConstructor(int.class, Integer.class, int.class).newInstance(id, meta, count));
+                else
+                    item = ((Item) c.getConstructor(Integer.class, int.class).newInstance(meta, count));
             }
 
             if (tags.length != 0) {
@@ -461,8 +441,6 @@ public class Item implements Cloneable, BlockID, ItemID {
             } catch (Exception ignore) {
             }
         }
-
-        id = id & 0xFFFF;
         if (b.length != 1) meta = Integer.parseInt(b[1]) & 0xFFFF;
 
         return get(id, meta);
@@ -908,7 +886,7 @@ public class Item implements Cloneable, BlockID, ItemID {
 
     public void setDamage(Integer meta) {
         if (meta != null) {
-            this.meta = meta & 0xffff;
+            this.meta = meta;
         } else {
             this.hasMeta = false;
         }
