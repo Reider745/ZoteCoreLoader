@@ -9,6 +9,9 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.pointers.PointerClass;
+import com.reider745.api.pointers.PointersStorage;
+import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
@@ -95,6 +98,11 @@ public class Apparatus {
         CustomBlock.init();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
+
+        new PointersStorage("test", PointerClass.class);
+
+        for(int i = 0;i < 100;i++)
+            new PointerClass();
     }
 
     public static void initCreativeItems(){
