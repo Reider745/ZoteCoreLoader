@@ -4,6 +4,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import com.reider745.item.ItemMethod;
 import com.zhekasmirnov.apparatus.Apparatus;
 
 public class NativeAPI {
@@ -96,7 +97,7 @@ public class NativeAPI {
     }
 
     public static String getStringIdAndTypeForIntegerId(int id){
-        return "";
+        return ItemMethod.getStringIdAndTypeForIntegerId(id);
     }
 
     public static int getSeed(){

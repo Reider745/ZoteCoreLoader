@@ -3,6 +3,7 @@ package com.zhekasmirnov.innercore.api;
 import cn.nukkit.item.Item;
 import com.reider745.api.CustomManager;
 import com.reider745.item.CustomItem;
+import com.reider745.item.ItemMethod;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
@@ -221,15 +222,17 @@ public class NativeItem {
 
     }
 
-    public static native void setHandEquipped(CustomManager ptr, boolean val);
+    public static void setHandEquipped(CustomManager ptr, boolean val){}
 
     public static native void setLiquidClip(CustomManager ptr, boolean val);
 
-    public static native void setUseAnimation(CustomManager ptr, int val);
+    public static void setUseAnimation(CustomManager ptr, int val){}
 
     public static native void setMaxUseDuration(CustomManager ptr, int val);
 
-    public static native void setMaxDamage(CustomManager ptr, int val);
+    public static void setMaxDamage(CustomManager ptr, int val){
+
+    }
 
     public static void setMaxStackSize(CustomManager ptr, int val){
         ptr.put("max_stack", val);
@@ -239,7 +242,7 @@ public class NativeItem {
     
     public static native void setAllowedInOffhand(CustomManager ptr, boolean val);
 
-    public static native void setCreativeCategory(CustomManager ptr, int val);
+    public static void setCreativeCategory(CustomManager ptr, int val){}
 
     public static native void setProperties(CustomManager ptr, String val);
 
@@ -251,11 +254,17 @@ public class NativeItem {
 
 
 
-    public static native int getMaxStackForId(int id, int data);
+    public static int getMaxStackForId(int id, int data){
+        return ItemMethod.getMaxStackForId(id, data);
+    }
 
-    public static native int getMaxDamageForId(int id, int data);
+    public static int getMaxDamageForId(int id, int data){
+        return ItemMethod.getMaxDamageForId(id, data);
+    }
 
-    public static native String getNameForId(int id, int data, long extra);
+    public static String getNameForId(int id, int data, long extra){
+        return ItemMethod.getNameForId(id, data, extra);
+    }
 
     public static void setCreativeCategoryForId(int id, int category){
     }
