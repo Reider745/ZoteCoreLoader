@@ -2,6 +2,8 @@ package com.reider745.item;
 
 import cn.nukkit.api.BlockStorage;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.food.Food;
+import cn.nukkit.item.food.FoodNormal;
 import com.reider745.api.CustomManager;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -131,6 +133,8 @@ public class CustomItem extends Item {
     public static CustomManager registerItem(String textId, int id, String name, Class item){
         CustomManager manager = new CustomManager(id, item, "item");
         manager.put("name", name);
+        manager.put("max_damage", -1);
+        manager.put("max_stack", 64);
 
         items.put(id, manager);
         customItems.put("item_"+textId, id);
@@ -143,6 +147,13 @@ public class CustomItem extends Item {
         return registerItem(textId, id, name, CustomItem.class);
     }
 
+    public static CustomManager registerItemFood(String textId, int id, String name, int food){
+        CustomManager manager = registerItem(textId, id, name);
+        Food.registerDefaultFood(new FoodNormal(food, 4)).addRelative(id);
+        return manager;
+    }
+
+
     private CustomManager parameters;
 
     public CustomItem(int id, Integer meta, int count) {
@@ -153,8 +164,13 @@ public class CustomItem extends Item {
     }
 
     @Override
+    public int getMaxDurability() {
+        return parameters.get("max_damage");
+    }
+
+    @Override
     public int getMaxStackSize() {
-        return parameters.get("max_stack", 64);
+        return parameters.get("max_stack");
     }
 
     @Override

@@ -1,14 +1,15 @@
 package com.reider745.api.pointers;
 
-public class PointerClass {
+public abstract class PointerClass {
     public final long pointer;
     public final PointersStorage storage;
 
     public PointerClass(){
-        final Class<?> cl = getClass();
-        storage = PointersStorage.getStorageForClassType(cl.getPackage()+"."+cl.getName());
+        storage = PointersStorage.getStorageForType(getPointerStorageType());
         pointer = storage.addPointer(this);
     }
+
+    abstract public String getPointerStorageType();
 
     public final long getPointer(){
         return pointer;

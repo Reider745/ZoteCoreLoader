@@ -470,7 +470,7 @@ public class Server {
         // Initialize metrics
         new NukkitMetrics(this);
 
-        Apparatus.init(this);
+        Nukkit.innerCoreServer.preLoad(this);
 
         this.registerEntities();
         this.registerBlockEntities();
@@ -591,7 +591,7 @@ public class Server {
             this.watchdog.start();
         }
 
-        Apparatus.postInit();
+        Nukkit.innerCoreServer.postLoad();
 
         this.start();
     }
@@ -1252,6 +1252,8 @@ public class Server {
         } else {
             this.nextTick += 50;
         }
+
+        Nukkit.innerCoreServer.tick();
 
         return true;
     }

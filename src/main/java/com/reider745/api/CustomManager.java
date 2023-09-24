@@ -21,6 +21,10 @@ public class CustomManager {
         return value;
     }
 
+    public <T>T get(String key){
+        return (T) parameters.get(key);
+    }
+
     public <T>void put(String key, T value){
         parameters.put(key, value);
     }

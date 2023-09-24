@@ -14,18 +14,14 @@ import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
 import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.annotations.*;
-import com.zhekasmirnov.innercore.api.biomes.CustomBiome;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
 //import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
-import com.zhekasmirnov.innercore.api.entities.NativeAttributeInstance;
-import com.zhekasmirnov.innercore.api.entities.NativePathNavigation;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeRegistry;
-import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
 import com.zhekasmirnov.innercore.api.mod.ui.window.*;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
@@ -1330,11 +1326,16 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static NativeItem createFoodItem(int id, String nameId, String name, String iconName, int iconIndex, int food) {
-            NativeItem item = createItem(id, nameId, name, iconName, iconIndex);
+            /*NativeItem item = createItem(id, nameId, name, iconName, iconIndex);
             String props = "{\"use_animation\":\"eat\",\"use_duration\": 32,\"food\":{\"nutrition\":" + food 
                     + ",\"saturation_modifier\": \"normal\",\"is_meat\": false}, \"components\": {\"minecraft:food\": {\"nutrition\": " 
                     + food + ", \"saturation_modifier\": \"normal\"}}}";
             item.setProperties(props);
+            item.setUseAnimation(1);
+            item.setMaxUseDuration(32);
+            return item;*/
+            NativeItem item = createFoodItem(id, nameId, name, food);
+            //item.setProperties(null);
             item.setUseAnimation(1);
             item.setMaxUseDuration(32);
             return item;

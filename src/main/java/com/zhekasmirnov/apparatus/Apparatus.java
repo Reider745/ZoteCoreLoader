@@ -98,11 +98,6 @@ public class Apparatus {
         CustomBlock.init();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
-
-        new PointersStorage("test", PointerClass.class);
-
-        for(int i = 0;i < 100;i++)
-            new PointerClass();
     }
 
     public static void initCreativeItems(){

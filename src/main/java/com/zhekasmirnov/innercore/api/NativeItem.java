@@ -157,6 +157,11 @@ public class NativeItem {
         return new NativeItem(id, constructItem(id, nameId, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), iconName, iconIndex), nameId, name);
     }
 
+    public static NativeItem createFoodItem(int id, String nameId, String name, int food){
+        nameId = NativeAPI.convertNameId(nameId);
+        return new NativeItem(id, CustomItem.registerItemFood(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), food), nameId, name);
+    }
+
     private static final ComponentCollection armorCC = new ComponentCollection().setTypes(ArmorItemComponent.COMPONENT_ID);
 
     @JSStaticFunction
@@ -235,7 +240,7 @@ public class NativeItem {
     }
 
     public static void setMaxStackSize(CustomManager ptr, int val){
-        ptr.put("max_stack", val);
+        ItemMethod.setMaxStackSize(ptr, val);
     }
     
     public static native void setStackedByData(CustomManager ptr, boolean val);
@@ -244,7 +249,9 @@ public class NativeItem {
 
     public static void setCreativeCategory(CustomManager ptr, int val){}
 
-    public static native void setProperties(CustomManager ptr, String val);
+    public static void setProperties(CustomManager ptr, String val){
+        throw new RuntimeException("Use not support method");
+    }
 
     public static native void setEnchantability(CustomManager ptr, int type, int value);
 

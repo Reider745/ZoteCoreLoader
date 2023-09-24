@@ -21,6 +21,7 @@ import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
+import com.reider745.api.pointers.PointerClass;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.Apparatus;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -35,7 +36,7 @@ import java.util.regex.Pattern;
  * author: MagicDroidX
  * Nukkit Project
  */
-public class Item implements Cloneable, BlockID, ItemID {
+public class Item extends PointerClass implements Cloneable, BlockID, ItemID {
     //Normal Item IDs
 
     protected static String UNKNOWN_STR = "Unknown";
@@ -79,6 +80,11 @@ public class Item implements Cloneable, BlockID, ItemID {
             this.block = Block.get(this.id, this.meta);
             this.name = this.block.getName();
         }*/
+    }
+
+    @Override
+    public final String getPointerStorageType() {
+        return "items";
     }
 
     public boolean hasMeta() {

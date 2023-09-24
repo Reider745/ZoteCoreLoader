@@ -12,7 +12,11 @@ public class ItemMethod {
     }
 
     public static void setMaxDamage(CustomManager manager, int id){
+        manager.put("max_damage", id);
+    }
 
+    public static void setMaxStackSize(CustomManager manager, int stack){
+        manager.put("max_stack", stack);
     }
 
     public static int getMaxStackForId(int id, int data){

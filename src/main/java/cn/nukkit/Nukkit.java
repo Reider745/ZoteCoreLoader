@@ -3,6 +3,7 @@ package cn.nukkit;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.ServerKiller;
 import com.google.common.base.Preconditions;
+import com.reider745.InnerCoreServer;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
@@ -57,8 +58,10 @@ public class Nukkit {
     public static boolean TITLE = false;
     public static boolean shortTitle = requiresShortTitle();
     public static int DEBUG = 1;
+    public static InnerCoreServer innerCoreServer = new InnerCoreServer();
 
     public static void main(String[] args) {
+        innerCoreServer.main();
         // Force IPv4 since Nukkit is not compatible with IPv6
         System.setProperty("java.net.preferIPv4Stack" , "true");
         System.setProperty("log4j.skipJansi", "false");
@@ -126,6 +129,8 @@ public class Nukkit {
             System.out.print((char) 0x1b + "]0;Stopping Server..." + (char) 0x07);
         }
         log.info("Stopping other threads");
+
+        innerCoreServer.left();
 
         for (Thread thread : java.lang.Thread.getAllStackTraces().keySet()) {
             if (!(thread instanceof InterruptibleThread)) {

@@ -1,5 +1,6 @@
 package cn.nukkit.item.food;
 
+import cn.nukkit.Nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
@@ -91,7 +92,7 @@ public abstract class Food {
         return food;
     }
 
-    private static Food registerDefaultFood(Food food) {
+    public static Food registerDefaultFood(Food food) {
         food.relativeIDs.forEach(n -> registryDefault.put(n, food));
         return food;
     }
@@ -131,6 +132,7 @@ public abstract class Food {
     }
 
     protected boolean onEatenBy(Player player) {
+        Nukkit.innerCoreServer.onPlayerEat(this.restoreFood, this.restoreSaturation, player.getId());
         player.getFoodData().addFoodLevel(this);
         return true;
     }
