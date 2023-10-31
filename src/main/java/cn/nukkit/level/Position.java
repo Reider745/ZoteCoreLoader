@@ -1,10 +1,14 @@
 package cn.nukkit.level;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.LevelException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * author: MagicDroidX
@@ -179,7 +183,43 @@ public class Position extends Vector3 {
         return (Position) super.clone();
     }
 
+    @Since("1.4.0.0-PN")
+    @PowerNukkitOnly
+    @NotNull
+    public final Level getValidLevel() {
+        Level level = this.level;
+        if (level == null) {
+            throw new LevelException("Undefined Level reference");
+        }
+        return level;
+    }
+
+    @PowerNukkitOnly
+    public Block getLevelBlockAtLayer(int layer) {
+        return getValidLevel().getBlock(this);
+    }
+
     public FullChunk getChunk() {
         return isValid() ? level.getChunk(getChunkX(), getChunkZ()) : null;
+    }
+
+    @Since("1.4.0.0-PN")
+    @PowerNukkitOnly
+    @Override
+    public Position setComponents(Vector3 pos) {
+        super.setComponents(pos);
+        return this;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedLevelBlockAtLayer(int layer) {
+        return getValidLevel().getTickCachedBlock(this, layer);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedLevelBlock() {
+        return getValidLevel().getTickCachedBlock(this);
     }
 }

@@ -1,6 +1,8 @@
 package cn.nukkit.entity.item;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -11,8 +13,8 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.List;
 
 /**
- * Created on 2015/12/26 by xtypr.
- * Package cn.nukkit.entity in project Nukkit .
+ * @author xtypr
+ * @since 2015/12/26
  */
 public class EntityXPOrb extends Entity {
 
@@ -22,6 +24,43 @@ public class EntityXPOrb extends Entity {
      * Split sizes used for dropping experience orbs.
      */
     public static final int[] ORB_SPLIT_SIZES = {2477, 1237, 617, 307, 149, 73, 37, 17, 7, 3, 1}; //This is indexed biggest to smallest so that we can return as soon as we found the biggest value.
+    public Player closestPlayer = null;
+    private int age;
+    private int pickupDelay;
+    private int exp;
+
+    public EntityXPOrb(FullChunk chunk, CompoundTag nbt) {
+        super(chunk, nbt);
+    }
+
+    /**
+     * Returns the largest size of normal XP orb that will be spawned for the specified amount of XP. Used to split XP
+     * up into multiple orbs when an amount of XP is dropped.
+     */
+    public static int getMaxOrbSize(int amount) {
+        for (int split : ORB_SPLIT_SIZES) {
+            if (amount >= split) {
+                return split;
+            }
+        }
+
+        return 1;
+    }
+
+    /**
+     * Splits the specified amount of XP into an array of acceptable XP orb sizes.
+     */
+    public static List<Integer> splitIntoOrbSizes(int amount) {
+        List<Integer> result = new IntArrayList();
+
+        while (amount > 0) {
+            int size = getMaxOrbSize(amount);
+            result.add(size);
+            amount -= size;
+        }
+
+        return result;
+    }
 
     @Override
     public int getNetworkId() {
@@ -58,16 +97,6 @@ public class EntityXPOrb extends Entity {
         return false;
     }
 
-    public EntityXPOrb(FullChunk chunk, CompoundTag nbt) {
-        super(chunk, nbt);
-    }
-
-    private int age;
-    private int pickupDelay;
-    private int exp;
-
-    public Player closestPlayer = null;
-
     @Override
     protected void initEntity() {
         super.initEntity();
@@ -102,8 +131,8 @@ public class EntityXPOrb extends Entity {
         return (source.getCause() == DamageCause.VOID ||
                 source.getCause() == DamageCause.FIRE_TICK ||
                 (source.getCause() == DamageCause.ENTITY_EXPLOSION ||
-                source.getCause() == DamageCause.BLOCK_EXPLOSION) &&
-                !this.isInsideOfWater()) && super.attack(source);
+                        source.getCause() == DamageCause.BLOCK_EXPLOSION) &&
+                        !this.isInsideOfWater()) && super.attack(source);
     }
 
     @Override
@@ -126,7 +155,7 @@ public class EntityXPOrb extends Entity {
                 if (this.pickupDelay < 0) {
                     this.pickupDelay = 0;
                 }
-            } else {
+            }/* else { // Done in Player#checkNearEntities
                 for (Entity entity : this.level.getCollidingEntities(this.boundingBox, this)) {
                     if (entity instanceof Player) {
                         if (((Player) entity).pickupEntity(this, false)) {
@@ -134,7 +163,7 @@ public class EntityXPOrb extends Entity {
                         }
                     }
                 }
-            }
+            }*/
 
             this.motionY -= this.getGravity();
 
@@ -143,15 +172,20 @@ public class EntityXPOrb extends Entity {
             }
 
             if (this.closestPlayer == null || this.closestPlayer.distanceSquared(this) > 64.0D) {
-                for (Player p : level.getPlayers().values()) {
-                    if (!p.isSpectator() && p.distance(this) <= 8) {
-                        this.closestPlayer = p;
-                        break;
+                this.closestPlayer = null;
+                double closestDistance = 0.0D;
+                for (Player p : this.getViewers().values()) {
+                    if (!p.isSpectator() && p.spawned && p.isAlive()) {
+                        double d = p.distanceSquared(this);
+                        if (d <= 64.0D && (this.closestPlayer == null || d < closestDistance)) {
+                            this.closestPlayer = p;
+                            closestDistance = d;
+                        }
                     }
                 }
             }
 
-            if (this.closestPlayer != null && this.closestPlayer.isSpectator()) {
+            if (this.closestPlayer != null && (this.closestPlayer.isSpectator() || !this.closestPlayer.spawned || !this.closestPlayer.isAlive())) {
                 this.closestPlayer = null;
             }
 
@@ -175,7 +209,7 @@ public class EntityXPOrb extends Entity {
             double friction = 1d - this.getDrag();
 
             if (this.onGround && (Math.abs(this.motionX) > 0.00001 || Math.abs(this.motionZ) > 0.00001)) {
-                friction = this.getLevel().getBlock(this.temporalVector.setComponents((int) Math.floor(this.x), (int) Math.floor(this.y - 1), (int) Math.floor(this.z) - 1)).getFrictionFactor() * friction;
+                friction = this.getLevel().getBlock(this.temporalVector.setComponents((int) Math.floor(this.x), (int) Math.floor(this.y - 1), (int) Math.floor(this.z))).getFrictionFactor() * friction;
             }
 
             this.motionX *= friction;
@@ -231,32 +265,10 @@ public class EntityXPOrb extends Entity {
         this.pickupDelay = pickupDelay;
     }
 
-    /**
-     * Returns the largest size of normal XP orb that will be spawned for the specified amount of XP. Used to split XP
-     * up into multiple orbs when an amount of XP is dropped.
-     */
-    public static int getMaxOrbSize(int amount) {
-        for (int split : ORB_SPLIT_SIZES){
-            if (amount >= split) {
-                return split;
-            }
-        }
-
-        return 1;
-    }
-
-    /**
-     * Splits the specified amount of XP into an array of acceptable XP orb sizes.
-     */
-    public static List<Integer> splitIntoOrbSizes(int amount) {
-        List<Integer> result = new IntArrayList();
-
-        while (amount > 0) {
-            int size = getMaxOrbSize(amount);
-            result.add(size);
-            amount -= size;
-        }
-
-        return result;
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Experience Orb";
     }
 }

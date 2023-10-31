@@ -1,5 +1,8 @@
 package cn.nukkit.math;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+
 public class BlockVector3 implements Cloneable {
     public int x;
     public int y;
@@ -223,5 +226,23 @@ public class BlockVector3 implements Cloneable {
 
     public Vector3f asVector3f() {
         return new Vector3f(this.x, this.y, this.z);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public int getChunkX() {
+        return x >> 4;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public int getChunkZ() {
+        return z >> 4;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public ChunkVector2 getChunkVector() {
+        return new ChunkVector2(getChunkX(), getChunkZ());
     }
 }

@@ -2,13 +2,18 @@ package cn.nukkit.level;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.api.BlockStorage;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.blockstate.BlockState;
+import cn.nukkit.blockstate.BlockStorage;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.block.BlockRedstoneDiode;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityItem;
+import cn.nukkit.entity.item.EntityVehicle;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.entity.projectile.EntityArrow;
 import cn.nukkit.entity.weather.EntityLightning;
@@ -42,6 +47,8 @@ import cn.nukkit.level.generator.task.LightPopulationTask;
 import cn.nukkit.level.generator.task.PopulationTask;
 import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.level.particle.Particle;
+import cn.nukkit.level.util.SimpleTickCachedBlockStore;
+import cn.nukkit.level.util.TickCachedBlockStore;
 import cn.nukkit.math.*;
 import cn.nukkit.math.BlockFace.Plane;
 import cn.nukkit.metadata.BlockMetadataStore;
@@ -65,12 +72,19 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.*;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * author: MagicDroidX Nukkit Project
@@ -222,13 +236,14 @@ public class Level implements ChunkManager, Metadatable {
     private int rainTime = 0;
     private boolean thundering = false;
     private int thunderTime = 0;
+    public int tickRateOptDelay = 1;
 
     private long levelCurrentTick = 0;
 
     private int dimension;
 
     public GameRules gameRules;
-
+    private final ConcurrentHashMap<Long, TickCachedBlockStore> tickCachedBlocks = new ConcurrentHashMap<>();
     public Level(Server server, String name, String path, Class<? extends LevelProvider> provider) {
         this.levelId = levelIdCounter++;
         this.blockMetadata = new BlockMetadataStore(this);
@@ -311,6 +326,162 @@ public class Level implements ChunkManager, Metadatable {
         this.skyLightSubtracted = this.calculateSkylightSubtracted(1);
     }
 
+    public final int getMinHeight(){
+        return 0;
+    }
+
+    public final int getMaxHeight(){
+        return 256;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public List<Block> scanBlocks(@NotNull AxisAlignedBB bb, @NotNull BiPredicate<BlockVector3, BlockState> condition) {
+        BlockVector3 min = new BlockVector3(NukkitMath.floorDouble(bb.getMinX()), NukkitMath.floorDouble(bb.getMinY()), NukkitMath.floorDouble(bb.getMinZ()));
+        BlockVector3 max = new BlockVector3(NukkitMath.floorDouble(bb.getMaxX()), NukkitMath.floorDouble(bb.getMaxY()), NukkitMath.floorDouble(bb.getMaxZ()));
+
+        ChunkVector2 minChunk = min.getChunkVector();
+        ChunkVector2 maxChunk = max.getChunkVector();
+        return IntStream.rangeClosed(minChunk.getX(), maxChunk.getX())
+                .mapToObj(x -> IntStream.rangeClosed(minChunk.getZ(), maxChunk.getZ()).mapToObj(z -> new ChunkVector2(x, z)))
+                .flatMap(Function.identity()).parallel()
+                .map(this::getChunk).filter(Objects::nonNull)
+                .flatMap(chunk -> chunk.scanBlocks(min, max, condition))
+                .collect(Collectors.toList());
+    }
+
+    public List<Entity> fastCollidingEntities(AxisAlignedBB bb) {
+        return this.fastCollidingEntities(bb, null);
+    }
+
+    public Block[] getCollisionBlocks(AxisAlignedBB bb) {
+        return this.getCollisionBlocks(bb, false);
+    }
+
+    public Block[] getCollisionBlocks(AxisAlignedBB bb, boolean targetFirst) {
+        return getCollisionBlocks(bb, targetFirst, false);
+    }
+
+    @PowerNukkitOnly
+    public Block[] getCollisionBlocks(AxisAlignedBB bb, boolean targetFirst, boolean ignoreCollidesCheck) {
+        return getCollisionBlocks(bb, targetFirst, ignoreCollidesCheck, block -> block.getId() != 0);
+    }
+
+    @PowerNukkitOnly
+    public Block[] getCollisionBlocks(AxisAlignedBB bb, boolean targetFirst, boolean ignoreCollidesCheck, Predicate<Block> condition) {
+        int minX = NukkitMath.floorDouble(bb.getMinX());
+        int minY = NukkitMath.floorDouble(bb.getMinY());
+        int minZ = NukkitMath.floorDouble(bb.getMinZ());
+        int maxX = NukkitMath.ceilDouble(bb.getMaxX());
+        int maxY = NukkitMath.ceilDouble(bb.getMaxY());
+        int maxZ = NukkitMath.ceilDouble(bb.getMaxZ());
+
+        List<Block> collides = new ArrayList<>();
+
+        if (targetFirst) {
+            for (int z = minZ; z <= maxZ; ++z) {
+                for (int x = minX; x <= maxX; ++x) {
+                    for (int y = minY; y <= maxY; ++y) {
+                        Block block = this.getBlock(this.temporalVector.setComponents(x, y, z), false);
+                        if (block != null && condition.test(block) && (ignoreCollidesCheck || block.collidesWithBB(bb))) {
+                            return new Block[]{block};
+                        }
+                    }
+                }
+            }
+        } else {
+            for (int z = minZ; z <= maxZ; ++z) {
+                for (int x = minX; x <= maxX; ++x) {
+                    for (int y = minY; y <= maxY; ++y) {
+                        Block block = this.getBlock(this.temporalVector.setComponents(x, y, z), false);
+                        if (block != null && condition.test(block) && (ignoreCollidesCheck || block.collidesWithBB(bb))) {
+                            collides.add(block);
+                        }
+                    }
+                }
+            }
+        }
+
+        return collides.toArray(Block.EMPTY_ARRAY);
+    }
+
+    public List<Entity> fastCollidingEntities(AxisAlignedBB bb, Entity entity) {
+        var result = new ArrayList<Entity>();
+
+        if (entity == null || entity.canCollide()) {
+            int minX = NukkitMath.floorDouble((bb.getMinX() - 2) / 16);
+            int maxX = NukkitMath.ceilDouble((bb.getMaxX() + 2) / 16);
+            int minZ = NukkitMath.floorDouble((bb.getMinZ() - 2) / 16);
+            int maxZ = NukkitMath.ceilDouble((bb.getMaxZ() + 2) / 16);
+
+            for (int x = minX; x <= maxX; ++x) {
+                for (int z = minZ; z <= maxZ; ++z) {
+                    for (var each : this.getChunkEntities(x, z, false).values()) {
+                        if ((entity == null || (each != entity && entity.canCollideWith(each)))
+                                && each.boundingBox.intersectsWith(bb)) {
+                            result.add(each);
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private BaseFullChunk getChunk(ChunkVector2 chunkVector2) {
+        return getChunk(chunkVector2.getX(), chunkVector2.getZ());
+    }
+
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(Vector3 pos) {
+        return getTickCachedBlock(pos, 0);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(Vector3 pos, int layer) {
+        return this.getTickCachedBlock(pos.getFloorX(), pos.getFloorY(), pos.getFloorZ(), layer);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(Vector3 pos, boolean load) {
+        return getTickCachedBlock(pos, 0, load);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(Vector3 pos, int layer, boolean load) {
+        return this.getTickCachedBlock(pos.getFloorX(), pos.getFloorY(), pos.getFloorZ(), layer, load);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(int x, int y, int z) {
+        return getTickCachedBlock(x, y, z, 0);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(int x, int y, int z, int layer) {
+        return getTickCachedBlock(x, y, z, layer, true);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(int x, int y, int z, boolean load) {
+        return getTickCachedBlock(x, y, z, 0, load);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedBlock(int x, int y, int z, int layer, boolean load) {
+        return tickCachedBlocks.computeIfAbsent(Level.chunkHash(x >> 4, z >> 4), key -> new SimpleTickCachedBlockStore(this))
+                .computeFromCachedStore(x, y, z, layer, () -> this.getBlock(x, y, z, load));
+    }
     public static long chunkHash(int x, int z) {
         return (((long) x) << 32) | (z & 0xffffffffL);
     }
@@ -1299,6 +1470,66 @@ public class Level implements ChunkManager, Metadatable {
         return this.updateQueue.isBlockTickPending(pos, block);
     }
 
+    public List<AxisAlignedBB> fastCollisionCubes(Entity entity, AxisAlignedBB bb) {
+        return this.fastCollisionCubes(entity, bb, true);
+    }
+
+    public List<AxisAlignedBB> fastCollisionCubes(Entity entity, AxisAlignedBB bb, boolean entities) {
+        return fastCollisionCubes(entity, bb, entities, false);
+    }
+
+    public Stream<Entity> streamCollidingEntities(AxisAlignedBB bb, Entity entity) {
+        if (entity == null || entity.canCollide()) {
+            int minX = NukkitMath.floorDouble((bb.getMinX() - 2) / 16);
+            int maxX = NukkitMath.ceilDouble((bb.getMaxX() + 2) / 16);
+            int minZ = NukkitMath.floorDouble((bb.getMinZ() - 2) / 16);
+            int maxZ = NukkitMath.ceilDouble((bb.getMaxZ() + 2) / 16);
+
+            var allEntities = new ArrayList<Entity>();
+
+            for (int x = minX; x <= maxX; ++x) {
+                for (int z = minZ; z <= maxZ; ++z) {
+                    allEntities.addAll(this.getChunkEntities(x, z, false).values());
+                }
+            }
+
+            return allEntities.stream().filter(each -> (entity == null || (each != entity && entity.canCollideWith(each)))
+                    && each.boundingBox.intersectsWith(bb));
+        } else {
+            return Stream.empty();
+        }
+    }
+
+    public List<AxisAlignedBB> fastCollisionCubes(Entity entity, AxisAlignedBB bb, boolean entities, boolean solidEntities) {
+        int minX = NukkitMath.floorDouble(bb.getMinX());
+        int minY = NukkitMath.floorDouble(bb.getMinY());
+        int minZ = NukkitMath.floorDouble(bb.getMinZ());
+        int maxX = NukkitMath.ceilDouble(bb.getMaxX());
+        int maxY = NukkitMath.ceilDouble(bb.getMaxY());
+        int maxZ = NukkitMath.ceilDouble(bb.getMaxZ());
+
+        List<AxisAlignedBB> collides = new ArrayList<>();
+
+        for (int z = minZ; z <= maxZ; ++z) {
+            for (int x = minX; x <= maxX; ++x) {
+                for (int y = minY; y <= maxY; ++y) {
+                    Block block = this.getBlock(this.temporalVector.setComponents(x, y, z), false);
+                    if (!block.canPassThrough() && block.collidesWithBB(bb)) {
+                        collides.add(block.getBoundingBox());
+                    }
+                }
+            }
+        }
+
+        if (entities || solidEntities) {
+            var grownBB = bb.grow(0.25f, 0.25f, 0.25f);
+            collides.addAll(this.streamCollidingEntities(grownBB, entity)
+                    .filter(ent -> solidEntities && !ent.canPassThrough()).map(ent -> ent.boundingBox.clone()).toList());
+        }
+
+        return collides;
+    }
+
     public Set<BlockUpdateEntry> getPendingBlockUpdates(FullChunk chunk) {
         int minX = (chunk.getX() << 4) - 2;
         int maxX = minX + 16 + 2;
@@ -1310,47 +1541,6 @@ public class Level implements ChunkManager, Metadatable {
 
     public Set<BlockUpdateEntry> getPendingBlockUpdates(AxisAlignedBB boundingBox) {
         return updateQueue.getPendingBlockUpdates(boundingBox);
-    }
-
-    public Block[] getCollisionBlocks(AxisAlignedBB bb) {
-        return this.getCollisionBlocks(bb, false);
-    }
-
-    public Block[] getCollisionBlocks(AxisAlignedBB bb, boolean targetFirst) {
-        int minX = NukkitMath.floorDouble(bb.getMinX());
-        int minY = NukkitMath.floorDouble(bb.getMinY());
-        int minZ = NukkitMath.floorDouble(bb.getMinZ());
-        int maxX = NukkitMath.ceilDouble(bb.getMaxX());
-        int maxY = NukkitMath.ceilDouble(bb.getMaxY());
-        int maxZ = NukkitMath.ceilDouble(bb.getMaxZ());
-
-        List<Block> collides = new ArrayList<>();
-
-        if (targetFirst) {
-            for (int z = minZ; z <= maxZ; ++z) {
-                for (int x = minX; x <= maxX; ++x) {
-                    for (int y = minY; y <= maxY; ++y) {
-                        Block block = this.getBlock(this.temporalVector.setComponents(x, y, z), false);
-                        if (block != null && block.getId() != 0 && block.collidesWithBB(bb)) {
-                            return new Block[]{block};
-                        }
-                    }
-                }
-            }
-        } else {
-            for (int z = minZ; z <= maxZ; ++z) {
-                for (int x = minX; x <= maxX; ++x) {
-                    for (int y = minY; y <= maxY; ++y) {
-                        Block block = this.getBlock(this.temporalVector.setComponents(x, y, z), false);
-                        if (block != null && block.getId() != 0 && block.collidesWithBB(bb)) {
-                            collides.add(block);
-                        }
-                    }
-                }
-            }
-        }
-
-        return collides.toArray(new Block[0]);
     }
 
     public boolean isFullBlock(Vector3 pos) {
@@ -3721,6 +3911,164 @@ public class Level implements ChunkManager, Metadatable {
         }
 
         return false;
+    }
+
+    public List<Entity> fastNearbyEntities(AxisAlignedBB bb) {
+        return this.fastNearbyEntities(bb, null);
+    }
+
+    public List<Entity> fastNearbyEntities(AxisAlignedBB bb, Entity entity) {
+        return fastNearbyEntities(bb, entity, false);
+    }
+
+    public List<Entity> fastNearbyEntities(AxisAlignedBB bb, Entity entity, boolean loadChunks) {
+        int minX = NukkitMath.floorDouble((bb.getMinX() - 2) * 0.0625);
+        int maxX = NukkitMath.ceilDouble((bb.getMaxX() + 2) * 0.0625);
+        int minZ = NukkitMath.floorDouble((bb.getMinZ() - 2) * 0.0625);
+        int maxZ = NukkitMath.ceilDouble((bb.getMaxZ() + 2) * 0.0625);
+
+        var result = new ArrayList<Entity>();
+
+        for (int x = minX; x <= maxX; ++x) {
+            for (int z = minZ; z <= maxZ; ++z) {
+                for (var ent : this.getChunkEntities(x, z, loadChunks).values()) {
+                    if (ent != entity && ent.boundingBox.intersectsWith(bb)) {
+                        result.add(ent);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.20.10-r1")
+    public boolean isRayCollidingWithBlocks(double srcX, double srcY, double srcZ, double dstX, double dstY, double dstZ, double stepSize) {
+        Vector3 direction = new Vector3(dstX - srcX, dstY - srcY, dstZ - srcZ);
+        double length = direction.length();
+        Vector3 normalizedDirection = direction.divide(length);
+
+        for (double t = 0.0; t < length; t += stepSize) {
+            int x = (int) Math.round(srcX + normalizedDirection.x * t);
+            int y = (int) Math.round(srcY + normalizedDirection.y * t);
+            int z = (int) Math.round(srcZ + normalizedDirection.z * t);
+
+            Block block = getBlock(x, y, z);
+            if (block != null && block.getCollisionBoundingBox() != null) {
+                AxisAlignedBB bb = block.getCollisionBoundingBox();
+                if (bb.isVectorInside(x, y, z)) {
+                    return true;
+                }
+            }
+        }
+
+        return false; // No collision with any blocks
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.20.10-r1")
+    public float getBlockDensity(Vector3 source, AxisAlignedBB boundingBox) {
+        double xInterval = 1 / ((boundingBox.getMaxX() - boundingBox.getMinX()) * 2 + 1);
+        double yInterval = 1 / ((boundingBox.getMaxY() - boundingBox.getMinY()) * 2 + 1);
+        double zInterval = 1 / ((boundingBox.getMaxZ() - boundingBox.getMinZ()) * 2 + 1);
+        double xOffset = (1 - Math.floor(1 / xInterval) * xInterval) / 2;
+        double zOffset = (1 - Math.floor(1 / zInterval) * zInterval) / 2;
+
+        if (xInterval >= 0 && yInterval >= 0 && zInterval >= 0) {
+            int visibleBlocks = 0;
+            int totalBlocks = 0;
+
+            for (float x = 0; x <= 1; x = (float) ((double) x + xInterval)) {
+                for (float y = 0; y <= 1; y = (float) ((double) y + yInterval)) {
+                    for (float z = 0; z <= 1; z = (float) ((double) z + zInterval)) {
+                        double blockX = boundingBox.getMinX() + (boundingBox.getMaxX() - boundingBox.getMinX()) * (double) x;
+                        double blockY = boundingBox.getMinY() + (boundingBox.getMaxY() - boundingBox.getMinY()) * (double) y;
+                        double blockZ = boundingBox.getMinZ() + (boundingBox.getMaxZ() - boundingBox.getMinZ()) * (double) z;
+
+                        if (this.isRayCollidingWithBlocks(source.x, source.y, source.z, blockX + xOffset, blockY, blockZ + zOffset, 0.3)) {
+                            visibleBlocks++;
+                        }
+
+                        totalBlocks++;
+                    }
+                }
+            }
+
+            return (float) visibleBlocks / (float) totalBlocks;
+        } else {
+            return 0;
+        }
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public final boolean isYInRange(int y) {
+        return y >= getMinHeight() && y < getMaxHeight();
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.19.21-r3")
+    public Block[] getTickCachedCollisionBlocks(AxisAlignedBB bb) {
+        return this.getTickCachedCollisionBlocks(bb, false);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.19.21-r3")
+    public Block[] getTickCachedCollisionBlocks(AxisAlignedBB bb, boolean targetFirst) {
+        return getTickCachedCollisionBlocks(bb, targetFirst, false);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.19.21-r3")
+    public Block[] getTickCachedCollisionBlocks(AxisAlignedBB bb, boolean targetFirst, boolean ignoreCollidesCheck) {
+        return getTickCachedCollisionBlocks(bb, targetFirst, ignoreCollidesCheck, block -> block.getId() != 0);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.19.21-r3")
+    public Block[] getTickCachedCollisionBlocks(AxisAlignedBB bb, boolean targetFirst, boolean ignoreCollidesCheck, Predicate<Block> condition) {
+        int minX = NukkitMath.floorDouble(bb.getMinX());
+        int minY = NukkitMath.floorDouble(bb.getMinY());
+        int minZ = NukkitMath.floorDouble(bb.getMinZ());
+        int maxX = NukkitMath.ceilDouble(bb.getMaxX());
+        int maxY = NukkitMath.ceilDouble(bb.getMaxY());
+        int maxZ = NukkitMath.ceilDouble(bb.getMaxZ());
+
+        List<Block> collides = new ArrayList<>();
+
+        if (targetFirst) {
+            for (int z = minZ; z <= maxZ; ++z) {
+                for (int x = minX; x <= maxX; ++x) {
+                    for (int y = minY; y <= maxY; ++y) {
+                        Block block = this.getTickCachedBlock(this.temporalVector.setComponents(x, y, z), false);
+                        if (block != null && condition.test(block) && (ignoreCollidesCheck || block.collidesWithBB(bb))) {
+                            return new Block[]{block};
+                        }
+                    }
+                }
+            }
+        } else {
+            for (int z = minZ; z <= maxZ; ++z) {
+                for (int x = minX; x <= maxX; ++x) {
+                    for (int y = minY; y <= maxY; ++y) {
+                        Block block = this.getTickCachedBlock(this.temporalVector.setComponents(x, y, z), false);
+                        if (block != null && condition.test(block) && (ignoreCollidesCheck || block.collidesWithBB(bb))) {
+                            collides.add(block);
+                        }
+                    }
+                }
+            }
+        }
+
+        return collides.toArray(Block.EMPTY_ARRAY);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public boolean isHighLightChunk(int chunkX, int chunkZ) {
+        return false;
+        //return highLightChunks.contains(Level.chunkHash(chunkX, chunkZ));
     }
 
 //    private static void orderGetRidings(Entity entity, LongSet set) {

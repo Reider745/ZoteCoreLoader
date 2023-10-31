@@ -476,6 +476,8 @@ public class Network {
         this.registerPacket(ProtocolInfo.FILTER_TEXT_PACKET, FilterTextPacket.class);
         this.registerPacket(ProtocolInfo.ITEM_STACK_REQUEST_PACKET, ItemStackRequestPacket.class);
         this.registerPacket(ProtocolInfo.ITEM_STACK_RESPONSE_PACKET, ItemStackResponsePacket.class);
+        this.registerPacket(ProtocolInfo.ANIMATE_ENTITY_PACKET, AnimateEntityPacket.class);
+        this.registerPacket(ProtocolInfo.SYNC_ENTITY_PROPERTY_PACKET, SyncEntityPropertyPacket.class);
 
         this.registerPacket(InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
     }

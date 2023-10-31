@@ -1,5 +1,7 @@
 package cn.nukkit.item.enchantment;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
@@ -32,6 +34,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * Nukkit Project
  */
 public abstract class Enchantment implements Cloneable {
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static final Enchantment[] EMPTY_ARRAY = new Enchantment[0];
 
     protected static Enchantment[] enchantments;
 

@@ -1,5 +1,7 @@
 package cn.nukkit.nbt.tag;
 
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.nbt.stream.NBTInputStream;
 import cn.nukkit.nbt.stream.NBTOutputStream;
 
@@ -21,6 +23,14 @@ public class LongTag extends NumberTag<Long> {
     public LongTag(String name) {
         super(name);
     }
+
+    @PowerNukkitXOnly
+    @Since("1.19.60-r1")
+    public LongTag(long data) {
+        super("");
+        this.data = data;
+    }
+
 
     public LongTag(String name, long data) {
         super(name);

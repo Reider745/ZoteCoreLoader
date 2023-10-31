@@ -1,8 +1,11 @@
 package cn.nukkit.entity.item;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.inventory.MinecartChestInventory;
 import cn.nukkit.item.Item;
@@ -14,8 +17,8 @@ import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.utils.MinecartType;
 
 /**
- * Created by Snake1999 on 2016/1/30.
- * Package cn.nukkit.entity.item in project Nukkit.
+ * @author Snake1999
+ * @since 2016/1/30
  */
 public class EntityMinecartChest extends EntityMinecartAbstract implements InventoryHolder {
 
@@ -28,8 +31,10 @@ public class EntityMinecartChest extends EntityMinecartAbstract implements Inven
         setDisplayBlock(Block.get(Block.CHEST), false);
     }
 
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
     @Override
-    public String getName() {
+    public String getOriginalName() {
         return getType().getName();
     }
 
@@ -39,7 +44,7 @@ public class EntityMinecartChest extends EntityMinecartAbstract implements Inven
     }
 
     @Override
-    public boolean isRideable(){
+    public boolean isRideable() {
         return false;
     }
 
@@ -50,12 +55,22 @@ public class EntityMinecartChest extends EntityMinecartAbstract implements Inven
 
     @Override
     public void dropItem() {
-        super.dropItem();
-
-        this.level.dropItem(this, Item.get(Item.CHEST));
         for (Item item : this.inventory.getContents().values()) {
             this.level.dropItem(this, item);
         }
+
+        if (this.lastDamageCause instanceof EntityDamageByEntityEvent entityDamageByEntityEvent) {
+            Entity damager = entityDamageByEntityEvent.getDamager();
+            if (damager instanceof Player player && player.isCreative()) {
+                return;
+            }
+        }
+        this.level.dropItem(this, Item.get(Item.CACTUS));
+    }
+
+    @Override
+    public void kill() {
+        super.kill();
         this.inventory.clearAll();
     }
 

@@ -133,7 +133,7 @@ public class ChunkSection implements cn.nukkit.level.format.ChunkSection {
     public Block getAndSetBlock(int x, int y, int z, Block block) {
         synchronized (storage) {
             int fullId = storage.getAndSetFullBlock(x, y, z, block.getFullId());
-            return cn.nukkit.api.BlockStorage.getFullId(fullId).clone();
+            return cn.nukkit.blockstate.BlockStorage.getFullId(fullId).clone();
         }
     }
 

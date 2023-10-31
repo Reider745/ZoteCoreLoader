@@ -1,5 +1,7 @@
 package cn.nukkit.level.format;
 
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
@@ -157,4 +159,22 @@ public interface FullChunk extends Cloneable {
     void setChanged();
 
     void setChanged(boolean changed);
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    default boolean isOverWorld() {
+        return getProvider().isOverWorld();
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    default boolean isNether() {
+        return getProvider().isNether();
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    default boolean isTheEnd() {
+        return getProvider().isTheEnd();
+    }
 }

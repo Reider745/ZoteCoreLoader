@@ -1,7 +1,10 @@
 package cn.nukkit.entity.item;
 
-import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.api.PowerNukkitDifference;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -14,14 +17,18 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddItemEntityPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.EntityEventPacket;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author MagicDroidX
  */
 public class EntityItem extends Entity {
-    public static final int NETWORK_ID = 64;
 
-    public static final int DATA_SOURCE_ID = 17;
+    public static final int NETWORK_ID = 64;
+    protected String owner;
+    protected String thrower;
+    protected Item item;
+    protected int pickupDelay;
 
     public EntityItem(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -31,13 +38,6 @@ public class EntityItem extends Entity {
     public int getNetworkId() {
         return NETWORK_ID;
     }
-
-    protected String owner;
-    protected String thrower;
-
-    protected Item item;
-
-    protected int pickupDelay;
 
     @Override
     public float getWidth() {
@@ -105,23 +105,30 @@ public class EntityItem extends Entity {
         this.item = NBTIO.getItemHelper(this.namedTag.getCompound("Item"));
         this.setDataFlag(DATA_FLAGS, DATA_FLAG_GRAVITY, true);
 
-        int id = this.item.getId();
-        if (id >= Item.NETHERITE_INGOT && id <= Item.NETHERITE_SCRAP) {
+        if (this.item.isLavaResistant()) {
             this.fireProof = true; // Netherite items are fireproof
         }
 
         this.server.getPluginManager().callEvent(new ItemSpawnEvent(this));
     }
 
+    @PowerNukkitDifference(since = "1.4.0.0-PN", info = "Netherite stuff is immune to fire and lava damage")
     @Override
     public boolean attack(EntityDamageEvent source) {
+        if (item != null && item.isLavaResistant() && (
+                source.getCause() == DamageCause.LAVA ||
+                        source.getCause() == DamageCause.FIRE ||
+                        source.getCause() == DamageCause.FIRE_TICK)) {
+            return false;
+        }
+
         return (source.getCause() == DamageCause.VOID ||
                 source.getCause() == DamageCause.CONTACT ||
                 source.getCause() == DamageCause.FIRE_TICK ||
                 (source.getCause() == DamageCause.ENTITY_EXPLOSION ||
-                source.getCause() == DamageCause.BLOCK_EXPLOSION) &&
-                !this.isInsideOfWater() && (this.item == null ||
-                this.item.getId() != Item.NETHER_STAR)) && super.attack(source);
+                        source.getCause() == DamageCause.BLOCK_EXPLOSION) &&
+                        !this.isInsideOfWater() && (this.item == null ||
+                        this.item.getId() != Item.NETHER_STAR)) && super.attack(source);
     }
 
     @Override
@@ -138,8 +145,6 @@ public class EntityItem extends Entity {
 
         this.lastUpdate = currentTick;
 
-        this.timing.startTiming();
-        
         if (this.age % 60 == 0 && this.onGround && this.getItem() != null && this.isAlive()) {
             if (this.getItem().getCount() < this.getItem().getMaxStackSize()) {
                 for (Entity entity : this.getLevel().getNearbyEntities(getBoundingBox().grow(1, 1, 1), this, false)) {
@@ -172,7 +177,9 @@ public class EntityItem extends Entity {
 
         boolean hasUpdate = this.entityBaseTick(tickDiff);
 
-        if (!this.fireProof && this.isInsideOfFire()) {
+        boolean lavaResistant = fireProof || item != null && item.isLavaResistant();
+
+        if (!lavaResistant && (isInsideOfFire() || isInsideOfLava())) {
             this.kill();
         }
 
@@ -182,7 +189,7 @@ public class EntityItem extends Entity {
                 if (this.pickupDelay < 0) {
                     this.pickupDelay = 0;
                 }
-            } else {
+            }/* else { // Done in Player#checkNearEntities
                 for (Entity entity : this.level.getNearbyEntities(this.boundingBox.grow(1, 0.5, 1), this)) {
                     if (entity instanceof Player) {
                         if (((Player) entity).pickupEntity(this, true)) {
@@ -190,11 +197,24 @@ public class EntityItem extends Entity {
                         }
                     }
                 }
-            }
+            }*/
 
-            if (this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z) == 8 || this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z) == 9) { //item is fully in water or in still water
+            int bid = this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z);
+            if (bid == BlockID.FLOWING_WATER || bid == BlockID.STILL_WATER
+                    || (bid = this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z)) == BlockID.FLOWING_WATER
+                    || bid == BlockID.STILL_WATER
+            ) {
+                //item is fully in water or in still water
                 this.motionY -= this.getGravity() * -0.015;
-            } else if (this.isInsideOfWater()) {
+            } else if (lavaResistant && (
+                    this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z) == BlockID.FLOWING_LAVA
+                            || this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z) == BlockID.STILL_LAVA
+                            || this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z) == BlockID.FLOWING_LAVA
+                            || this.level.getBlockIdAt((int) this.x, (int) this.boundingBox.getMaxY(), (int) this.z) == BlockID.STILL_LAVA
+            )) {
+                //item is fully in lava or in still lava
+                this.motionY -= this.getGravity() * -0.015;
+            } else if (this.isInsideOfWater() || lavaResistant && this.isInsideOfLava()) {
                 this.motionY = this.getGravity() - 0.06; //item is going up in water, don't let it go back down too fast
             } else {
                 this.motionY -= this.getGravity(); //item is not in water
@@ -234,9 +254,15 @@ public class EntityItem extends Entity {
             }
         }
 
-        this.timing.stopTiming();
-
         return hasUpdate || !this.onGround || Math.abs(this.motionX) > 0.00001 || Math.abs(this.motionY) > 0.00001 || Math.abs(this.motionZ) > 0.00001;
+    }
+
+    @Override
+    public void setOnFire(int seconds) {
+        if (item != null && item.isLavaResistant()) {
+            return;
+        }
+        super.setOnFire(seconds);
     }
 
     @Override
@@ -257,9 +283,23 @@ public class EntityItem extends Entity {
         }
     }
 
+    @Since("1.5.1.0-PN")
+    @PowerNukkitOnly
+    @Override
+    public String getOriginalName() {
+        return "Item";
+    }
+
+    @NotNull
     @Override
     public String getName() {
-        return this.hasCustomName() ? this.getNameTag() : (this.item.hasCustomName() ? this.item.getCustomName() : this.item.getName());
+        if (this.hasCustomName()) {
+            return getNameTag();
+        }
+        if (item == null) {
+            return getOriginalName();
+        }
+        return item.count + "x " + this.item.getDisplayName();
     }
 
     public Item getItem() {
@@ -301,7 +341,7 @@ public class EntityItem extends Entity {
         addEntity.entityUniqueId = this.getId();
         addEntity.entityRuntimeId = this.getId();
         addEntity.x = (float) this.x;
-        addEntity.y = (float) this.y;
+        addEntity.y = (float) this.y + this.getBaseOffset();
         addEntity.z = (float) this.z;
         addEntity.speedX = (float) this.motionX;
         addEntity.speedY = (float) this.motionY;

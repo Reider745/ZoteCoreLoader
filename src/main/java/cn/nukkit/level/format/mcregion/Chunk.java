@@ -1,7 +1,7 @@
 package cn.nukkit.level.format.mcregion;
 
 import cn.nukkit.Player;
-import cn.nukkit.api.BlockStorage;
+import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;

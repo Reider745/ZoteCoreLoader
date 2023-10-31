@@ -1,9 +1,12 @@
 package cn.nukkit.block;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.api.BlockStorage;
+import cn.nukkit.blockstate.BlockStorage;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.ItemTool;
@@ -19,9 +22,8 @@ import cn.nukkit.metadata.Metadatable;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.BlockColor;
-import com.reider745.block.CustomBlock;
+import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,6 +44,10 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
      * if a block has can have variants
      *//*
     public static boolean[] hasMeta = null;*/
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static final Block[] EMPTY_ARRAY = new Block[0];
+
 
     protected Block() {}
 
@@ -395,6 +401,45 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
         return block;
     }
 
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedSide(BlockFace face) {
+        return getTickCachedSideAtLayer(0, face);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedSide(BlockFace face, int step) {
+        return getTickCachedSideAtLayer(0, face, step);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedSideAtLayer(int layer, BlockFace face) {
+        if (this.isValid()) {
+            return this.getLevel().getTickCachedBlock((int) x + face.getXOffset(), (int) y + face.getYOffset(), (int) z + face.getZOffset(), layer);
+        }
+        return this.getTickCachedSide(face, 1);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public Block getTickCachedSideAtLayer(int layer, BlockFace face, int step) {
+        if (this.isValid()) {
+            if (step == 1) {
+                return this.getLevel().getTickCachedBlock((int) x + face.getXOffset(), (int) y + face.getYOffset(), (int) z + face.getZOffset(), layer);
+            } else {
+                return this.getLevel().getTickCachedBlock((int) x + face.getXOffset() * step, (int) y + face.getYOffset() * step, (int) z + face.getZOffset() * step, layer);
+            }
+        }
+        Block block = Block.get(Item.AIR, 0);
+        block.x = (int) x + face.getXOffset() * step;
+        block.y = (int) y + face.getYOffset() * step;
+        block.z = (int) z + face.getZOffset() * step;
+        //block.layer = layer;
+        return block;
+    }
+
     public boolean place(Item item, Block block, Block target, BlockFace face, double fx, double fy, double fz, Player player) {
         return this.getLevel().setBlock(this, this, true, true);
     }
@@ -476,6 +521,55 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
 
     public boolean isSolid() {
         return true;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public boolean isSideFull(BlockFace face) {
+        AxisAlignedBB boundingBox = getBoundingBox();
+        if (boundingBox == null) {
+            return false;
+        }
+
+        if (face.getAxis().getPlane() == BlockFace.Plane.HORIZONTAL) {
+            if (boundingBox.getMinY() != getY() || boundingBox.getMaxY() != getY() + 1) {
+                return false;
+            }
+            int offset = face.getXOffset();
+            if (offset < 0) {
+                return boundingBox.getMinX() == getX()
+                        && boundingBox.getMinZ() == getZ() && boundingBox.getMaxZ() == getZ() + 1;
+            } else if (offset > 0) {
+                return boundingBox.getMaxX() == getX() + 1
+                        && boundingBox.getMaxZ() == getZ() + 1 && boundingBox.getMinZ() == getZ();
+            }
+
+            offset = face.getZOffset();
+            if (offset < 0) {
+                return boundingBox.getMinZ() == getZ()
+                        && boundingBox.getMinX() == getX() && boundingBox.getMaxX() == getX() + 1;
+            }
+
+            return boundingBox.getMaxZ() == getZ() + 1
+                    && boundingBox.getMaxX() == getX() + 1 && boundingBox.getMinX() == getX();
+        }
+
+        if (boundingBox.getMinX() != getX() || boundingBox.getMaxX() != getX() + 1 ||
+                boundingBox.getMinZ() != getZ() || boundingBox.getMaxZ() != getZ() + 1) {
+            return false;
+        }
+
+        if (face.getYOffset() < 0) {
+            return boundingBox.getMinY() == getY();
+        }
+
+        return boundingBox.getMaxY() == getY() + 1;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.3.0.0-PN")
+    public boolean isSolid(BlockFace side) {
+        return isSideFull(side);
     }
 
     public boolean canBeFlowedInto() {
@@ -1003,5 +1097,29 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
 
     public boolean canSilkTouch() {
         return false;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public boolean useDefaultFallDamage() {
+        return true;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public void onEntityFallOn(Entity entity, float fallDistance) {
+
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public boolean onProjectileHit(@NotNull Entity projectile, @NotNull Position position, @NotNull Vector3 motion) {
+        return false;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public int getWalkThroughExtraCost() {
+        return 0;
     }
 }

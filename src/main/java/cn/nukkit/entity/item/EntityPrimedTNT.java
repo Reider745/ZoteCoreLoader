@@ -1,5 +1,8 @@
 package cn.nukkit.entity.item;
 
+import cn.nukkit.api.PowerNukkitDifference;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityExplosive;
 import cn.nukkit.entity.data.IntEntityData;
@@ -8,9 +11,9 @@ import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.entity.EntityExplosionPrimeEvent;
 import cn.nukkit.level.Explosion;
 import cn.nukkit.level.GameRule;
+import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.LevelSoundEventPacket;
 
 /**
  * @author MagicDroidX
@@ -18,6 +21,17 @@ import cn.nukkit.network.protocol.LevelSoundEventPacket;
 public class EntityPrimedTNT extends Entity implements EntityExplosive {
 
     public static final int NETWORK_ID = 65;
+    protected int fuse;
+    protected Entity source;
+
+    public EntityPrimedTNT(FullChunk chunk, CompoundTag nbt) {
+        this(chunk, nbt, null);
+    }
+
+    public EntityPrimedTNT(FullChunk chunk, CompoundTag nbt, Entity source) {
+        super(chunk, nbt);
+        this.source = source;
+    }
 
     @Override
     public float getWidth() {
@@ -54,19 +68,6 @@ public class EntityPrimedTNT extends Entity implements EntityExplosive {
         return false;
     }
 
-    protected int fuse;
-
-    protected Entity source;
-
-    public EntityPrimedTNT(FullChunk chunk, CompoundTag nbt) {
-        this(chunk, nbt, null);
-    }
-
-    public EntityPrimedTNT(FullChunk chunk, CompoundTag nbt, Entity source) {
-        super(chunk, nbt);
-        this.source = source;
-    }
-
     @Override
     public int getNetworkId() {
         return NETWORK_ID;
@@ -77,6 +78,8 @@ public class EntityPrimedTNT extends Entity implements EntityExplosive {
         return source.getCause() == DamageCause.VOID && super.attack(source);
     }
 
+    @Override
+    @PowerNukkitDifference(info = "Using new method to play sounds", since = "1.4.0.0-PN")
     protected void initEntity() {
         super.initEntity();
 
@@ -89,26 +92,27 @@ public class EntityPrimedTNT extends Entity implements EntityExplosive {
         this.setDataFlag(DATA_FLAGS, DATA_FLAG_IGNITED, true);
         this.setDataProperty(new IntEntityData(DATA_FUSE_LENGTH, fuse));
 
-        this.getLevel().addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_FIZZ);
+        this.getLevel().addSound(this, Sound.RANDOM_FUSE);
     }
 
 
+    @Override
     public boolean canCollideWith(Entity entity) {
         return false;
     }
 
+    @Override
     public void saveNBT() {
         super.saveNBT();
         namedTag.putByte("Fuse", fuse);
     }
 
+    @Override
     public boolean onUpdate(int currentTick) {
 
         if (closed) {
             return false;
         }
-
-        this.timing.startTiming();
 
         int tickDiff = currentTick - lastUpdate;
 
@@ -154,11 +158,10 @@ public class EntityPrimedTNT extends Entity implements EntityExplosive {
 
         }
 
-        this.timing.stopTiming();
-
         return hasUpdate || fuse >= 0 || Math.abs(motionX) > 0.00001 || Math.abs(motionY) > 0.00001 || Math.abs(motionZ) > 0.00001;
     }
 
+    @Override
     public void explode() {
         EntityExplosionPrimeEvent event = new EntityExplosionPrimeEvent(this, 4);
         server.getPluginManager().callEvent(event);
@@ -166,6 +169,7 @@ public class EntityPrimedTNT extends Entity implements EntityExplosive {
             return;
         }
         Explosion explosion = new Explosion(this, event.getForce(), this);
+        //explosion.setFireChance(event.getFireChance());
         if (event.isBlockBreaking()) {
             explosion.explodeA();
         }
@@ -174,5 +178,13 @@ public class EntityPrimedTNT extends Entity implements EntityExplosive {
 
     public Entity getSource() {
         return source;
+    }
+
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Block of TNT";
     }
 }

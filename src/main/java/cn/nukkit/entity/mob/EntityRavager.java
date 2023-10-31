@@ -1,9 +1,13 @@
 package cn.nukkit.entity.mob;
 
+import cn.nukkit.Player;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntityWalkable;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
-public class EntityRavager extends EntityMob {
+public class EntityRavager extends EntityMob implements EntityWalkable {
 
     public static final int NETWORK_ID = 59;
 
@@ -18,8 +22,8 @@ public class EntityRavager extends EntityMob {
 
     @Override
     protected void initEntity() {
-        super.initEntity();
         this.setMaxHealth(100);
+        super.initEntity();
     }
 
     @Override
@@ -32,8 +36,16 @@ public class EntityRavager extends EntityMob {
         return 1.2f;
     }
 
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
     @Override
-    public String getName() {
+    public String getOriginalName() {
         return "Ravager";
+    }
+
+    @PowerNukkitOnly
+    @Override
+    public boolean isPreventingSleep(Player player) {
+        return true;
     }
 }

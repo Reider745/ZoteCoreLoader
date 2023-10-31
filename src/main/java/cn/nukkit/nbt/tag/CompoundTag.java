@@ -1,5 +1,7 @@
 package cn.nukkit.nbt.tag;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.nbt.stream.NBTInputStream;
 import cn.nukkit.nbt.stream.NBTOutputStream;
 
@@ -12,7 +14,7 @@ import java.util.Map.Entry;
 import java.util.StringJoiner;
 
 public class CompoundTag extends Tag implements Cloneable {
-    private final Map<String, Tag> tags = new HashMap<>();
+    private Map<String, Tag> tags = new HashMap<>();
 
     public CompoundTag() {
         super("");
@@ -20,6 +22,17 @@ public class CompoundTag extends Tag implements Cloneable {
 
     public CompoundTag(String name) {
         super(name);
+    }
+
+    @PowerNukkitOnly
+    public CompoundTag(Map<String, Tag> tags) {
+        this("", tags);
+    }
+
+    @PowerNukkitOnly
+    public CompoundTag(String name, Map<String, Tag> tags) {
+        super(name);
+        this.tags = tags;
     }
 
     @Override
@@ -102,6 +115,13 @@ public class CompoundTag extends Tag implements Cloneable {
 
     public CompoundTag putList(ListTag<? extends Tag> listTag) {
         tags.put(listTag.getName(), listTag);
+        return this;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.19.60-r1")
+    public CompoundTag putList(String name, ListTag<? extends Tag> listTag) {
+        tags.put(name, listTag.setName(name));
         return this;
     }
 

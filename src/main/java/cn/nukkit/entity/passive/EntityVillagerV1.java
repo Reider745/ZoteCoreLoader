@@ -1,14 +1,17 @@
 package cn.nukkit.entity.passive;
 
-import cn.nukkit.entity.Entity;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.entity.EntityAgeable;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 /**
- * Created by Pub4Game on 21.06.2016.
+ * @author Pub4Game
+ * @since 21.06.2016
  */
+@Since("1.19.21-r1")
 public class EntityVillagerV1 extends EntityCreature implements EntityNPC, EntityAgeable {
 
     public static final int PROFESSION_FARMER = 0;
@@ -34,13 +37,15 @@ public class EntityVillagerV1 extends EntityCreature implements EntityNPC, Entit
     @Override
     public float getHeight() {
         if (this.isBaby()) {
-            return 0.9f;
+            return 0.95f;
         }
-        return 1.8f;
+        return 1.9f;
     }
 
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
     @Override
-    public String getName() {
+    public String getOriginalName() {
         return "Villager";
     }
 
@@ -51,8 +56,8 @@ public class EntityVillagerV1 extends EntityCreature implements EntityNPC, Entit
 
     @Override
     public void initEntity() {
-        super.initEntity();
         this.setMaxHealth(20);
+        super.initEntity();
 
         if (!this.namedTag.contains("Profession")) {
             this.setProfession(PROFESSION_GENERIC);
@@ -65,10 +70,5 @@ public class EntityVillagerV1 extends EntityCreature implements EntityNPC, Entit
 
     public void setProfession(int profession) {
         this.namedTag.putInt("Profession", profession);
-    }
-
-    @Override
-    public boolean isBaby() {
-        return this.getDataFlag(DATA_FLAGS, Entity.DATA_FLAG_BABY);
     }
 }

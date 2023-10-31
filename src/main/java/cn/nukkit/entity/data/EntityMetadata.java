@@ -1,42 +1,47 @@
 package cn.nukkit.entity.data;
 
+import cn.nukkit.api.PowerNukkitDifference;
 import cn.nukkit.item.Item;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.math.Vector3f;
 import cn.nukkit.nbt.tag.CompoundTag;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
+@Log4j2
 public class EntityMetadata {
 
-    private final Map<Integer, EntityData> map = new HashMap<>();
+    private final Int2ObjectMap<EntityData<?>> map = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
 
-    public EntityData get(int id) {
+    public EntityData<?> get(int id) {
         return this.getOrDefault(id, null);
     }
 
-    public EntityData getOrDefault(int id, EntityData defaultValue) {
-        try {
-            return this.map.getOrDefault(id, defaultValue).setId(id);
-        } catch (Exception e) {
-            if (defaultValue != null) {
-                return defaultValue.setId(id);
-            }
+    @PowerNukkitDifference(info = "Reduce a lot of hidden NullPointerExceptions", since = "1.3.1.2-PN")
+    public EntityData<?> getOrDefault(int id, EntityData<?> defaultValue) {
+        var data = this.map.getOrDefault(id, defaultValue);
+        if (data == null) {
             return null;
         }
+        data.setId(id);
+        return data;
     }
 
     public boolean exists(int id) {
         return this.map.containsKey(id);
     }
 
-    public EntityMetadata put(EntityData data) {
+    public EntityMetadata put(EntityData<?> data) {
         this.map.put(data.getId(), data);
+        //log.info("Updated entity data {}", this::toString);
         return this;
     }
 
@@ -117,7 +122,12 @@ public class EntityMetadata {
         return this.put(new StringEntityData(id, value));
     }
 
-    public Map<Integer, EntityData> getMap() {
+    public Map<Integer, EntityData<?>> getMap() {
         return new HashMap<>(map);
+    }
+
+    @Override
+    public String toString() {
+        return map.toString();
     }
 }

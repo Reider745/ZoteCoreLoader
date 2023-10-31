@@ -1,38 +1,34 @@
 package cn.nukkit.entity;
 
 import cn.nukkit.Player;
-import cn.nukkit.entity.data.IntPositionEntityData;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.block.Block;
 import cn.nukkit.entity.data.Skin;
+import cn.nukkit.event.entity.EntityDamageEvent;
+//import cn.nukkit.event.player.EntityFreezeEvent;
+import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemShield;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.nbt.tag.ListTag;
-import cn.nukkit.nbt.tag.StringTag;
 import cn.nukkit.network.protocol.AddPlayerPacket;
 import cn.nukkit.network.protocol.RemoveEntityPacket;
 import cn.nukkit.network.protocol.SetEntityLinkPacket;
-import cn.nukkit.utils.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
 public class EntityHuman extends EntityHumanType {
-
-    public static final int DATA_PLAYER_FLAG_SLEEP = 1;
-    public static final int DATA_PLAYER_FLAG_DEAD = 2;
-
-    public static final int DATA_PLAYER_FLAGS = 26;
-
-    public static final int DATA_PLAYER_BED_POSITION = 28;
-    public static final int DATA_PLAYER_BUTTON_TEXT = 40;
-
     protected UUID uuid;
     protected byte[] rawUUID;
+    protected Skin skin;
+
+    public EntityHuman(FullChunk chunk, CompoundTag nbt) {
+        super(chunk, nbt);
+    }
 
     @Override
     public float getWidth() {
@@ -49,37 +45,35 @@ public class EntityHuman extends EntityHumanType {
         return 1.8f;
     }
 
+    @Since("1.5.1.0-PN")
+    @PowerNukkitOnly
+    @Override
+    public float getSwimmingHeight() {
+        return getWidth();
+    }
+
     @Override
     public float getEyeHeight() {
-        return 1.62f;
+        return (float) (boundingBox.getMaxY() - boundingBox.getMinY() - 0.18);
     }
 
+    /**
+     * 偏移客户端传输玩家位置的y轴误差
+     *
+     * @return the base offset
+     */
     @Override
     protected float getBaseOffset() {
-        return this.getEyeHeight();
+        return 1.62f;
     }
-
-    protected Skin skin;
 
     @Override
     public int getNetworkId() {
         return -1;
     }
 
-    public EntityHuman(FullChunk chunk, CompoundTag nbt) {
-        super(chunk, nbt);
-    }
-
     public Skin getSkin() {
         return skin;
-    }
-
-    public UUID getUniqueId() {
-        return uuid;
-    }
-
-    public byte[] getRawUniqueId() {
-        return rawUUID;
     }
 
     public void setSkin(Skin skin) {
@@ -87,123 +81,37 @@ public class EntityHuman extends EntityHumanType {
     }
 
     @Override
+    public UUID getUniqueId() {
+        return uuid;
+    }
+
+    @Override
+    public void setUniqueId(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setRawUniqueId(byte[] rawUUID) {
+        this.rawUUID = rawUUID;
+    }
+
+    public byte[] getRawUniqueId() {
+        return rawUUID;
+    }
+
+    @Override
     protected void initEntity() {
-        this.setDataFlag(DATA_PLAYER_FLAGS, DATA_PLAYER_FLAG_SLEEP, false);
-        this.setDataFlag(DATA_FLAGS, DATA_FLAG_GRAVITY);
-
-        this.setDataProperty(new IntPositionEntityData(DATA_PLAYER_BED_POSITION, 0, 0, 0), false);
-
-        if (!(this instanceof Player)) {
-            if (this.namedTag.contains("NameTag")) {
-                this.setNameTag(this.namedTag.getString("NameTag"));
-            }
-
-            if (this.namedTag.contains("Skin") && this.namedTag.get("Skin") instanceof CompoundTag) {
-                CompoundTag skinTag = this.namedTag.getCompound("Skin");
-                if (!skinTag.contains("Transparent")) {
-                    skinTag.putBoolean("Transparent", false);
-                }
-                Skin newSkin = new Skin();
-                if (skinTag.contains("ModelId")) {
-                    newSkin.setSkinId(skinTag.getString("ModelId"));
-                }
-                if (skinTag.contains("Data")) {
-                    byte[] data = skinTag.getByteArray("Data");
-                    if (skinTag.contains("SkinImageWidth") && skinTag.contains("SkinImageHeight")) {
-                        int width = skinTag.getInt("SkinImageWidth");
-                        int height = skinTag.getInt("SkinImageHeight");
-                        newSkin.setSkinData(new SerializedImage(width, height, data));
-                    } else {
-                        newSkin.setSkinData(data);
-                    }
-                }
-                if (skinTag.contains("CapeId")) {
-                    newSkin.setCapeId(skinTag.getString("CapeId"));
-                }
-                if (skinTag.contains("CapeData")) {
-                    byte[] data = skinTag.getByteArray("CapeData");
-                    if (skinTag.contains("CapeImageWidth") && skinTag.contains("CapeImageHeight")) {
-                        int width = skinTag.getInt("CapeImageWidth");
-                        int height = skinTag.getInt("CapeImageHeight");
-                        newSkin.setCapeData(new SerializedImage(width, height, data));
-                    } else {
-                        newSkin.setCapeData(data);
-                    }
-                }
-                if (skinTag.contains("GeometryName")) {
-                    newSkin.setGeometryName(skinTag.getString("GeometryName"));
-                }
-                if (skinTag.contains("SkinResourcePatch")) {
-                    newSkin.setSkinResourcePatch(new String(skinTag.getByteArray("SkinResourcePatch"), StandardCharsets.UTF_8));
-                }
-                if (skinTag.contains("GeometryData")) {
-                    newSkin.setGeometryData(new String(skinTag.getByteArray("GeometryData"), StandardCharsets.UTF_8));
-                }
-                if (skinTag.contains("AnimationData")) {
-                    newSkin.setAnimationData(new String(skinTag.getByteArray("AnimationData"), StandardCharsets.UTF_8));
-                }
-                if (skinTag.contains("PremiumSkin")) {
-                    newSkin.setPremium(skinTag.getBoolean("PremiumSkin"));
-                }
-                if (skinTag.contains("PersonaSkin")) {
-                    newSkin.setPersona(skinTag.getBoolean("PersonaSkin"));
-                }
-                if (skinTag.contains("CapeOnClassicSkin")) {
-                    newSkin.setCapeOnClassic(skinTag.getBoolean("CapeOnClassicSkin"));
-                }
-                if (skinTag.contains("AnimatedImageData")) {
-                    ListTag<CompoundTag> list = skinTag.getList("AnimatedImageData", CompoundTag.class);
-                    for (CompoundTag animationTag : list.getAll()) {
-                        float frames = animationTag.getFloat("Frames");
-                        int type = animationTag.getInt("Type");
-                        byte[] image = animationTag.getByteArray("Image");
-                        int width = animationTag.getInt("ImageWidth");
-                        int height = animationTag.getInt("ImageHeight");
-                        int expression = animationTag.getInt("AnimationExpression");
-                        newSkin.getAnimations().add(new SkinAnimation(new SerializedImage(width, height, image), type, frames, expression));
-                    }
-                }
-                if (skinTag.contains("ArmSize")) {
-                    newSkin.setArmSize(skinTag.getString("ArmSize"));
-                }
-                if (skinTag.contains("SkinColor")) {
-                    newSkin.setSkinColor(skinTag.getString("SkinColor"));
-                }
-                if (skinTag.contains("PersonaPieces")) {
-                    ListTag<CompoundTag> pieces = skinTag.getList("PersonaPieces", CompoundTag.class);
-                    for (CompoundTag piece : pieces.getAll()) {
-                        newSkin.getPersonaPieces().add(new PersonaPiece(
-                                piece.getString("PieceId"),
-                                piece.getString("PieceType"),
-                                piece.getString("PackId"),
-                                piece.getBoolean("IsDefault"),
-                                piece.getString("ProductId")
-                        ));
-                    }
-                }
-                if (skinTag.contains("PieceTintColors")) {
-                    ListTag<CompoundTag> tintColors = skinTag.getList("PieceTintColors", CompoundTag.class);
-                    for (CompoundTag tintColor : tintColors.getAll()) {
-                        newSkin.getTintColors().add(new PersonaPieceTint(
-                                tintColor.getString("PieceType"),
-                                tintColor.getList("Colors", StringTag.class).getAll().stream()
-                                        .map(stringTag -> stringTag.data).collect(Collectors.toList())
-                        ));
-                    }
-                }
-                if (skinTag.contains("IsTrustedSkin")) {
-                    newSkin.setTrusted(skinTag.getBoolean("IsTrustedSkin"));
-                }
-                this.setSkin(newSkin);
-            }
-
-            this.uuid = Utils.dataToUUID(String.valueOf(this.getId()).getBytes(StandardCharsets.UTF_8), this.getSkin()
-                    .getSkinData().data, this.getNameTag().getBytes(StandardCharsets.UTF_8));
-        }
-
+        initHumanEntity(this);
         super.initEntity();
     }
 
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Human";
+    }
+
+    @NotNull
     @Override
     public String getName() {
         return this.getNameTag();
@@ -212,64 +120,37 @@ public class EntityHuman extends EntityHumanType {
     @Override
     public void saveNBT() {
         super.saveNBT();
+        saveHumanEntity(this);
+    }
 
-        if (skin != null) {
-            CompoundTag skinTag = new CompoundTag()
-                    .putByteArray("Data", this.getSkin().getSkinData().data)
-                    .putInt("SkinImageWidth", this.getSkin().getSkinData().width)
-                    .putInt("SkinImageHeight", this.getSkin().getSkinData().height)
-                    .putString("ModelId", this.getSkin().getSkinId())
-                    .putString("CapeId", this.getSkin().getCapeId())
-                    .putByteArray("CapeData", this.getSkin().getCapeData().data)
-                    .putInt("CapeImageWidth", this.getSkin().getCapeData().width)
-                    .putInt("CapeImageHeight", this.getSkin().getCapeData().height)
-                    .putByteArray("SkinResourcePatch", this.getSkin().getSkinResourcePatch().getBytes(StandardCharsets.UTF_8))
-                    .putByteArray("GeometryData", this.getSkin().getGeometryData().getBytes(StandardCharsets.UTF_8))
-                    .putByteArray("AnimationData", this.getSkin().getAnimationData().getBytes(StandardCharsets.UTF_8))
-                    .putBoolean("PremiumSkin", this.getSkin().isPremium())
-                    .putBoolean("PersonaSkin", this.getSkin().isPersona())
-                    .putBoolean("CapeOnClassicSkin", this.getSkin().isCapeOnClassic())
-                    .putString("ArmSize", this.getSkin().getArmSize())
-                    .putString("SkinColor", this.getSkin().getSkinColor())
-                    .putBoolean("IsTrustedSkin", this.getSkin().isTrusted());
-            List<SkinAnimation> animations = this.getSkin().getAnimations();
-            if (!animations.isEmpty()) {
-                ListTag<CompoundTag> animationsTag = new ListTag<>("AnimationImageData");
-                for (SkinAnimation animation : animations) {
-                    animationsTag.add(new CompoundTag()
-                            .putFloat("Frames", animation.frames)
-                            .putInt("Type", animation.type)
-                            .putInt("ImageWidth", animation.image.width)
-                            .putInt("ImageHeight", animation.image.height)
-                            .putInt("AnimationExpression", animation.expression)
-                            .putByteArray("Image", animation.image.data));
-                }
-                skinTag.putList(animationsTag);
+    @Override
+    public boolean entityBaseTick() {
+        return this.entityBaseTick(1);
+    }
+
+    @Override
+    public boolean entityBaseTick(int tickDiff) {
+        boolean hasUpdate = super.entityBaseTick(tickDiff);
+        //handle human entity freeze
+        var collidedWithPowderSnow = false;// this.getTickCachedCollisionBlocks().stream().anyMatch(block -> block.getId() == Block.POWDER_SNOW);
+        if (this.getFreezingTicks() < 140 && collidedWithPowderSnow) {
+            if (getFreezingTicks() == 0) {//玩家疾跑进来要设置为非疾跑，统一为默认速度0.1
+                this.setSprinting(false);
             }
-            List<PersonaPiece> personaPieces = this.getSkin().getPersonaPieces();
-            if (!personaPieces.isEmpty()) {
-                ListTag<CompoundTag> piecesTag = new ListTag<>("PersonaPieces");
-                for (PersonaPiece piece : personaPieces) {
-                    piecesTag.add(new CompoundTag().putString("PieceId", piece.id)
-                            .putString("PieceType", piece.type)
-                            .putString("PackId", piece.packId)
-                            .putBoolean("IsDefault", piece.isDefault)
-                            .putString("ProductId", piece.productId));
-                }
-            }
-            List<PersonaPieceTint> tints = this.getSkin().getTintColors();
-            if (!tints.isEmpty()) {
-                ListTag<CompoundTag> tintsTag = new ListTag<>("PieceTintColors");
-                for (PersonaPieceTint tint : tints) {
-                    ListTag<StringTag> colors = new ListTag<>("Colors");
-                    colors.setAll(tint.colors.stream().map(s -> new StringTag("", s)).collect(Collectors.toList()));
-                    tintsTag.add(new CompoundTag()
-                            .putString("PieceType", tint.pieceType)
-                            .putList(colors));
-                }
-            }
-            this.namedTag.putCompound("Skin", skinTag);
+            this.addFreezingTicks(1);
+            /*EntityFreezeEvent event = new EntityFreezeEvent(this);
+            this.server.getPluginManager().callEvent(event);
+            if (!event.isCancelled()) {
+                this.setMovementSpeed((float) Math.max(0.05, getMovementSpeed() - 3.58e-4));
+            }*/
+        } else if (this.getFreezingTicks() > 0 && !collidedWithPowderSnow) {
+            this.addFreezingTicks(-1);
+            this.setMovementSpeed((float) Math.min(Player.DEFAULT_SPEED, getMovementSpeed() + 3.58e-4));//This magic number is to change the player's 0.05 speed within 140tick
         }
+        if (this.getFreezingTicks() == 140 && this.getServer().getTick() % 40 == 0) {
+            //this.attack(new EntityDamageEvent(this, EntityDamageEvent.DamageCause.FREEZING, getFrostbiteInjury()));
+        }
+        return hasUpdate;
     }
 
     @Override
@@ -351,4 +232,18 @@ public class EntityHuman extends EntityHumanType {
         }
     }
 
+    @PowerNukkitOnly
+    @Override
+    protected void onBlock(Entity entity, EntityDamageEvent event, boolean animate) {
+        super.onBlock(entity, event, animate);
+        Item shield = getInventory().getItemInHand();
+        Item shieldOffhand = getOffhandInventory().getItem(0);
+        if (shield instanceof ItemShield) {
+            shield = damageArmor(shield, entity, event);
+            getInventory().setItemInHand(shield);
+        } else if (shieldOffhand instanceof ItemShield) {
+            shieldOffhand = damageArmor(shieldOffhand, entity, event);
+            getOffhandInventory().setItem(0, shieldOffhand);
+        }
+    }
 }

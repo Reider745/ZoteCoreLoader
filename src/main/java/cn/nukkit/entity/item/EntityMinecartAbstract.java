@@ -4,39 +4,39 @@ import cn.nukkit.Player;
 import cn.nukkit.api.API;
 import cn.nukkit.api.API.Definition;
 import cn.nukkit.api.API.Usage;
-import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockRail;
-import cn.nukkit.block.BlockRailActivator;
-import cn.nukkit.block.BlockRailPowered;
+import cn.nukkit.api.PowerNukkitDifference;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.block.*;
+import cn.nukkit.blockentity.BlockEntityHopper;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.data.ByteEntityData;
 import cn.nukkit.entity.data.IntEntityData;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.vehicle.VehicleMoveEvent;
 import cn.nukkit.event.vehicle.VehicleUpdateEvent;
+import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemMinecart;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.math.MathHelper;
-import cn.nukkit.math.NukkitMath;
-import cn.nukkit.math.Vector3;
+import cn.nukkit.math.*;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.utils.MinecartType;
 import cn.nukkit.utils.Rail;
 import cn.nukkit.utils.Rail.Orientation;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
 
 /**
- * Created by: larryTheCoder on 2017/6/26.
- * <p>
- * Nukkit Project,
- * Minecart and Riding Project,
- * Package cn.nukkit.entity.item in project Nukkit.
+ * @author larryTheCoder (Nukkit Project, Minecart and Riding Project)
+ * @since 2017/6/26
  */
 public abstract class EntityMinecartAbstract extends EntityVehicle {
 
@@ -52,6 +52,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
             {{0, 0, -1}, {-1, 0, 0}},
             {{0, 0, -1}, {1, 0, 0}}
     };
+    private final boolean devs = false; // Avoid maintained features into production
     private double currentSpeed = 0;
     private Block blockInside;
     // Plugins modifiers
@@ -63,11 +64,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
     private double flyingY = 0.95;
     private double flyingZ = 0.95;
     private double maxSpeed = 0.4D;
-    private final boolean devs = false; // Avoid maintained features into production
-
-    public abstract MinecartType getType();
-
-    public abstract boolean isRideable();
+    private boolean hasUpdated = false;
 
     public EntityMinecartAbstract(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -75,6 +72,10 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
         setMaxHealth(40);
         setHealth(40);
     }
+
+    public abstract MinecartType getType();
+
+    public abstract boolean isRideable();
 
     @Override
     public float getHeight() {
@@ -108,6 +109,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
         prepareDataProperty();
     }
 
+    @PowerNukkitDifference(since = "1.3.1.2-PN", info = "Will despawn instantly after being 'killed'")
     @Override
     public boolean onUpdate(int currentTick) {
         if (this.closed) {
@@ -115,12 +117,9 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
         }
 
         if (!this.isAlive()) {
-            ++this.deadTicks;
-            if (this.deadTicks >= 10) {
-                this.despawnFromAll();
-                this.close();
-            }
-            return this.deadTicks < 10;
+            this.despawnFromAll();
+            this.close();
+            return false;
         }
 
         int tickDiff = currentTick - this.lastUpdate;
@@ -159,8 +158,14 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
             if (Rail.isRailBlock(block)) {
                 processMovement(dx, dy, dz, (BlockRail) block);
                 // Activate the minecart/TNT
-                if (block instanceof BlockRailActivator && ((BlockRailActivator) block).isActive()) {
+                if (block instanceof BlockRailActivator activator && activator.isActive()) {
                     activate(dx, dy, dz, (block.getDamage() & 0x8) != 0);
+                    if (this.isRideable() && this.getRiding() != null) {
+                        this.dismountEntity(this.getRiding());
+                    }
+                }
+                if (block instanceof BlockRailDetector detector && !detector.isActive()) {
+                 //   detector.updateState(true);
                 }
             } else {
                 setFalling();
@@ -179,7 +184,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
             // Reverse yaw if yaw is below 0
             if (yawToChange < 0) {
                 // -90-(-90)-(-90) = 90
-                yawToChange -= yawToChange - yawToChange;
+                yawToChange -= 0.0;
             }
 
             setRotation(yawToChange, pitch);
@@ -214,6 +219,18 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
                 }
             }
 
+            //使矿车通知漏斗更新而不是漏斗来检测矿车
+            //通常情况下，矿车的数量远远少于漏斗，所以说此举能大福提高性能
+            if (this instanceof InventoryHolder holder) {
+                var pickupArea = new SimpleAxisAlignedBB(this.x, this.y - 1, this.z, this.x + 1, this.y, this.z + 1);
+                checkPickupHopper(pickupArea, holder);
+                //漏斗矿车会自行拉取物品!
+                if (!(this instanceof EntityMinecartHopper)) {
+                    var pushArea = new SimpleAxisAlignedBB(this.x, this.y, this.z, this.x + 1, this.y + 2, this.z + 1);
+                    checkPushHopper(pushArea, holder);
+                }
+            }
+
             // No need to onGround or Motion diff! This always have an update
             return true;
         }
@@ -239,11 +256,21 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
     }
 
     public void dropItem() {
+        if (this.lastDamageCause instanceof EntityDamageByEntityEvent entityDamageByEntityEvent) {
+            Entity damager = entityDamageByEntityEvent.getDamager();
+            if (damager instanceof Player player && player.isCreative()) {
+                return;
+            }
+        }
         level.dropItem(this, new ItemMinecart());
     }
 
+    @PowerNukkitDifference(info = "Fixes a dupe issue when attacking too quickly", since = "1.3.1.2-PN")
     @Override
     public void kill() {
+        if (!isAlive()) {
+            return;
+        }
         super.kill();
 
         if (level.getGameRules().getBoolean(GameRule.DO_ENTITY_DROPS)) {
@@ -251,14 +278,13 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
         }
     }
 
+    @PowerNukkitDifference(info = "Will not make a smoke particle and will do a proper dismount on the entities", since = "1.3.1.2-PN")
     @Override
     public void close() {
         super.close();
 
-        for (cn.nukkit.entity.Entity entity : passengers) {
-            if (entity instanceof Player) {
-                entity.riding = null;
-            }
+        for (Entity passenger : new ArrayList<>(this.passengers)) {
+            dismountEntity(passenger);
         }
     }
 
@@ -311,8 +337,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
                 motiveZ *= 1 + entityCollisionReduction;
                 motiveX *= 0.5D;
                 motiveZ *= 0.5D;
-                if (entity instanceof EntityMinecartAbstract) {
-                    EntityMinecartAbstract mine = (EntityMinecartAbstract) entity;
+                if (entity instanceof EntityMinecartAbstract mine) {
                     double desinityX = mine.x - x;
                     double desinityZ = mine.z - z;
                     Vector3 vector = new Vector3(desinityX, 0, desinityZ).normalize();
@@ -374,7 +399,67 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
     protected void activate(int x, int y, int z, boolean flag) {
     }
 
-    private boolean hasUpdated = false;
+    /**
+     * 检查邻近的漏斗并通知它输出物品
+     *
+     * @param pushArea 漏斗输出范围
+     * @return 是否有漏斗被通知
+     */
+    @PowerNukkitXOnly
+    @Since("1.19.60-r1")
+    private boolean checkPushHopper(AxisAlignedBB pushArea, InventoryHolder holder) {
+        int minX = NukkitMath.floorDouble(pushArea.getMinX());
+        int minY = NukkitMath.floorDouble(pushArea.getMinY());
+        int minZ = NukkitMath.floorDouble(pushArea.getMinZ());
+        int maxX = NukkitMath.ceilDouble(pushArea.getMaxX());
+        int maxY = NukkitMath.ceilDouble(pushArea.getMaxY());
+        int maxZ = NukkitMath.ceilDouble(pushArea.getMaxZ());
+        var tmpBV = new BlockVector3();
+        for (int z = minZ; z <= maxZ; ++z) {
+            for (int x = minX; x <= maxX; ++x) {
+                for (int y = minY; y <= maxY; ++y) {
+                    tmpBV.setComponents(x, y, z);
+                  //  var be = this.level.getBlockEntity(tmpBV);
+                    //if (be instanceof BlockEntityHopper blockEntityHopper) {
+                       // blockEntityHopper.setMinecartInvPushTo(holder);
+                        return true;
+                   // }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 检查邻近的漏斗并通知它获取物品
+     *
+     * @param pickupArea 漏斗拉取范围
+     * @return 是否有漏斗被通知
+     */
+    @PowerNukkitXOnly
+    @Since("1.19.60-r1")
+    private boolean checkPickupHopper(AxisAlignedBB pickupArea, InventoryHolder holder) {
+        int minX = NukkitMath.floorDouble(pickupArea.getMinX());
+        int minY = NukkitMath.floorDouble(pickupArea.getMinY());
+        int minZ = NukkitMath.floorDouble(pickupArea.getMinZ());
+        int maxX = NukkitMath.ceilDouble(pickupArea.getMaxX());
+        int maxY = NukkitMath.ceilDouble(pickupArea.getMaxY());
+        int maxZ = NukkitMath.ceilDouble(pickupArea.getMaxZ());
+        var tmpBV = new BlockVector3();
+        for (int z = minZ; z <= maxZ; ++z) {
+            for (int x = minX; x <= maxX; ++x) {
+                for (int y = minY; y <= maxY; ++y) {
+                    tmpBV.setComponents(x, y, z);
+                    //var be = this.level.getBlockEntity(tmpBV);
+                  //  if (be instanceof BlockEntityHopper blockEntityHopper) {
+                        //blockEntityHopper.setMinecartInvPickupFrom(holder);
+                        return true;
+                    //}
+                }
+            }
+        }
+        return false;
+    }
 
     private void setFalling() {
         motionX = NukkitMath.clamp(motionX, -getMaxSpeed(), getMaxSpeed());
@@ -702,20 +787,20 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
      * @param block The block that will changed. Set {@code null} for BlockAir
      * @return {@code true} if the block is normal block
      */
-    public boolean setDisplayBlock(Block block){
+    public boolean setDisplayBlock(Block block) {
         return setDisplayBlock(block, true);
     }
 
     /**
      * Set the minecart display block
      *
-     * @param block The block that will changed. Set {@code null} for BlockAir
+     * @param block  The block that will changed. Set {@code null} for BlockAir
      * @param update Do update for the block. (This state changes if you want to show the block)
      * @return {@code true} if the block is normal block
      */
     @API(usage = Usage.MAINTAINED, definition = Definition.UNIVERSAL)
     public boolean setDisplayBlock(Block block, boolean update) {
-        if(!update){
+        if (!update) {
             if (block.isNormalBlock()) {
                 blockInside = block;
             } else {
@@ -753,16 +838,6 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
     }
 
     /**
-     * Set the block offset.
-     *
-     * @param offset The offset
-     */
-    @API(usage = Usage.EXPERIMENTAL, definition = Definition.PLATFORM_NATIVE)
-    public void setDisplayBlockOffset(int offset) {
-        setDataProperty(new IntEntityData(DATA_DISPLAY_OFFSET, offset));
-    }
-
-    /**
      * Get the block display offset
      *
      * @return integer
@@ -770,6 +845,16 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
     @API(usage = Usage.EXPERIMENTAL, definition = Definition.UNIVERSAL)
     public int getDisplayBlockOffset() {
         return super.getDataPropertyInt(DATA_DISPLAY_OFFSET);
+    }
+
+    /**
+     * Set the block offset.
+     *
+     * @param offset The offset
+     */
+    @API(usage = Usage.EXPERIMENTAL, definition = Definition.PLATFORM_NATIVE)
+    public void setDisplayBlockOffset(int offset) {
+        setDataProperty(new IntEntityData(DATA_DISPLAY_OFFSET, offset));
     }
 
     /**

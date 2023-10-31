@@ -2,11 +2,10 @@ package cn.nukkit.level;
 
 import android.util.Pair;
 import cn.nukkit.Server;
-import cn.nukkit.api.BlockStorage;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.blockstate.BlockStateRegistry;
 import com.google.common.io.ByteStreams;
 import com.reider745.block.CustomBlock;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import lombok.extern.log4j.Log4j2;
@@ -63,22 +62,26 @@ public class GlobalBlockPalette {
             }
         }catch (Exception e){log.error(e.getMessage());}
 
-        HashMap<Long, Integer> stateHashToLegacyIdData = new HashMap<>();
-        HashMap<Long, JSONObject> debug_hash = new HashMap<>();
+        final HashMap<Long, Integer> stateHashToLegacyIdData = new HashMap<>();
+        final HashMap<Long, JSONObject> debug_hash = new HashMap<>();
         try {
-            JSONArray json = new JSONArray(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
+            final JSONArray json = new JSONArray(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
             for (Object elem : json) {
-                JSONObject e = (JSONObject) elem;
-                int legacyId = e.getInt("oldId");
-                int legacyData = e.getInt("data");
+                final JSONObject e = (JSONObject) elem;
+
+                BlockStateRegistry.registerState(e);
+
+                final int legacyId = e.getInt("oldId");
+                final int legacyData = e.getInt("data");
 
                 if(legacyId > 8000)
                     throw new IOException("Ты чё еблан? Какова хуя в дампе блок с id "+legacyId);
 
-                long hash = computeStateHash(e.getInt("newId"), e.getJSONObject("states"), stateIdByName);
+                final long hash = computeStateHash(e.getInt("newId"), e.getJSONObject("states"), stateIdByName);
                 if (stateHashToLegacyIdData.containsKey(hash))
                     throw new RuntimeException("hash collision: " + hash + " "+e);
                 debug_hash.put(hash, e);
+
                 // log.info(e.getString("nameId") + legacyId + ":" + legacyData + " -> " + hash);
                 stateHashToLegacyIdData.put(hash, (legacyId << 16) | legacyData);
             }
@@ -86,12 +89,17 @@ public class GlobalBlockPalette {
 
         try {
             CustomBlock.blocks.forEach((id, manager) -> {
-                ArrayList<String> variants = CustomBlock.getVariants(manager);
+                final ArrayList<String> variants = CustomBlock.getVariants(manager);
 
                 for(int i = 0;i < variants.size();i++) {
-                    long hash = computeStateHash(id, new JSONObject().put("color", i), stateIdByName);
+                    final HashMap<String, Integer> state = new HashMap<>();
+                    state.put("color", i);
+                    BlockStateRegistry.registerState(id, i, state);
+
+                    final long hash = computeStateHash(id, new JSONObject().put("color", i), stateIdByName);
                     if (stateHashToLegacyIdData.containsKey(hash))
                         throw new RuntimeException("hash collision: " + hash + " "+debug_hash.get(hash).toString());
+
                     debug_hash.put(hash, new JSONObject().put("block", id+":"+i));
                     stateHashToLegacyIdData.put(hash, (id << 16) | i);
                 }

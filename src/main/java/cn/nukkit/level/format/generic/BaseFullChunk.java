@@ -1,26 +1,34 @@
 package cn.nukkit.level.format.generic;
 
 import cn.nukkit.Player;
-import cn.nukkit.api.BlockStorage;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
+import cn.nukkit.blockstate.BlockState;
+import cn.nukkit.blockstate.BlockStateRegistry;
+import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.format.LevelProvider;
+import cn.nukkit.math.BlockVector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.nbt.tag.NumberTag;
 import cn.nukkit.network.protocol.BatchPacket;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 
 /**
  * author: MagicDroidX
@@ -581,5 +589,46 @@ public abstract class BaseFullChunk implements FullChunk, ChunkManager {
             return true;
         }
         return false;
+    }
+
+    @Since("1.6.0.0-PNX")
+    @Override
+    public boolean isOverWorld() {
+        return FullChunk.super.isOverWorld();
+    }
+
+    public BlockState getBlockState(int x, int y, int z){
+        return BlockStateRegistry.getForBlock(getProvider().getLevel().getBlock(x, y, z));
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    @NotNull
+    public Stream<Block> scanBlocks(BlockVector3 min, BlockVector3 max, BiPredicate<BlockVector3, BlockState> condition) {
+        int offsetX = getX() << 4;
+        int offsetZ = getZ() << 4;
+        List<Block> results = new ArrayList<>();
+
+        BlockVector3 current = new BlockVector3();
+
+        int minX = Math.max(0, min.x - offsetX);
+        int minY = Math.max(isOverWorld() ? 0 : -64, min.y);
+        int minZ = Math.max(0, min.z - offsetZ);
+
+        for (int x = Math.min(max.x - offsetX, 15); x >= minX; x--) {
+            current.x = offsetX + x;
+            for (int z = Math.min(max.z - offsetZ, 15); z >= minZ; z--) {
+                current.z = offsetZ + z;
+                for (int y = Math.min(max.y, isOverWorld() ? 319 : 255); y >= minY; y--) {
+                    current.y = y;
+                    BlockState state = getBlockState(x, y, z);
+                    if (condition.test(current, state)) {
+                        results.add(state.getBlockRepairing(getProvider().getLevel(), current, 0));
+                    }
+                }
+            }
+        }
+
+        return results.stream();
     }
 }

@@ -1,16 +1,24 @@
 package cn.nukkit.entity.item;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
+import cn.nukkit.block.BlockLava;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.data.IntEntityData;
 import cn.nukkit.event.entity.EntityBlockChangeEvent;
+import cn.nukkit.event.entity.EntityDamageByBlockEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.GlobalBlockPalette;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.particle.DestroyBlockParticle;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.LevelEventPacket;
@@ -21,6 +29,14 @@ import cn.nukkit.network.protocol.LevelEventPacket;
 public class EntityFallingBlock extends Entity {
 
     public static final int NETWORK_ID = 66;
+    protected int blockId;
+    protected int damage;
+    protected @PowerNukkitOnly boolean breakOnLava;
+    protected @PowerNukkitOnly boolean breakOnGround;
+
+    public EntityFallingBlock(FullChunk chunk, CompoundTag nbt) {
+        super(chunk, nbt);
+    }
 
     @Override
     public float getWidth() {
@@ -54,14 +70,7 @@ public class EntityFallingBlock extends Entity {
 
     @Override
     public boolean canCollide() {
-        return false;
-    }
-
-    protected int blockId;
-    protected int damage;
-
-    public EntityFallingBlock(FullChunk chunk, CompoundTag nbt) {
-        super(chunk, nbt);
+        return blockId == BlockID.ANVIL;
     }
 
     @Override
@@ -81,18 +90,23 @@ public class EntityFallingBlock extends Entity {
             }
         }
 
+        breakOnLava = namedTag.getBoolean("BreakOnLava");
+        breakOnGround = namedTag.getBoolean("BreakOnGround");
+
         if (blockId == 0) {
             close();
             return;
         }
 
         this.fireProof = true;
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_FIRE_IMMUNE, true);
 
         setDataProperty(new IntEntityData(DATA_VARIANT, GlobalBlockPalette.getOrCreateRuntimeId(this.getBlock(), this.getDamage())));
     }
 
+    @Override
     public boolean canCollideWith(Entity entity) {
-        return false;
+        return blockId == BlockID.ANVIL;
     }
 
     @Override
@@ -106,8 +120,6 @@ public class EntityFallingBlock extends Entity {
         if (closed) {
             return false;
         }
-
-        this.timing.startTiming();
 
         int tickDiff = currentTick - lastUpdate;
         if (tickDiff <= 0 && !justCreated) {
@@ -130,6 +142,15 @@ public class EntityFallingBlock extends Entity {
             motionZ *= friction;
 
             Vector3 pos = (new Vector3(x - 0.5, y, z - 0.5)).round();
+
+            if (breakOnLava && level.getBlock(pos.subtract(0, 1, 0)) instanceof BlockLava) {
+                close();
+                if (this.level.getGameRules().getBoolean(GameRule.DO_ENTITY_DROPS)) {
+                    dropItems();
+                }
+                level.addParticle(new DestroyBlockParticle(pos, Block.get(getBlock(), getDamage())));
+                return true;
+            }
 
             if (onGround) {
                 close();
@@ -164,16 +185,30 @@ public class EntityFallingBlock extends Entity {
                     }
                 } else if (block.getId() > 0 && block.isTransparent() && !block.canBeReplaced() || this.getBlock() == Block.SNOW_LAYER && block instanceof BlockLiquid) {
                     if (this.getBlock() != Block.SNOW_LAYER ? this.level.getGameRules().getBoolean(GameRule.DO_ENTITY_DROPS) : this.level.getGameRules().getBoolean(GameRule.DO_TILE_DROPS)) {
-                        getLevel().dropItem(this, Block.get(this.getBlock(), this.getDamage()).toItem());
+                        dropItems();
                     }
                 } else {
                     EntityBlockChangeEvent event = new EntityBlockChangeEvent(this, block, Block.get(getBlock(), getDamage()));
                     server.getPluginManager().callEvent(event);
                     if (!event.isCancelled()) {
-                        getLevel().setBlock(pos, event.getTo(), true);
+                        if (!breakOnGround)
+                            getLevel().setBlock(pos, event.getTo(), true);
+                        else {
+                            if (this.level.getGameRules().getBoolean(GameRule.DO_ENTITY_DROPS)) {
+                                dropItems();
+                            }
+                            level.addParticle(new DestroyBlockParticle(pos, Block.get(getBlock(), getDamage())));
+                        }
 
                         if (event.getTo().getId() == Item.ANVIL) {
                             getLevel().addLevelEvent(block, LevelEventPacket.EVENT_SOUND_ANVIL_FALL);
+
+                            Entity[] e = level.getCollidingEntities(this.getBoundingBox(), this);
+                            for (Entity entity : e) {
+                                if (entity instanceof EntityLiving && fallDistance > 0) {
+                                    entity.attack(new EntityDamageByBlockEvent(event.getTo(), entity, DamageCause.FALLING_BLOCK, Math.min(40f, Math.max(0f, fallDistance * 2f))));
+                                }
+                            }
                         }
                     }
                 }
@@ -182,8 +217,6 @@ public class EntityFallingBlock extends Entity {
 
             updateMovement();
         }
-
-        this.timing.stopTiming();
 
         return hasUpdate || !onGround || Math.abs(motionX) > 0.00001 || Math.abs(motionY) > 0.00001 || Math.abs(motionZ) > 0.00001;
     }
@@ -210,5 +243,26 @@ public class EntityFallingBlock extends Entity {
     @Override
     public boolean canBeMovedByCurrents() {
         return false;
+    }
+
+    @Override
+    public void resetFallDistance() {
+        if (!this.closed) { // For falling anvil: do not reset fall distance before dealing damage to entities
+            this.highestPosition = this.y;
+        }
+    }
+
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Falling Block";
+    }
+
+    private void dropItems() {
+        for (var i : Block.get(this.getBlock(), this.getDamage()).getDrops(Item.AIR_ITEM)) {
+            getLevel().dropItem(this, i);
+        }
     }
 }

@@ -2419,6 +2419,10 @@ public class Server {
         return instance;
     }
 
+    public final boolean isEnableExperimentMode() {
+        return false;
+    }
+
     private class ConsoleThread extends Thread implements InterruptibleThread {
 
         @Override

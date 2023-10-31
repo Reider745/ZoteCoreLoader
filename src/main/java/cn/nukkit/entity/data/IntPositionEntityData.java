@@ -5,8 +5,7 @@ import cn.nukkit.math.BlockVector3;
 import cn.nukkit.math.Vector3;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
 public class IntPositionEntityData extends EntityData<BlockVector3> {
     public int x;
@@ -41,5 +40,10 @@ public class IntPositionEntityData extends EntityData<BlockVector3> {
     @Override
     public int getType() {
         return Entity.DATA_TYPE_POS;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ")";
     }
 }

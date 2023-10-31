@@ -1,8 +1,18 @@
 package cn.nukkit.math;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.level.MovingObjectPosition;
 
+import java.util.List;
+
 public interface AxisAlignedBB extends Cloneable {
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    AxisAlignedBB[] EMPTY_ARRAY = new AxisAlignedBB[0];
+
+    List<AxisAlignedBB> EMPTY_LIST = List.of();
 
     default AxisAlignedBB setBounds(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         this.setMinX(minX);
@@ -323,6 +333,13 @@ public interface AxisAlignedBB extends Cloneable {
                 }
             }
         }
+    }
+
+
+    @PowerNukkitXOnly
+    @Since("1.20.10-r1")
+    default boolean isVectorInside(double x, double y, double z) {
+        return x >= this.getMinX() && x <= this.getMaxX() && y >= this.getMinY() && y <= this.getMaxY() && z >= this.getMinZ() && z <= this.getMaxZ();
     }
 
 

@@ -276,7 +276,7 @@ public final class ClientChainData implements LoginChainData {
                 }
             }
 
-            JSONObject payload = jws.getPayload().toJSONObject();
+            JSONObject payload = (JSONObject) jws.getPayload().toJSONObject();
             String base64key = payload.getAsString("identityPublicKey");
             if (base64key == null) {
                 throw new RuntimeException("No key found");

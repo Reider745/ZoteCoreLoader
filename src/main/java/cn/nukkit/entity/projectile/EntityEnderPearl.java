@@ -1,6 +1,8 @@
 package cn.nukkit.entity.projectile;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
@@ -13,7 +15,16 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.LevelEventPacket;
 
 public class EntityEnderPearl extends EntityProjectile {
+
     public static final int NETWORK_ID = 87;
+
+    public EntityEnderPearl(FullChunk chunk, CompoundTag nbt) {
+        this(chunk, nbt, null);
+    }
+
+    public EntityEnderPearl(FullChunk chunk, CompoundTag nbt, Entity shootingEntity) {
+        super(chunk, nbt, shootingEntity);
+    }
 
     @Override
     public int getNetworkId() {
@@ -45,22 +56,11 @@ public class EntityEnderPearl extends EntityProjectile {
         return 0.01f;
     }
 
-    public EntityEnderPearl(FullChunk chunk, CompoundTag nbt) {
-        this(chunk, nbt, null);
-    }
-
-    public EntityEnderPearl(FullChunk chunk, CompoundTag nbt, Entity shootingEntity) {
-        super(chunk, nbt, shootingEntity);
-    }
-
     @Override
     public boolean onUpdate(int currentTick) {
         if (this.closed) {
             return false;
         }
-
-        this.timing.startTiming();
-
         boolean hasUpdate = super.onUpdate(currentTick);
 
         if (this.isCollided && this.shootingEntity instanceof Player) {
@@ -79,8 +79,6 @@ public class EntityEnderPearl extends EntityProjectile {
             this.kill();
             hasUpdate = true;
         }
-
-        this.timing.stopTiming();
 
         return hasUpdate;
     }
@@ -105,5 +103,12 @@ public class EntityEnderPearl extends EntityProjectile {
         }
         this.level.addLevelEvent(this, LevelEventPacket.EVENT_PARTICLE_ENDERMAN_TELEPORT);
         this.level.addLevelEvent(this.shootingEntity.add(0.5, 0.5, 0.5), LevelEventPacket.EVENT_SOUND_PORTAL);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Ender Pearl";
     }
 }

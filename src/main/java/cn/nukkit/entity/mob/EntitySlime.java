@@ -1,5 +1,8 @@
 package cn.nukkit.entity.mob;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntityWalkable;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -7,23 +10,23 @@ import cn.nukkit.nbt.tag.CompoundTag;
 /**
  * @author PikyCZ
  */
-public class EntitySlime extends EntityMob {
+public class EntitySlime extends EntityMob implements EntityWalkable {
 
     public static final int NETWORK_ID = 37;
-
-    @Override
-    public int getNetworkId() {
-        return NETWORK_ID;
-    }
 
     public EntitySlime(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
     }
 
     @Override
+    public int getNetworkId() {
+        return NETWORK_ID;
+    }
+
+    @Override
     protected void initEntity() {
-        super.initEntity();
         this.setMaxHealth(16);
+        super.initEntity();
     }
 
     @Override
@@ -36,8 +39,10 @@ public class EntitySlime extends EntityMob {
         return 2.04f;
     }
 
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
     @Override
-    public String getName() {
+    public String getOriginalName() {
         return "Slime";
     }
 

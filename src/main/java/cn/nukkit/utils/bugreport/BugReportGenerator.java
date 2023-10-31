@@ -4,7 +4,6 @@ import cn.nukkit.Nukkit;
 import cn.nukkit.Server;
 import cn.nukkit.lang.BaseLang;
 import cn.nukkit.utils.Utils;
-// com.sun.management.OperatingSystemMXBean;
 
 import java.io.File;
 import java.io.IOException;

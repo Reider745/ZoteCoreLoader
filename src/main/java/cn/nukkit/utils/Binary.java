@@ -139,7 +139,7 @@ public class Binary {
 
     public static byte[] writeMetadata(EntityMetadata metadata) {
         BinaryStream stream = new BinaryStream();
-        Map<Integer, EntityData> map = metadata.getMap();
+        Map<Integer, EntityData<?>> map = metadata.getMap();
         stream.putUnsignedVarInt(map.size());
         for (int id : map.keySet()) {
             EntityData d = map.get(id);

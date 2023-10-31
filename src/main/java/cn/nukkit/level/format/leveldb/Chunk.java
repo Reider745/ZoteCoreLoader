@@ -2,7 +2,7 @@ package cn.nukkit.level.format.leveldb;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.api.BlockStorage;
+import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;

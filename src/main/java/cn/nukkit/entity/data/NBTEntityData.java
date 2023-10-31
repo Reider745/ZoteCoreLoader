@@ -4,8 +4,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
 public class NBTEntityData extends EntityData<CompoundTag> {
     public CompoundTag tag;
@@ -28,5 +27,10 @@ public class NBTEntityData extends EntityData<CompoundTag> {
     @Override
     public int getType() {
         return Entity.DATA_TYPE_NBT;
+    }
+
+    @Override
+    public String toString() {
+        return tag.toString();
     }
 }

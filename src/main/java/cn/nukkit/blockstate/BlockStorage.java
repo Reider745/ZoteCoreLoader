@@ -1,4 +1,4 @@
-package cn.nukkit.api;
+package cn.nukkit.blockstate;
 
 import cn.nukkit.Server;
 import cn.nukkit.block.*;

@@ -1,28 +1,31 @@
 package cn.nukkit.entity.mob;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntityFlyable;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 /**
  * @author PikyCZ
  */
-public class EntityGhast extends EntityMob {
+public class EntityGhast extends EntityMob implements EntityFlyable {
 
     public static final int NETWORK_ID = 41;
-
-    @Override
-    public int getNetworkId() {
-        return NETWORK_ID;
-    }
 
     public EntityGhast(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
     }
 
     @Override
+    public int getNetworkId() {
+        return NETWORK_ID;
+    }
+
+    @Override
     protected void initEntity() {
-        super.initEntity();
         this.setMaxHealth(10);
+        super.initEntity();
     }
 
     @Override
@@ -35,8 +38,10 @@ public class EntityGhast extends EntityMob {
         return 4;
     }
 
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
     @Override
-    public String getName() {
+    public String getOriginalName() {
         return "Ghast";
     }
 }

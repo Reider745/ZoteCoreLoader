@@ -1,58 +1,24 @@
 package cn.nukkit.entity.projectile;
 
+import cn.nukkit.Server;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.EntityEventPacket;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
-public class EntityArrow extends EntityProjectile {
+public class EntityArrow extends SlenderProjectile {
+
     public static final int NETWORK_ID = 80;
 
-    public static final int DATA_SOURCE_ID = 17;
-
-    public static final int PICKUP_NONE = 0;
-    public static final int PICKUP_ANY = 1;
-    public static final int PICKUP_CREATIVE = 2;
-
     protected int pickupMode;
-
-    @Override
-    public int getNetworkId() {
-        return NETWORK_ID;
-    }
-
-    @Override
-    public float getWidth() {
-        return 0.5f;
-    }
-
-    @Override
-    public float getLength() {
-        return 0.5f;
-    }
-
-    @Override
-    public float getHeight() {
-        return 0.5f;
-    }
-
-    @Override
-    public float getGravity() {
-        return 0.05f;
-    }
-
-    @Override
-    public float getDrag() {
-        return 0.01f;
-    }
-
-    protected float gravity = 0.05f;
-    protected float drag = 0.01f;
 
     public EntityArrow(FullChunk chunk, CompoundTag nbt) {
         this(chunk, nbt, null);
@@ -68,6 +34,45 @@ public class EntityArrow extends EntityProjectile {
     }
 
     @Override
+    public int getNetworkId() {
+        return NETWORK_ID;
+    }
+
+    @Override
+    public float getLength() {
+        return 0.5f;
+    }
+
+    @Override
+    public float getGravity() {
+        return 0.05f;
+    }
+
+    @Override
+    public float getDrag() {
+        return 0.01f;
+    }
+
+    @Since("1.4.0.0-PN")
+    @PowerNukkitOnly
+    @Override
+    protected void updateMotion() {
+        if (!isInsideOfWater()) {
+            super.updateMotion();
+            return;
+        }
+
+        float drag = 1 - this.getDrag() * 20;
+
+        motionY -= getGravity() * 2;
+        if (motionY < 0) {
+            motionY *= drag / 1.5;
+        }
+        motionX *= drag;
+        motionZ *= drag;
+    }
+
+    @Override
     protected void initEntity() {
         super.initEntity();
 
@@ -79,12 +84,12 @@ public class EntityArrow extends EntityProjectile {
         this.setCritical(true);
     }
 
-    public void setCritical(boolean value) {
-        this.setDataFlag(DATA_FLAGS, DATA_FLAG_CRITICAL, value);
-    }
-
     public boolean isCritical() {
         return this.getDataFlag(DATA_FLAGS, DATA_FLAG_CRITICAL);
+    }
+
+    public void setCritical(boolean value) {
+        this.setDataFlag(DATA_FLAGS, DATA_FLAG_CRITICAL, value);
     }
 
     @Override
@@ -109,8 +114,6 @@ public class EntityArrow extends EntityProjectile {
             return false;
         }
 
-        this.timing.startTiming();
-
         boolean hasUpdate = super.onUpdate(currentTick);
 
         if (this.onGround || this.hadCollision) {
@@ -122,9 +125,42 @@ public class EntityArrow extends EntityProjectile {
             hasUpdate = true;
         }
 
-        this.timing.stopTiming();
+        if (this.level.isRaining() && this.fireTicks > 0 && this.level.canBlockSeeSky(this)) {
+            extinguish();
+
+            hasUpdate = true;
+        }
 
         return hasUpdate;
+    }
+
+    @Override
+    public boolean canBeMovedByCurrents() {
+        return !hadCollision;
+    }
+
+    @Since("1.4.0.0-PN")
+    @PowerNukkitOnly
+    @Override
+    protected void afterCollisionWithEntity(Entity entity) {
+        if (hadCollision) {
+            close();
+        } else {
+            setMotion(getMotion().divide(-4));
+        }
+    }
+
+    @PowerNukkitOnly
+    @Override
+    protected void addHitEffect() {
+        this.level.addSound(this, Sound.RANDOM_BOWHIT);
+        EntityEventPacket packet = new EntityEventPacket();
+        packet.eid = getId();
+        packet.event = EntityEventPacket.ARROW_SHAKE;
+        packet.data = 7; // TODO Magic value. I have no idea why we have to set it to 7 here...
+        Server.broadcastPacket(this.hasSpawned.values(), packet);
+
+        onGround = true;
     }
 
     @Override
@@ -140,5 +176,12 @@ public class EntityArrow extends EntityProjectile {
 
     public void setPickupMode(int pickupMode) {
         this.pickupMode = pickupMode;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Arrow";
     }
 }

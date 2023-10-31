@@ -1,5 +1,8 @@
 package cn.nukkit.entity.passive;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntityWalkable;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -7,7 +10,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 /**
  * @author PikyCZ
  */
-public class EntityPolarBear extends EntityAnimal {
+public class EntityPolarBear extends EntityAnimal implements EntityWalkable {
 
     public static final int NETWORK_ID = 28;
 
@@ -38,12 +41,20 @@ public class EntityPolarBear extends EntityAnimal {
 
     @Override
     public void initEntity() {
-        super.initEntity();
         this.setMaxHealth(30);
+        super.initEntity();
     }
 
     @Override
     public Item[] getDrops() {
         return new Item[]{Item.get(Item.RAW_FISH), Item.get(Item.RAW_SALMON)};
+    }
+
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Polar Bear";
     }
 }

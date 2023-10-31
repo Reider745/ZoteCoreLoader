@@ -11,6 +11,8 @@ public interface BlockID {
     int PLANK = 5;
     int PLANKS = 5;
     int WOODEN_PLANK = 5;
+    int CARVED_PUMPKIN = 410;
+    int BEEHIVE = 474;
     int WOODEN_PLANKS = 5;
     int SAPLING = 6;
     int SAPLINGS = 6;
@@ -306,4 +308,6 @@ public interface BlockID {
     int PISTON_EXTENSION = 250;
 
     int OBSERVER = 251;
+    int FLOWING_WATER = WATER;
+    int FLOWING_LAVA = LAVA;
 }

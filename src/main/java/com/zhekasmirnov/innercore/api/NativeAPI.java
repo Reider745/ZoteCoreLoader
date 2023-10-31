@@ -53,15 +53,17 @@ public class NativeAPI {
     }
 
     public static Item getEntityCarriedItem(long entity){
-        Entity ent = getEntityToLong(entity);
+        /*Entity ent = getEntityToLong(entity);
         if(ent == null) return Item.get(0).clone();
-        return validItem(ent.getCarriedItem());
+        return validItem(ent.getCarriedItem());*/
+        return null;
     }
 
     public static Item getEntityOffhandItem(long entity){
-        Entity ent = getEntityToLong(entity);
+        /*Entity ent = getEntityToLong(entity);
         if(ent == null) return Item.get(0).clone();
-        return ent.getOffhandItem();
+        return ent.getOffhandItem();*/
+        return null;
     }
     public static Item getEntityArmor(long entity, int armor){
         Entity ent = getEntityToLong(entity);

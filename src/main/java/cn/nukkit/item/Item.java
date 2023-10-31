@@ -2,7 +2,10 @@ package cn.nukkit.item;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.api.BlockStorage;
+import cn.nukkit.blockstate.BlockStorage;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.Entity;
@@ -22,10 +25,9 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
 import com.reider745.api.pointers.PointerClass;
-import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.Apparatus;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.runtime.Callback;
+import io.netty.util.internal.EmptyArrays;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -37,8 +39,13 @@ import java.util.regex.Pattern;
  * Nukkit Project
  */
 public class Item extends PointerClass implements Cloneable, BlockID, ItemID {
+    @PowerNukkitXOnly
+    @Since("1.19.70-r1")
+    public static final Item AIR_ITEM = new Item(0);
     //Normal Item IDs
-
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static final Item[] EMPTY_ARRAY = new Item[0];
     protected static String UNKNOWN_STR = "Unknown";
     public static Class[] list = null;
 
@@ -80,6 +87,12 @@ public class Item extends PointerClass implements Cloneable, BlockID, ItemID {
             this.block = Block.get(this.id, this.meta);
             this.name = this.block.getName();
         }*/
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.19.21-r4")
+    public boolean canBreakShield() {
+        return false;
     }
 
     @Override
@@ -478,6 +491,80 @@ public class Item extends PointerClass implements Cloneable, BlockID, ItemID {
             items[i] = fromString(b[i]);
         }
         return items;
+    }
+
+    @PowerNukkitOnly
+    public static Item getBlock(int id) {
+        return getBlock(id, 0);
+    }
+
+    @PowerNukkitOnly
+    public static Item getBlock(int id, Integer meta) {
+        return getBlock(id, meta, 1);
+    }
+
+    @PowerNukkitOnly
+    public static Item getBlock(int id, Integer meta, int count) {
+        return getBlock(id, meta, count, EmptyArrays.EMPTY_BYTES);
+    }
+
+    @PowerNukkitOnly
+    public static Item getBlock(int id, Integer meta, int count, byte[] tags) {
+        var result = Block.get(id, meta).toItem();
+        result.setCount(count);
+        result.setCompoundTag(tags);
+        return result;
+    }
+
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public int getBlockId() {
+        if (block != null) {
+            return block.getId();
+        } else {
+            return -1;
+        }
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public void setKeepOnDeath(boolean keepOnDeath) {
+        CompoundTag tag = getOrCreateNamedTag();
+        if (keepOnDeath) {
+            tag.putByte("minecraft:keep_on_death", 1);
+        } else {
+            tag.remove("minecraft:keep_on_death");
+        }
+        this.setCompoundTag(tag);
+    }
+
+    /**
+     * 该物品是否死亡不掉落
+     * <p>
+     * Define if the item does not drop on death
+     *
+     * @return
+     */
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public boolean keepOnDeath() {
+        CompoundTag tag = getOrCreateNamedTag();
+        return tag.contains("minecraft:keep_on_death");
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public boolean applyEnchantments() {
+        return true;
+    }
+
+
+    public CompoundTag getOrCreateNamedTag() {
+        if (!hasCompoundTag()) {
+            return new CompoundTag();
+        }
+        return getNamedTag();
     }
 
     public Item setCompoundTag(CompoundTag tag) {
@@ -1090,5 +1177,32 @@ public class Item extends PointerClass implements Cloneable, BlockID, ItemID {
         } catch (CloneNotSupportedException e) {
             return null;
         }
+    }
+
+    public boolean isLavaResistant() {
+        return false;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.20.0-r2")
+    @NotNull
+    final public String getDisplayName() {
+        return this.getName();
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public int getEnchantmentLevel(int id) {
+        if (!this.hasEnchantments()) {
+            return 0;
+        }
+
+        for (CompoundTag entry : this.getNamedTag().getList("ench", CompoundTag.class).getAll()) {
+            if (entry.getShort("id") == id) {
+                return entry.getShort("lvl");
+            }
+        }
+
+        return 0;
     }
 }

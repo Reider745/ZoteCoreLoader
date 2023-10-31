@@ -1,5 +1,14 @@
 package cn.nukkit.utils;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.block.Block;
+import cn.nukkit.level.Level;
+import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.NukkitMath;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
@@ -7,6 +16,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.SplittableRandom;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +25,160 @@ import java.util.concurrent.ConcurrentHashMap;
  * Nukkit Project
  */
 public class Utils {
+    @PowerNukkitXOnly
+    @Since("1.20.0-r2")
+    public static byte hasCollisionTickCachedBlocksWithInfo(Level level, @NotNull AxisAlignedBB bb) {
+        int minX = NukkitMath.floorDouble(bb.getMinX());
+        int minY = NukkitMath.floorDouble(bb.getMinY());
+        int minZ = NukkitMath.floorDouble(bb.getMinZ());
+        int maxX = NukkitMath.ceilDouble(bb.getMaxX());
+        int maxY = NukkitMath.ceilDouble(bb.getMaxY());
+        int maxZ = NukkitMath.ceilDouble(bb.getMaxZ());
+        float centerX = (float) (maxX + minX) / 2;
+        float centerY = (float) (maxY + minY) / 2;
+        float centerZ = (float) (maxZ + minZ) / 2;
+        byte returnValue = 0;
+
+        for (int z = minZ; z <= maxZ; ++z) {
+            for (int x = minX; x <= maxX; ++x) {
+                for (int y = minY; y <= maxY; ++y) {
+                    Block block = level.getTickCachedBlock(x, y, z, false);
+                    //判断是否和非空气方块有碰撞
+                    if (block != null && block.collidesWithBB(bb) && !block.canPassThrough()) {
+                        if (x < centerX) {
+                            returnValue |= 0b010000;
+                        } else if (x > centerX) {
+                            returnValue |= 0b110000;
+                        }
+                        if (y < centerY) {
+                            returnValue |= 0b0100;
+                        } else if (y > centerY) {
+                            returnValue |= 0b1100;
+                        }
+                        if (z < centerZ) {
+                            returnValue |= 0b01;
+                        } else if (z > centerZ) {
+                            returnValue |= 0b11;
+                        }
+                        return returnValue;
+                    }
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public static boolean hasCollisionTickCachedBlocks(Level level, AxisAlignedBB bb) {
+        int minX = NukkitMath.floorDouble(bb.getMinX());
+        int minY = NukkitMath.floorDouble(bb.getMinY());
+        int minZ = NukkitMath.floorDouble(bb.getMinZ());
+        int maxX = NukkitMath.ceilDouble(bb.getMaxX());
+        int maxY = NukkitMath.ceilDouble(bb.getMaxY());
+        int maxZ = NukkitMath.ceilDouble(bb.getMaxZ());
+
+        for (int z = minZ; z <= maxZ; ++z) {
+            for (int x = minX; x <= maxX; ++x) {
+                for (int y = minY; y <= maxY; ++y) {
+                    Block block = level.getTickCachedBlock(x, y, z, false);
+                    //判断是否和非空气方块有碰撞
+                    if (block != null && block.collidesWithBB(bb) && !block.canPassThrough()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static final Integer[] EMPTY_INTEGERS = new Integer[0];
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static final SplittableRandom random = new SplittableRandom();
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static int rand(int min, int max) {
+        if (min == max) {
+            return max;
+        }
+        return random.nextInt(max + 1 - min) + min;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static double rand(double min, double max) {
+        if (min == max) {
+            return max;
+        }
+        return min + random.nextDouble() * (max - min);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static boolean rand() {
+        return random.nextBoolean();
+    }
+
+
+    /**
+     * A way to tell the java compiler to do not replace the users of a {@code public static final int} constant
+     * with the value defined in it, forcing the JVM to get the value directly from the class, preventing
+     * binary incompatible changes.
+     *
+     * @param value The value to be assigned to the field.
+     * @return The same value that was passed as parameter
+     */
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static int dynamic(int value) {
+        return value;
+    }
+
+    /**
+     * A way to tell the java compiler to do not replace the users of a {@code public static final} constant
+     * with the value defined in it, forcing the JVM to get the value directly from the class, preventing
+     * binary incompatible changes.
+     *
+     * @param value The value to be assigned to the field.
+     * @return The same value that was passed as parameter
+     */
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static <T> T dynamic(T value) {
+        return value;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    public static boolean isInteger(String str) {
+        if (str == null) {
+            return false;
+        }
+        int length = str.length();
+        if (length == 0) {
+            return false;
+        }
+        int i = 0;
+        if (str.charAt(0) == '-') {
+            if (length == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < length; i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public static void writeFile(String fileName, String content) throws IOException {
         writeFile(fileName, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));

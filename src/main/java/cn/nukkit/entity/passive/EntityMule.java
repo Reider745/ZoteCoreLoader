@@ -1,5 +1,8 @@
 package cn.nukkit.entity.passive;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntityWalkable;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -7,7 +10,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 /**
  * @author PikyCZ
  */
-public class EntityMule extends EntityAnimal {
+public class EntityMule extends EntityAnimal implements EntityWalkable {
 
     public static final int NETWORK_ID = 25;
 
@@ -28,9 +31,9 @@ public class EntityMule extends EntityAnimal {
     @Override
     public float getWidth() {
         if (this.isBaby()) {
-            return 0.6982f;
+            return 0.7f;
         }
-        return 1.3965f;
+        return 1.4f;
     }
 
     @Override
@@ -43,7 +46,15 @@ public class EntityMule extends EntityAnimal {
 
     @Override
     public void initEntity() {
-        super.initEntity();
         this.setMaxHealth(15);
+        super.initEntity();
+    }
+
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Mule";
     }
 }

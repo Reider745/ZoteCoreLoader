@@ -1,17 +1,7 @@
 package com.zhekasmirnov.apparatus;
 
-import android.util.Log;
 import cn.nukkit.Server;
-import cn.nukkit.api.BlockStorage;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.GlobalBlockPalette;
-import com.google.common.io.ByteStreams;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.reider745.InnerCoreServer;
-import com.reider745.api.pointers.PointerClass;
-import com.reider745.api.pointers.PointersStorage;
-import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
@@ -24,24 +14,18 @@ import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerPackVersionChecker;
 import com.zhekasmirnov.apparatus.multiplayer.mod.RuntimeIdDataPacketSender;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
-import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.modpack.ModPackFactory;
 import com.zhekasmirnov.innercore.utils.FileTools;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 
 public class Apparatus {

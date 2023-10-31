@@ -1,30 +1,33 @@
 package cn.nukkit.entity;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.Block;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.PowerNukkitXDifference;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageModifier;
-import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.PlayerEnderChestInventory;
 import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.inventory.PlayerOffhandInventory;
 import cn.nukkit.item.Item;
-import cn.nukkit.item.ItemBlock;
+import cn.nukkit.item.ItemShield;
 import cn.nukkit.item.enchantment.Enchantment;
+import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.NukkitMath;
-import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.utils.Utils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class EntityHumanType extends EntityCreature implements InventoryHolder {
+public abstract class EntityHumanType extends EntityCreature implements IHuman {
 
     protected PlayerInventory inventory;
     protected PlayerEnderChestInventory enderChestInventory;
@@ -39,101 +42,19 @@ public abstract class EntityHumanType extends EntityCreature implements Inventor
         return inventory;
     }
 
-    public PlayerEnderChestInventory getEnderChestInventory() {
-        return enderChestInventory;
-    }
-
     public PlayerOffhandInventory getOffhandInventory() {
         return offhandInventory;
     }
 
-    @Override
-    protected void initEntity() {
-        this.inventory = new PlayerInventory(this);
-        this.offhandInventory = new PlayerOffhandInventory(this);
-
-        if (this.namedTag.contains("Inventory") && this.namedTag.get("Inventory") instanceof ListTag) {
-            ListTag<CompoundTag> inventoryList = this.namedTag.getList("Inventory", CompoundTag.class);
-            for (CompoundTag item : inventoryList.getAll()) {
-                int slot = item.getByte("Slot");
-                if (slot >= 0 && slot < 9) { //hotbar
-                    //Old hotbar saving stuff, remove it (useless now)
-                    inventoryList.remove(item);
-                } else if (slot >= 100 && slot < 104) {
-                    this.inventory.setItem(this.inventory.getSize() + slot - 100, NBTIO.getItemHelper(item));
-                } else if (slot == -106) {
-                    this.offhandInventory.setItem(0, NBTIO.getItemHelper(item));
-                } else {
-                    this.inventory.setItem(slot - 9, NBTIO.getItemHelper(item));
-                }
-            }
-        }
-
-        this.enderChestInventory = new PlayerEnderChestInventory(this);
-
-        if (this.namedTag.contains("EnderItems") && this.namedTag.get("EnderItems") instanceof ListTag) {
-            ListTag<CompoundTag> inventoryList = this.namedTag.getList("EnderItems", CompoundTag.class);
-            for (CompoundTag item : inventoryList.getAll()) {
-                this.enderChestInventory.setItem(item.getByte("Slot"), NBTIO.getItemHelper(item));
-            }
-        }
-
-        super.initEntity();
+    public PlayerEnderChestInventory getEnderChestInventory() {
+        return enderChestInventory;
     }
 
     @Override
-    public void saveNBT() {
-        super.saveNBT();
-
-        ListTag<CompoundTag> inventoryTag = null;
-        if (this.inventory != null) {
-            inventoryTag = new ListTag<>("Inventory");
-            this.namedTag.putList(inventoryTag);
-
-            for (int slot = 0; slot < 9; ++slot) {
-                inventoryTag.add(new CompoundTag()
-                        .putByte("Count", 0)
-                        .putShort("Damage", 0)
-                        .putByte("Slot", slot)
-                        .putByte("TrueSlot", -1)
-                        .putShort("id", 0)
-                );
-            }
-
-            int slotCount = Player.SURVIVAL_SLOTS + 9;
-            for (int slot = 9; slot < slotCount; ++slot) {
-                Item item = this.inventory.getItem(slot - 9);
-                inventoryTag.add(NBTIO.putItemHelper(item, slot));
-            }
-
-            for (int slot = 100; slot < 104; ++slot) {
-                Item item = this.inventory.getItem(this.inventory.getSize() + slot - 100);
-                if (item != null && item.getId() != Item.AIR) {
-                    inventoryTag.add(NBTIO.putItemHelper(item, slot));
-                }
-            }
-        }
-
-        if (this.offhandInventory != null) {
-            Item item = this.offhandInventory.getItem(0);
-            if (item.getId() != Item.AIR) {
-                if (inventoryTag == null) {
-                    inventoryTag = new ListTag<>("Inventory");
-                    this.namedTag.putList(inventoryTag);
-                }
-                inventoryTag.add(NBTIO.putItemHelper(item, -106));
-            }
-        }
-
-        this.namedTag.putList(new ListTag<CompoundTag>("EnderItems"));
-        if (this.enderChestInventory != null) {
-            for (int slot = 0; slot < 27; ++slot) {
-                Item item = this.enderChestInventory.getItem(slot);
-                if (item != null && item.getId() != Item.AIR) {
-                    this.namedTag.getList("EnderItems", CompoundTag.class).add(NBTIO.putItemHelper(item, slot));
-                }
-            }
-        }
+    public void setInventories(Inventory[] inventory) {
+        this.inventory = (PlayerInventory) inventory[0];
+        this.offhandInventory = (PlayerOffhandInventory) inventory[1];
+        this.enderChestInventory = (PlayerEnderChestInventory) inventory[2];
     }
 
     @Override
@@ -141,9 +62,9 @@ public abstract class EntityHumanType extends EntityCreature implements Inventor
         if (this.inventory != null) {
             List<Item> drops = new ArrayList<>(this.inventory.getContents().values());
             drops.addAll(this.offhandInventory.getContents().values());
-            return drops.toArray(new Item[0]);
+            return drops.stream().filter(item -> !item.keepOnDeath()).toList().toArray(Item.EMPTY_ARRAY);
         }
-        return new Item[0];
+        return Item.EMPTY_ARRAY;
     }
 
     @Override
@@ -152,10 +73,10 @@ public abstract class EntityHumanType extends EntityCreature implements Inventor
             return false;
         }
 
-        if (source.getCause() != DamageCause.VOID && source.getCause() != DamageCause.CUSTOM && source.getCause() != DamageCause.MAGIC) {
+        if (source.getCause() != DamageCause.VOID && source.getCause() != DamageCause.CUSTOM && source.getCause() != DamageCause.MAGIC && source.getCause() != DamageCause.HUNGER) {
             int armorPoints = 0;
             int epf = 0;
-            int toughness = 0;
+//            int toughness = 0;
 
             for (Item armor : inventory.getArmorContents()) {
                 armorPoints += armor.getArmorPoints();
@@ -181,30 +102,10 @@ public abstract class EntityHumanType extends EntityCreature implements Inventor
             }
 
             for (int slot = 0; slot < 4; slot++) {
-                Item armor = this.inventory.getArmorItem(slot);
-
-                if (armor.hasEnchantments()) {
-                    if (damager != null) {
-                        for (Enchantment enchantment : armor.getEnchantments()) {
-                            enchantment.doPostAttack(damager, this);
-                        }
-                    }
-
-                    Enchantment durability = armor.getEnchantment(Enchantment.ID_DURABILITY);
-                    if (durability != null && durability.getLevel() > 0 && (100 / (durability.getLevel() + 1)) <= ThreadLocalRandom.current().nextInt(100))
-                        continue;
-                }
-
-                if (armor.isUnbreakable()) {
-                    continue;
-                }
-
-                armor.setDamage(armor.getDamage() + 1);
-
-                if (armor.getDamage() >= armor.getMaxDurability()) {
-                    inventory.setArmorItem(slot, new ItemBlock(Block.get(BlockID.AIR)));
-                } else {
-                    inventory.setArmorItem(slot, armor, true);
+                Item armorOld = this.inventory.getArmorItem(slot);
+                if (armorOld.isArmor()) {
+                    Item armor = damageArmor(armorOld, damager, source);
+                    inventory.setArmorItem(slot, armor, armor.getId() != BlockID.AIR);
                 }
             }
 
@@ -221,8 +122,10 @@ public abstract class EntityHumanType extends EntityCreature implements Inventor
 
         double epf = 0;
 
-        for (Enchantment ench : item.getEnchantments()) {
-            epf += ench.getProtectionFactor(source);
+        if (item.applyEnchantments()) {
+            for (Enchantment ench : item.getEnchantments()) {
+                epf += ench.getProtectionFactor(source);
+            }
         }
 
         return epf;
@@ -246,7 +149,62 @@ public abstract class EntityHumanType extends EntityCreature implements Inventor
     }
 
     @Override
-    protected boolean applyNameTag(Player player, Item item) {
+    protected boolean applyNameTag(@NotNull Player player, @NotNull Item item) {
         return false;
+    }
+
+    @PowerNukkitOnly
+    @Deprecated
+    @Override
+    public boolean applyNameTag(Item item) {
+        return false;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    @PowerNukkitXDifference(since = "1.19.21-r4", info = "add EntityDamageEvent param to help cal the armor damage")
+    protected Item damageArmor(Item armor, Entity damager, EntityDamageEvent event) {
+        if (armor.hasEnchantments()) {
+            if (damager != null) {
+                if (armor.applyEnchantments()) {
+                    for (Enchantment enchantment : armor.getEnchantments()) {
+                        enchantment.doPostAttack(damager, this);
+                    }
+                }
+            }
+
+            Enchantment durability = armor.getEnchantment(Enchantment.ID_DURABILITY);
+            if (durability != null
+                    && durability.getLevel() > 0
+                    && (100 / (durability.getLevel() + 1)) <= Utils.random.nextInt(100)) {
+                return armor;
+            }
+        }
+
+        if (event.getCause() != DamageCause.VOID &&
+                event.getCause() != DamageCause.MAGIC &&
+                event.getCause() != DamageCause.HUNGER &&
+                event.getCause() != DamageCause.DROWNING &&
+                event.getCause() != DamageCause.SUFFOCATION &&
+                event.getCause() != DamageCause.SUICIDE &&
+                event.getCause() != DamageCause.FIRE_TICK &&
+                event.getCause() != DamageCause.FALL) { // No armor damage
+
+            if (armor.isUnbreakable() || armor.getMaxDurability() < 0) {
+                return armor;
+            }
+
+            if (armor instanceof ItemShield)
+                armor.setDamage(armor.getDamage() + (event.getDamage() >= 3 ? (int) event.getDamage() + 1 : 0));
+            else
+                armor.setDamage(armor.getDamage() + Math.max(1, (int) (event.getDamage() / 4.0f)));
+
+            if (armor.getDamage() >= armor.getMaxDurability()) {
+                getLevel().addSound(this, Sound.RANDOM_BREAK);
+                return Item.get(BlockID.AIR, 0, 0);
+            }
+        }
+
+        return armor;
     }
 }

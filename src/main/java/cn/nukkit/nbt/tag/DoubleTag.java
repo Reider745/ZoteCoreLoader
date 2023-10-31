@@ -1,5 +1,7 @@
 package cn.nukkit.nbt.tag;
 
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.nbt.stream.NBTInputStream;
 import cn.nukkit.nbt.stream.NBTOutputStream;
 
@@ -17,6 +19,14 @@ public class DoubleTag extends NumberTag<Double> {
     public void setData(Double data) {
         this.data = data == null ? 0 : data;
     }
+
+    @PowerNukkitXOnly
+    @Since("1.19.60-r1")
+    public DoubleTag(double data) {
+        super("");
+        this.data = data;
+    }
+
 
     public DoubleTag(String name) {
         super(name);

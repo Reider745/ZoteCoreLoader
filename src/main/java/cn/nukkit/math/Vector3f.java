@@ -1,5 +1,8 @@
 package cn.nukkit.math;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+
 public class Vector3f implements Cloneable {
     public static final int SIDE_DOWN = 0;
     public static final int SIDE_UP = 1;

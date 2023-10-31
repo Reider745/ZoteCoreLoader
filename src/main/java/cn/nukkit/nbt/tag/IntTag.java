@@ -1,5 +1,7 @@
 package cn.nukkit.nbt.tag;
 
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.nbt.stream.NBTInputStream;
 import cn.nukkit.nbt.stream.NBTOutputStream;
 
@@ -20,6 +22,13 @@ public class IntTag extends NumberTag<Integer> {
 
     public IntTag(String name) {
         super(name);
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.19.60-r1")
+    public IntTag(int data) {
+        super("");
+        this.data = data;
     }
 
     public IntTag(String name, int data) {

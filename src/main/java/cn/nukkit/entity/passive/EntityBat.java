@@ -1,12 +1,15 @@
 package cn.nukkit.entity.passive;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntityFlyable;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 /**
  * @author PikyCZ
  */
-public class EntityBat extends EntityAnimal {
+public class EntityBat extends EntityAnimal implements EntityFlyable {
 
     public static final int NETWORK_ID = 19;
 
@@ -31,7 +34,15 @@ public class EntityBat extends EntityAnimal {
 
     @Override
     public void initEntity() {
-        super.initEntity();
         this.setMaxHealth(6);
+        super.initEntity();
+    }
+
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
+        return "Bat";
     }
 }

@@ -2,28 +2,28 @@ package cn.nukkit.entity;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.api.*;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockCactus;
 import cn.nukkit.block.BlockMagma;
 import cn.nukkit.entity.data.ShortEntityData;
-import cn.nukkit.entity.passive.EntityWaterAnimal;
-import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
-import cn.nukkit.event.entity.EntityDamageByEntityEvent;
-import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.entity.projectile.EntityProjectile;
+import cn.nukkit.entity.weather.EntityWeather;
+import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
-import cn.nukkit.event.entity.EntityDeathEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTurtleShell;
 import cn.nukkit.level.GameRule;
+import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.network.protocol.AnimatePacket;
 import cn.nukkit.network.protocol.EntityEventPacket;
-import cn.nukkit.network.protocol.LevelSoundEventPacket;
 import cn.nukkit.potion.Effect;
-import cn.nukkit.utils.BlockIterator;
-import co.aikar.timings.Timings;
+import cn.nukkit.utils.TickCachedBlockIterator;
+import cn.nukkit.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,10 +31,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
 public abstract class EntityLiving extends Entity implements EntityDamageable {
+    public final static float DEFAULT_SPEED = 0.1f;
+    protected int attackTime = 0;
+    protected boolean invisible = false;
+    protected float movementSpeed = DEFAULT_SPEED;
+    protected int turtleTicks = 0;
+    private boolean attackTimeByShieldKb;
+    private int attackTimeBefore;
 
     public EntityLiving(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -49,14 +55,6 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
     protected float getDrag() {
         return 0.02f;
     }
-
-    protected int attackTime = 0;
-
-    protected boolean invisible = false;
-
-    protected float movementSpeed = 0.1f;
-
-    protected int turtleTicks = 0;
 
     @Override
     protected void initEntity() {
@@ -101,15 +99,20 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
         ent.applyEntityCollision(this);
     }
 
+    @PowerNukkitDifference(info = "Using new method to play sounds", since = "1.4.0.0-PN")
     @Override
     public boolean attack(EntityDamageEvent source) {
-        if (this.noDamageTicks > 0) {
+        if (this.noDamageTicks > 0 && source.getCause() != DamageCause.SUICIDE) {//ignore it if the cause is SUICIDE
             return false;
-        } else if (this.attackTime > 0) {
+        } else if (this.attackTime > 0 && !attackTimeByShieldKb) {
             EntityDamageEvent lastCause = this.getLastDamageCause();
             if (lastCause != null && lastCause.getDamage() >= source.getDamage()) {
                 return false;
             }
+        }
+
+        if (isBlocking() && this.blockedByShield(source)) {
+            return false;
         }
 
         if (super.attack(source)) {
@@ -126,7 +129,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
                     animate.eid = getId();
 
                     this.getLevel().addChunkPacket(damager.getChunkX(), damager.getChunkZ(), animate);
-                    this.getLevel().addLevelSoundEvent(this, LevelSoundEventPacket.SOUND_ATTACK_STRONG);
+                    this.getLevel().addSound(this, Sound.GAME_PLAYER_ATTACK_STRONG);
 
                     source.setDamage(source.getDamage() * 1.5f);
                 }
@@ -143,9 +146,12 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
             EntityEventPacket pk = new EntityEventPacket();
             pk.eid = this.getId();
             pk.event = this.getHealth() <= 0 ? EntityEventPacket.DEATH_ANIMATION : EntityEventPacket.HURT_ANIMATION;
+
             Server.broadcastPacket(this.hasSpawned.values(), pk);
 
             this.attackTime = source.getAttackCooldown();
+            this.attackTimeByShieldKb = false;
+            this.scheduleUpdate();
 
             return true;
         } else {
@@ -190,6 +196,10 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
         EntityDeathEvent ev = new EntityDeathEvent(this, this.getDrops());
         this.server.getPluginManager().callEvent(ev);
 
+        //var manager = this.server.getScoreboardManager();
+        //测试环境中此项会null，所以说需要判空下
+        //if (manager != null) manager.onEntityDead(this);
+
         if (this.level.getGameRules().getBoolean(GameRule.DO_ENTITY_DROPS)) {
             for (cn.nukkit.item.Item item : ev.getDrops()) {
                 this.getLevel().dropItem(this, item);
@@ -204,7 +214,6 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
 
     @Override
     public boolean entityBaseTick(int tickDiff) {
-        Timings.livingEntityBaseTickTimer.startTiming();
         boolean isBreathing = !this.isInsideOfWater();
 
         if (this instanceof Player) {
@@ -219,7 +228,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
                 isBreathing = true;
             }
         }
-        
+
         this.setDataFlag(DATA_FLAGS, DATA_FLAG_BREATHING, isBreathing);
 
         boolean hasUpdate = super.entityBaseTick(tickDiff);
@@ -235,8 +244,8 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
                 this.resetFallDistance();
             }
 
-            if (!this.hasEffect(Effect.WATER_BREATHING) && this.isInsideOfWater()) {
-                if (this instanceof EntityWaterAnimal || (this instanceof Player && (((Player) this).isCreative() || ((Player) this).isSpectator()))) {
+            if (!this.hasEffect(Effect.WATER_BREATHING) && !this.hasEffect(Effect.CONDUIT_POWER) && this.isInsideOfWater()) {
+                if (this instanceof EntitySwimmable || (this instanceof Player && (((Player) this).isCreative() || ((Player) this).isSpectator()))) {
                     this.setAirTicks(400);
                 } else {
                     if (turtleTicks == 0 || turtleTicks == 200) {
@@ -252,7 +261,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
                     }
                 }
             } else {
-                if (this instanceof EntityWaterAnimal) {
+                if (this instanceof EntitySwimmable) {
                     hasUpdate = true;
                     int airTicks = getAirTicks() - tickDiff;
 
@@ -274,27 +283,32 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
 
         if (this.attackTime > 0) {
             this.attackTime -= tickDiff;
-        }
-
-        if (this.riding == null) {
-            for (Entity entity : level.getNearbyEntities(this.boundingBox.grow(0.20000000298023224, 0.0D, 0.20000000298023224), this)) {
-                if (entity instanceof EntityRideable) {
-                    this.collidingWith(entity);
-                }
+            if (this.attackTime <= 0) {
+                attackTimeByShieldKb = false;
             }
+            hasUpdate = true;
         }
 
-        // Used to check collisions with magma blocks
-        Block block = this.level.getBlock((int) x, (int) y - 1, (int) z);
-        if (block instanceof BlockMagma) block.onEntityCollide(this);
+        //吐槽：性能不要了是吧放EntityLiving这里
+        //逻辑迁移到EntityVehicle去了
+//        if (this.riding == null) {
+//            for (Entity entity : level.fastNearbyEntities(this.boundingBox.grow(0.20000000298023224, 0.0D, 0.20000000298023224), this)) {
+//                if (entity instanceof EntityRideable) {
+//                    this.collidingWith(entity);
+//                }
+//            }
+//        }
 
-        Timings.livingEntityBaseTickTimer.stopTiming();
+        // Used to check collisions with magma / cactus blocks
+        // Math.round处理在某些条件下 出现x.999999的坐标条件,这里选择四舍五入
+        var block = this.level.getTickCachedBlock(getFloorX(), (int) (Math.round(this.y) - 1), getFloorZ());
+        if (block instanceof BlockMagma || block instanceof BlockCactus) block.onEntityCollide(this);
 
         return hasUpdate;
     }
 
     public Item[] getDrops() {
-        return new Item[0];
+        return Item.EMPTY_ARRAY;
     }
 
     public Block[] getLineOfSight(int maxDistance) {
@@ -307,7 +321,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
 
     @Deprecated
     public Block[] getLineOfSight(int maxDistance, int maxLength, Map<Integer, Object> transparent) {
-        return this.getLineOfSight(maxDistance, maxLength, transparent.keySet().toArray(new Integer[0]));
+        return this.getLineOfSight(maxDistance, maxLength, transparent.keySet().toArray(Utils.EMPTY_INTEGERS));
     }
 
     public Block[] getLineOfSight(int maxDistance, int maxLength, Integer[] transparent) {
@@ -321,7 +335,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
 
         List<Block> blocks = new ArrayList<>();
 
-        BlockIterator itr = new BlockIterator(this.level, this.getPosition(), this.getDirectionVector(), this.getEyeHeight(), maxDistance);
+        var itr = new TickCachedBlockIterator(this.level, this.getPosition(), this.getDirectionVector(), this.getEyeHeight(), maxDistance);
 
         while (itr.hasNext()) {
             Block block = itr.next();
@@ -344,7 +358,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
             }
         }
 
-        return blocks.toArray(new Block[0]);
+        return blocks.toArray(Block.EMPTY_ARRAY);
     }
 
     public Block getTargetBlock(int maxDistance) {
@@ -353,7 +367,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
 
     @Deprecated
     public Block getTargetBlock(int maxDistance, Map<Integer, Object> transparent) {
-        return getTargetBlock(maxDistance, transparent.keySet().toArray(new Integer[0]));
+        return getTargetBlock(maxDistance, transparent.keySet().toArray(Utils.EMPTY_INTEGERS));
     }
 
     public Block getTargetBlock(int maxDistance, Integer[] transparent) {
@@ -376,12 +390,19 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
         return null;
     }
 
-    public void setMovementSpeed(float speed) {
-        this.movementSpeed = speed;
-    }
-
     public float getMovementSpeed() {
         return this.movementSpeed;
+    }
+
+    /**
+     * 设置该有生命实体的移动速度
+     * <p>
+     * Set the movement speed of this Entity.
+     *
+     * @param speed 速度大小<br>Speed value
+     */
+    public void setMovementSpeed(float speed) {
+        this.movementSpeed = speed;
     }
 
     public int getAirTicks() {
@@ -390,5 +411,110 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
 
     public void setAirTicks(int ticks) {
         this.setDataProperty(new ShortEntityData(DATA_AIR, ticks));
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    protected boolean blockedByShield(EntityDamageEvent source) {
+        Entity damager = null;
+        if (source instanceof EntityDamageByChildEntityEvent) {
+            damager = ((EntityDamageByChildEntityEvent) source).getChild();
+        } else if (source instanceof EntityDamageByEntityEvent) {
+            damager = ((EntityDamageByEntityEvent) source).getDamager();
+        }
+        if (damager == null || damager instanceof EntityWeather || !this.isBlocking()) {
+            return false;
+        }
+
+        Vector3 entityPos = damager.getPosition();
+        Vector3 direction = this.getDirectionVector();
+        Vector3 normalizedVector = this.getPosition().subtract(entityPos).normalize();
+        boolean blocked = (normalizedVector.x * direction.x) + (normalizedVector.z * direction.z) < 0.0;
+        boolean knockBack = !(damager instanceof EntityProjectile);
+        /*EntityDamageBlockedEvent event = new EntityDamageBlockedEvent(this, source, knockBack, true);
+        if (!blocked || !source.canBeReducedByArmor()) {
+            event.setCancelled();
+        }
+
+        getServer().getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return false;
+        }*/
+        if (damager instanceof EntityLiving attacker) {
+        //if (event.getKnockBackAttacker() && damager instanceof EntityLiving attacker) {
+            double deltaX = attacker.getX() - this.getX();
+            double deltaZ = attacker.getZ() - this.getZ();
+            attacker.knockBack(this, 0, deltaX, deltaZ);
+            attacker.attackTime = 10;
+            attacker.attackTimeByShieldKb = true;
+        }
+
+        onBlock(damager, source, true);
+        return true;
+    }
+
+    @PowerNukkitOnly
+    @PowerNukkitXDifference(since = "1.19.21-r4", info = "add EntityDamageEvent param to help cal the armor damage")
+    protected void onBlock(Entity entity, EntityDamageEvent event, boolean animate) {
+        if (animate) {
+            getLevel().addSound(this, Sound.ITEM_SHIELD_BLOCK);
+        }
+    }
+
+    @PowerNukkitOnly
+    public boolean isBlocking() {
+        return this.getDataFlag(DATA_FLAGS_EXTENDED, DATA_FLAG_BLOCKING);
+    }
+
+    @PowerNukkitOnly
+    public void setBlocking(boolean value) {
+        this.setDataFlag(DATA_FLAGS_EXTENDED, DATA_FLAG_BLOCKING, value);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public boolean isPersistent() {
+        return namedTag.contains("Persistent") && namedTag.getBoolean("Persistent");
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void setPersistent(boolean persistent) {
+        namedTag.putBoolean("Persistent", persistent);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void preAttack(Player player) {
+        if (attackTimeByShieldKb) {
+            attackTimeBefore = attackTime;
+            attackTime = 0;
+        }
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void postAttack(Player player) {
+        if (attackTimeByShieldKb && attackTime == 0) {
+            attackTime = attackTimeBefore;
+        }
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public int getAttackTime() {
+        return attackTime;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public boolean isAttackTimeByShieldKb() {
+        return attackTimeByShieldKb;
+    }
+
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public int getAttackTimeBefore() {
+        return attackTimeBefore;
     }
 }

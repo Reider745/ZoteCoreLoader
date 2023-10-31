@@ -180,4 +180,5 @@ public interface ProtocolInfo {
     byte FILTER_TEXT_PACKET = (byte) 0xa3;
 
     byte BATCH_PACKET = (byte) 0xff;
+    byte SYNC_ENTITY_PROPERTY_PACKET =  (byte) 0xa5;;
 }

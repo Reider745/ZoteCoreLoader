@@ -290,23 +290,13 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         return viewingEnderChest;
     }
 
-    @Override
-    public Item getCarriedItem() {
-        return this.getInventory().getItemInHand();
-    }
-
-    @Override
-    public void setCarriedItem(Item carriedItem) {
-        this.getInventory().setItemInHand(carriedItem);
-    }
-
     private boolean inv_update = InnerCoreConfig.getBool("inventory_tick_send");
     private int synchronized_tick = InnerCoreConfig.getInt("inventory_tick_send_time");
 
     private byte tick = 0;
 
     @Override
-    public  boolean entityBaseTick() {
+    public boolean entityBaseTick() {
         if(!inv_update)
             return super.entityBaseTick();
         tick++;
@@ -1759,13 +1749,22 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         if (canInteract(this, interactDistance)) {
             if (getEntityPlayerLookingAt(interactDistance) != null) {
                 EntityInteractable onInteract = getEntityPlayerLookingAt(interactDistance);
-                setButtonText(onInteract.getInteractButtonText());
+                setButtonText(onInteract.getInteractButtonText(this));
             } else {
                 setButtonText("");
             }
         } else {
             setButtonText("");
         }
+    }
+
+    public AxisAlignedBB reCalcOffsetBoundingBox() {
+        float dx = this.getWidth() / 2;
+        float dz = this.getWidth() / 2;
+        return this.offsetBoundingBox.setBounds(
+                this.x - dx, this.y, this.z - dz,
+                this.x + dx, this.y + this.getHeight(), this.z + dz
+        );
     }
 
     /**
@@ -1775,7 +1774,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
      * @return Entity|null    either NULL if no entity is found or an instance of the entity
      */
     public EntityInteractable getEntityPlayerLookingAt(int maxDistance) {
-        timing.startTiming();
+        //timing.startTiming();
 
         EntityInteractable entity = null;
 
@@ -1801,7 +1800,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             }
         }
 
-        timing.stopTiming();
+     //   timing.stopTiming();
 
         return entity;
     }

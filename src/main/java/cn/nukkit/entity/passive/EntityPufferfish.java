@@ -1,12 +1,15 @@
 package cn.nukkit.entity.passive;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntitySwimmable;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 /**
- * Created by PetteriM1
+ * @author PetteriM1
  */
-public class EntityPufferfish extends EntityAnimal {
+public class EntityPufferfish extends EntityAnimal implements EntitySwimmable {
 
     public static final int NETWORK_ID = 108;
 
@@ -19,23 +22,26 @@ public class EntityPufferfish extends EntityAnimal {
         return NETWORK_ID;
     }
 
-    public String getName() {
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
         return "Pufferfish";
     }
 
     @Override
     public float getWidth() {
-        return 0.35f;
+        return 0.8f;
     }
 
     @Override
     public float getHeight() {
-        return 0.35f;
+        return 0.8f;
     }
 
     @Override
     public void initEntity() {
-        super.initEntity();
         this.setMaxHealth(3);
+        super.initEntity();
     }
 }

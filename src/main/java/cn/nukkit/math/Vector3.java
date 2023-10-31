@@ -1,10 +1,18 @@
 package cn.nukkit.math;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * author: MagicDroidX
  * Nukkit Project
  */
 public class Vector3 implements Cloneable {
+    @PowerNukkitXOnly
+    @Since("1.6.0.0-PNX")
+    public static final Vector3 ZERO = new Vector3(0, 0, 0);
 
     public double x;
     public double y;
@@ -362,11 +370,52 @@ public class Vector3 implements Cloneable {
         }
     }
 
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    @NotNull
+    public Vector3 setComponents(@NotNull Vector3 pos) {
+        this.x = pos.x;
+        this.y = pos.y;
+        this.z = pos.z;
+        return this;
+    }
+
+    @Since("1.19.60-r1")
+    public Vector3 setX(double x) {
+        this.x = x;
+        return this;
+    }
+
+    @Since("1.19.60-r1")
+    public Vector3 setY(double y) {
+        this.y = y;
+        return this;
+    }
+
+    @Since("1.19.60-r1")
+    public Vector3 setZ(double z) {
+        this.z = z;
+        return this;
+    }
+
     public Vector3f asVector3f() {
         return new Vector3f((float) this.x, (float) this.y, (float) this.z);
     }
 
     public BlockVector3 asBlockVector3() {
         return new BlockVector3(this.getFloorX(), this.getFloorY(), this.getFloorZ());
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public double getAxis(BlockFace.Axis axis) {
+        switch (axis) {
+            case X:
+                return x;
+            case Y:
+                return y;
+            default:
+                return z;
+        }
     }
 }

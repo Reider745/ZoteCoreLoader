@@ -3,8 +3,7 @@ package cn.nukkit.entity.data;
 import cn.nukkit.entity.Entity;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
 public class FloatEntityData extends EntityData<Float> {
     public float data;
@@ -14,10 +13,12 @@ public class FloatEntityData extends EntityData<Float> {
         this.data = data;
     }
 
+    @Override
     public Float getData() {
         return data;
     }
 
+    @Override
     public void setData(Float data) {
         if (data == null) {
             this.data = 0;
@@ -30,5 +31,10 @@ public class FloatEntityData extends EntityData<Float> {
     @Override
     public int getType() {
         return Entity.DATA_TYPE_FLOAT;
+    }
+
+    @Override
+    public String toString() {
+        return data + "f";
     }
 }

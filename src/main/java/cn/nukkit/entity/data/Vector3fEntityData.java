@@ -4,8 +4,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.math.Vector3f;
 
 /**
- * author: MagicDroidX
- * Nukkit Project
+ * @author MagicDroidX (Nukkit Project)
  */
 public class Vector3fEntityData extends EntityData<Vector3f> {
     public float x;
@@ -40,5 +39,10 @@ public class Vector3fEntityData extends EntityData<Vector3f> {
     @Override
     public int getType() {
         return Entity.DATA_TYPE_VECTOR3F;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ")";
     }
 }

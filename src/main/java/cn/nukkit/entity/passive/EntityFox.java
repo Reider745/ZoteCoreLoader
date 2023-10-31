@@ -1,16 +1,22 @@
 package cn.nukkit.entity.passive;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.EntityWalkable;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 /**
  * @author Kaooot
- * @version 1.0
+ * @since 2020-08-14
  */
-public class EntityFox extends EntityAnimal {
+@Since("1.4.0.0-PN")
+public class EntityFox extends EntityAnimal implements EntityWalkable {
 
+    @Since("1.4.0.0-PN")
     public static final int NETWORK_ID = 121;
 
+    @Since("1.4.0.0-PN")
     public EntityFox(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
     }
@@ -22,22 +28,24 @@ public class EntityFox extends EntityAnimal {
 
     @Override
     public float getWidth() {
-        return 0.7f;
-    }
-
-    @Override
-    public float getHeight() {
         return 0.6f;
     }
 
     @Override
-    protected void initEntity() {
-        super.initEntity();
-        this.setMaxHealth(20);
+    public float getHeight() {
+        return 0.7f;
     }
 
     @Override
-    public String getName() {
+    protected void initEntity() {
+        this.setMaxHealth(20);
+        super.initEntity();
+    }
+
+    @PowerNukkitOnly
+    @Since("1.5.1.0-PN")
+    @Override
+    public String getOriginalName() {
         return "Fox";
     }
 }

@@ -1,5 +1,7 @@
 package cn.nukkit.nbt.tag;
 
+import cn.nukkit.api.PowerNukkitXOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.nbt.stream.NBTInputStream;
 import cn.nukkit.nbt.stream.NBTOutputStream;
 
@@ -7,6 +9,13 @@ import java.io.IOException;
 
 public class ShortTag extends NumberTag<Integer> {
     public int data;
+
+    @PowerNukkitXOnly
+    @Since("1.19.60-r1")
+    public ShortTag(int data) {
+        super("");
+        this.data = data;
+    }
 
     @Override
     public Integer getData() {

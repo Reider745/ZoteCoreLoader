@@ -2,7 +2,7 @@ package cn.nukkit.level.format.anvil;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.api.BlockStorage;
+import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
@@ -276,7 +276,7 @@ public class Chunk extends BaseChunk {
             if (section instanceof EmptyChunkSection) {
                 continue;
             }
-            CompoundTag s = new CompoundTag(null);
+            CompoundTag s = new CompoundTag();
             s.putByte("Y", section.getY());
             s.putIntArray("Blocks", section.getIdArray());
             s.putByteArray("Data", section.getDataArray());
@@ -359,7 +359,7 @@ public class Chunk extends BaseChunk {
             if (section instanceof EmptyChunkSection) {
                 continue;
             }
-            CompoundTag s = new CompoundTag(null);
+            CompoundTag s = new CompoundTag();
             s.putByte("Y", (section.getY()));
             s.putIntArray("Blocks", section.getIdArray());
             s.putByteArray("Data", section.getDataArray());

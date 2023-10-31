@@ -1,16 +1,19 @@
 package cn.nukkit.entity.passive;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.DeprecationDetails;
 import cn.nukkit.entity.EntityOwnable;
 import cn.nukkit.entity.data.ByteEntityData;
 import cn.nukkit.entity.data.StringEntityData;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Author: BeYkeRYkt
- * Nukkit Project
+ * @author BeYkeRYkt (Nukkit Project)
  */
+@Deprecated
+@DeprecationDetails(since = "1.6.0.0-PNX", reason = "EntityTameable is moved to interface,which is better to use", replaceWith = "interface EntityOwnable")
 public abstract class EntityTameable extends EntityAnimal implements EntityOwnable {
 
     public static final int DATA_TAMED_FLAG = 16;
@@ -66,18 +69,13 @@ public abstract class EntityTameable extends EntityAnimal implements EntityOwnab
     }
 
     @Override
-    public void setOwnerName(String playerName) {
+    public void setOwnerName(@NotNull String playerName) {
         setDataProperty(new StringEntityData(DATA_OWNER_NAME, playerName));
     }
 
     @Override
     public Player getOwner() {
         return getServer().getPlayer(getOwnerName());
-    }
-
-    @Override
-    public String getName() {
-        return getNameTag();
     }
 
     public boolean isTamed() {

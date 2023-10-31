@@ -47,6 +47,20 @@ public enum EnumLevel {
         }
     }
 
+    public static Position convertPosBetweenNetherAndOverworld(Position current) {
+        if (NETHER.level == null) {
+            return null;
+        } else {
+            if (current.level == OVERWORLD.level || current.level.getDimension() == Level.DIMENSION_OVERWORLD) {
+                return new Position(current.getFloorX() >> 3, NukkitMath.clamp(current.getFloorY(), 70, 118), current.getFloorZ() >> 3, NETHER.level);
+            } else if (current.level == NETHER.level || current.level.getDimension() == Level.DIMENSION_NETHER) {
+                return new Position(current.getFloorX() << 3, NukkitMath.clamp(current.getFloorY(), 70, 246), current.getFloorZ() << 3, OVERWORLD.level);
+            } else {
+                throw new IllegalArgumentException("Neither overworld nor nether given!");
+            }
+        }
+    }
+
     public static Level getOtherNetherPair(Level current)   {
         if (current == OVERWORLD.level) {
             return NETHER.level;
