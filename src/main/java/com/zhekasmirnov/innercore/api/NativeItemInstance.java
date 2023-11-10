@@ -22,7 +22,7 @@ public class NativeItemInstance {
             item = ptr;
             this.id = ptr.getId();
             this.count = ptr.getCount();
-            this.data = ptr.orgMeta == 0 ? ptr.orgMeta : ptr.getDamage();
+            this.data = ptr.getAttackDamage() == 0 ? ptr.getAttackDamage() : ptr.getDamage();
            // long extra = getExtra(ptr);
             long extra = 0;
             this.extra = extra != 0 ? new NativeItemInstanceExtra(extra) : null;

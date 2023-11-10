@@ -1,6 +1,6 @@
 package com.reider745.block;
 
-import cn.nukkit.blockstate.BlockStorage;
+//import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.block.*;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
@@ -19,8 +19,8 @@ public class CustomBlock extends BlockSolidMeta {
         blocks.forEach((id, value) -> {
             CustomManager manager = getBlockManager(id);
             ArrayList<String> variants = getVariants(manager);
-            for(int data = 0;data < variants.size();data++)
-                BlockStorage.registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));
+            /*for(int data = 0;data < variants.size();data++)
+                BlockStorage.registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));*/
         });
     }
 
@@ -78,10 +78,10 @@ public class CustomBlock extends BlockSolidMeta {
         TickingTile = manager.get("TickingTile:"+meta, false);
     }
 
-    @Override
+    /*@Override
     public boolean canRandomTickBlocks() {
         return TickingTile;
-    }
+    }*/
 
     @Override
     public String getName() {

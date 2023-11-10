@@ -51,7 +51,18 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         this.server = server;
         this.channel = new ChannelInterface(channel);
         this.channel.addListener(this);
-        SetLocalPlayerAsInitializedPacket.clients.put(client, this);
+
+
+        /*
+        Пометка для себя, сделать отключение, если не входишь с иннера
+         */
+
+        //SetLocalPlayerAsInitializedPacket.clients.put(client, this);
+
+
+
+
+
         /*this.addInitializationPacketListener("system.player_entity", (ConnectedClient client, Object data, Class<?> dataType) -> {
             try {
                 Logger.debug("system.player_entity");

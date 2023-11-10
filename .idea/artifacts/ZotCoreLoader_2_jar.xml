@@ -1,0 +1,26 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ZotCoreLoader_2:jar">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="ZotCoreLoader_2.jar">
+      <element id="module-output" name="ZotCoreLoader_2.main" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/recyclerview-1.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/json-io.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/glide-3.6.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/androidx-core-1.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/support-annotations-25.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/dx.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.json/json/20231013/e22e0c040fe16f04ffdb85d851d77b07fc05ea52/json-20231013.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/target/Nukkit-MOT-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/reflections.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/mcpe.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/rhino.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/zip4j.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/javassist.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/iclibs/desugar_jdk_libs-1.0.10.jar" path-in-jar="/" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/MANIFEST.MF" />
+      </element>
+      <element id="library" level="project" name="Gradle: com.google.code.gson:gson:2.7" />
+    </root>
+  </artifact>
+</component>

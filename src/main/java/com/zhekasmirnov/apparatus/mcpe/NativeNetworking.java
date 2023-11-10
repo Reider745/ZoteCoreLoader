@@ -1,7 +1,6 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
-import cn.nukkit.Server;
-import cn.nukkit.network.protocol.InnerCorePacket;
+import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.multiplayer.channel.codec.StringChannelCodec;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataPacket;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.NativeDataChannel;

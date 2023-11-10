@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.utils;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.Apparatus;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONArray;
@@ -22,7 +23,7 @@ public class FileTools {
     public static String DIR_ROOT, DIR_PACK, DIR_WORK, DIR_MINECRAFT, DIR_HORIZON;
 
     public static void init() {
-        DIR_ROOT = Apparatus.PATH;
+        DIR_ROOT = InnerCoreServer.PATH;
         DIR_HORIZON = DIR_ROOT;
         DIR_PACK = DIR_ROOT + "/";
         DIR_WORK = DIR_ROOT + "innercore/";

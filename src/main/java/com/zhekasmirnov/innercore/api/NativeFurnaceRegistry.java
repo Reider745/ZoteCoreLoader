@@ -45,10 +45,10 @@ public class NativeFurnaceRegistry {
         recipe.put("id", id);
         recipe.put("data", data);
         recipes.add(recipe);
-        BlockEntityFurnace.fuels.put(id+":"+data, (short) burnDuration);
+       // BlockEntityFurnace.fuels.put(id+":"+data, (short) burnDuration);
     }
     public static void nativeRemoveFuel(int id, int data){
-        BlockEntityFurnace.fuels.put(id+":"+data, (short) 0);
+        //BlockEntityFurnace.fuels.put(id+":"+data, (short) 0);
     }
 
     public static void init(){

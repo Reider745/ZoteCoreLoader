@@ -1,0 +1,17 @@
+{
+	"properties": {
+		"enabled": {
+			"name": {"en": "Enable mod", "ru": "Включить мод"}
+		},
+		"increase_tree_destroy_time": {
+			"name": {
+				"en": "Increase tree destroy time",
+				"ru": "Увеличивать время ломания дерева"
+			},
+			"description": {
+				"en": "If log is part of a tree, it's destroy time will depend on the tree size",
+				"ru": "Если блок древесины является частью дерева, его время ломания будет зависеть от размера дерева"
+			}
+		}
+	}
+}

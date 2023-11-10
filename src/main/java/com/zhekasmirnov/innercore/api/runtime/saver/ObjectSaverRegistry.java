@@ -14,14 +14,14 @@ public class ObjectSaverRegistry {
     public static final String PROPERTY_IGNORE_SAVE = "_json_ignore";
     public static final String PROPERTY_SAVER_ID = "_json_saver_id";
 
-    private static final ScriptableObject scope;
+    private static ScriptableObject scope;
 
     private static HashMap<Integer, ObjectSaver> saverMap = new HashMap<>();
     private static HashMap<Integer, ObjectSaver> saverByObjectHash = new HashMap<>();
     private static HashMap<Integer, String> saverNameById = new HashMap<>();
 
     static {
-        scope = Context.enter().initStandardObjects();
+        //scope = Context.enter().initStandardObjects();
 
         //Container.initSaverId();
         NativeItemInstanceExtra.initSaverId();

@@ -1,0 +1,27 @@
+2023-11-09 16:07:32.554 [main] INFO  - Loading server properties...
+2023-11-09 16:07:33.039 [main] ERROR - Throwing
+java.lang.VerifyError: Call to wrong <init> method
+Exception Details:
+  Location:
+    com/google/gson/internal/bind/TypeAdapters$2.write(Lcom/google/gson/stream/JsonWriter;Ljava/util/BitSet;)V @6: invokespecial
+  Reason:
+    Type 'java/lang/RuntimeException' (constant pool 24) is not assignable to 'java/lang/Runtime' (constant pool 31)
+  Bytecode:
+    0000000: bb00 1859 121a b700 1fbf               
+
+	at com.google.gson.internal.bind.TypeAdapters.<clinit>(Unknown Source) ~[?:?]
+	at com.google.gson.Gson.<init>(Unknown Source) ~[?:?]
+	at com.google.gson.GsonBuilder.create(Unknown Source) ~[?:?]
+	at cn.nukkit.utils.Config.parseContent(Config.java:622) ~[?:?]
+	at cn.nukkit.utils.Config.load(Config.java:185) ~[?:?]
+	at cn.nukkit.utils.Config.<init>(Config.java:103) ~[?:?]
+	at cn.nukkit.utils.Config.<init>(Config.java:95) ~[?:?]
+	at cn.nukkit.scoreboard.storage.JSONScoreboardStorage.<init>(JSONScoreboardStorage.java:39) ~[?:?]
+	at cn.nukkit.Server.<init>(Server.java:610) ~[?:?]
+	at cn.nukkit.Nukkit.main(Nukkit.java:87) [?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.reider745.api.hooks.JarFileLoader.run(JarFileLoader.java:171) [main/:?]
+	at com.reider745.Main.main(Main.java:47) [main/:?]

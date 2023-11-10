@@ -1,6 +1,6 @@
 package com.reider745.item;
 
-import cn.nukkit.blockstate.BlockStorage;
+//import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.item.food.FoodNormal;
@@ -79,7 +79,7 @@ public class CustomItem extends Item {
     public static final String TECHNICAL_GROUP = "technical_modded_item";
 
     public static void initCreativeItems(){
-        BlockStorage.forEach((id, block) -> Item.list[id] = block);
+        //BlockStorage.forEach((id, block) -> Item.list[id] = block);
         CustomItem.init();
 
         ArrayList<int[]> sortAddedToCreative = new ArrayList<>();
@@ -147,7 +147,7 @@ public class CustomItem extends Item {
 
     public static CustomManager registerItemFood(String textId, int id, String name, int food){
         CustomManager manager = registerItem(textId, id, name);
-        Food.registerDefaultFood(new FoodNormal(food, 4)).addRelative(id);
+       // Food.registerDefaultFood(new FoodNormal(food, 4)).addRelative(id);
         return manager;
     }
 

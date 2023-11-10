@@ -445,7 +445,7 @@ public class NativeBlockSource {
 
 
     private static Level constructNew(int dimension, boolean b1, boolean b2){
-        return Server.getInstance()._getLevel(dimension);
+        return Server.getInstance().getLevel(dimension);
     }
     private static Level nativeGetForCurrentThread(){
         return level_current;
