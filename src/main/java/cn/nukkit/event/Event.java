@@ -31,9 +31,9 @@ public abstract class Event {
     }
 
     public boolean isCancelled() {
-        if (!(this instanceof Cancellable)) {
+        /*if (!(this instanceof Cancellable)) {
             throw new EventException("Event is not Cancellable");
-        }
+        }*/
         return isCancelled;
     }
 

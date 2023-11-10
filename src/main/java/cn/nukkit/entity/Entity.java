@@ -3540,7 +3540,7 @@ public abstract class Entity extends Location implements Metadatable {
             if (data.getId() == DATA_FLAGS_EXTENDED) {
                 metadata.put(this.dataProperties.get(DATA_FLAGS));
             }
-            this.sendData((Player[]) this.hasSpawned.values().toArray(Player.EMPTY_ARRAY), metadata);
+            this.sendData(this.hasSpawned.values().toArray(Player.EMPTY_ARRAY), metadata);
         }
         return true;
     }

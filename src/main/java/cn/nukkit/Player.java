@@ -1,6 +1,8 @@
 package cn.nukkit;
 
 import cn.nukkit.AdventureSettings.Type;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.block.*;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntityItemFrame;
@@ -100,6 +102,9 @@ import java.util.function.Consumer;
  */
 @Log4j2
 public class Player extends EntityHuman implements CommandSender, InventoryHolder, ChunkLoader, IPlayer {
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public static final Player[] EMPTY_ARRAY = new Player[0];
 
     public static final int SURVIVAL = 0;
     public static final int CREATIVE = 1;
