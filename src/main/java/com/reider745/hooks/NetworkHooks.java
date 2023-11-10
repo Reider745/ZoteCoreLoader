@@ -11,7 +11,7 @@ import com.reider745.Main;
 import com.reider745.api.hooks.Arguments;
 import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
-import com.reider745.api.hooks.annotation.AutoInject;
+import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
 
@@ -22,7 +22,7 @@ import java.util.Collection;
 @Hooks(class_name = "cn.nukkit.network.Network")
 public class NetworkHooks {
 
-    @AutoInject(arguments = {"payload", "packets", "compression", "raknetProtocol", "player"}, static_method = false, type_hook = TypeHook.BEFORE_REPLACE)
+    @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type_hook = TypeHook.BEFORE_REPLACE)
     public static void processBatch(HookController controller){
         Arguments arguments = controller.getArguments();
 
@@ -110,18 +110,9 @@ public class NetworkHooks {
                 log.debug("Error whilst decoding batch packet", e);
             }*/
         }
-        /*Arguments arguments = controller.getArguments();
-        Player player = arguments.arg("player");
-        List<DataPacket> packets = arguments.arg("packets");
-
-        for (DataPacket packet : packets)
-            if(packet instanceof BasePacket)
-                ((BasePacket) packet).player = player;
-
-        System.out.println("processPackets");*/
     }
 
-    @AutoInject(signature = "()V", static_method = false)
+    @Inject()
     public static void registerPackets(HookController controller){
         Main.LoadingStages.registerPacket(controller.getSelf());
     }

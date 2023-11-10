@@ -9,9 +9,9 @@
   "inventory_tick_send": true,
   "inventory_tick_send_time": 20,
 
-  "name": "Inner Core",
-  "version_name": "2.1.0b71",
-  "version": 108,
+  "name": "Inner Core Test",
+  "version_name": "2.3.1b115",
+  "version": 152,
 
   "performance": {
     "time_based_limit": false,
