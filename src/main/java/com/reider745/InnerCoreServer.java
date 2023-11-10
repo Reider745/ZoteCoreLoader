@@ -5,6 +5,7 @@ import cn.nukkit.item.Item;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.Apparatus;
+import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
@@ -80,6 +81,7 @@ public class InnerCoreServer {
         // CustomBlock.init();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
+        Logger.info("INNERCORE", PackInfo.toInfo());
     }
 
     public void postLoad(){
@@ -101,5 +103,13 @@ public class InnerCoreServer {
 
     public void tick(){
         NativeCallback.onTick();
+    }
+
+    public static String getVersion(){
+        return "2.3.1b115";
+    }
+
+    public static String getName(){
+        return "Inner Core";
     }
 }

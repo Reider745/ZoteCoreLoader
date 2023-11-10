@@ -23,6 +23,7 @@ public class MultiplayerPackVersionChecker {
                     String packName = packInfo.optString("name");
                     String packVersionName = packInfo.optString("versionName");
                     int packVersionCode = packInfo.optInt("versionCode");
+
                     if (!PackInfo.getPackName().equals(packName) ||
                         !PackInfo.getPackVersionName().equals(packVersionName) ||
                         PackInfo.getPackVersionCode() != packVersionCode) {

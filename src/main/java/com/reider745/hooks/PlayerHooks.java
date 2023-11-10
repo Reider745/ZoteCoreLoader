@@ -13,12 +13,10 @@ public class PlayerHooks {
     @AutoInject(arguments = {"tickDiff"}, static_method = false, type_hook = TypeHook.BEFORE)
     public static void entityBaseTick(HookController controller){
         Player self = controller.getSelf();
-
-        self.sendAllInventories();
         int tick = Server.getInstance().getTick();
 
         if(tick % 10 == 0){
-            self.sendMessage("Test message");
+            self.sendAllInventories();
         }
     }
 }

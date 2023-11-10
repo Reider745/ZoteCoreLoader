@@ -1,35 +1,38 @@
-2023-11-09 18:43:48.666 [main] INFO  - Loading server properties...
-2023-11-09 18:43:49.516 [main] INFO  - §b-- §cNukkit §dMOT §b--
-2023-11-09 18:43:51.408 [main] INFO  - Loading runtime blocks...
-2023-11-09 18:43:58.818 [main] INFO  - Loaded 0 resource packs
-2023-11-09 18:43:58.831 [main] INFO  - Opening server on 0.0.0.0:19132
-2023-11-09 18:44:00.614 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0xd2bffeee]'
-2023-11-09 18:44:00.649 [main] INFO  - Enabling Nukkit-MOT vgit-7f0a965
-2023-11-09 18:44:00.712 [main] INFO  - Preparing level "§aworld§f"
-2023-11-09 18:44:01.453 [main] INFO  - Preparing level "§anether§f"
-2023-11-09 18:44:01.568 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
-2023-11-09 18:44:01.579 [main] INFO  - [INNERCORE-FILE]work directory check successful
-2023-11-09 18:44:01.785 [main] INFO  - modded server started (socket port 2304)
-2023-11-09 18:44:01.942 [main] INFO  - [INNERCORE]end load, time: 370
-2023-11-09 18:44:01.949 [main] INFO  - Done (13.372s)! For help, type "help"
-2023-11-09 18:44:02.748 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eThere is a new build of §cNukkit§3-§dMOT §eavailable! Current: git-7f0a965 Latest: git-48e1d8d
-2023-11-09 18:44:02.774 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eYou can download the latest build from https://github.com/MemoriesOfTime/Nukkit-MOT/
-2023-11-09 18:45:57.121 [Thread-5] INFO  - server: client connection requested
-2023-11-09 18:45:57.241 [Thread-9] INFO  - socket receive:system.mod_list
-2023-11-09 18:45:57.245 [Thread-9] INFO  - system.mod_list
-2023-11-09 18:45:57.247 [Thread-9] INFO  - socket receive:system.inner_core_build
-2023-11-09 18:45:57.252 [Thread-9] INFO  - server: client connected player=-1
-2023-11-09 18:45:58.874 [main] INFO  - §bbosw§f[/192.168.1.42:34341] [Protocol Version: 422 (1.16.200)] logged in
-2023-11-09 18:46:01.828 [Thread-9] INFO  - socket receive:system.player_entity
-2023-11-09 18:46:28.016 [main] INFO  - §ebosw joined the game
-2023-11-09 18:46:40.140 [Network Listener - #0] INFO  - InventoryGetCreativeAction{creativeItemId=30}
-2023-11-09 18:46:40.167 [Network Listener - #0] INFO  - InventoryCraftingResultAction{resultItems=[Item Birch Fence Gate (184:0)x1], amount=1}
-2023-11-09 18:46:40.198 [Network Listener - #0] INFO  - InventoryDropAction{amount=64, source=ItemStackRequestSlotInfo{windowId=59, slot=50, itemStackId=-3}, random=false}
-2023-11-09 18:46:45.471 [Network Listener - #0] INFO  - InventoryGetCreativeAction{creativeItemId=1}
-2023-11-09 18:46:45.473 [Network Listener - #0] INFO  - InventoryCraftingResultAction{resultItems=[Item Oak Wood Planks (5:0)x1], amount=1}
-2023-11-09 18:46:45.475 [Network Listener - #0] INFO  - InventoryDropAction{amount=64, source=ItemStackRequestSlotInfo{windowId=59, slot=50, itemStackId=-5}, random=false}
-2023-11-09 18:46:50.364 [Network Listener - #0] INFO  - InventoryGetCreativeAction{creativeItemId=1}
-2023-11-09 18:46:50.367 [Network Listener - #0] INFO  - InventoryCraftingResultAction{resultItems=[Item Oak Wood Planks (5:0)x1], amount=1}
-2023-11-09 18:46:50.379 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=64, source=ItemStackRequestSlotInfo{windowId=59, slot=50, itemStackId=-7}, destination=ItemStackRequestSlotInfo{windowId=27, slot=4, itemStackId=0}}
-2023-11-09 18:46:54.040 [Network Listener - #0] INFO  - InventoryDropAction{amount=64, source=ItemStackRequestSlotInfo{windowId=27, slot=4, itemStackId=-7}, random=false}
-2023-11-09 18:46:59.839 [Network Listener - #0] INFO  - InventoryDropAction{amount=64, source=ItemStackRequestSlotInfo{windowId=27, slot=0, itemStackId=0}, random=false}
+2023-11-10 12:43:47.162 [main] INFO  - Loading server properties...
+2023-11-10 12:43:47.570 [main] INFO  - §b-- §cNukkit §dMOT §b--
+2023-11-10 12:43:48.813 [main] INFO  - Loading runtime blocks...
+2023-11-10 12:43:54.018 [main] INFO  - Loaded 0 resource packs
+2023-11-10 12:43:54.028 [main] INFO  - Opening server on 0.0.0.0:19132
+2023-11-10 12:43:55.959 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0x7a7281b1]'
+2023-11-10 12:43:55.979 [main] INFO  - Enabling Nukkit-MOT vgit-7f0a965
+2023-11-10 12:43:56.035 [main] INFO  - Preparing level "§aworld§f"
+2023-11-10 12:43:56.599 [main] INFO  - Preparing level "§anether§f"
+2023-11-10 12:43:56.691 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
+2023-11-10 12:43:56.702 [main] INFO  - [INNERCORE-FILE]work directory check successful
+2023-11-10 12:43:56.808 [main] INFO  - modded server started (socket port 2304)
+2023-11-10 12:43:56.927 [main] INFO  - [INNERCORE]end load, time: 233
+2023-11-10 12:43:56.938 [main] INFO  - [INNERCORE]====Inner Core====
+version: 2.1.0b71   108
+2023-11-10 12:43:56.943 [main] INFO  - Done (9.831s)! For help, type "help"
+2023-11-10 12:43:57.765 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eThere is a new build of §cNukkit§3-§dMOT §eavailable! Current: git-7f0a965 Latest: git-48e1d8d
+2023-11-10 12:43:57.770 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eYou can download the latest build from https://github.com/MemoriesOfTime/Nukkit-MOT/
+2023-11-10 12:44:20.346 [Thread-5] INFO  - server: client connection requested
+2023-11-10 12:44:20.547 [Thread-9] INFO  - socket receive:system.inner_core_build
+2023-11-10 12:44:20.550 [Thread-9] INFO  - socket receive:system.mod_list
+2023-11-10 12:44:20.551 [Thread-9] INFO  - system.mod_list
+2023-11-10 12:44:20.553 [Thread-9] INFO  - server: client connected player=-1
+2023-11-10 12:44:22.263 [main] INFO  - §bboss§f[/192.168.1.42:58629] [Protocol Version: 354 (1.11.0)] logged in
+2023-11-10 12:44:24.666 [Thread-9] INFO  - socket receive:system.player_entity
+2023-11-10 12:44:32.028 [Thread-9] FATAL - [channel broke, panic] 
+java.io.EOFException: null
+	at java.io.DataInputStream.readUnsignedShort(DataInputStream.java:346) ~[?:?]
+	at java.io.DataInputStream.readUTF(DataInputStream.java:595) ~[?:?]
+	at java.io.DataInputStream.readUTF(DataInputStream.java:570) ~[?:?]
+	at com.zhekasmirnov.apparatus.multiplayer.channel.data.SocketDataChannel.receiveImpl(SocketDataChannel.java:32) ~[?:?]
+	at com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel.receive(DataChannel.java:49) [?:?]
+	at com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel.listenerLoop(DataChannel.java:118) [?:?]
+	at com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface.listenerLoop(ChannelInterface.java:58) [?:?]
+	at com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient.run(ConnectedClient.java:170) [?:?]
+2023-11-10 12:44:32.059 [Thread-9] INFO  - client disconnected, reason: IOException occurred: null
+2023-11-10 12:44:32.071 [Thread-9] INFO  - server: client disconnected player=-1 reason=IOException occurred: null
+2023-11-10 12:44:56.613 [main] INFO  - §bboss§f[/192.168.1.42:58629] logged out due to Timed out

@@ -5,19 +5,23 @@ import com.zhekasmirnov.apparatus.Apparatus;
 
 public class PackInfo {
     public static String getPackName() {
-        return EngineConfig.getString("pack.name",  InnerCoreServer.server.getName());
+        return EngineConfig.getString("name",  InnerCoreServer.getName());
     }
 
     public static String getPackVersionName() {
-        return EngineConfig.getString("pack.version_name",  InnerCoreServer.server.getVersion());
+        return EngineConfig.getString("version_name",  InnerCoreServer.getVersion());
     }
 
     public static int getPackVersionCode() {
-        return EngineConfig.getInt("pack.version", Apparatus.getVersionCode());
+        return EngineConfig.getInt("version", Apparatus.getVersionCode());
     }
 
     public static String getNetworkPackIdentifier() {
         return getPackName() + "#" + getPackVersionName();
     }
 
+    public static String toInfo(){
+        return "===="+getPackName()+"====\n"+
+                "version: "+getPackVersionName()+"   "+getPackVersionCode();
+    }
 }
