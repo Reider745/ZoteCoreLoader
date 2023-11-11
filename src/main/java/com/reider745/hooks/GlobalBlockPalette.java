@@ -153,10 +153,10 @@ public class GlobalBlockPalette {
         return get(id, meta);
     }
 
-    /*@Inject
-    public static int getOrCreateRuntimeId(int protocol, int legacyId) throws NoSuchElementException {
+    @Inject
+    public static int getOrCreateRuntimeId(int protocol, int legacyId) {
         return get(legacyId >> 4, legacyId & 0xf);
-    }*/
+    }
 
     @Inject
     public static int getOrCreateRuntimeId(int legacyId){

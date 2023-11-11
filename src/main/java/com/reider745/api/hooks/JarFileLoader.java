@@ -1,21 +1,19 @@
 package com.reider745.api.hooks;
 
+import com.reider745.api.hooks.annotation.FieldPatched;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Injects;
 import javassist.*;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.LocalVariableAttribute;
-import javassist.bytecode.MethodInfo;
+import javassist.bytecode.*;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class JarFileLoader {
@@ -71,6 +69,17 @@ public class JarFileLoader {
                                 this.addHook(className__, method_name.equals("-1") ? method.getName() : method_name, sig, method, inject.type_hook(), isController(method), inject.arguments_map());
                         }
                 }
+
+                Field[] fields = clazz.getFields();
+                for(Field field : fields){
+                    Annotation[] annotationsField = field.getAnnotations();
+                    for (Annotation annotationField : annotationsField){
+                        if(annotationField instanceof FieldPatched inject){
+                            String className_ = inject.class_name();
+                            replaceField(className_.equals("-1") ? className : className_, inject.name(), field);
+                        }
+                    }
+                }
             }
         return this;
     }
@@ -112,10 +121,12 @@ public class JarFileLoader {
 
         if(arguments_map) arg_func = "_ctr_hook";
         code += (typeHook != TypeHook.RETURN ? (funcName + "("+arg_func+");\n") : ("return "+funcName + "("+arg_func+");\n"));
+
         if((controller || arguments_map) && typeHook != TypeHook.BEFORE_NOT_REPLACE && typeHook != TypeHook.AFTER_NOT_REPLACE && typeHook != TypeHook.RETURN)
             code += "if(_ctr_hook.isReplace())\n"+
                 (retType.equals("void") ? "return;" : "return " + Arguments.getConvertCode(retType, false, "_ctr_hook.getResult()")) + "\n";
-
+        else if(typeHook == TypeHook.BEFORE_REPLACE || typeHook == TypeHook.AFTER_REPLACE)
+            code += "return;";
         return code;
     }
 
@@ -174,12 +185,29 @@ public class JarFileLoader {
         return parameters.length-(!isStatic ? 0 : 1) != types.length+(isController ? 1 : 0);
     }
 
+    private void replaceField(String className, String name, Field field_replaced) {
+        try {
+            CtClass ctClass = cp.get(className);
+
+            CtField ctField = ctClass.getDeclaredField(name);
+            ctClass.removeField(ctField);
+            ctClass.addField(ctField, (String) field_replaced.get(null));
+
+            System.out.println("Success patched "+name+", for "+className);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Failed patched "+name+", for "+className);
+        }
+
+    }
+
     private void addHook(String className, String method, String sig, Method replaced, TypeHook typeHook, boolean controller, ArgumentTypes arguments_map){
         try{
             //String[] arguments_types = Arguments.parseSignature(sig);
 
             ArrayList<String> signatures = new ArrayList<>();
             CtClass ctClass = cp.get(className);
+
             if(method.equals("<init>")){
                 CtConstructor[] constructors = ctClass.getDeclaredConstructors();
 
@@ -196,11 +224,12 @@ public class JarFileLoader {
                         if(typeHook == TypeHook.AUTO) typeHook = TypeHook.BEFORE;
 
                         String code = getCode(replaced, arguments, arguments_types, "void", typeHook, isStatic, controller, arguments_map);
-
                         switch (typeHook) {
-                            case BEFORE, BEFORE_REPLACE, RETURN, BEFORE_NOT_REPLACE -> ctmBuffer.insertBefore(code);
-                            case AFTER, AFTER_REPLACE, AFTER_NOT_REPLACE -> ctmBuffer.insertAfter(code);
+                            case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, RETURN, AFTER_REPLACE -> ctmBuffer.insertBefore(code);
+                            case AFTER, AFTER_NOT_REPLACE -> ctmBuffer.insertAfter(code);
+                            default -> throw new RuntimeException("Что-то пошло не так, пиздуй ищи ошибку!");
                         }
+
                         System.out.println("Success register hook for "+method+sig + " "+typeHook.name());
                         return;
                     } else {
@@ -231,12 +260,13 @@ public class JarFileLoader {
 
                             String code = getCode(replaced, arguments, arguments_types, retType, typeHook, isStatic, controller, arguments_map);
 
-                            System.out.println(code);
-
                             switch (typeHook) {
-                                case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, RETURN -> ctmBuffer.insertBefore(code);
-                                case AFTER, AFTER_NOT_REPLACE, AFTER_REPLACE -> ctmBuffer.insertAfter(code);
+                                case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, RETURN, AFTER_REPLACE  -> ctmBuffer.insertBefore(code);
+                                case AFTER, AFTER_NOT_REPLACE -> ctmBuffer.insertAfter(code);
+                                default -> throw new RuntimeException("Что-то пошло не так, пиздуй ищи ошибку!");
                             }
+
+                            ctmBuffer.getMethodInfo().rebuildStackMap(ClassPool.getDefault());
                             System.out.println("Success register hook for "+ctmBuffer.getName()+ctmBuffer.getSignature() + " "+typeHook.name());
                             return;
                         }else{

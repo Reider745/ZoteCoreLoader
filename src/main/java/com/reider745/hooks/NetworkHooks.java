@@ -67,7 +67,7 @@ public class NetworkHooks {
                         packetId = header & 0x3FF;
                         break;
                 }
-
+                log.debug("read packet: "+packetId);
                 DataPacket pk = self.getPacket(packetId);
 
                 if (pk != null) {
@@ -84,7 +84,7 @@ public class NetworkHooks {
                             pk.decode();
                         }
                     } catch (Exception e) {
-                       /* if (log.isTraceEnabled()) {
+                        /*if (log.isTraceEnabled()) {
                             log.trace("Dumping Packet\n{}", ByteBufUtil.prettyHexDump(Unpooled.wrappedBuffer(buf)));
                         }*/
                         log.error("Unable to decode packet", e);
@@ -101,6 +101,8 @@ public class NetworkHooks {
                 log.debug("Error whilst decoding batch packet", e);
             }*/
         }
+
+
     }
 
     @Inject

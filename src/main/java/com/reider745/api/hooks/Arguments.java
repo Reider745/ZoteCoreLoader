@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Arguments extends HashMap<String, Object> {
+    @SuppressWarnings("unchecked")
     public <T>T arg(String key) {
         return (T) this.get(key);
     }
