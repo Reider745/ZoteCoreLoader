@@ -1,31 +1,18 @@
-2023-11-10 21:09:11.731 [main] INFO  - Loading server properties...
-2023-11-10 21:09:12.803 [main] INFO  - §b-- §cNukkit §dMOT §b--
-2023-11-10 21:09:16.144 [main] INFO  - Loading runtime blocks...
-2023-11-10 21:09:28.339 [main] INFO  - Loaded 0 resource packs
-2023-11-10 21:09:28.372 [main] INFO  - Opening server on 0.0.0.0:19132
-2023-11-10 21:09:30.864 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0xeaa943bc]'
-2023-11-10 21:09:30.915 [main] INFO  - Enabling Nukkit-MOT vgit-7f0a965
-2023-11-10 21:09:31.010 [main] INFO  - Preparing level "§aworld§f"
-2023-11-10 21:09:32.241 [main] INFO  - Preparing level "§anether§f"
-2023-11-10 21:09:32.389 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
-2023-11-10 21:09:32.424 [main] INFO  - [INNERCORE-FILE]work directory check successful
-2023-11-10 21:09:32.700 [main] INFO  - modded server started (socket port 2304)
-2023-11-10 21:09:32.920 [main] INFO  - [INNERCORE]end load, time: 528
-2023-11-10 21:09:32.928 [main] INFO  - [INNERCORE]====Inner Core Test====
+2023-11-11 10:10:05.501 [main] INFO  - Loading server properties...
+2023-11-11 10:10:05.836 [main] INFO  - §b-- §cNukkit §dMOT §b--
+2023-11-11 10:10:07.089 [main] INFO  - Loading runtime blocks...
+2023-11-11 10:10:11.081 [main] INFO  - Loaded 0 resource packs
+2023-11-11 10:10:11.091 [main] INFO  - Opening server on 0.0.0.0:19132
+2023-11-11 10:10:12.446 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0x24aefb91]'
+2023-11-11 10:10:12.462 [main] INFO  - Enabling Nukkit-MOT vgit-7f0a965
+2023-11-11 10:10:12.500 [main] INFO  - Preparing level "§aworld§f"
+2023-11-11 10:10:12.947 [main] INFO  - Preparing level "§anether§f"
+2023-11-11 10:10:13.014 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
+2023-11-11 10:10:13.031 [main] INFO  - [INNERCORE-FILE]work directory check successful
+2023-11-11 10:10:13.125 [main] INFO  - modded server started (socket port 2304)
+2023-11-11 10:10:13.135 [main] INFO  - [INNERCORE]end load, time: 118
+2023-11-11 10:10:13.144 [main] INFO  - [INNERCORE]====Inner Core Test====
 version: 2.3.1b115 test   152
-2023-11-10 21:09:32.932 [main] INFO  - Done (21.349s)! For help, type "help"
-2023-11-10 21:09:34.467 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eThere is a new build of §cNukkit§3-§dMOT §eavailable! Current: git-7f0a965 Latest: git-48e1d8d
-2023-11-10 21:09:49.588 [Thread-5] INFO  - server: client connection requested
-2023-11-10 21:09:55.877 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eYou can download the latest build from https://github.com/MemoriesOfTime/Nukkit-MOT/
-2023-11-10 21:09:56.185 [Thread-9] INFO  - socket receive:system.mod_list
-2023-11-10 21:09:56.190 [Thread-9] INFO  - system.mod_list
-2023-11-10 21:09:56.194 [Thread-9] INFO  - socket receive:system.inner_core_build
-2023-11-10 21:09:56.197 [Thread-9] INFO  - server: client connected player=-1
-2023-11-10 21:09:58.590 [main] INFO  - §bbosw§f[/192.168.1.42:51478] [Protocol Version: 422 (1.16.200)] logged in
-2023-11-10 21:10:01.581 [Thread-9] INFO  - socket receive:system.player_entity
-2023-11-10 21:10:21.339 [main] INFO  - §ebosw joined the game
-2023-11-10 21:10:29.028 [Network Listener - #0] INFO  - InventoryGetCreativeAction{creativeItemId=1}
-2023-11-10 21:10:29.042 [Network Listener - #0] INFO  - InventoryCraftingResultAction{resultItems=[Item Oak Wood Planks (5:0)x1], amount=1}
-2023-11-10 21:10:29.078 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=64, source=ItemStackRequestSlotInfo{windowId=59, slot=50, itemStackId=-7}, destination=ItemStackRequestSlotInfo{windowId=27, slot=6, itemStackId=0}}
-2023-11-10 21:10:47.792 [Network Listener - #0] INFO  - InventoryDropAction{amount=64, source=ItemStackRequestSlotInfo{windowId=27, slot=6, itemStackId=-7}, random=false}
-2023-11-10 21:10:52.607 [Network Listener - #0] INFO  - InventoryDropAction{amount=64, source=ItemStackRequestSlotInfo{windowId=27, slot=0, itemStackId=0}, random=false}
+2023-11-11 10:10:13.150 [main] INFO  - Done (7.694s)! For help, type "help"
+2023-11-11 10:10:13.877 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eThere is a new build of §cNukkit§3-§dMOT §eavailable! Current: git-7f0a965 Latest: git-48e1d8d
+2023-11-11 10:10:13.880 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eYou can download the latest build from https://github.com/MemoriesOfTime/Nukkit-MOT/

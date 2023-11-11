@@ -3,23 +3,18 @@ package com.reider745.hooks;
 import android.util.Pair;
 import cn.nukkit.Server;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.io.ByteStreams;
-import com.reider745.api.hooks.Arguments;
-import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
-import com.reider745.api.hooks.annotation.Injects;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Hooks(class_name = "cn.nukkit.level.GlobalBlockPalette")
 public class GlobalBlockPalette {
@@ -54,8 +49,8 @@ public class GlobalBlockPalette {
         return assignedRuntimeIds;
     }
 
-    @Inject(signature = "()V")
-    public static void init(HookController controller){
+    @Inject
+    public static void init(){
         MainLogger log = Server.getInstance().getLogger();
         log.info("Loading runtime blocks...");
         legacyToRuntimeId.defaultReturnValue(-1);
@@ -143,25 +138,30 @@ public class GlobalBlockPalette {
         }
     }
 
-    @Injects(signature = {"(II)I", "(I)I"})
-    public static int getLegacyFullId(HookController controller){
-        int runtimeId = controller.getArguments().arg("runtimeId");
+    @Inject
+    public static int getLegacyFullId(int protocol, int runtimeId){
         return runtimeIdToLegacy.get(runtimeId);
     }
 
-    @Inject(signature = "(I)I", method = "getOrCreateRuntimeId")
-    public static int getOrCreateRuntimeIdLegacy(HookController controller){
-        int runtimeId = controller.getArguments().arg("legacyId");
+    @Inject
+    public static int getLegacyFullId(int runtimeId){
         return runtimeIdToLegacy.get(runtimeId);
     }
 
-    @Inject(signature = "(III)I", method = "getOrCreateRuntimeId")
-    public static int getOrCreateRuntimeId(HookController controller){
-        Arguments arguments = controller.getArguments();
-        int id = arguments.arg("id");
-        int meta = arguments.arg("meta");
-
+    @Inject
+    public static int getOrCreateRuntimeId(int protocol, int id, int meta){
         return get(id, meta);
+    }
+
+    /*@Inject
+    public static int getOrCreateRuntimeId(int protocol, int legacyId) throws NoSuchElementException {
+        return get(legacyId >> 4, legacyId & 0xf);
+    }*/
+
+    @Inject
+    public static int getOrCreateRuntimeId(int legacyId){
+        Server.mvw("GlobalBlockPalette#getOrCreateRuntimeId(int)");
+        return getOrCreateRuntimeId(ProtocolInfo.CURRENT_PROTOCOL, legacyId >> 4, legacyId & 0xf);
     }
 
     private static int get(int id, int meta){

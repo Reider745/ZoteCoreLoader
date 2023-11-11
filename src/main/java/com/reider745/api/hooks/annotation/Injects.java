@@ -1,5 +1,6 @@
 package com.reider745.api.hooks.annotation;
 
+import com.reider745.api.hooks.ArgumentTypes;
 import com.reider745.api.hooks.TypeHook;
 
 import java.lang.annotation.ElementType;
@@ -16,4 +17,6 @@ public @interface Injects {
 
     String class_name() default "-1";
     String method() default "-1";
+    ArgumentTypes arguments_map() default ArgumentTypes.AUTO;
+
 }

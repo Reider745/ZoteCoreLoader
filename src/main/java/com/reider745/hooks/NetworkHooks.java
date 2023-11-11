@@ -3,6 +3,7 @@ package com.reider745.hooks;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.network.CompressionProvider;
+import cn.nukkit.network.Network;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
@@ -23,17 +24,7 @@ import java.util.Collection;
 public class NetworkHooks {
 
     @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type_hook = TypeHook.BEFORE_REPLACE)
-    public static void processBatch(HookController controller){
-        Arguments arguments = controller.getArguments();
-
-        cn.nukkit.network.Network self = controller.getSelf();
-
-        byte[] payload = arguments.arg("payload");
-        Collection<DataPacket> packets = arguments.arg("packets");
-        CompressionProvider compression = arguments.arg("compression");
-        int raknetProtocol = arguments.arg("raknetProtocol");
-        Player player = arguments.arg("player");
-
+    public static void processBatch(Network self, byte[] payload, Collection<DataPacket> packets, CompressionProvider compression, int raknetProtocol, Player player){
         MainLogger log = Server.getInstance().getLogger();
 
         int maxSize = 3145728; // 3 * 1024 * 1024
@@ -112,8 +103,8 @@ public class NetworkHooks {
         }
     }
 
-    @Inject()
-    public static void registerPackets(HookController controller){
-        Main.LoadingStages.registerPacket(controller.getSelf());
+    @Inject
+    public static void registerPackets(Network self){
+        Main.LoadingStages.registerPacket(self);
     }
 }

@@ -8,10 +8,6 @@ public class Arguments extends HashMap<String, Object> {
         return (T) this.get(key);
     }
 
-    public <T>T arg(int key) {
-        return (T) this.get(key);
-    }
-
     private static final String IntegerName = Integer.class.getName(),
             DoubleName = Double.class.getName(),
             FloatName = Float.class.getName(),

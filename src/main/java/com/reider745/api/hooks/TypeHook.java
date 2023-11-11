@@ -5,6 +5,8 @@ public enum TypeHook {
     AFTER,
     BEFORE_REPLACE,
     AFTER_REPLACE,
+    BEFORE_NOT_REPLACE,
+    AFTER_NOT_REPLACE,
     RETURN,
     AUTO;
 }
