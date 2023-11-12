@@ -31,6 +31,7 @@ public class NetworkHooks {
         if (player != null && player.getSkin() == null) {
             maxSize = 6291456; // 6 * 1024 * 1024
         }
+
         byte[] data;
         try {
             data = compression.decompress(payload, maxSize);
@@ -42,6 +43,7 @@ public class NetworkHooks {
         BinaryStream stream = new BinaryStream(data);
         try {
             int count = 0;
+            int packetId;
             while (!stream.feof()) {
                 count++;
                 if (count >= 1000) {
@@ -51,7 +53,7 @@ public class NetworkHooks {
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(buf);
 
-                int packetId;
+
                 switch (raknetProtocol) {
                     case 7:
                         packetId = bais.read();
@@ -84,25 +86,18 @@ public class NetworkHooks {
                             pk.decode();
                         }
                     } catch (Exception e) {
-                        /*if (log.isTraceEnabled()) {
-                            log.trace("Dumping Packet\n{}", ByteBufUtil.prettyHexDump(Unpooled.wrappedBuffer(buf)));
-                        }*/
                         log.error("Unable to decode packet", e);
                         throw new IllegalStateException("Unable to decode " + pk.getClass().getSimpleName());
                     }
 
                     packets.add(pk);
                 } else {
-                    //log.debug("Received unknown packet with ID: {}", Integer.toHexString(packetId));
+                    log.debug("Received unknown packet with ID: "+packetId);
                 }
             }
         } catch (Exception e) {
-            /*if (log.isDebugEnabled()) {
-                log.debug("Error whilst decoding batch packet", e);
-            }*/
+            log.debug("Error whilst decoding batch packet", e);
         }
-
-
     }
 
     @Inject

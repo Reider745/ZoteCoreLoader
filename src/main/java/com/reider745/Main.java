@@ -3,15 +3,10 @@ package com.reider745;
 import cn.nukkit.Server;
 import cn.nukkit.network.Network;
 import cn.nukkit.network.protocol.ProtocolInfo;
-import com.reider745.api.hooks.Arguments;
 import com.reider745.api.hooks.HookClassLoader;
-import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.JarFileLoader;
-import com.reider745.api.hooks.annotation.Hooks;
-import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.hooks.*;
 import com.reider745.network.InnerCorePacket;
-import com.reider745.network.ItemStackRequestPacket;
 
 import java.io.File;
 
@@ -21,7 +16,6 @@ public class Main {
     public static class LoadingStages {
         public static void registerPacket(Network network){
             network.registerPacket(InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
-            network.registerPacket(ProtocolInfo.ITEM_STACK_REQUEST_PACKET, ItemStackRequestPacket.class);
         }
 
         public static void start(Server server) throws Exception {

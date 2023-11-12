@@ -3,7 +3,6 @@ package com.reider745.hooks;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.lang.TextContainer;
-import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 
@@ -11,10 +10,7 @@ import com.reider745.api.hooks.annotation.Hooks;
 public class PlayerHooks {
     @Inject
     public static void entityBaseTick(Player self, int tickDiff){
-        int tick = Server.getInstance().getTick();
 
-        if(tick % 20 == 0)
-            self.sendAllInventories();
     }
 
     @Inject

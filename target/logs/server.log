@@ -1,53 +1,18 @@
-2023-11-11 17:30:53.980 [main] INFO  - Loading server properties...
-2023-11-11 17:30:54.308 [main] INFO  - §b-- §cNukkit §dMOT §b--
-2023-11-11 17:30:55.640 [main] INFO  - Loading runtime blocks...
-2023-11-11 17:31:00.079 [main] INFO  - Loaded 0 resource packs
-2023-11-11 17:31:00.089 [main] INFO  - Opening server on 0.0.0.0:19132
-2023-11-11 17:31:01.482 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0x294d14ca]'
-2023-11-11 17:31:01.524 [main] INFO  - Enabling Nukkit-MOT vgit-7f0a965
-2023-11-11 17:31:01.576 [main] INFO  - Preparing level "§aworld§f"
-2023-11-11 17:31:02.021 [main] INFO  - Preparing level "§anether§f"
-2023-11-11 17:31:02.090 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
-2023-11-11 17:31:02.108 [main] INFO  - [INNERCORE-FILE]work directory check successful
-2023-11-11 17:31:02.188 [main] INFO  - modded server started (socket port 2304)
-2023-11-11 17:31:02.216 [main] INFO  - [INNERCORE]end load, time: 122
-2023-11-11 17:31:02.223 [main] INFO  - [INNERCORE]====Inner Core Test====
+2023-11-12 16:38:48.660 [main] INFO  - Loading server properties...
+2023-11-12 16:38:49.029 [main] INFO  - §b-- §cNukkit §dMOT §b--
+2023-11-12 16:38:50.157 [main] INFO  - Loading runtime blocks...
+2023-11-12 16:38:56.732 [main] INFO  - Loaded 0 resource packs
+2023-11-12 16:38:56.752 [main] INFO  - Opening server on 0.0.0.0:19132
+2023-11-12 16:38:59.402 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0xd023bf75]'
+2023-11-12 16:38:59.425 [main] INFO  - Enabling Nukkit-MOT vgit-7f0a965
+2023-11-12 16:38:59.481 [main] INFO  - Preparing level "§aworld§f"
+2023-11-12 16:39:00.146 [main] INFO  - Preparing level "§anether§f"
+2023-11-12 16:39:00.332 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
+2023-11-12 16:39:00.362 [main] INFO  - [INNERCORE-FILE]work directory check successful
+2023-11-12 16:39:00.697 [main] INFO  - modded server started (socket port 2304)
+2023-11-12 16:39:00.876 [main] INFO  - [INNERCORE]end load, time: 540
+2023-11-12 16:39:00.911 [main] INFO  - [INNERCORE]====Inner Core Test====
 version: 2.3.1b115 test   152
-2023-11-11 17:31:02.232 [main] INFO  - Done (8.303s)! For help, type "help"
-2023-11-11 17:31:02.979 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eThere is a new build of §cNukkit§3-§dMOT §eavailable! Current: git-7f0a965 Latest: git-8cac79a
-2023-11-11 17:31:02.982 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eYou can download the latest build from https://github.com/MemoriesOfTime/Nukkit-MOT/
-2023-11-11 17:31:26.026 [Thread-5] INFO  - server: client connection requested
-2023-11-11 17:31:26.102 [Thread-9] INFO  - socket receive:system.mod_list
-2023-11-11 17:31:26.104 [Thread-9] INFO  - system.mod_list
-2023-11-11 17:31:26.106 [Thread-9] INFO  - socket receive:system.inner_core_build
-2023-11-11 17:31:26.107 [Thread-9] INFO  - server: client connected player=-1
-2023-11-11 17:31:27.541 [main] INFO  - §bboss§f[/192.168.1.42:57684] [Protocol Version: 422 (1.16.200)] logged in
-2023-11-11 17:31:29.401 [Thread-9] INFO  - socket receive:system.player_entity
-2023-11-11 17:31:52.287 [main] INFO  - §eboss joined the game
-2023-11-11 17:32:10.344 [Network Listener - #0] INFO  - InventoryGetCreativeAction{creativeItemId=1}
-2023-11-11 17:32:10.351 [Network Listener - #0] INFO  - InventoryCraftingResultAction{resultItems=[Item Oak Wood Planks (5:0)x1], amount=1}
-2023-11-11 17:32:10.360 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=64, source=ItemStackRequestSlotInfo{windowId=59, slot=50, itemStackId=-5}, destination=ItemStackRequestSlotInfo{windowId=27, slot=4, itemStackId=0}}
-2023-11-11 17:32:27.824 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=64, source=ItemStackRequestSlotInfo{windowId=27, slot=4, itemStackId=-5}, destination=ItemStackRequestSlotInfo{windowId=13, slot=28, itemStackId=0}}
-2023-11-11 17:32:27.825 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=32, source=ItemStackRequestSlotInfo{windowId=13, slot=28, itemStackId=-7}, destination=ItemStackRequestSlotInfo{windowId=13, slot=30, itemStackId=0}}
-2023-11-11 17:32:28.674 [Network Listener - #0] INFO  - InventoryCraftAction{recipeId=680}
-2023-11-11 17:32:28.677 [Network Listener - #0] INFO  - InventoryCraftingResultAction{resultItems=[Item Stick (280:0)x4], amount=1}
-2023-11-11 17:32:28.677 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=false, amount=1, source=ItemStackRequestSlotInfo{windowId=13, slot=28, itemStackId=-9}, destination=null}
-2023-11-11 17:32:28.678 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=false, amount=1, source=ItemStackRequestSlotInfo{windowId=13, slot=30, itemStackId=-9}, destination=null}
-2023-11-11 17:32:28.679 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=4, source=ItemStackRequestSlotInfo{windowId=59, slot=50, itemStackId=-11}, destination=ItemStackRequestSlotInfo{windowId=12, slot=1, itemStackId=0}}
-2023-11-11 17:32:29.554 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=31, source=ItemStackRequestSlotInfo{windowId=13, slot=28, itemStackId=-11}, destination=ItemStackRequestSlotInfo{windowId=12, slot=0, itemStackId=0}}
-2023-11-11 17:32:29.556 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=5, source=ItemStackRequestSlotInfo{windowId=13, slot=30, itemStackId=-11}, destination=ItemStackRequestSlotInfo{windowId=12, slot=0, itemStackId=-13}}
-2023-11-11 17:32:29.557 [Network Listener - #0] INFO  - InventoryTransferAction{hasAmount=true, hasDestination=true, amount=26, source=ItemStackRequestSlotInfo{windowId=13, slot=30, itemStackId=-15}, destination=ItemStackRequestSlotInfo{windowId=12, slot=2, itemStackId=0}}
-2023-11-11 17:32:36.346 [main] INFO  - §eboss left the game
-2023-11-11 17:32:36.347 [main] INFO  - §bboss§f[/192.168.1.42:57684] logged out due to Disconnected from Server
-2023-11-11 17:32:39.991 [Thread-9] FATAL - [channel broke, panic] 
-java.io.EOFException: null
-	at java.io.DataInputStream.readUnsignedShort(DataInputStream.java:346) ~[?:?]
-	at java.io.DataInputStream.readUTF(DataInputStream.java:595) ~[?:?]
-	at java.io.DataInputStream.readUTF(DataInputStream.java:570) ~[?:?]
-	at com.zhekasmirnov.apparatus.multiplayer.channel.data.SocketDataChannel.receiveImpl(SocketDataChannel.java:32) ~[?:?]
-	at com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel.receive(DataChannel.java:49) [?:?]
-	at com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel.listenerLoop(DataChannel.java:118) [?:?]
-	at com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface.listenerLoop(ChannelInterface.java:58) [?:?]
-	at com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient.run(ConnectedClient.java:170) [?:?]
-2023-11-11 17:32:40.008 [Thread-9] INFO  - client disconnected, reason: IOException occurred: null
-2023-11-11 17:32:40.013 [Thread-9] INFO  - server: client disconnected player=-1 reason=IOException occurred: null
+2023-11-12 16:39:00.921 [main] INFO  - Done (12.333s)! For help, type "help"
+2023-11-12 16:39:01.540 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eThere is a new build of §cNukkit§3-§dMOT §eavailable! Current: git-7f0a965 Latest: git-8cac79a
+2023-11-12 16:39:01.543 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eYou can download the latest build from https://github.com/MemoriesOfTime/Nukkit-MOT/
