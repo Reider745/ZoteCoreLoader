@@ -1,5 +1,5 @@
-2023-11-11 17:02:19.771 [main] INFO  - Loading server properties...
-2023-11-11 17:02:20.180 [main] ERROR - Throwing
+2023-11-13 10:21:25.688 [main] INFO  - Loading server properties...
+2023-11-13 10:21:26.507 [main] ERROR - Throwing
 java.lang.VerifyError: Call to wrong <init> method
 Exception Details:
   Location:
@@ -23,5 +23,5 @@ Exception Details:
 	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
 	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
 	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
-	at com.reider745.api.hooks.JarFileLoader.run(JarFileLoader.java:274) [main/:?]
-	at com.reider745.Main.main(Main.java:75) [main/:?]
+	at com.reider745.api.hooks.JarFileLoader.run(JarFileLoader.java:298) [main/:?]
+	at com.reider745.Main.main(Main.java:69) [main/:?]

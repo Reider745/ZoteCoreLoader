@@ -24,7 +24,7 @@ public class MultiplayerPackVersionChecker {
                     String packVersionName = packInfo.optString("versionName");
                     int packVersionCode = packInfo.optInt("versionCode");
 
-                    if (!PackInfo.getPackName().equals(packName) ||
+                   /* if (!PackInfo.getPackName().equals(packName) ||
                         !PackInfo.getPackVersionName().equals(packVersionName) ||
                         PackInfo.getPackVersionCode() != packVersionCode) {
                         String message = "\n\n{{loc: multiplayer_innercore_version_mismatch}}\n" +
@@ -34,6 +34,16 @@ public class MultiplayerPackVersionChecker {
                                 "server version: " +
                                     PackInfo.getPackName() + " " + PackInfo.getPackVersionName() +
                                     " (code=" + PackInfo.getPackVersionCode() + ")\n";
+                        throw new InitializationPacketException(message);
+                    }*/
+                    if (PackInfo.getPackVersionCode() != packVersionCode) {
+                        String message = "\n\n{{loc: multiplayer_innercore_version_mismatch}}\n" +
+                                "client (your) version: " +
+                                packName + " " + packVersionName +
+                                " (code=" + packVersionCode + ")\n" +
+                                "server version: " +
+                                PackInfo.getPackName() + " " + PackInfo.getPackVersionName() +
+                                " (code=" + PackInfo.getPackVersionCode() + ")\n";
                         throw new InitializationPacketException(message);
                     }
                 } else {

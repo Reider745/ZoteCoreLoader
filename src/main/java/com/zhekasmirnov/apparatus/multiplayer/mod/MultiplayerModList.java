@@ -31,7 +31,6 @@ public class MultiplayerModList {
     static {
         Network.getSingleton().addClientInitializationPacket("system.mod_list", () -> getSingleton().toJson(),
             (client, data, dataType) -> {
-                if(InnerCoreConfig.isDevelop()) Logger.debug("system.mod_list");
                 if (data instanceof JSONObject) {
                     String compareResult = getSingleton().compareToJson((JSONObject) data);
                     /*if (compareResult != null) {

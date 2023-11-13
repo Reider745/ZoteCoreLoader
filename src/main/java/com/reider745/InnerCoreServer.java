@@ -14,12 +14,15 @@ import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerModList;
 import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerPackVersionChecker;
 import com.zhekasmirnov.apparatus.multiplayer.mod.RuntimeIdDataPacketSender;
+import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
+import com.zhekasmirnov.apparatus.multiplayer.server.InitializationPacketException;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.utils.FileTools;
+import org.json.JSONObject;
 
 public class InnerCoreServer {
     public static final int PROTOCOL = 422;
@@ -59,9 +62,9 @@ public class InnerCoreServer {
         NetworkEntity.loadClass();
         IdConversionMap.loadClass();
 
-
-
-
+        //JSONObject object = new JSONObject();
+        //object.put("fix", false);
+        //Network.getSingleton().addClientInitializationPacket("server_fixed.inventory", () -> object, (v ,v1) -> {});
 
         RuntimeIdDataPacketSender.loadClass();
         Network.getSingleton().startLanServer();
@@ -105,11 +108,17 @@ public class InnerCoreServer {
         NativeCallback.onTick();
     }
 
-    public static String getVersion(){
-        return "2.3.1b115";
+    public static int getVersionCode(){
+        return server.getPropertyInt("inner-core-version", 152);
+        //return 152;
+    }
+
+    public static String getVersionName(){
+        return server.getPropertyString("inner-core-version-name", "2.3.1b115 test");
     }
 
     public static String getName(){
-        return "Inner Core";
+        return server.getPropertyString("inner-core-pack-name", "Inner Core Test");
+        //return "Inner Core Test";
     }
 }

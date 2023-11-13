@@ -2,7 +2,6 @@ package com.reider745;
 
 import cn.nukkit.Server;
 import cn.nukkit.network.Network;
-import cn.nukkit.network.protocol.ProtocolInfo;
 import com.reider745.api.hooks.HookClassLoader;
 import com.reider745.api.hooks.JarFileLoader;
 import com.reider745.hooks.*;
@@ -61,7 +60,7 @@ public class Main {
 
         loader.registerHooksForClass(NetworkHooks.class);
         loader.registerHooksForClass(GlobalBlockPalette.class);
-        loader.registerHooksForClass(LoadingStage.class);
+        loader.registerHooksForClass(ServerHooks.class);
         loader.registerHooksForClass(Other.class);
         loader.registerHooksForClass(PlayerHooks.class);
 

@@ -66,4 +66,9 @@ public class DirectDataChannel extends DataChannel {
     public int getProtocolId() {
         return PROTOCOL_ID;
     }
+
+    @Override
+    public String getClient() {
+        return null;
+    }
 }

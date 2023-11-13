@@ -60,17 +60,13 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         //SetLocalPlayerAsInitializedPacket.clients.put(client, this);
 
 
-
-
-
-        /*this.addInitializationPacketListener("system.player_entity", (ConnectedClient client, Object data, Class<?> dataType) -> {
+        this.addInitializationPacketListener("system.player_entity", (ConnectedClient cl, Object data, Class<?> dataType) -> {
             try {
-                Logger.debug("system.player_entity");
                 playerUid = Long.parseLong(data.toString());
             } catch (NumberFormatException e) {
                 throw new InitializationPacketException("invalid player packet data: " + data, e);
             }
-        });*/
+        });
     }
 
     public void setClientState(ClientState state) {

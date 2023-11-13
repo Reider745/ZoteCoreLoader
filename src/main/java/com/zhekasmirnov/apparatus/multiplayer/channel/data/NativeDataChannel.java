@@ -40,4 +40,9 @@ public class NativeDataChannel extends DataChannel {
     public int getProtocolId() {
         return PROTOCOL_ID;
     }
+
+    @Override
+    public String getClient() {
+        return nativeImpl.getClient();
+    }
 }

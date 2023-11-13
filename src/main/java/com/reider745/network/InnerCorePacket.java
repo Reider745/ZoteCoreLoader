@@ -38,7 +38,7 @@ public class InnerCorePacket extends BasePacket {
         try{
             InetSocketAddress address = this.player.getSocketAddress();
 
-            String client = address.toString();
+            String client = address.getAddress().toString();
             addressHashMap.put(client, address);
             playerHashMap.put(client, player);
 
@@ -62,6 +62,11 @@ public class InnerCorePacket extends BasePacket {
     public static byte[] getCurrentNativePacketBytes(){
         return bytes_cache;
     }
+
+    public static Player getPlayerForId(String client){
+        return playerHashMap.get(client);
+    }
+
     public static void sendPacketToClient(String client, String name, int format_id, byte[] data){
         InnerCorePacket packet = new InnerCorePacket();
         packet.name = name;

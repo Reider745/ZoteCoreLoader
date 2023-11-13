@@ -6,17 +6,19 @@ import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 
 public class PackInfo {
     public static String getPackName() {
-        return "Inner Core Test";
+        return InnerCoreServer.getName();
+        //return "Inner Core Test";
         //return (String) InnerCoreConfig.get("name");
     }
 
     public static String getPackVersionName() {
-        return "2.3.1b115 test";
+        return InnerCoreServer.getVersionName();
+        //return "2.3.1b115 test";
         //return (String) InnerCoreConfig.get("version_name");
     }
 
     public static int getPackVersionCode() {
-        return  152;
+        return InnerCoreServer.getVersionCode();
         //return EngineConfig.getInt("version", Apparatus.getVersionCode());
     }
 
@@ -25,7 +27,6 @@ public class PackInfo {
     }
 
     public static String toInfo(){
-        return "===="+getPackName()+"====\n"+
-                "version: "+getPackVersionName()+"   "+getPackVersionCode();
+        return "===="+getPackName()+"===="+"version: "+getPackVersionName()+"   "+getPackVersionCode();
     }
 }

@@ -112,12 +112,12 @@ public abstract class DataChannel {
     protected abstract DataPacket receiveImpl() throws IOException;
     protected abstract void closeImpl() throws IOException;
     public abstract int getProtocolId();
+    public abstract String getClient();
 
     public void listenerLoop() {
         while (!isClosed) {
             DataPacket packet = receive();
             if (packet != null) {
-                Logger.debug("socket receive:"+packet.name);
                 synchronized (packetListeners) {
                     for (IPacketListener listener : packetListeners) {
                         listener.receive(packet);
