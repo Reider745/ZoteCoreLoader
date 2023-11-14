@@ -17,6 +17,7 @@ import com.zhekasmirnov.apparatus.multiplayer.server.ModdedServer;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -57,6 +58,10 @@ public class Network {
         });
 
         server.addOnClientConnectionRequestedListener((ConnectedClient client) -> {
+            JSONObject object = new JSONObject();
+            object.put("fix", true);
+            client.send("server_fixed.inventory", object);
+            //Network.getSingleton().addClientInitializationPacket("server_fixed.inventory", () -> object, (v ,v1) -> {});
             if (EngineConfig.isDeveloperMode()) {
                 Logger.debug("server: client connection requested");
             }

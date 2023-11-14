@@ -1,12 +1,14 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import cn.nukkit.network.protocol.SetLocalPlayerAsInitializedPacket;
+import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.*;
@@ -51,13 +53,6 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         this.server = server;
         this.channel = new ChannelInterface(channel);
         this.channel.addListener(this);
-
-
-        /*
-        Пометка для себя, сделать отключение, если не входишь с иннера
-         */
-
-        //SetLocalPlayerAsInitializedPacket.clients.put(client, this);
 
 
         this.addInitializationPacketListener("system.player_entity", (ConnectedClient cl, Object data, Class<?> dataType) -> {
