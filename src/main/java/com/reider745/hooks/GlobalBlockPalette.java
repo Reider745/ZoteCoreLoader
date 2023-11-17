@@ -6,6 +6,7 @@ import cn.nukkit.block.BlockID;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.io.ByteStreams;
+import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Hooks(class_name = "cn.nukkit.level.GlobalBlockPalette")
-public class GlobalBlockPalette {
+public class GlobalBlockPalette implements HookClass {
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
     private static final ArrayList<Pair<Integer, Long>> assignedRuntimeIds = new ArrayList<>();

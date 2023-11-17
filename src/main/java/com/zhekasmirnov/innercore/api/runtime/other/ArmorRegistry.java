@@ -90,7 +90,7 @@ public class ArmorRegistry {
             if (armorSlots[slot] != null) {
                 armorSlots[slot].destroy();
             }
-            armorSlots[slot] = new NativeItemInstance(NativeAPI.getPlayerArmor(slot));
+            //armorSlots[slot] = new NativeItemInstance(NativeAPI.getPlayerArmor(slot));
         }
     }
 

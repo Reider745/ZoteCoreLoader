@@ -1,19 +1,14 @@
 package com.reider745.api.hooks;
 
-import com.reider745.api.hooks.annotation.FieldPatched;
-import com.reider745.api.hooks.annotation.Hooks;
-import com.reider745.api.hooks.annotation.Inject;
-import com.reider745.api.hooks.annotation.Injects;
+import com.reider745.api.hooks.annotation.*;
 import javassist.*;
 import javassist.bytecode.*;
 
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class JarEditor {
@@ -31,11 +26,89 @@ public class JarEditor {
     }
 
     public static class RetNull {}
+    private static class HookData {
+        public String className, method,  sig;
+        public Method replaced;
+        public TypeHook typeHook;
+        public boolean controller;
+        public ArgumentTypes arguments_map;
+
+        public HookData(String className, String method, String sig, Method replaced, TypeHook typeHook, boolean controller, ArgumentTypes arguments_map){
+            this.className = className;
+            this.method = method;
+            this.sig = sig;
+            this.replaced = replaced;
+            this.typeHook = typeHook;
+            this.controller = controller;
+            this.arguments_map = arguments_map;
+        }
+    }
 
     private static final String NameController = HookController.class.getName();
     private static final String NameArgumentsMap = Arguments.class.getName();
+    private static final HashMap<String, ArrayList<HookData>> all_hooks = new HashMap<>();
 
-    public JarEditor registerHooksForClass(Class<?> clazz) {
+    private void addHookInitialization(String className, String method, String sig, Method replaced, TypeHook typeHook, boolean controller, ArgumentTypes arguments_map){
+        ArrayList<HookData> hooks = all_hooks.get(className);
+
+        if(hooks == null)
+           hooks = new ArrayList<>();
+
+        hooks.add(new HookData(className, method, sig, replaced, typeHook, controller, arguments_map));
+        all_hooks.put(className, hooks);
+    }
+
+    public JarEditor registerHooksInitializationForClass(Class<? extends HookClass> clazz) {
+        Annotation[] annotatedsClass = clazz.getAnnotations();
+        for(Annotation annotationClass : annotatedsClass)
+            if(annotationClass instanceof Hooks) {
+                String className = ((Hooks) annotationClass).class_name();
+                Method[] methods = clazz.getMethods();
+
+                for(Method method : methods){
+                    Annotation[] annotationsMethod = method.getAnnotations();
+
+                    for (Annotation annotationMethod : annotationsMethod)
+                        if(annotationMethod instanceof Inject inject){
+                            String method_name = inject.method();
+                            String className_ = inject.class_name();
+                            String sig = inject.signature();
+
+                            this.addHookInitialization(className_.equals("-1") ? className : className_, method_name.equals("-1") ? method.getName() : method_name, sig, method, inject.type_hook(), isController(method), inject.arguments_map());
+                        }else if(annotationMethod instanceof Injects inject){
+                            String method_name = inject.method();
+                            String className_ = inject.class_name();
+                            String[] sigs = inject.signature();
+                            String className__ = className_.equals("-1") ? className : className_;
+
+                            for(String sig : sigs)
+                                this.addHookInitialization(className__, method_name.equals("-1") ? method.getName() : method_name, sig, method, inject.type_hook(), isController(method), inject.arguments_map());
+                        }
+                }
+
+                Field[] fields = clazz.getFields();
+                for(Field field : fields){
+                    Annotation[] annotationsField = field.getAnnotations();
+                    for (Annotation annotationField : annotationsField){
+                        if(annotationField instanceof FieldPatched inject){
+                            String className_ = inject.class_name();
+                            replaceField(className_.equals("-1") ? className : className_, inject.name(), field);
+                        }
+                    }
+                }
+            }
+        return this;
+    }
+
+    public void init(){
+        all_hooks.forEach((key, list) -> {
+            System.out.println("====="+key+"=====");
+            list.forEach(data -> addHook(data.className, data.method, data.sig, data.replaced, data.typeHook, data.controller, data.arguments_map));
+        });
+    }
+
+
+    public JarEditor registerHooksForClass(Class<? extends HookClass> clazz) {
         Annotation[] annotatedsClass = clazz.getAnnotations();
         for(Annotation annotationClass : annotatedsClass)
             if(annotationClass instanceof Hooks) {

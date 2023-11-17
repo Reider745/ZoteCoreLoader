@@ -393,7 +393,7 @@ public class NativeCallback {
         Updatable.setPreferences(updatableMode,
                 updatableMode == Updatable.MODE_COUNT_BASED ? InnerCoreConfig.getInt("performance.max_update_count") : InnerCoreConfig.getInt("performance.max_update_time")
         );
-        allEntities.add(NativeAPI.getPlayer());
+        //allEntities.add(NativeAPI.getPlayer());
     }
 
     private static boolean isLocalTickDisabledDueToError = false;
@@ -511,8 +511,8 @@ public class NativeCallback {
             try {
                 // tick internal systems
                 InventorySource.tick();
-                ArmorRegistry.onTick();
-                WorldDataSaverHandler.getInstance().onTick();
+               // ArmorRegistry.onTick();
+               // WorldDataSaverHandler.getInstance().onTick();
 
                 // run callback and updatable
                 TickExecutor executor = TickExecutor.getInstance();

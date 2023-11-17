@@ -2,8 +2,11 @@ package com.reider745;
 
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import cn.nukkit.plugin.PluginBase;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.block.CustomBlock;
+import com.reider745.event.EventListener;
+import com.reider745.event.InnerCorePlugin;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
@@ -58,6 +61,9 @@ public class InnerCoreServer {
         long start = System.currentTimeMillis();
         server.getLogger().info("start load inner core "+server.getDataPath());;
         PATH = server.getDataPath();
+        InnerCorePlugin plugin = new InnerCorePlugin();
+        plugin.setEnabled(true);
+        server.getPluginManager().registerEvents(new EventListener(), plugin);
 
         ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
 

@@ -48,13 +48,14 @@ public class Main {
 
         JarEditor loader = new JarEditor();
 
-        loader.registerHooksForClass(NetworkHooks.class);
-        loader.registerHooksForClass(GlobalBlockPalette.class);
-        loader.registerHooksForClass(ServerHooks.class);
-        loader.registerHooksForClass(Other.class);
-        loader.registerHooksForClass(PlayerHooks.class);
+        loader.registerHooksInitializationForClass(NetworkHooks.class);
+        loader.registerHooksInitializationForClass(GlobalBlockPalette.class);
+        loader.registerHooksInitializationForClass(ServerHooks.class);
+        loader.registerHooksInitializationForClass(Other.class);
+        loader.registerHooksInitializationForClass(PlayerHooks.class);
+        loader.registerHooksInitializationForClass(CallbackHooks.class);
 
-
+        loader.init();
         loader.run("cn.nukkit.Nukkit", args);
 
 

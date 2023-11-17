@@ -10,6 +10,7 @@ import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.VarInt;
 import com.reider745.Main;
 import com.reider745.api.hooks.Arguments;
+import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
@@ -23,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Hooks(class_name = "cn.nukkit.network.Network")
-public class NetworkHooks {
+public class NetworkHooks implements HookClass {
     @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type_hook = TypeHook.BEFORE_REPLACE)
     public static void processBatch(Network self, byte[] payload, Collection<DataPacket> packets, CompressionProvider compression, int raknetProtocol, Player player){
         MainLogger log = Server.getInstance().getLogger();

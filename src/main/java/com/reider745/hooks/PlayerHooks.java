@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.network.protocol.DataPacket;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
@@ -15,7 +16,7 @@ import com.zhekasmirnov.innercore.api.NativeCallback;
 import java.util.List;
 
 @Hooks(class_name = "cn.nukkit.Player")
-public class PlayerHooks {
+public class PlayerHooks implements HookClass {
     private static boolean isAddres(String addres1, String addres2){
         String[] split1 = addres1.split(":");
         String[] split2 = addres2.split(":");

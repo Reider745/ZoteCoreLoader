@@ -3,6 +3,7 @@ package com.zhekasmirnov.apparatus.mcpe;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
+import com.reider745.world.BlockSourceMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
@@ -445,7 +446,7 @@ public class NativeBlockSource {
 
 
     private static Level constructNew(int dimension, boolean b1, boolean b2){
-        return Server.getInstance().getLevel(dimension);
+        return BlockSourceMethods.getLevelForDimension(dimension);
     }
     private static Level nativeGetForCurrentThread(){
         return level_current;
