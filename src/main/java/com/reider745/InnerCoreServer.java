@@ -164,4 +164,16 @@ public class InnerCoreServer {
         return server.getPropertyString("inner-core-pack-name", "Inner Core Test");
         //return "Inner Core Test";
     }
+
+    public static void useNotSupport(String name){
+        throw new RuntimeException("Use not support multiplayer method "+name);
+    }
+
+    public static void useClientMethod(String name){
+        throw new RuntimeException("Use client method "+name);
+    }
+
+    public static void useHzMethod(String name){
+        throw new RuntimeException("В душе не ебу что делает данный метод, поэтому ты это сейчас читаешь "+name);
+    }
 }

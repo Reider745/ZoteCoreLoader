@@ -1,5 +1,6 @@
 package com.reider745.item;
 
+import cn.nukkit.block.Block;
 import cn.nukkit.command.data.CommandEnum;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
@@ -28,14 +29,14 @@ public class ItemMethod {
     }
 
     public static String getStringIdAndTypeForIntegerId(int id){
-        /*Item item = Item.get(id);
+        Item item = Item.get(id);
         if(item != null){
             boolean isBlock = item instanceof ItemBlock;
-            String id = null;
-            if(isBlock)
-                id = CommandEnum.E
+            //String id = null;
+            //if(isBlock)
+               // id = CommandEnum.E
             return (isBlock ? "block" : "item") + " :" + id;
-        }*/
+        }
         return null;
     }
 }
