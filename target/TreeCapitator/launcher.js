@@ -1,5 +1,0 @@
-ConfigureMultiplayer({
-	isClientOnly: false
-});
-
-Launch();

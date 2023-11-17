@@ -1,6 +1,5 @@
 package com.reider745.api.hooks;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Arguments extends HashMap<String, Object> {
@@ -17,7 +16,7 @@ public class Arguments extends HashMap<String, Object> {
             ShortName = Short.class.getName(),
             LongName = Short.class.getName(),
             CharacterName = Character.class.getName(),
-            RetNullName = JarFileLoader.RetNull.class.getName(),
+            RetNullName = JarEditor.RetNull.class.getName(),
             ObjectName = Object.class.getName();
 
 

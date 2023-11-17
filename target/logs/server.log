@@ -1,31 +1,49 @@
-2023-11-14 12:50:20.929 [main] INFO  - Loading server properties...
-2023-11-14 12:50:21.440 [main] INFO  - §b-- §cNukkit §dMOT §b--
-2023-11-14 12:50:24.120 [main] INFO  - Loading runtime blocks...
-2023-11-14 12:50:38.439 [main] INFO  - Loaded 0 resource packs
-2023-11-14 12:50:38.553 [main] INFO  - Opening server on 0.0.0.0:19132
-2023-11-14 12:50:43.292 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0xfcb34516]'
-2023-11-14 12:50:43.373 [main] INFO  - Enabling Nukkit-MOT vgit-7f0a965
-2023-11-14 12:50:43.556 [main] INFO  - Preparing level "§aworld§f"
-2023-11-14 12:50:46.276 [main] INFO  - Preparing level "§anether§f"
-2023-11-14 12:50:46.447 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
-2023-11-14 12:50:46.878 [main] INFO  - [INNERCORE-FILE]work directory check successful
-2023-11-14 12:50:47.668 [main] INFO  - modded server started (socket port 2304)
-2023-11-14 12:50:47.710 [main] INFO  - [INNERCORE]end load, time: 1269
-2023-11-14 12:50:47.718 [main] INFO  - [INNERCORE]====Inner Core Test====version: 2.3.1b115 test   152
-2023-11-14 12:50:47.725 [main] INFO  - Done (26.86s)! For help, type "help"
-2023-11-14 12:50:48.136 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eThere is a new build of §cNukkit§3-§dMOT §eavailable! Current: git-7f0a965 Latest: git-8cac79a
-2023-11-14 12:50:48.140 [ForkJoinPool.commonPool-worker-1] INFO  - §c[Nukkit-MOT][Update] §eYou can download the latest build from https://github.com/MemoriesOfTime/Nukkit-MOT/
-2023-11-14 12:51:32.210 [Network Listener - #0] INFO  - client connected via native protocol
-2023-11-14 12:51:32.217 [Network Listener - #0] INFO  - server: client connection requested
-2023-11-14 12:51:32.229 [main] WARN  - Ignoring InnerCorePacket from 192.168.1.42 due to player not verified yet
-2023-11-14 12:51:32.430 [main] WARN  - Ignoring InnerCorePacket from 192.168.1.42 due to player not verified yet
-2023-11-14 12:51:32.432 [main] WARN  - Ignoring InnerCorePacket from 192.168.1.42 due to player not verified yet
-2023-11-14 12:51:33.682 [main] INFO  - §bboss maincraft§f[/192.168.1.42:55116] [Protocol Version: 422 (1.16.200)] logged in
-2023-11-14 12:51:33.704 [main] WARN  - It is not possible to get the player's port
-2023-11-14 12:51:35.293 [Thread-9] INFO  - server: client connected player=1
-2023-11-14 12:51:53.180 [main] INFO  - §eboss maincraft joined the game
-2023-11-14 12:57:16.435 [main] WARN  - It is not possible to get the player's port
-2023-11-14 12:57:16.531 [main] INFO  - §eboss maincraft left the game
-2023-11-14 12:57:16.549 [main] INFO  - §bboss maincraft§f[/192.168.1.42:55116] logged out due to Disconnected from Server
-2023-11-14 12:57:16.560 [Thread-9] INFO  - client disconnected, reason: IOException occurred: native channel "client:/192.168.1.42" closed (manually)
-2023-11-14 12:57:17.154 [Thread-9] INFO  - server: client disconnected player=1 reason=IOException occurred: native channel "client:/192.168.1.42" closed (manually)
+2023-11-17 11:03:44.904 [main] INFO  - Loading server properties...
+2023-11-17 11:03:45.870 [main] INFO  - §b-- §cNukkit §dMOT §b--
+2023-11-17 11:03:49.220 [main] INFO  - Loading runtime blocks...
+2023-11-17 11:04:03.599 [main] INFO  - Loaded 0 resource packs
+2023-11-17 11:04:03.617 [main] INFO  - Opening server on 0.0.0.0:19132
+2023-11-17 11:04:07.786 [main] WARN  - Unknown channel option 'IP_DONTFRAG' for channel '[id: 0x7947d72d]'
+2023-11-17 11:04:07.829 [main] INFO  - Enabling Nukkit-MOT vgit-8cac79a
+2023-11-17 11:04:07.872 [main] WARN  - Level "world" not found
+2023-11-17 11:04:08.008 [main] INFO  - Preparing level "§aworld§f"
+2023-11-17 11:04:08.814 [main] INFO  - Preparing level "§anether§f"
+2023-11-17 11:04:09.363 [main] INFO  - start load inner core C:\vs\ZotCoreLoader_2\target/
+2023-11-17 11:04:11.058 [main] INFO  - [INNERCORE-FILE]work directory check successful
+2023-11-17 11:04:11.224 [main] INFO  - modded server started (socket port 2304)
+2023-11-17 11:04:11.356 [main] INFO  - [INNERCORE-API]Register Mod API: AdaptedScript
+2023-11-17 11:04:11.357 [main] INFO  - [INNERCORE-API]Register Mod API: PrefsWinAPI
+2023-11-17 11:04:11.358 [main] INFO  - [INNERCORE-API]Register Mod API: CoreEngine
+2023-11-17 11:04:11.358 [main] INFO  - [INNERCORE-API]Register Mod API: Preloader
+2023-11-17 11:04:11.427 [main] INFO  - [INNERCORE-MOD]found 0 potential mod dirs.
+2023-11-17 11:04:11.486 [main] INFO  - Preparing...:0.65
+2023-11-17 11:04:11.489 [main] INFO  - [TRANSLATION] failed to get language settings from file, trying native method
+2023-11-17 11:04:11.494 [main] INFO  - [TRANSLATION] set game language to en (full name is en)
+2023-11-17 11:04:11.497 [main] INFO  - [PROFILING] switched into new loading stage: stage=STAGE_FINAL_LOADING
+2023-11-17 11:04:11.546 [main] INFO  - [VanillaIdConversionMap] loaded ids from asset innercore/id/numeric_ids.json
+2023-11-17 11:04:11.577 [main] INFO  - [VanillaIdConversionMap] loaded ids from asset innercore/id/numeric_ids_override_0.json
+2023-11-17 11:04:11.578 [main] INFO  - Not resource innercore/id/numeric_ids_override_1.json
+2023-11-17 11:04:11.580 [main] INFO  - Not resource innercore/numeric_ids.json
+2023-11-17 11:04:11.618 [main] INFO  - [INNERCORE-BLOCKS] reading saved mappings...
+2023-11-17 11:04:11.734 [main] INFO  - [VanillaIdConversionMap] loaded ids from asset innercore/id/numeric_ids.json
+2023-11-17 11:04:11.737 [main] INFO  - [VanillaIdConversionMap] loaded ids from asset innercore/id/numeric_ids_override_0.json
+2023-11-17 11:04:11.738 [main] INFO  - Not resource innercore/id/numeric_ids_override_1.json
+2023-11-17 11:04:11.738 [main] INFO  - Not resource innercore/numeric_ids.json
+2023-11-17 11:04:11.767 [main] INFO  - Running Core Engine...:0.4
+2023-11-17 11:04:11.768 [main] INFO  - [CORE-ENGINE]started loading
+2023-11-17 11:04:13.002 [main] INFO  - [INNERCORE-API] loading API: AdaptedScript
+2023-11-17 11:04:13.003 [main] INFO  - [INNERCORE-API] adding executable: api=AdaptedScript exec=Core Engine
+2023-11-17 11:04:13.163 [main] INFO  - [CoreEngine-DataScripts] successfully loaded data script blocks-and-tools.js for version 16 length=37337
+2023-11-17 11:04:13.266 [main] INFO  - [CoreEngine-DataScripts] successfully loaded data script liquid-registry-data.js for version 16 length=1001
+2023-11-17 11:04:13.271 [main] INFO  - [API] World API switched into in-menu mode
+2023-11-17 11:04:13.283 [main] INFO  - [CoreEngine-DataScripts] successfully loaded data script vanilla-recipes.js for version 16 length=3054
+2023-11-17 11:04:13.287 [main] INFO  - [CoreEngine] Adding vanilla recipes
+2023-11-17 11:04:13.316 [main] INFO  - [CORE-ENGINE]successfully extracted and loaded in 1544 ms
+2023-11-17 11:04:13.317 [main] INFO  - Running Mods...:0.5
+2023-11-17 11:04:13.318 [main] INFO  - Defining Blocks...:1.0
+2023-11-17 11:04:13.322 [main] INFO  - [INNERCORE-BLOCKS] complete
+2023-11-17 11:04:13.323 [main] INFO  - Generating Icons...:1.0
+2023-11-17 11:04:13.323 [main] INFO  - Post Initialization...:1.0
+2023-11-17 11:04:13.356 [main] INFO  - [INNERCORE]end load, time: 3993
+2023-11-17 11:04:13.363 [main] INFO  - [INNERCORE]====Inner Core Test====version: 2.3.1b115 test   152
+2023-11-17 11:04:13.367 [main] INFO  - Done (28.598s)! For help, type "help"

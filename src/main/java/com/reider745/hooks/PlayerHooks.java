@@ -49,8 +49,8 @@ public class PlayerHooks {
 
     @Inject
     public static void close(Player self, TextContainer message, String reason, boolean notify){
-        ConnectedClient client = getForPlayer(self);
+        /*ConnectedClient client = getForPlayer(self);
         if(client != null)
-            client.getChannelInterface().close();
+            client.getChannelInterface().close();*/
     }
 }
