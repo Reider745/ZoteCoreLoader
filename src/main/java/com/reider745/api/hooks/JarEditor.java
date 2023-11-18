@@ -288,7 +288,7 @@ public class JarEditor {
                         if(sig.equals("-1"))
                             arguments_types = getTypesArguments(ctmBuffer.getParameterTypes());
 
-                        if(typeHook == TypeHook.AUTO) typeHook = TypeHook.BEFORE;
+                        if(typeHook == TypeHook.AUTO) typeHook = TypeHook.BEFORE_NOT_REPLACE;
 
                         String code = getCode(replaced, arguments, arguments_types, "void", typeHook, isStatic, controller, arguments_map);
                         switch (typeHook) {
@@ -296,7 +296,7 @@ public class JarEditor {
                             case AFTER, AFTER_NOT_REPLACE -> ctmBuffer.insertAfter(code);
                             default -> throw new RuntimeException("Что-то пошло не так, пиздуй ищи ошибку!");
                         }
-
+                        ctmBuffer.getMethodInfo().rebuildStackMap(ClassPool.getDefault());
                         System.out.println("Success register hook for "+method+sig + " "+typeHook.name());
                         return;
                     } else {

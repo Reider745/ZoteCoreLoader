@@ -40,7 +40,7 @@ public class SocketServer {
                      Socket socket;
                      try {
                          socket = serverSocket.accept();
-                     } catch (IOException exception) {
+                     } catch (Exception exception) {
                          continue;
                      }
 

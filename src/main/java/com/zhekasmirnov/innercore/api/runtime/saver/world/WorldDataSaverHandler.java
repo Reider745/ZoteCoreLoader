@@ -100,10 +100,10 @@ public class WorldDataSaverHandler {
         if (worldDataSaver != null) {
             //OperationTimeLogger logger = new OperationTimeLogger(false).start();
             worldDataSaver.saveAllData(true);
-            Logger.debug("saving all mod data done in %f seconds");
+            //Logger.debug("saving all mod data done in %f seconds");
             if (autoSaveMinecraftWorld) {
                 NativeAPI.forceLevelSave();
-                Logger.debug("minecraft world done in %f seconds");
+                //Logger.debug("minecraft world done in %f seconds");
             }
         } else {
             reportUnexpectedStateError("World data saver was not initialized during runWorldAndDataSave() call");

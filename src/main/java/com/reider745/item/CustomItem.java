@@ -4,11 +4,12 @@ package com.reider745.item;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.item.food.FoodNormal;
+import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 
 import java.util.*;
 
-public class CustomItem extends Item {
+public class CustomItem {
 
 
     public static HashMap<Integer, CustomManager> items = new HashMap<>();
@@ -27,7 +28,7 @@ public class CustomItem extends Item {
     public static HashMap<String, ArrayList<Integer>> categories = new HashMap<>();
 
     public static boolean isCreativeItemModded(Item item){
-        boolean is = isCreativeItem(item);
+        boolean is = Item.isCreativeItem(item);
         if(!is){
             for (int[] _item : creative) {
                 if(_item[0] == item.getId() && _item[2] == item.getDamage())
@@ -80,8 +81,6 @@ public class CustomItem extends Item {
 
     public static void initCreativeItems(){
         //BlockStorage.forEach((id, block) -> Item.list[id] = block);
-        CustomItem.init();
-
         ArrayList<int[]> sortAddedToCreative = new ArrayList<>();
 
         ArrayList<Integer> blackListItemIndex = new ArrayList<>();
@@ -125,7 +124,7 @@ public class CustomItem extends Item {
             sortAddedToCreative.add(item);
         }
 
-        sortAddedToCreative.forEach(item -> Item.addCreativeItem(Item.get(item[0], item[2], item[1])));
+        sortAddedToCreative.forEach(item -> Item.addCreativeItem(Item.v1_16_0, Item.get(item[0], item[2], item[1])));
     }
 
     public static CustomManager registerItem(String textId, int id, String name, Class item){
@@ -142,41 +141,15 @@ public class CustomItem extends Item {
     }
 
     public static CustomManager registerItem(String textId, int id, String name){
-        return registerItem(textId, id, name, CustomItem.class);
+        return registerItem(textId, id, name, CustomItemClass.class);
     }
 
     public static CustomManager registerItemFood(String textId, int id, String name, int food){
         CustomManager manager = registerItem(textId, id, name);
-       // Food.registerDefaultFood(new FoodNormal(food, 4)).addRelative(id);
+        Food.registerFood(new FoodNormal(food, 4), InnerCoreServer.plugin).addRelative(id);
         return manager;
     }
 
 
-    private CustomManager parameters;
-
-    public CustomItem(int id, Integer meta, int count) {
-        super(id, meta, count, getItemManager(id).get("name", "InnerCore item"));
-
-        parameters = getItemManager(id);
-        this.name = parameters.get("name", "InnerCore item");
-    }
-
-    @Override
-    public int getMaxDurability() {
-        return parameters.get("max_damage");
-    }
-
-    @Override
-    public int getMaxStackSize() {
-        return parameters.get("max_stack");
-    }
-
-    @Override
-    public Item clone() {
-        CustomItem item = (CustomItem) super.clone();
-        item.parameters = parameters;
-        item.name = name;
-        item.meta = meta;
-        return item;
-    }
+    /**/
 }

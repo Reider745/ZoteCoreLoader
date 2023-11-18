@@ -15,8 +15,16 @@ public class Main {
             network.registerPacket(InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
         }
 
-        public static void start(Server server) throws Exception {
+        public static void preRegister(Server server) throws Exception {
             innerCoreServer.preLoad(server);
+        }
+
+        public static void postRegister(Server server){
+            innerCoreServer.postLoad();
+        }
+
+        public static void start(Server server)  {
+            innerCoreServer.start();
         }
 
         public static void stop(Server server) throws Exception {
@@ -61,6 +69,7 @@ public class Main {
         loader.registerHooksInitializationForClass(Other.class);
         loader.registerHooksInitializationForClass(PlayerHooks.class);
         loader.registerHooksInitializationForClass(CallbackHooks.class);
+        loader.registerHooksInitializationForClass(RuntimeItemsHooks.class);
 
         loader.init();
         loader.run("cn.nukkit.Nukkit", args);

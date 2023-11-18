@@ -12,9 +12,15 @@ import com.reider745.api.hooks.annotation.Hooks;
 public class ServerHooks implements HookClass {
     @Inject
     public static void start(Server self) throws Exception {
+        Main.LoadingStages.postRegister(self);
         Main.LoadingStages.start(self);
     }
-    //
+
+    @Inject
+    public static void registerEntities() throws Exception{
+        Main.LoadingStages.preRegister(Server.getInstance());
+    }
+
     @Inject
     public static int getPropertyInt(Server server, String variable, Integer defaultValue){
         if(variable.equals("multiversion-min-protocol") || variable.equals("multiversion-max-protocol"))

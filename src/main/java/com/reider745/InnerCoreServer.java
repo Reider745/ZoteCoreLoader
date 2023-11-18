@@ -37,11 +37,14 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.*;
 import java.util.HashMap;
 
 public class InnerCoreServer {
     public static final int PROTOCOL = 422;
+
+    public static InnerCorePlugin plugin;
 
     public static String PATH;
     public static Server server;
@@ -79,7 +82,7 @@ public class InnerCoreServer {
         ICLog.server = server;
         com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
 
-        InnerCorePlugin plugin = new InnerCorePlugin();
+        plugin = new InnerCorePlugin();
         plugin.setEnabled(true);
 
         HashMap<String, Object> configs = new HashMap<>();
@@ -89,7 +92,6 @@ public class InnerCoreServer {
         configs.put("api", null);
 
         plugin.init(null, server, new PluginDescription(configs), null, null);
-        server.getPluginManager().registerEvents(new EventListener(), plugin);
 
         ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
         try {
@@ -163,14 +165,27 @@ public class InnerCoreServer {
     public void postLoad(){
         Logger.debug("Post loaded innercore...");
 
-        Item.clearCreativeItems();
-
+        //Item.clearCreativeItems();
+        CustomItem.init();
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
         CustomItem.initCreativeItems();
 
+        /*Class<Item> itemClass = Item.class;
+        try{
+            Method method = itemClass.getMethod("initCreativeItems");
+            method.setAccessible(true);
+            method.invoke(null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
+
         //Item.initCreativeItems();
         NativeCallback.onLevelCreated();
+    }
+
+    public void start(){
+        server.getPluginManager().registerEvents(new EventListener(), plugin);
     }
 
     public void onPlayerEat(int food, float radio, long player){
