@@ -58,7 +58,8 @@ public class JarEditor {
         all_hooks.put(className, hooks);
     }
 
-    public JarEditor registerHooksInitializationForClass(Class<? extends HookClass> clazz) {
+    public JarEditor registerHooksInitializationForClass(Class<? extends HookClass> clazz) throws InstantiationException, IllegalAccessException {
+        HookClass instance = clazz.newInstance();
         Annotation[] annotatedsClass = clazz.getAnnotations();
         for(Annotation annotationClass : annotatedsClass)
             if(annotationClass instanceof Hooks) {
@@ -86,16 +87,7 @@ public class JarEditor {
                         }
                 }
 
-                Field[] fields = clazz.getFields();
-                for(Field field : fields){
-                    Annotation[] annotationsField = field.getAnnotations();
-                    for (Annotation annotationField : annotationsField){
-                        if(annotationField instanceof FieldPatched inject){
-                            String className_ = inject.class_name();
-                            replaceField(className_.equals("-1") ? className : className_, inject.name(), field);
-                        }
-                    }
-                }
+                replaceField(className, instance);
             }
         return this;
     }
@@ -108,7 +100,8 @@ public class JarEditor {
     }
 
 
-    public JarEditor registerHooksForClass(Class<? extends HookClass> clazz) {
+    public JarEditor registerHooksForClass(Class<? extends HookClass> clazz) throws InstantiationException, IllegalAccessException {
+        HookClass instance = clazz.newInstance();
         Annotation[] annotatedsClass = clazz.getAnnotations();
         for(Annotation annotationClass : annotatedsClass)
             if(annotationClass instanceof Hooks) {
@@ -137,16 +130,7 @@ public class JarEditor {
                         }
                 }
 
-                Field[] fields = clazz.getFields();
-                for(Field field : fields){
-                    Annotation[] annotationsField = field.getAnnotations();
-                    for (Annotation annotationField : annotationsField){
-                        if(annotationField instanceof FieldPatched inject){
-                            String className_ = inject.class_name();
-                            replaceField(className_.equals("-1") ? className : className_, inject.name(), field);
-                        }
-                    }
-                }
+               replaceField(className, instance);
             }
         return this;
     }
@@ -252,18 +236,20 @@ public class JarEditor {
         return parameters.length-(!isStatic ? 0 : 1) != types.length+(isController ? 1 : 0);
     }
 
-    private void replaceField(String className, String name, Field field_replaced) {
+    private void replaceField(String className, HookClass field_replaced) {
         try {
             CtClass ctClass = cp.get(className);
 
-            CtField ctField = ctClass.getDeclaredField(name);
-            ctClass.removeField(ctField);
-            ctClass.addField(ctField, (String) field_replaced.get(null));
+            CtField[] ctField = ctClass.getDeclaredFields();
+            try {
+                for (CtField field : ctField)
+                    field_replaced.rebuildField(ctClass, field);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
-            System.out.println("Success patched "+name+", for "+className);
+            ctClass.rebuildClassFile();
         }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("Failed patched "+name+", for "+className);
         }
 
     }

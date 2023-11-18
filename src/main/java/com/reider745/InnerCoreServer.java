@@ -1,10 +1,12 @@
 package com.reider745;
 
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
 import cn.nukkit.item.Item;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.plugin.PluginDescription;
 import cn.nukkit.plugin.PluginManager;
+import com.reider745.api.ReflectHelper;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.block.CustomBlock;
 import com.reider745.event.EventListener;
@@ -153,8 +155,6 @@ public class InnerCoreServer {
         ModLoader.prepareResourcesViaNewModLoader();
         new AsyncModLauncher().launchModsInCurrentThread();
 
-        CustomBlock.init();
-
         Updatable.init();
         NativeCallback.onLocalServerStarted();
 
@@ -166,6 +166,7 @@ public class InnerCoreServer {
         Logger.debug("Post loaded innercore...");
 
         //Item.clearCreativeItems();
+        CustomBlock.init();
         CustomItem.init();
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();

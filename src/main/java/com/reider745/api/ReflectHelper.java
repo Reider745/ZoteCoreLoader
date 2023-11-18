@@ -23,4 +23,25 @@ public class ReflectHelper {
             e.printStackTrace();
         }
     }
+
+    public static <T>T getField(Class<?> self, String name) {
+        try{
+            Field field = self.getDeclaredField(name);
+            field.setAccessible(true);
+            return (T) field.get(null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static <T>void setField(Class<?> self, String name, T v) {
+        try{
+            Field field = self.getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(null, v);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }

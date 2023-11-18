@@ -21,6 +21,10 @@ public class CustomManager {
         return value;
     }
 
+    public Class getClazz() {
+        return clazz;
+    }
+
     public <T>T get(String key){
         return (T) parameters.get(key);
     }

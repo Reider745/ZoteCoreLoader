@@ -6,21 +6,59 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Level;
 import com.reider745.api.CustomManager;
+import com.reider745.api.ReflectHelper;
 import com.zhekasmirnov.innercore.api.NativeBlock;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class CustomBlock extends BlockSolidMeta {
+public class CustomBlock extends BlockSolidMeta implements RandomTick {
     public static HashMap<Integer, CustomManager> blocks = new HashMap<>();
+
+    public static void registerBlock(int id, Block block){
+        registerBlock(id, 0, block);
+    }
+
+    public static void registerBlock(int id, int data, Block block){
+        Block.list[id] = block.getClass();
+        //blocks.put(id+":"+data, block);
+        int fullId = (id << DATA_BITS) | data;
+        fullList[fullId] = block;
+        Block.hasMeta[id] = true;
+
+        Block.solid[id] = block.isSolid();
+        Block.transparent[id] = block.isTransparent();
+        hardness[id] = block.getHardness();
+        Block.light[id] = block.getLightLevel();
+
+        boolean[] randomTickBlocks = ReflectHelper.getField(Level.class, "randomTickBlocks");
+
+        if(block instanceof RandomTick randomTick)
+            randomTickBlocks[id] = randomTick.canRandomTickBlocks();
+
+        if (block.isSolid()) {
+            if (block.isTransparent()) {
+                if (block instanceof BlockLiquid || block instanceof BlockIce) {
+                    Block.lightFilter[id] = 2;
+                } else {
+                    Block.lightFilter[id] = 1;
+                }
+            } else {
+                Block.lightFilter[id] = 15;
+            }
+        } else {
+            Block.lightFilter[id] = 1;
+        }
+    }
+
 
     public static void init(){
         blocks.forEach((id, value) -> {
             CustomManager manager = getBlockManager(id);
             ArrayList<String> variants = getVariants(manager);
-            /*for(int data = 0;data < variants.size();data++)
-                BlockStorage.registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));*/
+            for(int data = 0;data < variants.size();data++)
+                registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));
         });
     }
 
@@ -78,10 +116,10 @@ public class CustomBlock extends BlockSolidMeta {
         TickingTile = manager.get("TickingTile:"+meta, false);
     }
 
-    /*@Override
+    @Override
     public boolean canRandomTickBlocks() {
         return TickingTile;
-    }*/
+    }
 
     @Override
     public String getName() {

@@ -1,11 +1,13 @@
 package com.reider745.item;
 
 //import cn.nukkit.blockstate.BlockStorage;
+import cn.nukkit.block.Block;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.item.food.FoodNormal;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
+import com.reider745.block.CustomBlock;
 
 import java.util.*;
 
@@ -16,6 +18,10 @@ public class CustomItem {
 
     public static void init(){
         items.forEach((key, value) -> Item.list[key] = value.clazz);
+        CustomBlock.blocks.forEach((id, manager) -> {
+            System.out.println(id);
+            Item.list[id] = manager.getClazz();
+        });
     }
 
     public static CustomManager getItemManager(int id){
@@ -80,7 +86,6 @@ public class CustomItem {
     public static final String TECHNICAL_GROUP = "technical_modded_item";
 
     public static void initCreativeItems(){
-        //BlockStorage.forEach((id, block) -> Item.list[id] = block);
         ArrayList<int[]> sortAddedToCreative = new ArrayList<>();
 
         ArrayList<Integer> blackListItemIndex = new ArrayList<>();

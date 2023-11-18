@@ -11,6 +11,7 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
+import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -33,7 +34,7 @@ public class RuntimeItemsHooks implements HookClass {
             }
             size++;
         }
-        paletteBuffer.putUnsignedVarInt(size + CustomItem.customItems.size());
+        paletteBuffer.putUnsignedVarInt(size + CustomItem.customItems.size() + CustomBlock.customBlocks.size() * 16);
         for (RuntimeItemMapping.RuntimeEntry entry : itemPaletteEntries) {
             if (entry.isCustomItem()) {
                 if (Server.getInstance().enableExperimentMode && protocolId >= ProtocolInfo.v1_16_100) {
@@ -74,6 +75,28 @@ public class RuntimeItemsHooks implements HookClass {
             identifier2Legacy.put(name, legacyEntry);
 
             legacy2Runtime.put(fullId, new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false));
+        });
+
+        CustomBlock.customBlocks.forEach((name, id) -> {
+            for (int data = 0; data < 16; data++) {
+                paletteBuffer.putString(name);
+                paletteBuffer.putLShort(id);
+                paletteBuffer.putBoolean(false); // Component item
+
+                int fullId = RuntimeItems.getFullId(id, data);
+                int legacyId = (id << 1) | 0;
+                int runtimeId = id;
+
+                runtimeId2Name.put(runtimeId, name);
+                name2RuntimeId.put(name, runtimeId);
+
+                RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, 0);
+
+                runtime2Legacy.put(runtimeId, legacyEntry);
+                identifier2Legacy.put(name, legacyEntry);
+
+                legacy2Runtime.put(fullId, new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false));
+            }
         });
         ReflectHelper.setField(self, "itemPalette", paletteBuffer.getBuffer());
     }
