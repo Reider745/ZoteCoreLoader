@@ -177,11 +177,11 @@ public class NativeBlockSource {
     }
 
     public int getBlockId(int x, int y, int z) {
-        return getBlockId(pointer, x, y, z);
+        return BlockSourceMethods.getBlockId(pointer, x, y, z);
     }
 
     public int getBlockID(int x, int y, int z) {
-        return getBlockId(pointer, x, y, z);
+        return BlockSourceMethods.getBlockId(pointer, x, y, z);
     }
 
     public int getBlockData(int x, int y, int z) {
@@ -246,11 +246,11 @@ public class NativeBlockSource {
     }
     
     public boolean isChunkLoaded(int chunkX, int chunkZ) {
-        return isChunkLoaded(pointer, chunkX, chunkZ);
+        return BlockSourceMethods.isChunkLoaded(pointer, chunkX, chunkZ);
     }
 
     public boolean isChunkLoadedAt(int x, int z) {
-        return isChunkLoaded(pointer, (int) Math.floor((double) x / 16), (int) Math.floor((double) z / 16));
+        return BlockSourceMethods.isChunkLoaded(pointer, (int) Math.floor((double) x / 16), (int) Math.floor((double) z / 16));
     }
     
     public int getChunkState(int chunkX, int chunkZ) {
@@ -279,7 +279,7 @@ public class NativeBlockSource {
 
     public void destroyBlock(int x, int y, int z, boolean drop) {
         //setBlock(x, y, z, 0);
-        destroyBlock(pointer, x, y, z, drop, updateType, destroyParticles);
+        BlockSourceMethods.destroyBlock(pointer, x, y, z, drop, updateType, destroyParticles);
     }
 
     public void destroyBlock(int x, int y, int z) {
@@ -433,7 +433,7 @@ public class NativeBlockSource {
     }
 
     public long spawnDroppedItem(float x, float y, float z, int id, int count, int data, NativeItemInstanceExtra extra) {
-        return spawnDroppedItem(pointer, x, y, z, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
+        return BlockSourceMethods.spawnDroppedItem(pointer, x, y, z, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
     }
 
     public long spawnDroppedItem(float x, float y, float z, int id, int count, int data) {
@@ -461,9 +461,7 @@ public class NativeBlockSource {
     private static native float getBiomeTemperatureAt(Level pointer, int x, int y, int z);
     private static native float getBiomeDownfallAt(Level pointer, int x, int y, int z);
     private static native int getBrightness(Level Level, int x, int y, int z);
-    private static int getBlockId(Level pointer, int x, int y, int z){
-        return pointer.getBlockIdAt(x, y, z);
-    }
+
     private static int getBlockData(Level pointer, int x, int y, int z){
         return pointer.getBlockDataAt(x, y, z);
     }
@@ -487,12 +485,11 @@ public class NativeBlockSource {
     private static void setBiome(Level pointer, int chunkX, int chunkZ, int id){
         pointer.setBiomeId(chunkX, chunkZ, (byte) id);
     }
-    private static native boolean isChunkLoaded(Level pointer, int chunkX, int chunkZ);
     private static native int getChunkState(Level pointer, int chunkX, int chunkZ);
     private static native void addToTickingQueue(Level pointer, int x, int y, int z, int runtimeId /* = -1 */, int delay, int unknown /* = 0 */);
 
     private static native void explode(Level pointer, float x, float y, float z, float power, boolean fire);
-    private static native void destroyBlock(Level pointer, int x, int y, int z, boolean drop, int updateType, boolean destroyParticles);
+
     private static native long clip(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] joutput);
 
     private static native long[] fetchEntitiesInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag);
@@ -500,5 +497,5 @@ public class NativeBlockSource {
     private static native long spawnEntity(Level pointer, int type, float x, float y, float z);
     private static native long spawnNamespacedEntity(Level pointer, float x, float y, float z, String str1, String str2, String str3);
     private static native long spawnExpOrbs(Level pointer, float x, float y, float z, int amount);
-    private static native long spawnDroppedItem(Level pointer, float x, float y, float z, int id, int count, int data, long extra);
+
 }

@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -138,6 +139,7 @@ public class WorldDataSaver {
 
 
     public void logError(String message, SaverState state, Throwable err) {
+        ICLog.e("Saver", message, err);
         errorLog.add(new LoggedSavesError(message, state, err));
     }
 

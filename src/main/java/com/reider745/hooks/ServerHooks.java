@@ -49,4 +49,9 @@ public class ServerHooks implements HookClass {
     public static void checkTickUpdates(Server server, int tick){
         Main.innerCoreServer.tick();
     }
+
+    @Inject
+    public static void forceShutdown(Server server, String reason) throws Exception {
+        Main.LoadingStages.stop(server);
+    }
 }

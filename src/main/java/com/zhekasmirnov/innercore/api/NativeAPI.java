@@ -273,11 +273,11 @@ public class NativeAPI {
     }
 
     public static void playSound(String name, float x, float y, float z, float f1, float f2) {
-        InnerCoreServer.useClientMethod("playSound");
+        //InnerCoreServer.useClientMethod("playSound");
     }
 
     public static void playSoundEnt(String name, long unwrapEntity, float f1, float f2) {
-        InnerCoreServer.useClientMethod("playSound");
+        //InnerCoreServer.useClientMethod("playSound");
     }
 
     public static void setNightMode(boolean val) {

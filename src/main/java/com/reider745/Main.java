@@ -6,7 +6,6 @@ import com.reider745.api.hooks.JarEditor;
 import com.reider745.hooks.*;
 import com.reider745.network.InnerCorePacket;
 
-import java.io.File;
 
 public class Main {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
@@ -18,6 +17,14 @@ public class Main {
 
         public static void start(Server server) throws Exception {
             innerCoreServer.preLoad(server);
+        }
+
+        public static void stop(Server server) throws Exception {
+            try{
+                innerCoreServer.left();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 

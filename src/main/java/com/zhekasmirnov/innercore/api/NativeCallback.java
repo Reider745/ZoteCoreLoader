@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api;
 
 import android.util.Pair;
 import cn.nukkit.level.Level;
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
@@ -72,7 +73,9 @@ public class NativeCallback {
         ICLog.e(LOGGER_TAG, "uncaught error occurred in callback " + callback, error);
     }
 
-    public static native String getStringParam(String name);
+    public static String getStringParam(String name){
+        return InnerCoreServer.getStringParam(name);
+    }
 
 
     public static void onCopyrightCheck() {
@@ -153,8 +156,8 @@ public class NativeCallback {
         isFirstServerTick = true;
 
         // cleanup and rebuild id conversion maps (network and local)
-        NativeIdPlaceholderGenerator.clearAll();
-        NativeIdConversionMap.clearAll();
+        //NativeIdPlaceholderGenerator.clearAll();
+        //NativeIdConversionMap.clearAll();
         IdConversionMap.getSingleton().clearLocalIdMap();
         VanillaIdConversionMap.getSingleton().reloadFromAssets();
         IDRegistry.rebuildNetworkIdMap();
@@ -162,7 +165,9 @@ public class NativeCallback {
         // get world name and directory
         String worldName = getStringParam("world_name"); 
         String worldDir = getStringParam("world_dir");
-        File worldDirFile = new File(FileTools.DIR_PACK, "worlds/" + worldDir);
+        String path_for_world = getStringParam("path_for_world");
+        //File worldDirFile = new File(FileTools.DIR_PACK, "worlds/" + worldDir);
+        File worldDirFile = new File(path_for_world);
         LevelInfo.onEnter(worldName, worldDir);
 
         // add resource packs to world
@@ -172,7 +177,6 @@ public class NativeCallback {
         WorldDataSaverHandler.getInstance().onLevelSelected(worldDirFile);
 
         // clear queues and updatables
-        MainThreadQueue.localThread.clearQueue();
         MainThreadQueue.serverThread.clearQueue();
         Updatable.cleanUpAll();
 
@@ -328,7 +332,7 @@ public class NativeCallback {
         }
         NativeNetworking.onLevelLeft(isServer);
         NetworkPlayerRegistry.getSingleton().onGameLeft(isServer);
-        NativeIdPlaceholderGenerator.clearAll();
+        //NativeIdPlaceholderGenerator.clearAll();
 
         // on server side save all data
         if (isServer) {
@@ -371,14 +375,14 @@ public class NativeCallback {
         // reset more server side native modules
         if (isServer) {
             // path navigation module for entities
-            NativePathNavigation.cleanup();
+            //NativePathNavigation.cleanup();
 
             // block source by dimension cache for server ticking thread
             NativeBlockSource.resetDefaultBlockSources();
 
             // id conversion map - it will be cleared on next level load or connection anyway, so clear it only on server side to not fuck up last server tick
-            NativeIdConversionMap.clearAll();
-            IdConversionMap.getSingleton().clearLocalIdMap();
+            //NativeIdConversionMap.clearAll();
+            //IdConversionMap.getSingleton().clearLocalIdMap();
         }
     }
 
@@ -512,7 +516,7 @@ public class NativeCallback {
                 // tick internal systems
                 InventorySource.tick();
                // ArmorRegistry.onTick();
-               // WorldDataSaverHandler.getInstance().onTick();
+                 WorldDataSaverHandler.getInstance().onTick();
 
                 // run callback and updatable
                 TickExecutor executor = TickExecutor.getInstance();
@@ -624,7 +628,12 @@ public class NativeCallback {
     }
 
     public static void onBlockBuild(int x, int y, int z, int side, long player) {
-        Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), new FullBlock(NativeAPI.getTileAndData(x, y, z)), player);
+        NativeBlockSource blockSource = NativeBlockSource.getDefaultForActor(player);
+        Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), new FullBlock(
+                blockSource.getBlockID(x, y, z),
+                blockSource.getBlockData(x, y, z)
+        ), player);
+        //Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), new FullBlock(NativeAPI.getTileAndData(x, y, z)), player);
     }
 
     public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int i1, int i2, Level region) {

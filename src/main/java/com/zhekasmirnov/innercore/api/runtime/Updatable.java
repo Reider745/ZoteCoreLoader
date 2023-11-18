@@ -241,6 +241,8 @@ public class Updatable {
         return clientInstance;
     }
 
+    public static void init(){}
+
     static {
         setPreferences(MODE_COUNT_BASED, 256);
 

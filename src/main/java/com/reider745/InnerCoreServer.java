@@ -3,6 +3,8 @@ package com.reider745;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.plugin.PluginDescription;
+import cn.nukkit.plugin.PluginManager;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.block.CustomBlock;
 import com.reider745.event.EventListener;
@@ -25,6 +27,7 @@ import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
+import com.zhekasmirnov.innercore.api.runtime.Updatable;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
@@ -35,12 +38,25 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.HashMap;
 
 public class InnerCoreServer {
     public static final int PROTOCOL = 422;
 
     public static String PATH;
     public static Server server;
+
+    public static String getStringParam(String name) {
+        switch (name){
+            case "world_dir", "world_name" -> {
+                return "world";
+            }
+            case "path_for_world" -> {
+                return "worlds";
+            }
+        }
+        return null;
+    }
 
     public void loadMods(){
 
@@ -51,22 +67,31 @@ public class InnerCoreServer {
     }
 
     public void left(){
-        System.out.println("CallbackLeft");
         NativeCallback.onGameStopped(true);
         NativeCallback.onMinecraftAppSuspended();
-        NativeCallback.onLocalServerStarted();
     }
 
     public void preLoad(Server server) throws Exception {
         long start = System.currentTimeMillis();
         server.getLogger().info("start load inner core "+server.getDataPath());;
         PATH = server.getDataPath();
+        InnerCoreServer.server = server;
+        ICLog.server = server;
+        com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
+
         InnerCorePlugin plugin = new InnerCorePlugin();
         plugin.setEnabled(true);
+
+        HashMap<String, Object> configs = new HashMap<>();
+        configs.put("name", "InnerCore");
+        configs.put("version", getVersionName());
+        configs.put("main", "cn.nukkit.plugin.InternalPlugin");
+        configs.put("api", null);
+
+        plugin.init(null, server, new PluginDescription(configs), null, null);
         server.getPluginManager().registerEvents(new EventListener(), plugin);
 
         ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
-
         try {
             Path resourcePath = Paths.get(classLoader.getResource("innercore").toURI());
             Path targetPath = Paths.get(PATH + "/innercore");
@@ -101,9 +126,6 @@ public class InnerCoreServer {
             e.printStackTrace();
         }
 
-        InnerCoreServer.server = server;
-        ICLog.server = server;
-        com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
         FileTools.init();
 
         MultiplayerModList.loadClass();
@@ -128,9 +150,11 @@ public class InnerCoreServer {
         ModLoader.loadModsAndSetupEnvViaNewModLoader();
         ModLoader.prepareResourcesViaNewModLoader();
         new AsyncModLauncher().launchModsInCurrentThread();
-        IDRegistry.rebuildNetworkIdMap();
 
         CustomBlock.init();
+
+        Updatable.init();
+        NativeCallback.onLocalServerStarted();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
         Logger.info("INNERCORE", PackInfo.toInfo());
