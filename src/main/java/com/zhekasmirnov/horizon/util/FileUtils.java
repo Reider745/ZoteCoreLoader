@@ -8,7 +8,11 @@ import java.util.List;
 
 public class FileUtils {
     public static JSONObject readJSON(File file){
-        return new JSONObject(file);
+        try{
+            return new JSONObject(readFileText(file));
+        }catch (Exception e){
+            throw new RuntimeException(e.getCause().toString());
+        }
     }
 
     public static String readFileText(File file) throws Exception {

@@ -3,6 +3,7 @@ package com.reider745.hooks;
 import android.util.Pair;
 import cn.nukkit.Server;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.io.ByteStreams;
@@ -150,6 +151,11 @@ public class GlobalBlockPalette implements HookClass {
     }
 
     @Inject
+    public static int getLegacyFullId(int protocol, CompoundTag tag){
+        throw new RuntimeException("use getLegacyFullId(int, CompoundTag)");
+    }
+
+    @Inject
     public static int getOrCreateRuntimeId(int protocol, int id, int meta){
         return get(id, meta);
     }
@@ -161,7 +167,6 @@ public class GlobalBlockPalette implements HookClass {
 
     @Inject
     public static int getOrCreateRuntimeId(int legacyId){
-        Server.mvw("GlobalBlockPalette#getOrCreateRuntimeId(int)");
         return getOrCreateRuntimeId(ProtocolInfo.CURRENT_PROTOCOL, legacyId >> 4, legacyId & 0xf);
     }
 

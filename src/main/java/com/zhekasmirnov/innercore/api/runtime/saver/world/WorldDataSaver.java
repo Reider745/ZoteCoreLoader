@@ -80,6 +80,7 @@ public class WorldDataSaver {
                 break;
             }
         }
+
         if (json == null) {
             json = readJsonWithLockCheck(worldDirectory, "moddata.json", false);
             if (json == null) {
@@ -139,7 +140,6 @@ public class WorldDataSaver {
 
 
     public void logError(String message, SaverState state, Throwable err) {
-        ICLog.e("Saver", message, err);
         errorLog.add(new LoggedSavesError(message, state, err));
     }
 

@@ -64,7 +64,6 @@ public class WorldDataScopeRegistry {
     }
 
     public void readAllScopes(JSONObject json, SavesErrorHandler errorHandler, MissingScopeHandler missingScopeHandler) {
-        System.out.println(json);
         for (Map.Entry<String, SaverScope> entry : scopeMap.entrySet()) {
             String key = entry.getKey();
             Object data = json.opt(key);
