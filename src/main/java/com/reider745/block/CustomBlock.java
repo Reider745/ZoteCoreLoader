@@ -58,7 +58,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
             CustomManager manager = getBlockManager(id);
             ArrayList<String> variants = getVariants(manager);
             for(int data = 0;data < variants.size();data++)
-                registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));
+                registerBlock(id, data, new CustomBlock(id, data, manager));
         });
     }
 
@@ -106,12 +106,16 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     private boolean TickingTile;
 
-    protected CustomBlock(int id, int meta, CustomManager manager, String name) {
+    protected CustomBlock(int id, int meta){
+        this(id, meta, getBlockManager(id));
+    }
+
+    protected CustomBlock(int id, int meta, CustomManager manager) {
         super(meta);
 
         this.manager = manager;
         this.id = id;
-        this.name = name;
+        this.name = manager.get("name");
 
         TickingTile = manager.get("TickingTile:"+meta, false);
     }
@@ -147,6 +151,11 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
             NativeBlock.onRandomTickCallback((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(), AdaptedScriptAPI.BlockSource.getFromCallbackPointer(this.level));
         }
         return 0;
+    }
+
+    @Override
+    public int getItemId() {
+        return id;
     }
 
     @Override

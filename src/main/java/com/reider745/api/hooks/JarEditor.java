@@ -158,13 +158,34 @@ public class JarEditor {
             }
         }
 
-
         StringBuilder args = new StringBuilder();
-        for(String name : arguments)
+        if(isStatic)
+            args.append("this");
+
+        for(int i = 1;i <= arguments_types.length;i++)
             if(args.toString().equals(""))
+                args.append("$"+i);
+            else
+                args.append(",$"+i);
+
+        /*StringBuilder args = new StringBuilder();
+        int arg_index = 1;
+        for(String name : ar)
+            if(args.toString().equals(""))
+                if(name.equals("this"))
+                    args.append(name);
+                else{
+                    args.append("$"+arg_index);
+                    arg_index++;
+                }
+            else{
+                args.append(",").append("$"+arg_index);
+                arg_index++;
+            }*/
+            /*if(args.toString().equals(""))
                 args.append(name);
             else
-                args.append(",").append(name);
+                args.append(",").append(name);*/
 
         if(controller || arguments_map)
             code += NameController + " _ctr_hook = new " + NameController + "(" + (typeHook == TypeHook.BEFORE_REPLACE || typeHook == TypeHook.AFTER_REPLACE ? "true" : "false") + ", "+(arguments_map ? "_args_hook" : "null")+", "+(!isStatic ? "null" : "this")+");\n";
@@ -211,10 +232,12 @@ public class JarEditor {
         CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
         LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
 
+        try{
+            for (int i = 0; i < size; i++)
+                arguments[i] = attr.variableNameByIndex(i);
+        }catch (Exception e){
 
-        for (int i = 0; i < size; i++)
-            arguments[i] = attr.variableNameByIndex(i);
-
+        }
         return arguments;
     }
 
@@ -314,7 +337,8 @@ public class JarEditor {
                             String code = getCode(replaced, arguments, arguments_types, retType, typeHook, isStatic, controller, arguments_map);
 
                             switch (typeHook) {
-                                case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, RETURN, AFTER_REPLACE  -> ctmBuffer.insertBefore(code);
+                                case RETURN -> ctmBuffer.setBody("{"+code+"}");
+                                case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, AFTER_REPLACE  -> ctmBuffer.insertBefore(code);
                                 case AFTER, AFTER_NOT_REPLACE -> ctmBuffer.insertAfter(code);
                                 default -> throw new RuntimeException("Что-то пошло не так, пиздуй ищи ошибку!");
                             }

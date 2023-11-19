@@ -1,6 +1,8 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
+import cn.nukkit.item.Item;
 import cn.nukkit.item.RuntimeItemMapping;
 import cn.nukkit.item.RuntimeItems;
 import cn.nukkit.network.protocol.ProtocolInfo;
@@ -63,7 +65,7 @@ public class RuntimeItemsHooks implements HookClass {
             paletteBuffer.putBoolean(false); // Component item
 
             int fullId = RuntimeItems.getFullId(id, 0);
-            int legacyId = (id << 1) | 0;
+            int legacyId = id;
             int runtimeId = id;
 
             runtimeId2Name.put(runtimeId, name);
@@ -84,7 +86,7 @@ public class RuntimeItemsHooks implements HookClass {
                 paletteBuffer.putBoolean(false); // Component item
 
                 int fullId = RuntimeItems.getFullId(id, data);
-                int legacyId = (id << 1) | 0;
+                int legacyId = id;
                 int runtimeId = id;
 
                 runtimeId2Name.put(runtimeId, name);
@@ -99,5 +101,23 @@ public class RuntimeItemsHooks implements HookClass {
             }
         });
         ReflectHelper.setField(self, "itemPalette", paletteBuffer.getBuffer());
+    }
+
+    @Inject(class_name = "cn.nukkit.item.RuntimeItems")
+    public static void init(){
+        final Map<String, Integer> legacyString2LegacyInt = ReflectHelper.getField(RuntimeItems.class, "legacyString2LegacyInt");
+
+        CustomItem.customItems.forEach((name, id) -> legacyString2LegacyInt.put(name, id));
+        CustomBlock.customBlocks.forEach((name, id) -> legacyString2LegacyInt.put(name, id));
+    }
+
+    @Inject(class_name = "cn.nukkit.utils.Utils")
+    public static boolean hasItemOrBlock(int id){
+        if (id < 0) {
+            int blockId = 255 - id;
+            return blockId < Block.MAX_BLOCK_ID && Block.list[blockId] != null;
+        } else {
+            return id < Item.list.length && Item.list[id] != null;
+        }
     }
 }

@@ -18,10 +18,7 @@ public class CustomItem {
 
     public static void init(){
         items.forEach((key, value) -> Item.list[key] = value.clazz);
-        CustomBlock.blocks.forEach((id, manager) -> {
-            System.out.println(id);
-            Item.list[id] = manager.getClazz();
-        });
+        CustomBlock.blocks.forEach((id, manager) -> Item.list[id] = manager.getClazz());
     }
 
     public static CustomManager getItemManager(int id){
@@ -56,7 +53,7 @@ public class CustomItem {
 
     private static boolean hasForSet(Set<String> sets, String str){
         for(String id : sets)
-            if(id == str)
+            if(id.equals(str))
                 return true;
         return false;
     }
@@ -154,7 +151,4 @@ public class CustomItem {
         Food.registerFood(new FoodNormal(food, 4), InnerCoreServer.plugin).addRelative(id);
         return manager;
     }
-
-
-    /**/
 }
