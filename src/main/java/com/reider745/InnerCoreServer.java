@@ -189,10 +189,6 @@ public class InnerCoreServer {
         server.getPluginManager().registerEvents(new EventListener(), plugin);
     }
 
-    public void onPlayerEat(int food, float radio, long player){
-        NativeCallback.onPlayerEat(food, radio, player);
-    }
-
     public void tick(){
         NativeCallback.onTick();
     }

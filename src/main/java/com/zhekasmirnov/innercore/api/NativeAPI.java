@@ -81,8 +81,10 @@ public class NativeAPI {
 
     }
 
+    private static boolean status_prevent = false;
+
     public static boolean isDefaultPrevented(){
-        return false;
+        return status_prevent;
     }
 
     public static int getTile(int x, int y, int z){
@@ -128,6 +130,11 @@ public class NativeAPI {
     }
 
     public static void preventDefault() {
+        status_prevent = true;
+    }
+
+    public static void reloadPrevent() {
+        status_prevent = false;
     }
 
     public static void explode(float x, float y, float z, float power, boolean onFire) {
