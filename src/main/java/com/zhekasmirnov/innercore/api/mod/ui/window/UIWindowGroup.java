@@ -65,7 +65,7 @@ public class UIWindowGroup implements IWindow {
     }
 
     public UIWindow getWindow(String name) {
-        return windowByName.get(name);
+        return new UIWindow((UIWindowLocation) null);
     }
 
     public ScriptableObject getWindowContent(String name) {

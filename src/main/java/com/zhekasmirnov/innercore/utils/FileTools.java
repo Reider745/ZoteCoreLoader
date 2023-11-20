@@ -159,7 +159,10 @@ public class FileTools {
 
     public static boolean assureFileDir(File file) {
         String path = file.getAbsolutePath();
-        String dir = path.substring(0, path.lastIndexOf("/"));
+        int index = path.lastIndexOf("/");
+        if(index == -1)
+            index = path.lastIndexOf("\\");
+        String dir = path.substring(0, index);
         return assureDir(dir);
     }
 

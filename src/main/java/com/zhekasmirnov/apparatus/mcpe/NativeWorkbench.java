@@ -47,7 +47,7 @@ public class NativeWorkbench {
     }
     private static ArrayList<RecipeRegistry> recipes = new ArrayList<>();
     private static void addShapedRecipe(int resultId, int resultCount, int resultData, long resultExtraPtr, String[] pattern, int[] ingredients){
-        if(resultId == 0){
+        /*if(resultId == 0){
             Logger.error("Recipe result id 0");
             return;
         }
@@ -58,7 +58,7 @@ public class NativeWorkbench {
         final HashMap<Character, Item> ingredients_ = new HashMap<>();
         for(int i = 0;i < ingredients.length;i+=3)
             ingredients_.put((char) ingredients[i], Item.get(ingredients[i+1], ingredients[i+2]));
-        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtraPtr, pattern, ingredients_));
+        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtraPtr, pattern, ingredients_));*/
     }
 
     public static void addShapedRecipe(ItemStack result, String[] pattern, int[] ingredients) {

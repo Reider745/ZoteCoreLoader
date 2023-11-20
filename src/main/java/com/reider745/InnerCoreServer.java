@@ -136,9 +136,11 @@ public class InnerCoreServer {
         NetworkEntity.loadClass();
         IdConversionMap.loadClass();
 
+
         JSONObject object = new JSONObject();
         object.put("fix", server.getPropertyBoolean("inner_core.legacy_inventory", true));
         Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v ,v1) -> {});
+        Network.getSingleton().addServerInitializationPacket("system.dedicated_server", (client) -> object, (v ,v1) -> {});
 
         RuntimeIdDataPacketSender.loadClass();
         Network.getSingleton().startLanServer();

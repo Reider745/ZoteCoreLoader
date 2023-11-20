@@ -24,12 +24,12 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         Block.list[id] = block.getClass();
         //blocks.put(id+":"+data, block);
         int fullId = (id << DATA_BITS) | data;
-        fullList[fullId] = block;
+        Block.fullList[fullId] = block;
         Block.hasMeta[id] = true;
 
         Block.solid[id] = block.isSolid();
         Block.transparent[id] = block.isTransparent();
-        hardness[id] = block.getHardness();
+        Block.hardness[id] = block.getHardness();
         Block.light[id] = block.getLightLevel();
 
         boolean[] randomTickBlocks = ReflectHelper.getField(Level.class, "randomTickBlocks");

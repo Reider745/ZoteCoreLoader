@@ -15,6 +15,7 @@ import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaClass;
+import org.mozilla.javascript.NativeJavaPackage;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -94,6 +95,7 @@ public abstract class API extends ScriptableObject {
 
     public void injectIntoScope(ScriptableObject scope) {
         injectIntoScope(scope, null);
+        scope.put("android", scope, new NativeJavaPackage("android"));
     }
 
     private static HashMap<Class, ArrayList<String>> getAllClassMethods(Class clazz, List<String> filter) {
