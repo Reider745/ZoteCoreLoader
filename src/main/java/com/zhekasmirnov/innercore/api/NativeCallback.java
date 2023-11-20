@@ -789,10 +789,6 @@ public class NativeCallback {
         Callback.invokeAPICallback("EntityHurt", attacker, entity, damageValue, damageType, someBool1, someBool2);
 
         NetworkPlayerRegistry.getSingleton().onEntityHurt(entity, attacker, damageType, damageValue, someBool1, someBool2);
-
-        if (entity == NativeAPI.getPlayer()) {
-            ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1, someBool2);
-        }
     }
 
     public static void onThrowableHit(long projectile, float hitX, float hitY, float hitZ, long entity, int blockX, int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData, long itemExtra) {
