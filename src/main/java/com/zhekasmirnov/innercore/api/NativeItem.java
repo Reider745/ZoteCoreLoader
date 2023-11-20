@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api;
 
-import cn.nukkit.item.Item;
 import com.reider745.api.CustomManager;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
@@ -10,7 +9,6 @@ import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
 import com.zhekasmirnov.apparatus.ecs.types.ECSTags;
 import com.zhekasmirnov.apparatus.ecs.types.item.ArmorItemComponent;
 import com.zhekasmirnov.apparatus.ecs.types.item.ItemComponent;
-import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.runtime.Callback;

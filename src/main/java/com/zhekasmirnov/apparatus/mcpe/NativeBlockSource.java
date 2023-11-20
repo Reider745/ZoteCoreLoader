@@ -3,6 +3,7 @@ package com.zhekasmirnov.apparatus.mcpe;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
+import com.reider745.api.CallbackHelper;
 import com.reider745.world.BlockSourceMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
@@ -28,9 +29,6 @@ import java.util.stream.Collectors;
 
 public class NativeBlockSource {
     private static final Map<Integer, NativeBlockSource> defaultBlockSourceForDimensions = new HashMap<>();
-    public static Level level_current;
-
-    private static String NAME = "cn.nukkit.level.Level";
 
     public static NativeBlockSource getDefaultForDimension(int dimension) {
         synchronized (defaultBlockSourceForDimensions) {
@@ -449,7 +447,7 @@ public class NativeBlockSource {
         return BlockSourceMethods.getLevelForDimension(dimension);
     }
     private static Level nativeGetForCurrentThread(){
-        return level_current;
+        return CallbackHelper.getForCurrentThread();
     }
     private static Long nativeGetForClientSide(){
         return null;

@@ -12,24 +12,16 @@ import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
-import cn.nukkit.event.server.ServerStopEvent;
 import cn.nukkit.item.food.Food;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
-import com.zhekasmirnov.innercore.api.NativeAPI;
+import com.reider745.api.CallbackHelper;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
 public class EventListener implements Listener {
-    public interface ICallbackApply {
-        void apply();
-    }
-
-    public static void preventedCallback(Event event, ICallbackApply apply){
-        NativeAPI.reloadPrevent();
-        apply.apply();
-        if(NativeAPI.isDefaultPrevented())
-            event.setCancelled(true);
+    public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply){
+        CallbackHelper.apply(event, apply);
     }
 
     @EventHandler
@@ -80,8 +72,14 @@ public class EventListener implements Listener {
     @EventHandler
     public void chunkGeneration(ChunkPopulateEvent event){
         FullChunk fullChunk = event.getChunk();
-        NativeBlockSource.level_current = event.getLevel();
-        NativeCallback.onChunkPostProcessed(fullChunk.getX(), fullChunk.getZ());
-        NativeBlockSource.level_current = null;
+        Level level = event.getLevel();
+        CallbackHelper.ICallbackApply apply = () -> NativeCallback.onChunkPostProcessed(fullChunk.getX(), fullChunk.getZ());
+
+        switch (level.getDimension()){
+            case Level.DIMENSION_OVERWORLD -> CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVER_WORLD, level, apply);
+            case Level.DIMENSION_NETHER -> CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_NETHER, level, apply);
+            case Level.DIMENSION_THE_END -> CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, apply);
+        }
+
     }
 }

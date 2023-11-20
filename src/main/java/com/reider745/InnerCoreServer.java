@@ -1,18 +1,15 @@
 package com.reider745;
 
 import cn.nukkit.Server;
-import cn.nukkit.block.Block;
-import cn.nukkit.item.Item;
-import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.plugin.PluginDescription;
-import cn.nukkit.plugin.PluginManager;
-import com.reider745.api.ReflectHelper;
+import com.reider745.api.CallbackHelper;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.block.CustomBlock;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
+import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
@@ -28,9 +25,9 @@ import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
+import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
 import com.zhekasmirnov.innercore.api.runtime.Updatable;
-import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.modpack.ModPackFactory;
@@ -39,7 +36,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.file.*;
 import java.util.HashMap;
 
@@ -83,6 +79,8 @@ public class InnerCoreServer {
         InnerCoreServer.server = server;
         ICLog.server = server;
         com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
+
+        CallbackHelper.init();
 
         plugin = new InnerCorePlugin();
         plugin.setEnabled(true);
@@ -157,6 +155,9 @@ public class InnerCoreServer {
 
         Updatable.init();
         NativeCallback.onLocalServerStarted();
+
+        Container.initSaverId();
+        ItemContainer.loadClass();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
         Logger.info("INNERCORE", PackInfo.toInfo());

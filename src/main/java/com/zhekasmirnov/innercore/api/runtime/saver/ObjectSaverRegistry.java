@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.runtime.saver;
 
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaver;
 import org.mozilla.javascript.*;
 
@@ -14,7 +15,7 @@ public class ObjectSaverRegistry {
     public static final String PROPERTY_IGNORE_SAVE = "_json_ignore";
     public static final String PROPERTY_SAVER_ID = "_json_saver_id";
 
-    private static ScriptableObject scope;
+    private static ScriptableObject scope = ScriptableObjectHelper.createEmpty();
 
     private static HashMap<Integer, ObjectSaver> saverMap = new HashMap<>();
     private static HashMap<Integer, ObjectSaver> saverByObjectHash = new HashMap<>();

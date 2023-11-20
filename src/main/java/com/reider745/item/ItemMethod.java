@@ -1,10 +1,7 @@
 package com.reider745.item;
 
-import cn.nukkit.block.Block;
-import cn.nukkit.command.data.CommandEnum;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
-import cn.nukkit.item.ItemID;
 import com.reider745.api.CustomManager;
 
 public class ItemMethod {

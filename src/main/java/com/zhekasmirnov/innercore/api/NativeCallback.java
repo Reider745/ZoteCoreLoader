@@ -615,16 +615,23 @@ public class NativeCallback {
 
     // fix callback
     public static void _onBlockDestroyStarted(int x, int y, int z, int side, long player) {
+        NativeBlockSource blockSource = NativeBlockSource.getDefaultForActor(player);
         NativeBlock.onBlockDestroyStarted(x, y, z, side);
-        Callback.invokeAPICallback("DestroyBlockStart", new Coords(x, y, z, side), new FullBlock(NativeAPI.getTileAndData(x, y, z)), player);
+        Callback.invokeAPICallback("DestroyBlockStart", new Coords(x, y, z, side), new FullBlock(
+                blockSource.getBlockID(x, y, z),
+                blockSource.getBlockData(x, y, z)
+        ), player);
     }
 
     public static void onBlockDestroyContinued(int x, int y, int z, int side, float progress, long player) {
         if (progress < .000001) {
             _onBlockDestroyStarted(x, y, z, side, player);
         }
-
-        Callback.invokeAPICallback("DestroyBlockContinue", new Coords(x, y, z, side), new FullBlock(NativeAPI.getTileAndData(x, y, z)), progress, player);
+        NativeBlockSource blockSource = NativeBlockSource.getDefaultForActor(player);
+        Callback.invokeAPICallback("DestroyBlockContinue", new Coords(x, y, z, side), new FullBlock(
+                blockSource.getBlockID(x, y, z),
+                blockSource.getBlockData(x, y, z)
+        ), progress, player);
     }
 
     public static void onBlockBuild(int x, int y, int z, int side, long player) {

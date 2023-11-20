@@ -6,9 +6,11 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.ItemMethod;
 import com.reider745.world.WorldMethod;
+import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 
 public class NativeAPI {
 
@@ -81,15 +83,13 @@ public class NativeAPI {
 
     }
 
-    private static boolean status_prevent = false;
 
     public static boolean isDefaultPrevented(){
-        return status_prevent;
+        return CallbackHelper.isPrevent();
     }
 
     public static int getTile(int x, int y, int z){
-        InnerCoreServer.useNotSupport("getTile");
-        return 0;
+        return NativeBlockSource.getCurrentWorldGenRegion().getBlockId(x, y, z);
     }
 
     public static int getTileAndData(int x, int y, int z) {
@@ -97,7 +97,7 @@ public class NativeAPI {
         return 0;
     }
     public static void setTile(int x, int y, int z, int id, int data){
-        InnerCoreServer.useNotSupport("setTile");
+        NativeBlockSource.getCurrentWorldGenRegion().setBlock(x, y, z, id, data);
     }
 
     public static void addTextureToLoad(String name){
@@ -130,12 +130,9 @@ public class NativeAPI {
     }
 
     public static void preventDefault() {
-        status_prevent = true;
+        CallbackHelper.prevent();
     }
 
-    public static void reloadPrevent() {
-        status_prevent = false;
-    }
 
     public static void explode(float x, float y, float z, float power, boolean onFire) {
         InnerCoreServer.useNotSupport("explode");
@@ -153,8 +150,7 @@ public class NativeAPI {
     }
 
     public static int getData(int x, int y, int z) {
-        InnerCoreServer.useNotSupport("getData");
-        return 0;
+        return NativeBlockSource.getCurrentWorldGenRegion().getBlockData(x, y, z);
     }
 
     public static int getBrightness(int x, int y, int z) {
@@ -163,8 +159,7 @@ public class NativeAPI {
     }
 
     public static boolean isChunkLoaded(int x, int z) {
-        InnerCoreServer.useNotSupport("isChunkLoaded");
-        return false;
+        return NativeBlockSource.getCurrentWorldGenRegion().isChunkLoaded(x, z);
     }
 
     public static int getChunkState(int x, int z) {
@@ -173,17 +168,15 @@ public class NativeAPI {
     }
 
     public static int getBiome(int x, int z) {
-        InnerCoreServer.useNotSupport("getBiome");
-        return 0;
+        return NativeBlockSource.getCurrentWorldGenRegion().getBiome(x, z);
     }
 
     public static void setBiome(int x, int z, int id) {
-        InnerCoreServer.useNotSupport("setBiome");
+        NativeBlockSource.getCurrentWorldGenRegion().setBiome(x, z, id);
     }
 
     public static int getBiomeMap(int x, int z) {
-        InnerCoreServer.useNotSupport("getBiomeMap");
-        return 0;
+        return NativeBlockSource.getCurrentWorldGenRegion().getBiome(x, z);
     }
 
     public static void setBiomeMap(int x, int z, int id) {
@@ -196,8 +189,7 @@ public class NativeAPI {
     }
 
     public static float getBiomeTemperatureAt(int x, int y, int z) {
-        InnerCoreServer.useNotSupport("getBiomeTemperatureAt");
-        return 0;
+        return NativeBlockSource.getCurrentWorldGenRegion().getBiomeTemperatureAt(x, y, z);
     }
 
     public static int getGrassColor(int x, int z) {
@@ -210,12 +202,11 @@ public class NativeAPI {
     }
 
     public static void destroyBlock(int x, int y, int z, boolean drop) {
-        InnerCoreServer.useNotSupport("destroyBlock");
+        NativeBlockSource.getCurrentWorldGenRegion().destroyBlock(x, y, z, drop);
     }
 
     public static long spawnEntity(int id, float x, float y, float z) {
-        InnerCoreServer.useNotSupport("spawnEntity");
-        return 0;
+        return NativeBlockSource.getCurrentWorldGenRegion().spawnEntity(x, y, z, id);
     }
 
     public static void setSkin(long entity, String skin) {
@@ -223,12 +214,11 @@ public class NativeAPI {
     }
 
     public static void spawnExpOrbs(float x, float y, float z, int amount) {
-        InnerCoreServer.useNotSupport("spawnExpOrbs");
+        NativeBlockSource.getCurrentWorldGenRegion().spawnExpOrbs(x, y, z, amount);
     }
 
     public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, long unwrapValue) {
-        InnerCoreServer.useNotSupport("spawnDroppedItem");
-        return 0;
+        return NativeBlockSource.getCurrentWorldGenRegion().spawnDroppedItem(x, y, z, id, count, data);
     }
 
     public static long getTime() {

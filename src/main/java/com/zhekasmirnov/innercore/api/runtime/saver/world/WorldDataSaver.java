@@ -140,6 +140,7 @@ public class WorldDataSaver {
 
 
     public void logError(String message, SaverState state, Throwable err) {
+        ICLog.e("", "", err);
         errorLog.add(new LoggedSavesError(message, state, err));
     }
 
