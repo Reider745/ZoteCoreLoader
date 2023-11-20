@@ -155,23 +155,23 @@ public class NativeBlockSource {
     }
     
     public boolean canSeeSky(int x, int y, int z) {
-        return canSeeSky(pointer, x, y, z);
+        return BlockSourceMethods.canSeeSky(pointer, x, y, z);
     }
     
     public int getBiome(int x, int z) {
-        return getBiome(pointer, x, 64, z);
+        return BlockSourceMethods.getBiome(pointer, x, 64, z);
     }
     
     public float getBiomeTemperatureAt(int x, int y, int z) {
-        return getBiomeTemperatureAt(pointer, x, y, z);
+        return BlockSourceMethods.getBiomeTemperatureAt(pointer, x, y, z);
     }
 
     public float getBiomeDownfallAt(int x, int y, int z) {
-        return getBiomeDownfallAt(pointer, x, y, z);
+        return BlockSourceMethods.getBiomeDownfallAt(pointer, x, y, z);
     }
 
     public int getLightLevel(int x, int y, int z) {
-        return getBrightness(pointer, x, y, z);
+        return BlockSourceMethods.getBrightness(pointer, x, y, z);
     }
 
     public int getBlockId(int x, int y, int z) {
@@ -183,19 +183,19 @@ public class NativeBlockSource {
     }
 
     public int getBlockData(int x, int y, int z) {
-        return getBlockData(pointer, x, y, z);
+        return BlockSourceMethods.getBlockData(pointer, x, y, z);
     }
 
     public BlockState getBlock(int x, int y, int z) {
-        return new BlockState(getBlockIdDataAndState(pointer, x, y, z));
+        return new BlockState(BlockSourceMethods.getBlockIdDataAndState(pointer, x, y, z));
     }
 
     public BlockState getExtraBlock(int x, int y, int z) {
-        return new BlockState(getExtraBlockIdDataAndState(pointer, x, y, z));
+        return new BlockState(BlockSourceMethods.getExtraBlockIdDataAndState(pointer, x, y, z));
     }
 
     public void setBlock(int x, int y, int z, int id, int data) {
-        setBlock(pointer, x, y, z, id, data, allowUpdate, updateType);
+        BlockSourceMethods.setBlock(pointer, x, y, z, id, data, allowUpdate, updateType);
     }
 
     public void setBlock(int x, int y, int z, int id) {
@@ -204,14 +204,14 @@ public class NativeBlockSource {
 
     public void setBlock(int x, int y, int z, BlockState state) {
         if (state.runtimeId > 0) {
-            setBlockByRuntimeId(pointer, x, y, z, state.runtimeId, allowUpdate, updateType);
+            BlockSourceMethods.setBlockByRuntimeId(pointer, x, y, z, state.runtimeId, allowUpdate, updateType);
         } else {
-            setBlock(pointer, x, y, z, state.id, state.data, allowUpdate, updateType);
+            BlockSourceMethods.setBlock(pointer, x, y, z, state.id, state.data, allowUpdate, updateType);
         }
     }
 
     public void setExtraBlock(int x, int y, int z, int id, int data) {
-        setExtraBlock(pointer, x, y, z, id, data, allowUpdate, updateType);
+        BlockSourceMethods.setExtraBlock(pointer, x, y, z, id, data, allowUpdate, updateType);
     }
 
     public void setExtraBlock(int x, int y, int z, int id) {
@@ -220,27 +220,27 @@ public class NativeBlockSource {
 
     public void setExtraBlock(int x, int y, int z, BlockState state) {
         if (state.runtimeId > 0) {
-            setExtraBlockByRuntimeId(pointer, x, y, z, state.runtimeId, allowUpdate, updateType);
+            BlockSourceMethods.setExtraBlockByRuntimeId(pointer, x, y, z, state.runtimeId, allowUpdate, updateType);
         } else {
-            setExtraBlock(pointer, x, y, z, state.id, state.data, allowUpdate, updateType);
+            BlockSourceMethods.setExtraBlock(pointer, x, y, z, state.id, state.data, allowUpdate, updateType);
         }
     }
     
     public int getGrassColor(int x, int z) {
-        return getGrassColor(pointer, x, 64, z);
+        return BlockSourceMethods.getGrassColor(pointer, x, 64, z);
     }
     
     public NativeTileEntity getBlockEntity(int x, int y, int z) {
-        long ptr = getBlockEntity(pointer, x, y, z);
+        long ptr = BlockSourceMethods.getBlockEntity(pointer, x, y, z);
         return ptr != 0 ? new NativeTileEntity(ptr) : null;
     }
     
     public int getDimension() {
-        return getDimension(pointer);
+        return BlockSourceMethods.getDimension(pointer);
     }
     
     public void setBiome(int chunkX, int chunkZ, int id) {
-        setBiome(pointer, chunkX, chunkZ, id);
+        BlockSourceMethods.setBiome(pointer, chunkX, chunkZ, id);
     }
     
     public boolean isChunkLoaded(int chunkX, int chunkZ) {
@@ -252,15 +252,15 @@ public class NativeBlockSource {
     }
     
     public int getChunkState(int chunkX, int chunkZ) {
-        return getChunkState(pointer, chunkX, chunkZ);
+        return BlockSourceMethods.getChunkState(pointer, chunkX, chunkZ);
     }
 
     public int getChunkStateAt(int x, int z) {
-        return getChunkState(pointer, (int) Math.floor((double) x / 16), (int) Math.floor((double) z / 16));
+        return BlockSourceMethods.getChunkState(pointer, (int) Math.floor((double) x / 16), (int) Math.floor((double) z / 16));
     }
 
     public void addToTickingQueue(int x, int y, int z, BlockState block, int delay, int unknown) {
-        addToTickingQueue(pointer, x, y, z, block.getRuntimeId(), delay, unknown);
+        BlockSourceMethods.addToTickingQueue(pointer, x, y, z, block.getRuntimeId(), delay, unknown);
     }
 
     public void addToTickingQueue(int x, int y, int z, BlockState block, int delay) {
@@ -268,11 +268,11 @@ public class NativeBlockSource {
     }
 
     public void addToTickingQueue(int x, int y, int z, int delay, int unknown) {
-        addToTickingQueue(pointer, x, y, z, -1, delay, unknown);
+        BlockSourceMethods.addToTickingQueue(pointer, x, y, z, -1, delay, unknown);
     }
 
     public void addToTickingQueue(int x, int y, int z, int delay) {
-        addToTickingQueue(pointer, x, y, z, -1, delay, 0);
+        BlockSourceMethods.addToTickingQueue(pointer, x, y, z, -1, delay, 0);
     }
 
     public void destroyBlock(int x, int y, int z, boolean drop) {
@@ -345,15 +345,15 @@ public class NativeBlockSource {
     }
 
     public void explode(float x, float y, float z, float power, boolean fire) {
-        explode(pointer, x, y, z, power, fire);
+        BlockSourceMethods.explode(pointer, x, y, z, power, fire);
     }
 
     public long clip(float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] output) {
-        return clip(pointer, x1, y1, z1, x2, y2, z2, mode, output);
+        return BlockSourceMethods.clip(pointer, x1, y1, z1, x2, y2, z2, mode, output);
     }
     
     public long[] fetchEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag) {
-        return fetchEntitiesInAABB(pointer, x1, y1, z1, x2, y2, z2, backCompEntityType, flag);
+        return BlockSourceMethods.fetchEntitiesInAABB(pointer, x1, y1, z1, x2, y2, z2, backCompEntityType, flag);
     }
 
     public long[] fetchEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType) {
@@ -365,7 +365,7 @@ public class NativeBlockSource {
     }
 
     public long[] fetchEntitiesOfTypeInAABB(float x1, float y1, float z1, float x2, float y2, float z2, String namespace, String type) {
-        return fetchEntitiesOfTypeInAABB(pointer, x1, y1, z1, x2, y2, z2, namespace, type);
+        return BlockSourceMethods.fetchEntitiesOfTypeInAABB(pointer, x1, y1, z1, x2, y2, z2, namespace, type);
     }
 
     public long[] fetchEntitiesOfTypeInAABB(float x1, float y1, float z1, float x2, float y2, float z2, String fullType) {
@@ -388,7 +388,7 @@ public class NativeBlockSource {
     }
 
     public NativeArray listEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag) {
-        return entityListToScriptArray(fetchEntitiesInAABB(pointer, x1, y1, z1, x2, y2, z2, backCompEntityType, flag));
+        return entityListToScriptArray(BlockSourceMethods.fetchEntitiesInAABB(pointer, x1, y1, z1, x2, y2, z2, backCompEntityType, flag));
     }
     
     public NativeArray listEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType) {
@@ -408,11 +408,11 @@ public class NativeBlockSource {
     }
 
     public long spawnEntity(float x, float y, float z, int type) {
-        return spawnEntity(pointer, type, x, y, z);
+        return BlockSourceMethods.spawnEntity(pointer, type, x, y, z);
     }
 
     public long spawnEntity(float x, float y, float z, String str1, String str2, String str3) {
-        return spawnNamespacedEntity(pointer, x, y, z, str1, str2, str3);
+        return BlockSourceMethods.spawnNamespacedEntity(pointer, x, y, z, str1, str2, str3);
     }
 
     public long spawnEntity(float x, float y, float z, String type) {
@@ -439,61 +439,15 @@ public class NativeBlockSource {
     }
 
     public void spawnExpOrbs(float x, float y, float z, int amount) {
-        spawnExpOrbs(pointer, x, y, z, amount);
+        BlockSourceMethods.spawnExpOrbs(pointer, x, y, z, amount);
     }
 
 
     private static Level constructNew(int dimension, boolean b1, boolean b2){
         return BlockSourceMethods.getLevelForDimension(dimension);
     }
-    private static Level nativeGetForCurrentThread(){
+    private static Level nativeGetForCurrentThread() {
         return CallbackHelper.getForCurrentThread();
-    }
-    private static Long nativeGetForClientSide(){
-        return null;
-    }
-    private static native void nativeFinalize(long pointer);
 
-    private static native boolean canSeeSky(Level pointer, int x, int y, int z);
-    private static native int getBiome(Level pointer, int x, int y, int z);
-    private static native float getBiomeTemperatureAt(Level pointer, int x, int y, int z);
-    private static native float getBiomeDownfallAt(Level pointer, int x, int y, int z);
-    private static native int getBrightness(Level Level, int x, int y, int z);
-
-    private static int getBlockData(Level pointer, int x, int y, int z){
-        return pointer.getBlockDataAt(x, y, z);
     }
-    private static Block getBlockIdDataAndState(Level pointer, int x, int y, int z){
-        return pointer.getBlock(x, y, z);
-    }
-    private static Block getExtraBlockIdDataAndState(Level pointer, int x, int y, int z){
-        return pointer.getBlock(x, y, z);
-    }
-    private static void setBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
-        pointer.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
-    }
-    private static native void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
-    private static native void setExtraBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType);
-    private static native void setExtraBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType);
-    private static native int getGrassColor(Level pointer, int x, int y, int z);
-    private static native long getBlockEntity(Level pointer, int x, int y, int z);
-    private static int getDimension(Level pointer){
-        return pointer.getDimension();
-    }
-    private static void setBiome(Level pointer, int chunkX, int chunkZ, int id){
-        pointer.setBiomeId(chunkX, chunkZ, (byte) id);
-    }
-    private static native int getChunkState(Level pointer, int chunkX, int chunkZ);
-    private static native void addToTickingQueue(Level pointer, int x, int y, int z, int runtimeId /* = -1 */, int delay, int unknown /* = 0 */);
-
-    private static native void explode(Level pointer, float x, float y, float z, float power, boolean fire);
-
-    private static native long clip(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] joutput);
-
-    private static native long[] fetchEntitiesInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag);
-    private static native long[] fetchEntitiesOfTypeInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, String namespace, String name);
-    private static native long spawnEntity(Level pointer, int type, float x, float y, float z);
-    private static native long spawnNamespacedEntity(Level pointer, float x, float y, float z, String str1, String str2, String str3);
-    private static native long spawnExpOrbs(Level pointer, float x, float y, float z, int amount);
-
 }
