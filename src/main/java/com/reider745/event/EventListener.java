@@ -36,8 +36,8 @@ public class EventListener implements Listener {
 
         if(event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
             preventedCallback(event, () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z, event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true, player.getHealth() > 0, player.getId()));
-        else if(action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)
-            preventedCallback(event, () -> NativeCallback._onBlockDestroyStarted((int) block.x, (int) block.y, (int) block.z, event.getFace().getIndex(), player.getId()));
+      //  else if(action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)
+           // preventedCallback(event, () -> NativeCallback._onBlockDestroyStarted((int) block.x, (int) block.y, (int) block.z, event.getFace().getIndex(), player.getId()));
 
 
     }
