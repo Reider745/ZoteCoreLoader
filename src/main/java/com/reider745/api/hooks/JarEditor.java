@@ -5,7 +5,6 @@ import javassist.*;
 import javassist.bytecode.*;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +57,7 @@ public class JarEditor {
         all_hooks.put(className, hooks);
     }
 
-    public JarEditor registerHooksInitializationForClass(Class<? extends HookClass> clazz) throws InstantiationException, IllegalAccessException {
+    public JarEditor registerHooksInitializationForClass(Class<? extends HookClass> clazz) throws InstantiationException, IllegalAccessException, NotFoundException {
         HookClass instance = clazz.newInstance();
         Annotation[] annotatedsClass = clazz.getAnnotations();
         for(Annotation annotationClass : annotatedsClass)
@@ -87,6 +86,9 @@ public class JarEditor {
                         }
                 }
 
+
+                if(!className.equals(""))
+                    instance.init(cp.get(className));
                 replaceField(className, instance);
             }
         return this;
@@ -100,7 +102,7 @@ public class JarEditor {
     }
 
 
-    public JarEditor registerHooksForClass(Class<? extends HookClass> clazz) throws InstantiationException, IllegalAccessException {
+    public JarEditor registerHooksForClass(Class<? extends HookClass> clazz) throws InstantiationException, IllegalAccessException, NotFoundException {
         HookClass instance = clazz.newInstance();
         Annotation[] annotatedsClass = clazz.getAnnotations();
         for(Annotation annotationClass : annotatedsClass)
@@ -129,8 +131,9 @@ public class JarEditor {
                                 this.addHook(className__, method_name.equals("-1") ? method.getName() : method_name, sig, method, inject.type_hook(), isController(method), inject.arguments_map());
                         }
                 }
-
-               replaceField(className, instance);
+                if(!className.equals("-1"))
+                    instance.init(cp.get(className));
+                replaceField(className, instance);
             }
         return this;
     }

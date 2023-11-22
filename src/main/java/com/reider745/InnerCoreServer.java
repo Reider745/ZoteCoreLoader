@@ -63,10 +63,6 @@ public class InnerCoreServer {
 
     }
 
-    public void main(){
-        new PointersStorage("items");
-    }
-
     public void left(){
         NativeCallback.onGameStopped(true);
         NativeCallback.onMinecraftAppSuspended();
@@ -93,7 +89,7 @@ public class InnerCoreServer {
 
         plugin.init(null, server, new PluginDescription(configs), null, null);
 
-        ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
+        /*ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
         try {
             Path resourcePath = Paths.get(classLoader.getResource("innercore").toURI());
             Path targetPath = Paths.get(PATH + "/innercore");
@@ -114,6 +110,29 @@ public class InnerCoreServer {
                             }
                         });
                 System.out.println("Directory innercore craete");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+        ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
+        try {
+            Path resourcePath = Paths.get(classLoader.getResource("innercore").toURI());
+            Path targetPath = Paths.get(PATH, "innercore");
+
+            File targetPathFile = targetPath.toFile();
+            if (!targetPathFile.exists()) {
+                Files.createDirectories(targetPath);
+
+                Files.walk(resourcePath)
+                        .forEach(source -> {
+                            Path destination = Paths.get(targetPath.toString(), resourcePath.relativize(source).toString());
+                            try {
+                                Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                System.out.println("Directory innercore created");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,8 +158,8 @@ public class InnerCoreServer {
 
         JSONObject object = new JSONObject();
         object.put("fix", server.getPropertyBoolean("inner_core.legacy_inventory", true));
-        Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v ,v1) -> {});
-        Network.getSingleton().addServerInitializationPacket("system.dedicated_server", (client) -> object, (v ,v1) -> {});
+        Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v ,v1) -> {});//legacy inner core for mod ServerFixed
+        Network.getSingleton().addServerInitializationPacket("system.dedicated_server", (client) -> object, (v ,v1) -> {});//for new inner core
 
         RuntimeIdDataPacketSender.loadClass();
         Network.getSingleton().startLanServer();
@@ -158,7 +177,6 @@ public class InnerCoreServer {
         Updatable.init();
         NativeCallback.onLocalServerStarted();
 
-        Container.initSaverId();
         ItemContainer.loadClass();
 
         Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
@@ -216,6 +234,10 @@ public class InnerCoreServer {
 
     public static void useClientMethod(String name){
         throw new RuntimeException("Use client method "+name);
+    }
+
+    public static void useNotCurrentSupport(String name){
+        throw new RuntimeException("The "+name+" method is currently not supported");
     }
 
     public static void useHzMethod(String name){

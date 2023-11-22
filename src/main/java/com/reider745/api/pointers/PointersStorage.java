@@ -4,31 +4,69 @@ import com.reider745.api.pointers.pointer_gen.IBasePointerGen;
 import com.reider745.api.pointers.pointer_gen.PointerGenSlowest;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class PointersStorage {
+public class PointersStorage<T> {
     private static final HashMap<String, PointersStorage> storages = new HashMap<>();
 
-    private final HashMap<Long, WeakReference<PointerClass>> pointers = new HashMap<>();
+    private final ConcurrentHashMap<Long, ClassPointer<T>> pointers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ClassPointer<T>, Long> pointerForInstance = new ConcurrentHashMap<>();
     private final IBasePointerGen pointerGen;
+    public interface INewPointer<T> {
+        ClassPointer<T> apply(WeakReference<T> value);
+    }
 
-    public PointersStorage(String type, final IBasePointerGen pointerGen){
+    private final INewPointer newPointer;
+
+    public PointersStorage(String type, final IBasePointerGen pointerGen, final INewPointer<T> newPointer){
+        System.out.println("Loaded pointer storage, type - "+type);
         this.pointerGen = pointerGen;
         storages.put(type, this);
+
+        new ThreadCheckToClear<T>(this);
+        this.newPointer = newPointer;
+    }
+
+    public PointersStorage(String type, final IBasePointerGen pointerGen){
+        this(type, pointerGen, ClassPointer::new);
     }
 
     public PointersStorage(String type){
         this(type, new PointerGenSlowest());
     }
 
-    public final long addPointer(PointerClass pointerClass){
+    public PointersStorage(String type, final INewPointer<T> newPointer){
+        this(type, new PointerGenSlowest(), newPointer);
+    }
+
+    public final long addPointer(T pointerClass){
         long ptr = pointerGen.next();
-        pointers.put(ptr, new WeakReference<>(pointerClass));
+        ClassPointer<T> pointer = newPointer.apply(new WeakReference<>(pointerClass));
+        pointers.put(ptr, pointer);
+        pointerForInstance.put(pointer, ptr);
         return ptr;
     }
 
-    public final PointerClass get(long ptr){
+    public final long addPointer(ClassPointer<T> pointer){
+        long ptr = pointerGen.next();
+        pointers.put(ptr, pointer);
+        pointerForInstance.put(pointer, ptr);
+        return ptr;
+    }
+
+    public final T get(long ptr){
         return pointers.get(ptr).get();
+    }
+
+    public final ClassPointer<T> getInstance(long ptr){
+        return pointers.get(ptr);
+    }
+
+    public final long getPointerForInstance(T value){
+        Long ptr = pointerForInstance.get(value);
+        return ptr == null ? 0 : ptr;
     }
 
     public final void removePointer(long pointer){
@@ -36,7 +74,20 @@ public class PointersStorage {
         pointerGen.remove(pointer);
     }
 
-    public static PointersStorage getStorageForType(final String type){
+    public final void replace(long ptr, ClassPointer<T> classPointer){
+        if(ptr == 0){
+            addPointer(classPointer);
+            return;
+        }
+        pointers.put(ptr, classPointer);
+        pointerForInstance.put(classPointer, ptr);
+    }
+
+    public ConcurrentHashMap<Long, ClassPointer<T>> getPointers() {
+        return pointers;
+    }
+
+    public static <T>PointersStorage<T> getStorageForType(final String type){
         return storages.get(type);
     }
 }

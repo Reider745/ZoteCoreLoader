@@ -1,5 +1,12 @@
 package com.zhekasmirnov.innercore.api;
 
+import cn.nukkit.item.Item;
+import cn.nukkit.item.enchantment.Enchantment;
+import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.ListTag;
+import com.reider745.InnerCoreServer;
+import com.reider745.hooks.ItemUtils;
+import com.reider745.item.ItemExtraDataProvider;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 import com.zhekasmirnov.innercore.api.runtime.saver.JsonHelper;
@@ -99,6 +106,7 @@ public class NativeItemInstanceExtra {
 
     private long ptr;
     private boolean isFinalizable = false;
+    private ItemExtraDataProvider provider;
 
     public boolean isFinalizableInstance() {
         return isFinalizable;
@@ -123,11 +131,15 @@ public class NativeItemInstanceExtra {
         }
         
         isFinalizable = nativeIsFinalizable(ptr);
+        provider = (ItemExtraDataProvider) ItemUtils.items_pointers.getInstance(ptr);
+        provider.extra = this;
     }
 
     public NativeItemInstanceExtra() {
         ObjectSaverRegistry.registerObject(this, saverId);
         ptr = constructNew();
+        provider = (ItemExtraDataProvider) ItemUtils.items_pointers.getInstance(ptr);
+        provider.extra = this;
         isFinalizable = nativeIsFinalizable(ptr);
     }
 
@@ -141,7 +153,8 @@ public class NativeItemInstanceExtra {
         else {
             ptr = constructNew();
         }
-        
+        provider = (ItemExtraDataProvider) ItemUtils.items_pointers.getInstance(ptr);
+        provider.extra = this;
         isFinalizable = nativeIsFinalizable(ptr);
     }
 
@@ -298,7 +311,7 @@ public class NativeItemInstanceExtra {
     private JSONObject customData = null;
     private boolean customDataLoaded = false;
 
-    private JSONObject getCustomDataJSON() {
+    public JSONObject getCustomDataJSON() {
         if (!customDataLoaded) {
             String raw = getAllCustomData();
             if (raw != null) {
@@ -476,28 +489,118 @@ public class NativeItemInstanceExtra {
         return "ItemExtra{json=" + asJson() + "}";
     }
 
+    public long getPtr() {
+        return ptr;
+    }
 
+    private static long constructNew(){
+        ItemExtraDataProvider instance = new ItemExtraDataProvider(null);
+        return ItemUtils.items_pointers.addPointer(instance);
+    }
+    public static long constructClone(long ptr){
+        ItemExtraDataProvider instance = new ItemExtraDataProvider(ItemUtils.items_pointers.getInstance(ptr).getReference());
+        return ItemUtils.items_pointers.addPointer(instance);
+    }
+    private static long getExtraPtr(long ptr){
+        return ptr;
+    }
+    private static void finalizeNative(long ptr){
 
-    private static native long constructNew();
-    public static native long constructClone(long ptr);
-    private static native long getExtraPtr(long ptr);
-    private static native void finalizeNative(long ptr);
-    private static native boolean nativeIsFinalizable(long ptr);
+    }
+    private static boolean nativeIsFinalizable(long ptr){
+        return true;
+    }
 
-    private static native boolean nativeIsEnchanted(long ptr);
-    private static native void nativeAddEnchant(long ptr, int id, int level);
-    private static native void nativeRemoveEnchant(long ptr, int id);
-    private static native void nativeRemoveAllEnchants(long ptr);
-    private static native int nativeGetEnchantLevel(long ptr, int id);
-    private static native int nativeGetEnchantCount(long ptr);
-    private static native void nativeGetAllEnchants(long ptr, int[] ids, int[] levels);
-    private static native String nativeGetModExtra(long ptr);
-    private static native void nativeSetModExtra(long ptr, String extra);
-    private static native String nativeGetCustomName(long ptr);
-    private static native void nativeSetCustomName(long ptr, String extra);
-    private static native String nativeEnchantToString(int id, int level);
-    private static native long nativeGetCompoundTag(long ptr);
-    private static native void nativeSetCompoundTag(long ptr, long tag);
+    private boolean nativeIsEnchanted(long ptr){
+        Item item = provider.get();
+        if(item == null) return false;
+        return item.hasEnchantments();
+    }
+    private void nativeAddEnchant(long ptr, int id, int level){
+        Item item = provider.get();
+        if(item != null) {
+            Enchantment enchantment = Enchantment.getEnchantment(id);
+            enchantment.setLevel(level);
+            item.addEnchantment(enchantment);
+        }
+    }
+    private void nativeRemoveEnchant(long ptr, int id){
+        Item item = provider.get();
+        if(item != null && item.hasEnchantments()) {
+
+            ListTag<CompoundTag> ench = item.getNamedTag().getList("ench", CompoundTag.class);
+            for(int i = 0;i < ench.size();i++)
+                if (ench.get(i).getShort("id") == id) {
+                    ench.remove(i);
+                    return;
+                }
+        }
+    }
+    private void nativeRemoveAllEnchants(long ptr){
+        Item item = provider.get();
+        if(item != null && item.hasEnchantments())
+            item.getNamedTag().remove("ench");
+    }
+    private int nativeGetEnchantLevel(long ptr, int id){
+        Item item = provider.get();
+        if(item != null && item.hasEnchantments())
+            return item.getEnchantmentLevel(id);
+        return 0;
+    }
+    private int nativeGetEnchantCount(long ptr){
+        Item item = provider.get();
+        if(item != null && item.hasEnchantments())
+            return item.getEnchantments().length;
+        return 0;
+    }
+    private void nativeGetAllEnchants(long ptr, int[] ids, int[] levels){
+        Item item = provider.get();
+        if(item != null){
+            Enchantment[] enchantments = item.getEnchantments();
+            for (int i = 0; i < ids.length; i++){
+                Enchantment enchantment = enchantments[i];
+
+                ids[i] = enchantment.id;
+                levels[i] = enchantment.getLevel();
+            }
+        }
+    }
+    private String nativeGetModExtra(long ptr){
+        Item item = provider.get();
+        if(item != null)
+            return item.getNamedTag().getString(ItemUtils.INNER_CORE_TAG_NAME);
+        return null;
+    }
+    private void nativeSetModExtra(long ptr, String extra){
+        customData = new JSONObject(extra);
+        /*Item item = provider.get();
+        if(item != null)
+            item.getNamedTag().putString(ItemUtils.INNER_CORE_TAG_NAME, extra);*/
+    }
+    private String nativeGetCustomName(long ptr){
+        Item item = provider.get();
+        if(item != null)
+            return item.getCustomName();
+        return "";
+    }
+    private void nativeSetCustomName(long ptr, String extra){
+        Item item = provider.get();
+        if(item != null)
+            item.setCustomName(extra);
+    }
+    private String nativeEnchantToString(int id, int level){
+        Item item = provider.get();
+        if(item != null)
+            return item.getEnchantment(id).getName();
+        return "";
+    }
+    private long nativeGetCompoundTag(long ptr){
+        InnerCoreServer.useNotCurrentSupport("nativeGetCompoundTag");
+        return 0;
+    }
+    private void nativeSetCompoundTag(long ptr, long tag){
+        InnerCoreServer.useNotCurrentSupport("nativeSetCompoundTag");
+    }
 
 
     public static NativeItemInstanceExtra unwrapObject(Object extra) {

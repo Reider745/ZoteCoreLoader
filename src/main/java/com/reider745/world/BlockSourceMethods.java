@@ -13,6 +13,7 @@ import cn.nukkit.level.format.anvil.palette.BiomePalette;
 import cn.nukkit.math.Vector3;
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.GlobalBlockPalette;
+import com.reider745.hooks.ItemUtils;
 
 public class BlockSourceMethods {
     public static Level getLevelForDimension(int dimension){
@@ -34,7 +35,7 @@ public class BlockSourceMethods {
     }
 
     public static long spawnDroppedItem(Level pointer, float x, float y, float z, int id, int count, int data, long extra){
-        return pointer.dropAndGetItem(new Vector3(x, y, z), Item.get(id, data, count)).getId();
+        return pointer.dropAndGetItem(new Vector3(x, y, z), ItemUtils.get(id, count, data, extra)).getId();
     }
 
     public static Long nativeGetForClientSide(){

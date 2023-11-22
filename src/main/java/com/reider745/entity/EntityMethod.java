@@ -13,6 +13,7 @@ import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.potion.Effect;
 import com.reider745.InnerCoreServer;
+import com.reider745.hooks.ItemUtils;
 
 public class EntityMethod {
     public static Entity getEntityToLong(long ent){
@@ -190,19 +191,19 @@ public class EntityMethod {
     public static void setItemToDrop(long unwrapEntity, int id, int count, int data, long unwrapValue) {
         Entity ent = getEntityToLong(unwrapEntity);
         if(ent instanceof EntityThrownTrident entItem)
-            entItem.setItem(Item.get(id, data, count));
+            entItem.setItem(ItemUtils.get(id, count, data, unwrapValue));
     }
 
     public static void setEntityCarriedItem(long unwrapEntity, int id, int count, int data, long unwrapValue) {
         EntityHuman ent = getEntityHumanToLong(unwrapEntity);
         if(ent != null)
-            ent.getInventory().setItemInHand(Item.get(id, data, count));
+            ent.getInventory().setItemInHand(ItemUtils.get(id, count, data, unwrapValue));
     }
 
     public static void setEntityOffhandItem(long unwrapEntity, int id, int count, int data, long unwrapValue) {
         EntityHuman ent = getEntityHumanToLong(unwrapEntity);
         if(ent != null)
-            ent.getOffhandInventory().setItem(0, Item.get(id, data, count));
+            ent.getOffhandInventory().setItem(0, ItemUtils.get(id, count, data, unwrapValue));
     }
 
     public static void removeEntity(long unwrapEntity) {

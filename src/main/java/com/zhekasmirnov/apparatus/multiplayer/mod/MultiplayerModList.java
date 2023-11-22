@@ -33,9 +33,9 @@ public class MultiplayerModList {
             (client, data, dataType) -> {
                 if (data instanceof JSONObject) {
                     String compareResult = getSingleton().compareToJson((JSONObject) data);
-                    /*if (compareResult != null) {
+                    if (compareResult != null) {
                         throw new InitializationPacketException(compareResult);
-                    }*/
+                    }
                 } else {
                     throw new InitializationPacketException("system.mod_list received invalid packet of type " + dataType);
                 }

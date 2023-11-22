@@ -6,4 +6,5 @@ import javassist.CtField;
 
 public interface HookClass {
     default void rebuildField(CtClass ctClass, CtField field)  {};
+    default void init(CtClass ctClass){}
 }

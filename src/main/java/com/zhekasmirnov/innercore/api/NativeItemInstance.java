@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.item.Item;
+import com.reider745.hooks.ItemUtils;
 
 /**
  * Created by zheka on 26.07.2017.
@@ -23,9 +24,9 @@ public class NativeItemInstance {
             this.id = ptr.getId();
             this.count = ptr.getCount();
             this.data = ptr.getAttackDamage() == 0 ? ptr.getAttackDamage() : ptr.getDamage();
-           // long extra = getExtra(ptr);
-            long extra = 0;
-            this.extra = extra != 0 ? new NativeItemInstanceExtra(extra) : null;
+
+            this.extra = ItemUtils.getItemInstanceExtra(ptr);
+           // this.extra = extra != 0 ? new NativeItemInstanceExtra(extra) : null;
         }
 
         isValid = true;
@@ -61,7 +62,11 @@ public class NativeItemInstance {
 
     public static native int setItemInstance(long ptr, int id, int count, int data);
     public static native int destroy(long ptr);
-    public static native long getExtra(long ptr);
+    public static long getExtra(Item ptr){
+        if(ptr == null) return 0;
+        NativeItemInstanceExtra extra1 = ItemUtils.getItemInstanceExtra(ptr);
+        return extra1 != null ? extra1.getPtr() : 0;
+    }
     public static native void setExtra(long ptr, int ench);
 
 }

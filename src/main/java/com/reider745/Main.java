@@ -72,6 +72,7 @@ public class Main {
         loader.registerHooksInitializationForClass(RuntimeItemsHooks.class);
         loader.registerHooksInitializationForClass(BlocksHooks.class);
         loader.registerHooksInitializationForClass(LevelHooks.class);
+        loader.registerHooksInitializationForClass(ItemUtils.class);
 
         loader.init();
         loader.run("cn.nukkit.Nukkit", args);
