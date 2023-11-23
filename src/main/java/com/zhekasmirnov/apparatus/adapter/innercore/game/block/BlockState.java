@@ -3,6 +3,8 @@ package com.zhekasmirnov.apparatus.adapter.innercore.game.block;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockMeta;
 import cn.nukkit.level.GlobalBlockPalette;
+import com.reider745.InnerCoreServer;
+import com.reider745.block.BlockStateRegisters;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.Scriptable;
@@ -195,9 +197,20 @@ public class BlockState {
         return getStates().equals(that.getStates());
     }
 
-    private static native int getStateFromId(int runtimeId, int state);
-    private static native int[] getAllStatesFromId(int runtimeId); // [state1, value1, state2, value2, ...]
-    public static native int runtimeIdByStates(int id, int[] statesAndValues); // -1 is returned in case it is not found
-    public static native int getIdFromRuntimeId(int runtimeId);
-    public static native int getDataFromRuntimeId(int runtimeId);
+    private static int getStateFromId(int runtimeId, int state){
+        return BlockStateRegisters.getStateFromId(runtimeId, state);
+    }
+    private static int[] getAllStatesFromId(int runtimeId){
+        return BlockStateRegisters.getAllStatesFromId(runtimeId);
+    }
+    public static int runtimeIdByStates(int id, int[] statesAndValues){
+        return BlockStateRegisters.runtimeIdByStates(id, statesAndValues);
+    }
+    public static int getIdFromRuntimeId(int runtimeId){
+        InnerCoreServer.useHzMethod("getIdFromRuntimeId");
+        return 0;
+    }
+    public static int getDataFromRuntimeId(int runtimeId){
+        return BlockStateRegisters.getDataForRuntimeId(runtimeId);
+    }
 }

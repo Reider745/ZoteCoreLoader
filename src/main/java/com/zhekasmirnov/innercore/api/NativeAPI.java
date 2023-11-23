@@ -386,24 +386,27 @@ public class NativeAPI {
     }
 
     public static boolean isImmobile(long unwrapEntity) {
-        return false;
+        return EntityMethod.isImmobile(unwrapEntity);
     }
 
     public static void setImmobile(long unwrapEntity, boolean val) {
+        EntityMethod.setImmobile(unwrapEntity, val);
     }
 
     public static boolean isSneaking(long unwrapEntity) {
-        return false;
+        return EntityMethod.isSneaking(unwrapEntity);
     }
 
     public static void setSneaking(long unwrapEntity, boolean val) {
+        EntityMethod.setSneaking(unwrapEntity, val);
     }
 
     public static String getNameTag(long unwrapEntity) {
-        return "";
+        return EntityMethod.getNameTag(unwrapEntity);
     }
 
     public static void setNameTag(long unwrapEntity, String tag) {
+        EntityMethod.setNameTag(unwrapEntity, tag);
     }
 
     public static int getRenderType(long unwrapEntity) {

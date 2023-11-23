@@ -104,8 +104,10 @@ public class BlockSourceMethods {
         defDestroy(pointer, block);
     }
     public static void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType){
+        Block block = pointer.getBlock(x, y, z);
         int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
         setBlock(pointer, x, y, z, legacyId >> 6, legacyId & 0x3F, allowUpdate, updateType);
+        defDestroy(pointer, block);
     }
     public static void setExtraBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
         pointer.setBlockExtraDataAt(x, y, z, id, data);
