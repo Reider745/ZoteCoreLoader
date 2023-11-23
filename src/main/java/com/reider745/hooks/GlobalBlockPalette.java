@@ -79,23 +79,19 @@ public class GlobalBlockPalette implements HookClass {
             for (Object elem : json) {
                 final JSONObject e = (JSONObject) elem;
 
-                //BlockStateRegistry.registerState(e);
-                if(e.toString().split("null").length != 1)
-                    throw new RuntimeException("Пиздуй ищи причину null в дампе!\n"+e);
-
-                final int legacyId = e.getInt("oldId");
+                final int legacyId = e.getInt("newId");
                 final int legacyData = e.getInt("data");
+                final JSONObject states = e.getJSONObject("states");
 
                 if(legacyId > 8000)
                     throw new IOException("Ты чё еблан? Какова хуя в дампе блок с id "+legacyId);
 
-                final long hash = computeStateHash(e.getInt("newId"), e.getJSONObject("states"), stateIdByName);
+                final long hash = computeStateHash(legacyId, states, stateIdByName);
                 if (stateHashToLegacyIdData.containsKey(hash))
                     throw new RuntimeException("hash collision: " + hash + " "+e);
 
                 debug_hash.put(hash, e);
-                BlockStateRegisters.addState(hash, e.getJSONObject("states"));
-                // log.info(e.getString("nameId") + legacyId + ":" + legacyData + " -> " + hash);
+                BlockStateRegisters.addState(hash, states);
                 stateHashToLegacyIdData.put(hash, (legacyId << 16) | legacyData);
             }
         }catch (Exception e){

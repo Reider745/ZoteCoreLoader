@@ -39,7 +39,7 @@ public class BlockState {
             this.data = meta.getDamage();
         }else
             this.data = 0;
-        this.runtimeId = GlobalBlockPalette.getOrCreateRuntimeId(id, data);
+        this.runtimeId = GlobalBlockPalette.getOrCreateRuntimeId(InnerCoreServer.PROTOCOL, id, data);
     }
 
     public BlockState(int id, Map<?, Integer> map) {
