@@ -20,6 +20,38 @@ public class ItemUtils implements HookClass {
     @Inject(signature = "(ILjava/lang/Integer;I[B)Lcn/nukkit/item/Item;")
     public static Item get(int id, Integer meta, int count, byte[] tags){
         try {
+            Class<?> c = null;
+            if (id < 0) {
+                int blockId = 255 - id;
+                c = Block.list[blockId];
+            } else {
+                c = Item.list[id];
+            }
+
+            Item item;
+            if (c == null) {
+                item = new Item(id, meta, count);
+            } else if ((id < 256 && id != 166) || id > 8000) {
+                if (meta >= 0) {
+                    item = new ItemBlock(Block.get(id, meta), meta, count);
+                } else {
+                    item = new ItemBlock(Block.get(id), meta, count);
+                }
+            } else if(id > 2000){
+                item = ((Item) c.getConstructor(int.class, Integer.class, int.class).newInstance(id, meta, count));
+            } else {
+                item = ((Item) c.getConstructor(Integer.class, int.class).newInstance(meta, count));
+            }
+
+            if (tags.length != 0) {
+                item.setCompoundTag(tags);
+            }
+
+            return item;
+        } catch (Exception e) {
+            return new Item(id, meta, count).setCompoundTag(tags);
+        }
+        /*try {
             Class c = Item.list[id];
             Item item;
 
@@ -47,7 +79,7 @@ public class ItemUtils implements HookClass {
             Item item = new Item(id, meta, count).setCompoundTag(tags);
             //items_pointers.addPointer(item);
             return item;
-        }
+        }*/
     }
 
     @Inject

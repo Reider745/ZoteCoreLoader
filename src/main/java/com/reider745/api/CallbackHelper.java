@@ -92,6 +92,7 @@ public class CallbackHelper {
 
         @Override
         public void run() {
+            if(event.isCancelled()) return;
             apply.apply();
             event.setCancelled(isPrevent());
         }

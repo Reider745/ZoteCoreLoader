@@ -110,14 +110,4 @@ public class RuntimeItemsHooks implements HookClass {
         CustomItem.customItems.forEach((name, id) -> legacyString2LegacyInt.put(name, id));
         CustomBlock.customBlocks.forEach((name, id) -> legacyString2LegacyInt.put(name, id));
     }
-
-    @Inject(class_name = "cn.nukkit.utils.Utils")
-    public static boolean hasItemOrBlock(int id){
-        if (id < 0) {
-            int blockId = 255 - id;
-            return blockId < Block.MAX_BLOCK_ID && Block.list[blockId] != null;
-        } else {
-            return id < Item.list.length && Item.list[id] != null;
-        }
-    }
 }

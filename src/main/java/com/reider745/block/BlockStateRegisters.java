@@ -70,7 +70,6 @@ public class BlockStateRegisters {
         Map<String, Integer> state = new HashMap<>();
         for(int i = 0;i < statesAndValues.length;i+=2)
             state.put(nameByStateId.get(statesAndValues[i]), statesAndValues[i+1]);
-        System.out.println(runtimeIdsForStatesAndId.get(id).toString());
         return runtimeIdsForStatesAndId.get(id).get(state);
     }// -1 is returned in case it is not found
 }

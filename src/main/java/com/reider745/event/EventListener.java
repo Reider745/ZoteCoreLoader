@@ -42,6 +42,7 @@ public class EventListener implements Listener {
 
     }
 
+
     @EventHandler
     public void breakBlock(BlockBreakEvent event){
         Block block = event.getBlock();
@@ -60,11 +61,11 @@ public class EventListener implements Listener {
         preventedCallback(event, () -> NativeCallback.onBlockBuild((int) block.x, (int) block.y, (int) block.z, 0, event.getPlayer().getId()));
     }
 
-    @EventHandler
+    /*@EventHandler
     public void restoneUpdate(RedstoneUpdateEvent event){
         Block block = event.getBlock();
         NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z, 0, false, event.getBlock().getLevel());
-    }
+    }*/
 
     @EventHandler
     public void projectileHit(ProjectileHitEvent event){
