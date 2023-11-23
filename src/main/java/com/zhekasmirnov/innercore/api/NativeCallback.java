@@ -601,12 +601,12 @@ public class NativeCallback {
         isDestroyBlockCallbackInProgress = false;
 
         // if tile update was not allowed for this thread, manually run refresh
-        if (!NativeAPI.isTileUpdateAllowed()) {
-            NativeAPI.forceRenderRefresh(x, y, z, 0);
+       // if (!NativeAPI.isTileUpdateAllowed()) {
+           // NativeAPI.forceRenderRefresh(x, y, z, 0);
 
             // this should not usually happen, so log it
-            ICLog.d("DEBUG", "block was destroyed by player in BlockSource with disabled tile update, this should not occur");
-        }
+            //ICLog.d("DEBUG", "block was destroyed by player in BlockSource with disabled tile update, this should not occur");
+        //}
     }
 
     public static void onBlockDestroyStarted(int x, int y, int z, int side) {

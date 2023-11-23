@@ -1,6 +1,8 @@
 package com.reider745.world;
 
+import cn.nukkit.Player;
 import cn.nukkit.block.Block;
+import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.event.entity.EntityExplosionPrimeEvent;
@@ -10,12 +12,26 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.level.format.anvil.palette.BiomePalette;
+import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.ItemUtils;
 
+import java.util.Map;
+
+
 public class BlockSourceMethods {
+    private static void defDestroy(Level level, Block target){
+        BlockEntity blockEntity = level.getBlockEntity(target);
+        if (blockEntity != null) {
+            blockEntity.onBreak();
+            blockEntity.close();
+
+            level.updateComparatorOutputLevel(target);
+        }
+    }
     public static Level getLevelForDimension(int dimension){
         if(dimension >= 0 && dimension <= 2)
             dimension++;
@@ -23,7 +39,18 @@ public class BlockSourceMethods {
     }
 
     public static void destroyBlock(Level pointer, int x, int y, int z, boolean drop, int updateType, boolean destroyParticles){
-        pointer.setBlock(x, y, z, Block.get(0), false, updateType == 1);
+        boolean update = updateType == 3;
+        Block block = pointer.getBlock(x, y, z);
+        pointer.setBlock(x, y, z, Block.get(0), update, update);
+        if(destroyParticles) {
+            Map<Integer, Player> players = pointer.getChunkPlayers((int) x >> 4, (int) z >> 4);
+            pointer.addParticle(new DestroyBlockParticle(block.add(0.5), block), players.values());
+        }
+        if(drop){
+            Item[] drops = block.getDrops(Item.get(0));
+
+        }
+        defDestroy(pointer, block);
     }
 
     public static int getBlockId(Level pointer, int x, int y, int z){
@@ -72,7 +99,9 @@ public class BlockSourceMethods {
         return pointer.getBlock(x, y, z);
     }
     public static void setBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
-        pointer.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
+        Block block = pointer.getBlock(x, y, z);
+        pointer.setBlock(x, y, z, Block.get(id, data).clone(), allowUpdate, allowUpdate);
+        defDestroy(pointer, block);
     }
     public static void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType){
         int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
@@ -132,9 +161,10 @@ public class BlockSourceMethods {
     }
     public static native long spawnNamespacedEntity(Level pointer, float x, float y, float z, String str1, String str2, String str3);
     public static long spawnExpOrbs(Level pointer, float x, float y, float z, int amount){
-        EntityXPOrb entity = (EntityXPOrb) Entity.createEntity(EntityXPOrb.NETWORK_ID, new Position(x, y, z));
-        entity.setExp(amount);
-        pointer.addEntity(entity);
+        Vector3 source = new Vector3(x, y, z);
+        CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3(0, 0, 0));
+        Entity entity = Entity.createEntity("XpOrb", pointer.getChunk(source.getChunkX(), source.getChunkZ()), nbt);
+        entity.spawnToAll();
         return entity.getId();
     }
 }
