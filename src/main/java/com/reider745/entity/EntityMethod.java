@@ -102,7 +102,7 @@ public class EntityMethod {
     public static void setEntityArmor(long entity, int slot, int id, int count, int data, long extra){
         EntityHuman ent = getEntityHumanToLong(entity);
         if(ent == null) return;
-        ent.getInventory().setArmorItem(slot, Item.get(id, data, count));
+        ent.getInventory().setArmorItem(slot, ItemUtils.get(id, count, data, extra));
     }
 
     public static boolean isValidEntity(long ent){
