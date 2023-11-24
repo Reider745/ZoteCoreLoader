@@ -115,9 +115,11 @@ public class NativeItemInstanceExtra {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        if (isFinalizable) {
+
+        ItemUtils.removePointer(ptr);
+        /*if (isFinalizable) {
             finalizeNative(ptr); // TODO: !!! make extra ptr for java extra instance unique in any case
-        }
+        }*/
     }
 
     public NativeItemInstanceExtra(long extra) {
@@ -156,6 +158,10 @@ public class NativeItemInstanceExtra {
         provider = (ItemExtraDataProvider) ItemUtils.items_pointers.getInstance(ptr);
         provider.extra = this;
         isFinalizable = nativeIsFinalizable(ptr);
+    }
+
+    public ItemExtraDataProvider getProvider() {
+        return provider;
     }
 
     public JSONObject asJson() {

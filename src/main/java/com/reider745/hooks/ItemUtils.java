@@ -118,9 +118,14 @@ public class ItemUtils implements HookClass {
         String custom = tag.getString(INNER_CORE_TAG_NAME);
         if(!custom.equals("")){
             NativeItemInstanceExtra extra = new NativeItemInstanceExtra();
+            extra.getProvider().apply(item);
             extra.setAllCustomData(custom);
             return extra;
         }
         return null;
+    }
+
+    public static void removePointer(long ptr){
+        items_pointers.removePointer(ptr);
     }
 }
