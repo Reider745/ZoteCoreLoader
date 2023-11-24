@@ -6,6 +6,8 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataPacket;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.NativeDataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+import com.zhekasmirnov.innercore.mod.build.Config;
 
 import java.io.IOException;
 import java.util.ArrayList;

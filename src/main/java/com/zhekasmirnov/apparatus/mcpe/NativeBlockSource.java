@@ -2,6 +2,7 @@ package com.zhekasmirnov.apparatus.mcpe;
 
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.level.Level;
 import com.reider745.api.CallbackHelper;
 import com.reider745.world.BlockSourceMethods;
@@ -231,8 +232,8 @@ public class NativeBlockSource {
     }
     
     public NativeTileEntity getBlockEntity(int x, int y, int z) {
-        long ptr = BlockSourceMethods.getBlockEntity(pointer, x, y, z);
-        return ptr != 0 ? new NativeTileEntity(ptr) : null;
+        BlockEntity ptr = BlockSourceMethods.getBlockEntity(pointer, x, y, z);
+        return ptr != null ? new NativeTileEntity(ptr) : null;
     }
     
     public int getDimension() {

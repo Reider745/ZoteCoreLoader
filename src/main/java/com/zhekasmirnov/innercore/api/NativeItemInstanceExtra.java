@@ -298,12 +298,12 @@ public class NativeItemInstanceExtra {
     }
 
     public NativeCompoundTag getCompoundTag() {
-        long tag = nativeGetCompoundTag(ptr);
-        return tag != 0 ? new NativeCompoundTag(tag) : null;
+        CompoundTag tag = nativeGetCompoundTag(ptr);
+        return tag != null ? new NativeCompoundTag(tag) : null;
     }
 
     public void setCompoundTag(NativeCompoundTag tag) {
-        nativeSetCompoundTag(ptr, tag != null ? tag.pointer : 0);
+        nativeSetCompoundTag(ptr, tag != null ? tag.pointer : null);
     }
 
 
@@ -594,12 +594,11 @@ public class NativeItemInstanceExtra {
             return item.getEnchantment(id).getName();
         return "";
     }
-    private long nativeGetCompoundTag(long ptr){
-        InnerCoreServer.useNotCurrentSupport("nativeGetCompoundTag");
-        return 0;
+    private CompoundTag nativeGetCompoundTag(long ptr){
+        return provider.getCompoundTag();
     }
-    private void nativeSetCompoundTag(long ptr, long tag){
-        InnerCoreServer.useNotCurrentSupport("nativeSetCompoundTag");
+    private void nativeSetCompoundTag(long ptr, CompoundTag tag){
+        provider.setCompoundTag(tag);
     }
 
 

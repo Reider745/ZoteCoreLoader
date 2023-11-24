@@ -5,6 +5,7 @@ import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
@@ -488,11 +489,12 @@ public class NativeAPI {
         return "";
     }
 
-    public static long getEntityCompoundTag(long unwrapEntity) {
-        return 0;
+    public static CompoundTag getEntityCompoundTag(long unwrapEntity) {
+        return EntityMethod.getEntityCompoundTag(unwrapEntity);
     }
 
-    public static void setEntityCompoundTag(long unwrapEntity, long pointer) {
+    public static void setEntityCompoundTag(long unwrapEntity, CompoundTag pointer) {
+        EntityMethod.setEntityCompoundTag(unwrapEntity, pointer);
     }
 
     public static void setCollisionSize(long unwrapEntity, float w, float h) {

@@ -9,6 +9,7 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.ProjectileHitEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
@@ -91,8 +92,8 @@ public class EventListener implements Listener {
         Entity self = event.getEntity();
 
         Entity attacker;
-        if(event instanceof EntityDamageByChildEntityEvent child) {
-            attacker = child.getChild();
+        if(event instanceof EntityDamageByEntityEvent child) {
+            attacker = child.getDamager();
             preventedCallback(event, () ->
                 NativeCallback.onEntityAttacked(self.getId(), attacker == null ? -1 : attacker.getId()));
         }else {

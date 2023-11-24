@@ -11,6 +11,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
@@ -289,5 +290,18 @@ public class EntityMethod {
         if(entity != null)
             return 1;
         return 0;
+    }
+
+    public static CompoundTag getEntityCompoundTag(long unwrapEntity) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            return entity.namedTag;
+        return null;
+    }
+
+    public static void setEntityCompoundTag(long unwrapEntity, CompoundTag pointer) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            entity.namedTag = pointer;
     }
 }

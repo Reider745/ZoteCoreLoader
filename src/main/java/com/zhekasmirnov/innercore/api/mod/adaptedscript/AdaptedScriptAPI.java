@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.adaptedscript;
 
 import android.util.Pair;
+import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
@@ -984,8 +985,8 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static NativeCompoundTag getCompoundTag(Object entity) {
-            long ptr = NativeAPI.getEntityCompoundTag(unwrapEntity(entity));
-            return ptr != 0 ? new NativeCompoundTag(ptr) : null;
+            CompoundTag ptr = NativeAPI.getEntityCompoundTag(unwrapEntity(entity));
+            return ptr != null ? new NativeCompoundTag(ptr) : null;
         }
 
         @JSStaticFunction

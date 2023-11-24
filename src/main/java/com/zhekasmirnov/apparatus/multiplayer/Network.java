@@ -209,10 +209,6 @@ public class Network {
         handler.stop();
     }
 
-    public void onConnection(long eid){
-        Network.getSingleton().getClient().setPlayerUid(eid);
-    }
-
     public void startLanServer() {
         startLanServer(config.getDefaultPort());
     }

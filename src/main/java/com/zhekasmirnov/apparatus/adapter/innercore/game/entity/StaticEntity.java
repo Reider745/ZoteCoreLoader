@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.entity;
 
+import cn.nukkit.nbt.tag.CompoundTag;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.common.Vector3;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
@@ -44,8 +45,8 @@ public class StaticEntity {
     }
 
     public static int getExperienceOrbValue(long entity) {
-        long tag = NativeAPI.getEntityCompoundTag(entity);
-        return tag != 0 ? new NativeCompoundTag(tag).getInt("experience value") : 0;
+        CompoundTag tag = NativeAPI.getEntityCompoundTag(entity);
+        return tag != null ? new NativeCompoundTag(tag).getInt("experience value") : 0;
     }
 
 

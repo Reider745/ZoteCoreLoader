@@ -26,6 +26,7 @@ public class ItemExtraDataProvider extends ClassPointer<Item> {
 
     public void apply(Item item){
         hasClear = true;
+        this.reference = new WeakReference<>(item);
     }
 
     @Override
@@ -35,6 +36,12 @@ public class ItemExtraDataProvider extends ClassPointer<Item> {
 
     public CompoundTag getCompoundTag(){
         Item item = get();
-        return item == null ? null : item.getNamedTag();
+        return item != null ? item.getNamedTag() : null;
+    }
+
+    public void setCompoundTag(CompoundTag tag) {
+        Item item = get();
+        if(item != null)
+            item.setCompoundTag(tag);
     }
 }

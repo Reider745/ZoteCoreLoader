@@ -1,11 +1,12 @@
 package com.zhekasmirnov.innercore.api.nbt;
 
+import cn.nukkit.nbt.tag.*;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 
 public class NativeListTag {
-    public final long pointer;
+    public final ListTag<Tag> pointer;
     private boolean isFinalizable = true;
 
     public NativeListTag() {
@@ -16,7 +17,7 @@ public class NativeListTag {
         pointer = tag != null ? nativeClone(tag.pointer) : nativeConstruct();
     }
 
-    public NativeListTag(long pointer) {
+    public NativeListTag(ListTag<Tag> pointer) {
         this.pointer = pointer;
     }
 
@@ -33,26 +34,50 @@ public class NativeListTag {
         }
     }
 
-    private static native long nativeConstruct();
-    static native long nativeClone(long ptr);
-    static native void nativeFinalize(long ptr);
+    private static ListTag<Tag> nativeConstruct(){
+        return new ListTag<>();
+    }
+    static ListTag<Tag> nativeClone(ListTag<Tag> ptr){
+        return (ListTag<Tag>) ptr.copy();
+    }
+    static void nativeFinalize(ListTag<Tag> ptr){
 
-    public native int length();
-    public native int getValueType(int key);
-    public native int getByte(int key);
-    public native int getShort(int key);
-    public native int getInt(int key);
-    public native long getInt64(int key);
-    public native float getFloat(int key);
-    public native double getDouble(int key);
-    public native String getString(int key);
+    }
+
+    public int length(){
+        return pointer.size();
+    }
+    public int getValueType(int key){
+        return NativeCompoundTag.getFromClass(pointer.get(key).getClass());
+    }
+    public int getByte(int key){
+        return ((ByteTag) pointer.get(key)).data;
+    }
+    public int getShort(int key){
+        return ((ShortTag) pointer.get(key)).data;
+    }
+    public int getInt(int key){
+        return ((IntTag) pointer.get(key)).data;
+    }
+    public long getInt64(int key){
+        return ((LongTag) pointer.get(key)).data;
+    }
+    public float getFloat(int key){
+        return ((FloatTag) pointer.get(key)).data;
+    }
+    public double getDouble(int key){
+        return ((DoubleTag) pointer.get(key)).data;
+    }
+    public String getString(int key){
+        return ((StringTag) pointer.get(key)).data;
+    }
     public NativeCompoundTag getCompoundTagNoClone(int key) {
-        long ptr = nativeGetCompoundTag(key);
-        return ptr != 0 ? new NativeCompoundTag(ptr).setFinalizable(false) : null;
+        CompoundTag ptr = nativeGetCompoundTag(key);
+        return ptr != null ? new NativeCompoundTag(ptr).setFinalizable(false) : null;
     }
     public NativeListTag getListTagNoClone(int key) {
-        long ptr = nativeGetListTag(key);
-        return ptr != 0 ? new NativeListTag(ptr).setFinalizable(false) : null;
+        ListTag<Tag> ptr = nativeGetListTag(key);
+        return ptr != null ? new NativeListTag(ptr).setFinalizable(false) : null;
     }
     public NativeCompoundTag getCompoundTag(int key) {
         NativeCompoundTag tag = getCompoundTagNoClone(key);
@@ -63,26 +88,47 @@ public class NativeListTag {
         return tag != null ? new NativeListTag(tag) : null;
     }
 
-    public native void putByte(int key, int value);
-    public native void putShort(int key, int value);
-    public native void putInt(int key, int value);
-    public native void putInt64(int key, long value);
-    public native void putFloat(int key, float value);
-    public native void putDouble(int key, double value);
-    public native void putString(int key, String value);
+    public void putByte(int key, int value){
+        pointer.add(key, new ByteTag(String.valueOf(key), value));
+    }
+    public void putShort(int key, int value){
+        pointer.add(key, new ShortTag(String.valueOf(key), value));
+    }
+    public void putInt(int key, int value){
+        pointer.add(key, new IntTag(String.valueOf(key), value));
+    }
+    public void putInt64(int key, long value){
+        pointer.add(key, new LongTag(String.valueOf(key), value));
+    }
+    public void putFloat(int key, float value){
+        pointer.add(key, new FloatTag(String.valueOf(key), value));
+    }
+    public void putDouble(int key, double value){
+        pointer.add(key, new DoubleTag(String.valueOf(key), value));
+    }
+    public void putString(int key, String value){
+        pointer.add(key, new StringTag(String.valueOf(key), value));
+    }
     public void putCompoundTag(int key, NativeCompoundTag tag) {
-        nativePutTag(key, tag != null ? NativeCompoundTag.nativeClone(tag.pointer) : 0);
+        nativePutTag(key, tag != null ? NativeCompoundTag.nativeClone(tag.pointer) : null);
     }
     public void putListTag(int key, NativeListTag tag) {
-        nativePutTag(key, tag != null ? NativeListTag.nativeClone(tag.pointer) : 0);
+        nativePutTag(key, tag != null ? NativeListTag.nativeClone(tag.pointer) : null);
     }
     
-    public native void clear();
+    public void clear(){
+        pointer.getAllUnsafe().clear();
+    }
     
-    native long nativeGetCompoundTag(int key);
-    native long nativeGetListTag(int key);
-    native void nativePutTag(int key, long tag);
-
+    CompoundTag nativeGetCompoundTag(int key){
+        return (CompoundTag) pointer.get(key);
+    }
+    ListTag<Tag> nativeGetListTag(int key){
+        return (ListTag<Tag>) pointer.get(key);
+    }
+    void nativePutTag(int key, Tag tag){
+        pointer.add(key, tag);
+    }
 
     public Scriptable toScriptable() {
         int len = length();

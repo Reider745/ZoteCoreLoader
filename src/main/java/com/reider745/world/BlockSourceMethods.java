@@ -13,6 +13,7 @@ import cn.nukkit.level.Position;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.level.format.anvil.palette.BiomePalette;
 import cn.nukkit.level.particle.DestroyBlockParticle;
+import cn.nukkit.math.BlockVector3;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.InnerCoreServer;
@@ -119,8 +120,8 @@ public class BlockSourceMethods {
     public static int getGrassColor(Level pointer, int x, int y, int z){
         return 0;
     }
-    public static long getBlockEntity(Level pointer, int x, int y, int z){
-        return 0;
+    public static BlockEntity getBlockEntity(Level pointer, int x, int y, int z){
+        return pointer.getBlockEntity(new BlockVector3(x, y, z));
     }
     public static int getDimension(Level pointer){
         return pointer.getDimension();
