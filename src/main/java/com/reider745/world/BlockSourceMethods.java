@@ -49,7 +49,9 @@ public class BlockSourceMethods {
         }
         if(drop){
             Item[] drops = block.getDrops(Item.get(0));
-
+            Vector3 pos = new Vector3(x, y, z);
+            for(Item item : drops)
+                pointer.dropItem(pos, item);
         }
         defDestroy(pointer, block);
     }
