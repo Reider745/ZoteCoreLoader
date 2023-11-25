@@ -5,6 +5,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
@@ -28,7 +29,7 @@ public class EventListener implements Listener {
         CallbackHelper.apply(event, apply);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void use(PlayerInteractEvent event) {
         Vector3 pos = event.getTouchVector();
         Block block = event.getBlock();
@@ -44,19 +45,19 @@ public class EventListener implements Listener {
     }
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void breakBlock(BlockBreakEvent event){
         Block block = event.getBlock();
         preventedCallback(event, () -> NativeCallback.onBlockDestroyed((int) block.x, (int) block.y, (int) block.z, event.getFace().getIndex(), event.getPlayer().getId()));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void playerEat(PlayerEatFoodEvent event){
         Food food = event.getFood();
         preventedCallback(event, () ->  NativeCallback.onPlayerEat(food.getRestoreFood(), food.getRestoreSaturation(), event.getPlayer().getId()));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void placeBlock(BlockPlaceEvent event){
         Block block = event.getBlock();
         preventedCallback(event, () -> NativeCallback.onBlockBuild((int) block.x, (int) block.y, (int) block.z, 0, event.getPlayer().getId()));

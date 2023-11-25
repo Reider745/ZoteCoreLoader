@@ -593,10 +593,9 @@ public class NativeCallback {
         }
 
         // if block was already destroyed, prevent default action
-        /*System.out.println(blockSource.getBlockId(x, y, z));
         if (blockSource.getBlockId(x, y, z) == 0) {
             NativeAPI.preventDefault();
-        }*/
+        }
 
         // guard end
         isDestroyBlockCallbackInProgress = false;

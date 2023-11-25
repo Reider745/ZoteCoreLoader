@@ -33,9 +33,21 @@ public class BlockSourceMethods {
             level.updateComparatorOutputLevel(target);
         }
     }
+
     public static Level getLevelForDimension(int dimension){
-        if(dimension >= 0 && dimension <= 2)
-            dimension++;
+        if(dimension >= 0 && dimension <= 2){
+            switch (dimension) {
+                case 0 -> {
+                    return InnerCoreServer.server.getLevelByName("world");
+                }
+                case 1 -> {
+                    return InnerCoreServer.server.getLevelByName("nether");
+                }
+                case 2 -> {
+                    return InnerCoreServer.server.getLevelByName("the_end");
+                }
+            }
+        }
         return InnerCoreServer.server.getLevel(dimension);
     }
 
