@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginDescription;
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
+import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
 import com.reider745.item.CustomItem;
@@ -192,7 +193,7 @@ public class InnerCoreServer {
         CustomItem.initCreativeItems();
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
-
+        CommandsHelper.init();
 
         NativeCallback.onLevelCreated();
     }
