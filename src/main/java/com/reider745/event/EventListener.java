@@ -13,6 +13,7 @@ import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.ProjectileHitEvent;
+import cn.nukkit.event.inventory.FurnaceBurnEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
@@ -22,7 +23,9 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import com.reider745.api.CallbackHelper;
+import com.reider745.api.hooks.HookController;
 import com.zhekasmirnov.innercore.api.NativeCallback;
+import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 
 public class EventListener implements Listener {
     public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply){

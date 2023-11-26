@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
+import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
@@ -248,7 +249,7 @@ public class NativeItem {
     public static void setCreativeCategory(CustomManager ptr, int val){}
 
     public static void setProperties(CustomManager ptr, String val){
-        throw new RuntimeException("Use not support method");
+        InnerCoreServer.useNotSupport("setProperties");
     }
 
     public static native void setEnchantability(CustomManager ptr, int type, int value);

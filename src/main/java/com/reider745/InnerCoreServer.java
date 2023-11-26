@@ -189,9 +189,9 @@ public class InnerCoreServer {
 
         CustomBlock.init();
         CustomItem.init();
+        CustomItem.initCreativeItems();
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
-        CustomItem.initCreativeItems();
 
 
         NativeCallback.onLevelCreated();

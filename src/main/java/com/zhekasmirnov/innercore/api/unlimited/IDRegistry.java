@@ -114,6 +114,12 @@ public class IDRegistry {
         nameById.put(id, name);
     }
 
+    public static int getIdByStrId(String id){
+        if(id.startsWith("item_"))
+            return (Integer) itemIds.get(id.replace("item_", ""));
+        return (Integer) blockIds.get(id.replace("block_", ""));
+    }
+
     static boolean isOccupied(int id) {
         return nameById.containsKey(id) 
             || vanillaNameById.containsKey(id) 
@@ -156,7 +162,7 @@ public class IDRegistry {
         putId(name, blockIdIterator);
         return blockIdIterator++;
     }
-
+    
 
     private static LinkedList<String> unapprovedItems = new LinkedList<>();
     private static int itemIdIterator = ITEM_ID_OFFSET;

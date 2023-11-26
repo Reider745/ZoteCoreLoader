@@ -16,7 +16,7 @@ public class CustomItem {
     public static HashMap<Integer, CustomManager> items = new HashMap<>();
 
     public static void init(){
-        items.forEach((key, value) -> Item.list[key] = value.clazz);
+        items.forEach((key, value) -> Item.list[key] = value.getClazz());
         CustomBlock.blocks.forEach((id, manager) -> Item.list[id] = manager.getClazz());
     }
 

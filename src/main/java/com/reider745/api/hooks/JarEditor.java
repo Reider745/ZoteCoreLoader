@@ -165,6 +165,8 @@ public class JarEditor {
         if(isStatic)
             args.append("this");
 
+        if(controller || arguments_map)
+            args.append("_ctr_hook");
         for(int i = 1;i <= arguments_types.length;i++)
             if(args.toString().equals(""))
                 args.append("$"+i);

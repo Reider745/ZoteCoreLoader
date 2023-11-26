@@ -27,13 +27,8 @@ public class ItemMethod {
 
     public static String getStringIdAndTypeForIntegerId(int id){
         Item item = Item.get(id);
-        if(item != null){
-            boolean isBlock = item instanceof ItemBlock;
-            //String id = null;
-            //if(isBlock)
-               // id = CommandEnum.E
-            return (isBlock ? "block" : "item") + " :" + id;
-        }
+        if(item != null)
+            return (item instanceof ItemBlock ? "block" : "item") + " :" + id;
         return null;
     }
 }
