@@ -19,7 +19,6 @@ import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerPackVersionChecker;
 import com.zhekasmirnov.apparatus.multiplayer.mod.RuntimeIdDataPacketSender;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
@@ -32,10 +31,11 @@ import com.zhekasmirnov.innercore.modpack.ModPackFactory;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.*;
+import java.io.*;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class InnerCoreServer {
     public static final int PROTOCOL = 422;
@@ -65,6 +65,56 @@ public class InnerCoreServer {
         NativeCallback.onGameStopped(true);
         NativeCallback.onMinecraftAppSuspended();
     }
+    private final ClassLoader classLoader = InnerCoreServer.class.getClassLoader();;
+    private File cloneFile(String name){
+        try {
+            final File file = new File(name);
+            if (!file.exists()){
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(name));
+                BufferedInputStream bis = new BufferedInputStream(classLoader.getResourceAsStream(name));
+
+                bos.write(bis.readAllBytes());
+                bis.close();
+                bos.close();
+            }
+            return file;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {
+        final BufferedInputStream bis = new BufferedInputStream(file.getInputStream(entry));
+        final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(uncompressedDirectory + entry.getName()));
+        bos.write(bis.readAllBytes());
+
+        bos.close();
+        bis.close();
+    }
+
+    private static void processDirectory(String uncompressedDirectory, ZipEntry entry) {
+        final File directory = new File(uncompressedDirectory + entry.getName());
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
+
+    public static void unzip(final File zipFile, final String uncompressedDirectory){
+        try {
+            final ZipFile file = new ZipFile(zipFile);
+            final Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) file.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+
+                if (entry.isDirectory()) processDirectory(uncompressedDirectory, entry);
+                else processFile(file, uncompressedDirectory, entry);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public void preLoad(Server server) throws Exception {
         long start = System.currentTimeMillis();
@@ -87,63 +137,15 @@ public class InnerCoreServer {
 
         plugin.init(null, server, new PluginDescription(configs), null, null);
 
-        /*ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
-        try {
-            Path resourcePath = Paths.get(classLoader.getResource("innercore").toURI());
-            Path targetPath = Paths.get(PATH + "/innercore");
-
-            File targetPathFile = targetPath.toFile();
-            if (!targetPathFile.exists()) {
-
-                String sourceDirectory = resourcePath.toString();
-
-                Files.walk(Paths.get(sourceDirectory))
-                        .forEach(source -> {
-                            Path destination = Paths.get(targetPath.toString(), source.toString()
-                                    .substring(sourceDirectory.length()));
-                            try {
-                                Files.copy(source, destination);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                System.out.println("Directory innercore craete");
+        if(!(new File(PATH+"/innercore").exists())){
+            final File zipFile = cloneFile("innercore.zip");
+            if(zipFile != null){
+                unzip(zipFile, PATH);
+                zipFile.deleteOnExit();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-        ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
-        try {
-            Path resourcePath = Paths.get(classLoader.getResource("innercore").toURI());
-            Path targetPath = Paths.get(PATH, "innercore");
-
-            File targetPathFile = targetPath.toFile();
-            if (!targetPathFile.exists()) {
-                Files.createDirectories(targetPath);
-
-                Files.walk(resourcePath)
-                        .forEach(source -> {
-                            Path destination = Paths.get(targetPath.toString(), resourcePath.relativize(source).toString());
-                            try {
-                                Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                System.out.println("Directory innercore created");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
-        try{
-            final String config = "innercore_default_config.json";
-            final File file = new File(config);
-            if(!file.exists())
-                FileUtils.writeFileText(file, new String(classLoader.getResourceAsStream(config).readAllBytes()));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        cloneFile("innercore_default_config.json");
 
         FileTools.init();
 
