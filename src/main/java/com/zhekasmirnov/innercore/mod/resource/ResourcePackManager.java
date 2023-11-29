@@ -44,18 +44,18 @@ public class ResourcePackManager {
     }
 
     public static String getBlockTextureName(String name, int id) {
-        if (instance.resourceStorage != null) {
+        /*if (instance.resourceStorage != null) {
             String result = instance.resourceStorage.blockTextureDescriptor.getTextureName(name, id);
             return result;
-        }
+        }*/
         return null;
     }
 
     public static String getItemTextureName(String name, int id) {
-        if (instance.resourceStorage != null) {
+        /*if (instance.resourceStorage != null) {
             String result = instance.resourceStorage.itemTextureDescriptor.getTextureName(name, id);
             return result;
-        }
+        }*/
         return null;
     }
 

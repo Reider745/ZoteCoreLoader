@@ -304,4 +304,12 @@ public class EntityMethod {
         if(entity != null)
             entity.namedTag = pointer;
     }
+
+    public static void getRotation(long unwrapEntity, float[] pos) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null){
+            pos[0] = (float) entity.getYaw();
+            pos[1] = (float) entity.getPitch();
+        }
+    }
 }

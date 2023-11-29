@@ -355,9 +355,11 @@ public class NativeAPI {
     }
 
     public static void getRotation(long unwrapEntity, float[] pos) {
+        EntityMethod.getRotation(unwrapEntity, pos);
     }
 
     public static void setRotation(long unwrapEntity, float x, float y) {
+
     }
 
     public static void setRotationAxis(long unwrapEntity, int axis, float val) {
