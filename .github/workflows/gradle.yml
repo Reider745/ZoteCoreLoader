@@ -1,4 +1,4 @@
-name: Gradle Build Pipeline
+name: build
 
 on:
   push:
@@ -33,5 +33,5 @@ jobs:
       uses: actions/upload-artifact@v3.1.3
       with:
          name: ZotCoreLoader
-         path: build/libs/ZotCoreLoader_2-1.0-SNAPSHOT.jar
+         path: build/libs/ZotCore-1.0-SNAPSHOT.jar
 
