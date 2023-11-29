@@ -1,9 +1,10 @@
 package com.reider745.item;
 
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemDurable;
 import com.reider745.api.CustomManager;
 
-public class CustomItemClass extends Item {
+public class CustomItemClass extends Item implements ItemDurable {
     private CustomManager parameters;
 
     public CustomItemClass(int id, Integer meta, int count){
@@ -28,6 +29,7 @@ public class CustomItemClass extends Item {
     public int getMaxStackSize() {
         return parameters.get("max_stack");
     }
+
 
     @Override
     public Item clone() {

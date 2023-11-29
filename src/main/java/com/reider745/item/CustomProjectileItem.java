@@ -10,7 +10,7 @@ import com.reider745.api.CustomManager;
 public class CustomProjectileItem extends ProjectileItem {
     @Override
     public String getProjectileEntityType() {
-        return "ThrownTrident";
+        return "Snowball";
     }
 
     @Override
@@ -20,7 +20,7 @@ public class CustomProjectileItem extends ProjectileItem {
 
     @Override
     protected void correctNBT(CompoundTag nbt) {
-        nbt.put("Trident", NBTIO.putItemHelper(this));
+        nbt.put("ItemIc", NBTIO.putItemHelper(this));
     }
 
     private CustomManager parameters;

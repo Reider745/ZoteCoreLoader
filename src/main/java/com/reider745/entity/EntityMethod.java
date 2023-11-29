@@ -7,7 +7,6 @@ import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.entity.EntityRideable;
 import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.projectile.EntityProjectile;
-import cn.nukkit.entity.projectile.EntityThrownTrident;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
@@ -15,10 +14,13 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.ItemUtils;
+import com.reider745.item.CustomProjectileItem;
 import com.reider745.world.BlockSourceMethods;
 
 public class EntityMethod {
@@ -189,15 +191,15 @@ public class EntityMethod {
 
     public static Item getItemFromProjectile(long unwrapEntity) {
         Entity ent = getEntityToLong(unwrapEntity);
-        if(ent instanceof EntityThrownTrident entItem)
-            return entItem.getItem();
+        if(ent instanceof EntityProjectile entItem)
+            return NBTIO.getItemHelper(entItem.namedTag.getCompound("ItemIc"));
         return Item.get(0).clone();
     }
 
     public static void setItemToDrop(long unwrapEntity, int id, int count, int data, long unwrapValue) {
         Entity ent = getEntityToLong(unwrapEntity);
-        if(ent instanceof EntityThrownTrident entItem)
-            entItem.setItem(ItemUtils.get(id, count, data, unwrapValue));
+        if(ent instanceof EntityItem entItem)
+            ReflectHelper.setField(entItem, "item", ItemUtils.get(id, count, data, unwrapValue));
     }
 
     public static void setEntityCarriedItem(long unwrapEntity, int id, int count, int data, long unwrapValue) {
