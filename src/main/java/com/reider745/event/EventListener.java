@@ -13,19 +13,28 @@ import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.ProjectileHitEvent;
+import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.FurnaceBurnEvent;
+import cn.nukkit.event.inventory.InventoryClickEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
+import cn.nukkit.event.player.CraftingTableOpenEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
+import cn.nukkit.inventory.CraftingGrid;
+import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.InventoryTransactionPacket;
 import com.reider745.api.CallbackHelper;
 import com.reider745.api.hooks.HookController;
+import com.reider745.workbench.Workbench;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
+
+import java.util.Arrays;
 
 public class EventListener implements Listener {
     public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply){
@@ -92,7 +101,7 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void damagetEntity(EntityDamageEvent event){
+    public void damageEntity(EntityDamageEvent event){
         Entity self = event.getEntity();
 
         Entity attacker;
@@ -106,5 +115,10 @@ public class EventListener implements Listener {
 
         preventedCallback(event, () ->
                 NativeCallback.onEntityHurt(self.getId(), attacker == null ? -1 : attacker.getId(), event.getCause().ordinal(), (int) event.getDamage() * 2, event.canBeReducedByArmor(), event.isBreakShield()));//последний 2 boolean тут врменн
+    }
+
+    @EventHandler
+    public void openCraftTable(CraftItemEvent event){
+       // Workbench.addCraft(event);
     }
 }

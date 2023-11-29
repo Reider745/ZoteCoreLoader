@@ -57,12 +57,18 @@ public class JarEditor {
         all_hooks.put(className, hooks);
     }
 
+    private static String getClassName(Object class_name){
+        if(class_name instanceof Class<?> clazz)
+            return clazz.getName();
+        return (String) class_name;
+    }
+
     public JarEditor registerHooksInitializationForClass(Class<? extends HookClass> clazz) throws InstantiationException, IllegalAccessException, NotFoundException {
         HookClass instance = clazz.newInstance();
         Annotation[] annotatedsClass = clazz.getAnnotations();
         for(Annotation annotationClass : annotatedsClass)
-            if(annotationClass instanceof Hooks) {
-                String className = ((Hooks) annotationClass).class_name();
+            if(annotationClass instanceof Hooks hooks) {
+                String className = getClassName(hooks.class_name());
                 Method[] methods = clazz.getMethods();
 
                 for(Method method : methods){
@@ -71,13 +77,13 @@ public class JarEditor {
                     for (Annotation annotationMethod : annotationsMethod)
                         if(annotationMethod instanceof Inject inject){
                             String method_name = inject.method();
-                            String className_ = inject.class_name();
+                            String className_ = getClassName(inject.class_name());
                             String sig = inject.signature();
 
                             this.addHookInitialization(className_.equals("-1") ? className : className_, method_name.equals("-1") ? method.getName() : method_name, sig, method, inject.type_hook(), isController(method), inject.arguments_map());
                         }else if(annotationMethod instanceof Injects inject){
                             String method_name = inject.method();
-                            String className_ = inject.class_name();
+                            String className_ = getClassName(inject.class_name());
                             String[] sigs = inject.signature();
                             String className__ = className_.equals("-1") ? className : className_;
 
@@ -106,8 +112,8 @@ public class JarEditor {
         HookClass instance = clazz.newInstance();
         Annotation[] annotatedsClass = clazz.getAnnotations();
         for(Annotation annotationClass : annotatedsClass)
-            if(annotationClass instanceof Hooks) {
-                String className = ((Hooks) annotationClass).class_name();
+            if(annotationClass instanceof Hooks hooks) {
+                String className = getClassName(hooks.class_name());
                 System.out.println("====="+className+"=====");
                 Method[] methods = clazz.getMethods();
 
@@ -117,13 +123,13 @@ public class JarEditor {
                     for (Annotation annotationMethod : annotationsMethod)
                         if(annotationMethod instanceof Inject inject){
                             String method_name = inject.method();
-                            String className_ = inject.class_name();
+                            String className_ = getClassName(inject.class_name());
                             String sig = inject.signature();
 
                             this.addHook(className_.equals("-1") ? className : className_, method_name.equals("-1") ? method.getName() : method_name, sig, method, inject.type_hook(), isController(method), inject.arguments_map());
                         }else if(annotationMethod instanceof Injects inject){
                             String method_name = inject.method();
-                            String className_ = inject.class_name();
+                            String className_ = getClassName(inject.class_name());
                             String[] sigs = inject.signature();
                             String className__ = className_.equals("-1") ? className : className_;
 
@@ -162,11 +168,10 @@ public class JarEditor {
         }
 
         StringBuilder args = new StringBuilder();
+
         if(isStatic)
             args.append("this");
 
-        if(controller || arguments_map)
-            args.append("_ctr_hook");
         for(int i = 1;i <= arguments_types.length;i++)
             if(args.toString().equals(""))
                 args.append("$"+i);
@@ -204,6 +209,7 @@ public class JarEditor {
                 (retType.equals("void") ? "return;" : "return " + Arguments.getConvertCode(retType, false, "_ctr_hook.getResult()")) + "\n";
         else if(typeHook == TypeHook.BEFORE_REPLACE || typeHook == TypeHook.AFTER_REPLACE)
             code += "return;";
+
         return code;
     }
 
@@ -256,12 +262,14 @@ public class JarEditor {
 
     private boolean isController(Method replaced){
         Class<?>[] parameters = replaced.getParameterTypes();
-        return parameters.length == 1 && parameters[0].getName().equals(NameController);
+        return parameters.length >= 1 && parameters[0].getName().equals(NameController);
     }
 
     private boolean isMapArguments(Method replaced, String[] types, boolean isStatic, boolean isController){
         Class<?>[] parameters = replaced.getParameterTypes();
-        return parameters.length-(!isStatic ? 0 : 1) != types.length+(isController ? 1 : 0);
+        if(isController)
+            return parameters.length <= 1+(isStatic ? 0 : 1);
+        return false;
     }
 
     private void replaceField(String className, HookClass field_replaced) {

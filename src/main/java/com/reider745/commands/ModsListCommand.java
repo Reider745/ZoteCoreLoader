@@ -12,11 +12,13 @@ import java.util.List;
 
 public class ModsListCommand extends Command {
     public ModsListCommand() {
-        super("mods", " - get list mod");
+        super("mods", "get list mod");
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
+        if(!commandSender.isOp()) return false;
+
         List<ApparatusMod> mods = ApparatusModLoader.getSingleton().getAllMods();
         String message = "===InnerCoreMods===";
         for(ApparatusMod mod : mods){

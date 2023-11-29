@@ -217,7 +217,7 @@ public class WorkbenchRecipeRegistry {
 
     public static void cleanupWorkbenchField(WorkbenchField field, long playerUid) {
         float[] pos = new float[3];
-        NativeAPI.getPosition(NativeAPI.getPlayer(), pos);
+        NativeAPI.getPosition(playerUid, pos);
 
         NativePlayer player = new NativePlayer(playerUid);
         for (int i = 0; i < 9; i++) {

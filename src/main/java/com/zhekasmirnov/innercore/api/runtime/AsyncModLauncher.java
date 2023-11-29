@@ -98,7 +98,7 @@ public class AsyncModLauncher {
     }
 
     private static void loadAllMenuScripts() {
-        //loadMenuScript("innercore/scripts/workbench", "screen_workbench");
+        loadMenuScript("innercore/scripts/workbench", "screen_workbench");
     }
 
     private static void loadMenuScript(String asset, String name) {

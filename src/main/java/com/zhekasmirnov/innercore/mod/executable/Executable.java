@@ -180,8 +180,9 @@ public class Executable implements Runnable {
 
     public void run() {
         // String str = parentContext.decompileScript(script, 4);
-        // Logger.debug("DECOMPILED SCRIPT", str);
+        // System.out.println(str);
         runForResult();
+
     }
 
     protected Object runScript() {

@@ -95,7 +95,6 @@ public abstract class API extends ScriptableObject {
 
     public void injectIntoScope(ScriptableObject scope) {
         injectIntoScope(scope, null);
-        scope.put("android", scope, new NativeJavaPackage("android"));
     }
 
     private static HashMap<Class, ArrayList<String>> getAllClassMethods(Class clazz, List<String> filter) {

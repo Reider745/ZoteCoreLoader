@@ -76,7 +76,7 @@ public class FileTools {
     }
 
     public static InputStream getAssetInputStream(String name) {
-        return null;
+        return new ByteArrayInputStream(getAssetBytes(name));
     }
 
     public static byte[] getAssetBytes(String name) {

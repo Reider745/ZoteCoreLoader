@@ -102,7 +102,8 @@ public abstract class WorkbenchRecipe {
 
     public abstract RecipeEntry[] getSortedEntries();
 
-    public void addToVanillaWorkbench() { }
+    public void addToVanillaWorkbench() {
+    }
 
     public void putIntoTheField(WorkbenchField field, long player) {
         InventoryPool pool = new InventoryPool(player);

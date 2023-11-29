@@ -76,17 +76,17 @@ public class WorkbenchRecipeListBuilder {
 
     public static void selectRecipe(ItemContainer container, WorkbenchRecipe recipe, long player) {
         deselectRecipe(container, player);
-       /* container.runTransaction(container0 -> {
+        container.runTransaction(container0 -> {
             recipe.putIntoTheField(container, player);
             container.markAllSlotsDirty();
             container.sendChanges();
-        });*/
+        });
     }
 
     public static void deselectRecipe(ItemContainer container, long player) {
-        /*container.runTransaction(container0 -> {
+        container.runTransaction(container0 -> {
             WorkbenchRecipeRegistry.cleanupWorkbenchField(container, player);
-        });*/
+        });
     }
 
 }
