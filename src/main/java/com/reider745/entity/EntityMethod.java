@@ -1,5 +1,6 @@
 package com.reider745.entity;
 
+import cn.nukkit.Player;
 import cn.nukkit.entity.BaseEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityHuman;
@@ -7,14 +8,18 @@ import cn.nukkit.entity.EntityRideable;
 import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.entity.projectile.EntityThrownTrident;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
+import com.reider745.world.BlockSourceMethods;
 
 public class EntityMethod {
     public static Entity getEntityToLong(long ent){
@@ -311,5 +316,67 @@ public class EntityMethod {
             pos[0] = (float) entity.getYaw();
             pos[1] = (float) entity.getPitch();
         }
+    }
+
+    public static void setRotation(long unwrapEntity, float x, float y) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            entity.setRotation(x, y);
+    }
+
+    public static void getVelocity(long unwrapEntity, float[] pos) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null){
+            Vector3 motion = entity.getMotion();
+            pos[0] = (float) motion.x;
+            pos[1] = (float) motion.y;
+            pos[1] = (float) motion.z;
+        }
+    }
+
+    public static void setVelocity(long unwrapEntity, float x, float y, float z) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            entity.setMotion(new Vector3(x, y, z));
+    }
+
+    public static int getAge(long unwrapEntity) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            return entity.age;
+        return 0;
+    }
+
+    public static void setAge(long unwrapEntity, int age) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            entity.age = age;
+    }
+
+    public static void setCollisionSize(long unwrapEntity, float w, float h) {
+
+
+    }
+
+    public static void dealDamage(long unwrapEntity, int damage, long l, boolean b1, boolean b2) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null){
+            if(l == -1)
+                entity.attack(new EntityDamageEvent(entity, EntityDamageEvent.DamageCause.MAGIC, damage));
+            else
+                entity.attack(damage);
+        }
+    }
+
+    public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side, float vx, float vy, float vz, long unwrapEntity) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            entity.getLevel().useItemOn(new Vector3(x, y, z), ItemUtils.get(id, count, data, unwrapValue), BlockFace.fromHorizontalIndex(side), vx, vy, vz, (Player) entity);
+    }
+
+    public static void transferToDimension(long unwrapEntity, int dimension) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity != null)
+            entity.teleport(Location.fromObject(entity.getPosition(), BlockSourceMethods.getLevelForDimension(dimension)));
     }
 }

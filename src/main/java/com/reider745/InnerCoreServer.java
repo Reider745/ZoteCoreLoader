@@ -190,10 +190,10 @@ public class InnerCoreServer {
 
         CustomBlock.init();
         CustomItem.init();
-        CustomItem.initCreativeItems();
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
         CommandsHelper.init();
+        CustomItem.initCreativeItems();
 
         NativeCallback.onLevelCreated();
     }

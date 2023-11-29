@@ -84,41 +84,17 @@ public class NativeWorkbench {
 
     public static native void removeRecipeByResult(int resultId, int resultCount, int resultData);
 
-    private static <T>void addFirst(ArrayList<T> list, T value){
-        ArrayList<T> newList = new ArrayList<>();
-        newList.add(value);
-
-        for(T v : list)
-            newList.add(v);
-
-        list.clear();
-        list.addAll(newList);
-    }
-
-    public static Item checkItem(Item item){
-        Server.getInstance().getLogger().info(item+"  isCreativeItem:"+Item.isCreativeItem(item));
-        if(!CustomItem.isCreativeItemModded(item) && item.getId() > 2000) {
-            Item added = item.clone();
-            Server.getInstance().getLogger().info("clone item   "+added.toString());
-            added.setCount(1);
-
-            CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, added.getId());
-            addFirst(CustomItem.creative, new int[] {added.getId(), added.getCount(), added.getDamage()});
-            //Item.addCreativeItem(added);
-        }
-        return item;
-    }
 
     public static void init(){
         CraftingManager craftingManager = Server.getInstance().getCraftingManager();
         for(RecipeRegistry recipe : recipes)
             if(!recipe.shapeless)
-                craftingManager.registerRecipe(new ShapedRecipe(checkItem(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount)), recipe.pattern, recipe.ingredients, new ArrayList<>()));
+                craftingManager.registerRecipe(new ShapedRecipe(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount), recipe.pattern, recipe.ingredients, new ArrayList<>()));
             else {
                 final Collection<Item> ingredients = new ArrayList<>();
                 for(int i = 0;i < recipe.ingredients_.length;i+=3)
                     ingredients.add(Item.get(recipe.ingredients_[i+1], recipe.ingredients_[i+2]));
-                craftingManager.registerRecipe(new ShapelessRecipe(checkItem(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount)), ingredients));
+                craftingManager.registerRecipe(new ShapelessRecipe(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount), ingredients));
             }
     }
 }

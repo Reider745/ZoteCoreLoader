@@ -1,6 +1,7 @@
 package com.reider745.item;
 
 //import cn.nukkit.blockstate.BlockStorage;
+import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.item.food.FoodNormal;
@@ -29,15 +30,33 @@ public class CustomItem {
     public static ArrayList<int[]> creative = new ArrayList<>();
     public static HashMap<String, ArrayList<Integer>> categories = new HashMap<>();
 
-    public static boolean isCreativeItemModded(Item item){
-        boolean is = Item.isCreativeItem(item);
-        if(!is){
-            for (int[] _item : creative) {
-                if(_item[0] == item.getId() && _item[2] == item.getDamage())
-                    return true;
-            }
-        }
+    public static boolean isCreativeItem(int id, int damage){
+        for(int[] item : creative)
+            if(item[0] == id && item[2] == damage)
+                return true;
         return false;
+    }
+
+    private static <T>void addFirst(ArrayList<T> list, T value){
+        ArrayList<T> newList = new ArrayList<>();
+        newList.add(value);
+
+        for(T v : list)
+            newList.add(v);
+
+        list.clear();
+        list.addAll(newList);
+    }
+
+    public static void checkAddedItem(int id, int damage){
+
+        if(!CustomItem.isCreativeItem(id, damage) && id > 2000) {
+            System.out.println(creative);
+            Server.getInstance().getLogger().info("clone item   "+id+":"+damage);
+
+            CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, id);
+            addFirst(CustomItem.creative, new int[] {id, 1, damage});
+        }
     }
 
     public static void addToCreativeGroup(String id, int itemId){
@@ -125,7 +144,11 @@ public class CustomItem {
             sortAddedToCreative.add(item);
         }
 
-        sortAddedToCreative.forEach(item -> Item.addCreativeItem(Item.v1_16_0, Item.get(item[0], item[2], item[1])));
+        sortAddedToCreative.forEach(item -> {
+            Item add = Item.get(item[0], item[2], item[1]);
+            System.out.println(add);
+            Item.addCreativeItem(Item.v1_16_0, add);
+        });
     }
 
     public static CustomManager registerItem(String textId, int id, String name, Class item){
@@ -149,5 +172,9 @@ public class CustomItem {
         CustomManager manager = registerItem(textId, id, name);
         Food.registerFood(new FoodNormal(food, 4), InnerCoreServer.plugin).addRelative(id);
         return manager;
+    }
+
+    public static void addCreative(int id, int count, int data, long extra) {
+        creative.add(new int[] {id, count, data});
     }
 }

@@ -34,8 +34,8 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
         boolean[] randomTickBlocks = ReflectHelper.getField(Level.class, "randomTickBlocks");
 
-        if(block instanceof RandomTick randomTick)
-            randomTickBlocks[id] = randomTick.canRandomTickBlocks();
+        if(block instanceof RandomTick randomTick && randomTick.canRandomTickBlocks())
+            randomTickBlocks[id] = true;
 
         if (block.isSolid()) {
             if (block.isTransparent()) {

@@ -1,5 +1,8 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
+import cn.nukkit.Server;
+import cn.nukkit.item.Item;
+import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
@@ -57,6 +60,8 @@ public class WorkbenchRecipeRegistry {
         if(!recipe.isValid()){
             return;
         }
+
+        CustomItem.checkAddedItem(recipe.id, recipe.data);
         
         ArrayList<WorkbenchRecipe> vars = new ArrayList<>();
         recipe.addVariants(vars);

@@ -10,6 +10,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.ItemMethod;
+import com.reider745.world.BlockSourceMethods;
 import com.reider745.world.WorldMethod;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 
@@ -343,12 +344,15 @@ public class NativeAPI {
     }
 
     public static void setPositionAxis(long unwrapEntity, int axis, float val) {
+        EntityMethod.setPositionAxis(unwrapEntity, axis, val);
     }
 
     public static void getVelocity(long unwrapEntity, float[] pos) {
+        EntityMethod.getVelocity(unwrapEntity, pos);
     }
 
     public static void setVelocity(long unwrapEntity, float x, float y, float z) {
+        EntityMethod.setVelocity(unwrapEntity, x, y, z);
     }
 
     public static void setVelocityAxis(long unwrapEntity, int axis, float val) {
@@ -359,7 +363,7 @@ public class NativeAPI {
     }
 
     public static void setRotation(long unwrapEntity, float x, float y) {
-
+        EntityMethod.setRotation(unwrapEntity, x, y);
     }
 
     public static void setRotationAxis(long unwrapEntity, int axis, float val) {
@@ -374,10 +378,11 @@ public class NativeAPI {
     }
 
     public static int getAge(long unwrapEntity) {
-        return 0;
+        return EntityMethod.getAge(unwrapEntity);
     }
 
     public static void setAge(long unwrapEntity, int age) {
+        EntityMethod.setAge(unwrapEntity, age);
     }
 
     public static int getFireTicks(long unwrapEntity) {
@@ -500,9 +505,11 @@ public class NativeAPI {
     }
 
     public static void setCollisionSize(long unwrapEntity, float w, float h) {
+        EntityMethod.setCollisionSize(unwrapEntity, w, h);
     }
 
     public static void dealDamage(long unwrapEntity, int damage, int cause, long l, boolean b1, boolean b2) {
+        EntityMethod.dealDamage(unwrapEntity, damage, l, b1, b2);
     }
 
     public static long[] fetchEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2, int type, boolean flag) {
@@ -619,6 +626,7 @@ public class NativeAPI {
     }
 
     public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side, float vx, float vy, float vz, long unwrapEntity) {
+        EntityMethod.invokeUseItemOn(id, count, data, unwrapValue, x, y, z, side, vx, vy, vz, unwrapEntity);
     }
 
     public static void invokeUseItemNoTarget(int id, int count, int data, long unwrapValue) {
@@ -628,10 +636,12 @@ public class NativeAPI {
     }
 
     public static String executeCommand(String command, int i, int i1, int i2, Level l) {
+        InnerCoreServer.server.getCommandMap().dispatch(InnerCoreServer.server.getConsoleSender(), command);
         return "";
     }
 
     public static void transferToDimension(long unwrapEntity, int dimension) {
+        EntityMethod.transferToDimension(unwrapEntity, dimension);
     }
 
     public static boolean isTileUpdateAllowed() {

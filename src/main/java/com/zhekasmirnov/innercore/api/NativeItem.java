@@ -287,7 +287,8 @@ public class NativeItem {
 
 
     public static void addToCreativeInternal(int id, int count, int data, long extra){
-        CustomItem.creative.add(new int[] {id, count, data});
+        CustomItem.addCreative(id, count, data, extra);
+
         //Item.addCreativeItem(Item.get(id, data, count));
     }
 
