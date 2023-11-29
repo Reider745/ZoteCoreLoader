@@ -21,7 +21,7 @@ public class CustomManager {
         return value;
     }
 
-    public Class getClazz() {
+    public Class<?> getClazz() {
         return clazz;
     }
 

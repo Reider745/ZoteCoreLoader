@@ -15,9 +15,11 @@ public class CustomItem {
 
 
     public static HashMap<Integer, CustomManager> items = new HashMap<>();
+    public static HashMap<Integer, Integer> foods = new HashMap<>();
 
     public static void init(){
         items.forEach((key, value) -> Item.list[key] = value.getClazz());
+        foods.forEach((key, value) -> Food.registerFood(new FoodNormal(value, 4), InnerCoreServer.plugin).addRelative(key));
         CustomBlock.blocks.forEach((id, manager) -> Item.list[id] = manager.getClazz());
     }
 
@@ -151,7 +153,7 @@ public class CustomItem {
         });
     }
 
-    public static CustomManager registerItem(String textId, int id, String name, Class item){
+    public static CustomManager registerItem(String textId, int id, String name, Class<?> item){
         CustomManager manager = new CustomManager(id, item, "item");
         manager.put("name", name);
         manager.put("max_damage", -1);
@@ -170,11 +172,24 @@ public class CustomItem {
 
     public static CustomManager registerItemFood(String textId, int id, String name, int food){
         CustomManager manager = registerItem(textId, id, name);
-        Food.registerFood(new FoodNormal(food, 4), InnerCoreServer.plugin).addRelative(id);
+        foods.put(id, food);
         return manager;
     }
 
     public static void addCreative(int id, int count, int data, long extra) {
         creative.add(new int[] {id, count, data});
+    }
+
+    public static CustomManager registerThrowableItem(String nameId, int id, String name) {
+        return registerItem(nameId, id, name, CustomProjectileItem.class);
+    }
+
+    public static CustomManager registerArmorItem(String nameId, int id, String name, int slot, int defense, int durability, float knockbackResist) {
+        CustomManager manager = registerItem(nameId, id, name, CustomItemArmor.class);
+        manager.put("slot", slot);
+        manager.put("defense", defense);
+        manager.put("max_damage", durability);
+        manager.put("knockbackResist", knockbackResist);
+        return manager;
     }
 }

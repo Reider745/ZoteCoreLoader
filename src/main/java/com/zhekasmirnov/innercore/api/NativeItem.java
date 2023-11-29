@@ -69,7 +69,7 @@ public class NativeItem {
     }
 
     public void setMaxUseDuration(int val){
-        setMaxUseDuration(pointer, val);
+        //setMaxUseDuration(pointer, val);
     }
 
     public void setMaxDamage(int val) {
@@ -175,7 +175,7 @@ public class NativeItem {
         ArmorItemComponent component = new ArmorItemComponent(slot, defense, (float) knockbackResist);
         registerIcon(id, iconName, iconIndex);
         NativeItem item = new NativeItem(id, constructArmorItem(id, nameId, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), iconName, iconIndex, texture, slot, defense, durability, (float) knockbackResist), nameId, name);
-        ArmorRegistry.registerArmor(id, component);
+        //ArmorRegistry.registerArmor(id, component);
         ECS.getEntityManager().extend(item.entity, armorCC.setValues(component));
         return item;
     }
@@ -213,11 +213,11 @@ public class NativeItem {
     }
 
     public static CustomManager constructArmorItem(int id, String nameId, String name, String iconName, int iconIndex, String texture, int slot, int defense, int durability, float knockbackResist){
-        return CustomItem.registerItem(nameId, id, name);
+        return CustomItem.registerArmorItem(nameId, id, name, slot, defense, durability, knockbackResist);
     }
 
     public static CustomManager constructThrowableItem(int id, String nameId, String name, String iconName, int iconIndex){
-        return CustomItem.registerItem(nameId, id, name);
+        return CustomItem.registerThrowableItem(nameId, id, name);
     }
 
 
