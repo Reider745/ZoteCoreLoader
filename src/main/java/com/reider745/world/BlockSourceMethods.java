@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.event.entity.EntityExplosionPrimeEvent;
 import cn.nukkit.item.Item;
@@ -77,7 +78,9 @@ public class BlockSourceMethods {
     }
 
     public static long spawnDroppedItem(Level pointer, float x, float y, float z, int id, int count, int data, long extra){
-        return pointer.dropAndGetItem(new Vector3(x, y, z), ItemUtils.get(id, count, data, extra)).getId();
+        EntityItem item = pointer.dropAndGetItem(new Vector3(x, y, z), ItemUtils.get(id, count, data, extra));
+        if(item == null) return 0;
+        return item.getId();
     }
 
     public static Long nativeGetForClientSide(){

@@ -6,14 +6,12 @@ import cn.nukkit.inventory.Recipe;
 import cn.nukkit.inventory.ShapedRecipe;
 import cn.nukkit.inventory.ShapelessRecipe;
 import cn.nukkit.item.Item;
+import com.reider745.InnerCoreServer;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class NativeWorkbench {
 
@@ -82,19 +80,36 @@ public class NativeWorkbench {
         addShapelessRecipe(result.id, result.count, result.data, result.getExtraPtr(), ingredients);
     }
 
-    public static native void removeRecipeByResult(int resultId, int resultCount, int resultData);
+    private static final ArrayList<int[]> removeds = new ArrayList<>();
+
+    public static void removeRecipeByResult(int resultId, int resultCount, int resultData){
+        removeds.add(new int[]{resultId, resultCount, resultData});
+    }
 
 
     public static void init(){
         CraftingManager craftingManager = Server.getInstance().getCraftingManager();
+        for (int[] item : removeds){
+            Item itemInstance = Item.get(item[0], item[2], item[1]);
+
+            craftingManager.getShapelessRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
+                for(UUID uuid : recipes.keySet()){
+                    ShapelessRecipe recipe = recipes.get(uuid);
+                    if(recipe.getResult().equals(itemInstance)) {
+                        recipes.remove(uuid);
+                        break;
+                    }
+                }
+            });
+        }
         for(RecipeRegistry recipe : recipes)
             if(!recipe.shapeless)
-                craftingManager.registerRecipe(new ShapedRecipe(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount), recipe.pattern, recipe.ingredients, new ArrayList<>()));
+                craftingManager.registerRecipe(419, new ShapedRecipe(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount), recipe.pattern, recipe.ingredients, new ArrayList<>()));
             else {
                 final Collection<Item> ingredients = new ArrayList<>();
                 for(int i = 0;i < recipe.ingredients_.length;i+=3)
                     ingredients.add(Item.get(recipe.ingredients_[i+1], recipe.ingredients_[i+2]));
-                craftingManager.registerRecipe(new ShapelessRecipe(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount), ingredients));
+                craftingManager.registerRecipe(419, new ShapelessRecipe(Item.get(recipe.resultId, recipe.resultData, recipe.resultCount), ingredients));
             }
     }
 }

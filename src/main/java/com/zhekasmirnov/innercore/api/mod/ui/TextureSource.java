@@ -16,7 +16,7 @@ public class TextureSource {
     static {
         LoadingUI.setTip("Loading UI Resources");
         instance = new TextureSource();
-        instance.loadAllStandartAssets();
+        //instance.loadAllStandartAssets();
         LoadingUI.setTip("");
     }
 

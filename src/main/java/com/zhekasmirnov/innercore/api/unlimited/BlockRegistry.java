@@ -91,7 +91,7 @@ public class BlockRegistry {
 
         NativeBlock block = NativeBlock.createBlock(uid, NativeAPI.convertNameId(nameId), "blank", 0);
         addBlockVariants(uid, nameId, block, variantsScriptable);
-        //type.setupBlock(uid);
+        type.setupBlock(uid);
     }
 
     public static void createLiquidBlockPair(int id1, String nameId1, int id2, String nameId2, ScriptableObject variantsScriptable, SpecialType type, int tickDelay, boolean isRenewable) {

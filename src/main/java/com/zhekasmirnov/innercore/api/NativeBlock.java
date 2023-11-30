@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.api.CustomManager;
+import com.reider745.block.BlockMethods;
 import com.reider745.block.CustomBlock;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
@@ -81,47 +82,121 @@ public class NativeBlock {
         return variants.size()-1;
     }
 
-    public static native int getMaterial(int id);
-    public static native boolean isSolid(int id);
-    public static native boolean canContainLiquid(int id);
-    public static native boolean canBeExtraBlock(int id);
-    public static native float getDestroyTime(int id);
-    public static native float getExplosionResistance(int id);
-    public static native float getFriction(int id);
-    public static native float getTranslucency(int id);
-    public static native int getLightLevel(int id);
-    public static native int getLightOpacity(int id);
-    public static native int getRenderLayer(int id);
-    public static native int getRenderType(int id);
-    public static native int getMapColor(int id);
-
-    public static native void setMaterial(int id, int material);
-    public static native void setMaterialBase(int id, int material);
-    public static native void setSoundType(int id, String sound);
-    public static native void setSolid(int id, boolean solid);
-    public static native void setRenderAllFaces(int id, boolean val);
-    public static native void setRedstoneTileNative(int id, int data, boolean redstone);
-    public static native void setRedstoneConnectorNative(int id, int data, boolean redstone);
-    public static native void setRedstoneEmitterNative(int id, int data, boolean redstone);
-    public static void setTickingTile(int id, int data, boolean ticking){
-        CustomBlock.getBlockManager(id).put("TickingTile:"+data, ticking);
+    public static int getMaterial(int id){
+        return BlockMethods.getMaterial(id);
     }
-    public static native void setAnimatedTile(int id, int data, boolean ticking);
-    public static native void setReceivingEntityInsideEvent(int id, boolean value);
-    public static native void setReceivingEntityStepOnEvent(int id, boolean value);
-    public static native void setReceivingNeighbourChangeEvent(int id, boolean value);
-    public static native void setDestroyTime(int id, float val);
-    public static native void setExplosionResistance(int id, float val);
-    public static native void setTranslucency(int id, float val);
-    public static native void setFriction(int id, float val);
-    public static native void setLightLevel(int id, int val);
-    public static native void setLightOpacity(int id, int val);
-    public static native void setRenderLayer(int id, int val);
-    public static native void setRenderType(int id, int val);
-    public static native void setBlockColorSource(int id, int val);
-    public static native void setMapColor(int id, int mapColor);
-    public static native void setCanContainLiquid(int id, boolean canContainLiquid);
-    public static native void setCanBeExtraBlock(int id, boolean canBeExtraBlock);
+    public static boolean isSolid(int id){
+        return BlockMethods.isSolid(id);
+    }
+    public static boolean canContainLiquid(int id){
+        return BlockMethods.canContainLiquid(id);
+    }
+    public static boolean canBeExtraBlock(int id){
+        return BlockMethods.canBeExtraBlock(id);
+    }
+    public static float getDestroyTime(int id){
+        return BlockMethods.getDestroyTime(id);
+    }
+    public static float getExplosionResistance(int id){
+        return BlockMethods.getExplosionResistance(id);
+    }
+    public static float getFriction(int id){
+        return BlockMethods.getFriction(id);
+    }
+    public static float getTranslucency(int id){
+        return BlockMethods.getTranslucency(id);
+    }
+    public static int getLightLevel(int id){
+        return BlockMethods.getLightLevel(id);
+    }
+    public static int getLightOpacity(int id){
+        return BlockMethods.getLightOpacity(id);
+    }
+    public static int getRenderLayer(int id){
+        return BlockMethods.getRenderLayer(id);
+    }
+    public static int getRenderType(int id){
+        return BlockMethods.getRenderType(id);
+    }
+    public static int getMapColor(int id){
+        return BlockMethods.getMapColor(id);
+    }
+
+    public static void setMaterial(int id, int material){
+        BlockMethods.setMaterial(id, material);
+    }
+    public static void setMaterialBase(int id, int material){
+        BlockMethods.setMaterialBase(id, material);
+    }
+    public static void setSoundType(int id, String sound){
+        BlockMethods.setSoundType(id, sound);
+    }
+    public static void setSolid(int id, boolean solid){
+        BlockMethods.setSolid(id, solid);
+    }
+    public static void setRenderAllFaces(int id, boolean val){
+        BlockMethods.setRenderAllFaces(id, val);
+    }
+    public static void setRedstoneTileNative(int id, int data, boolean redstone){
+        BlockMethods.setRedstoneTileNative(id, data, redstone);
+    }
+    public static void setRedstoneConnectorNative(int id, int data, boolean redstone){
+        BlockMethods.setRedstoneConnectorNative(id, data, redstone);
+    }
+    public static void setRedstoneEmitterNative(int id, int data, boolean redstone){
+        BlockMethods.setRedstoneEmitterNative(id, data, redstone);
+    }
+    public static void setTickingTile(int id, int data, boolean ticking){
+        BlockMethods.setTickingTile(id, data, ticking);
+    }
+    public static void setAnimatedTile(int id, int data, boolean ticking){
+        BlockMethods.setAnimatedTile(id, data, ticking);
+    }
+    public static void setReceivingEntityInsideEvent(int id, boolean value){
+        BlockMethods.setReceivingEntityInsideEvent(id, value);
+    }
+    public static void setReceivingEntityStepOnEvent(int id, boolean value){
+        BlockMethods.setReceivingEntityStepOnEvent(id, value);
+    }
+    public static void setReceivingNeighbourChangeEvent(int id, boolean value){
+        BlockMethods.setReceivingNeighbourChangeEvent(id, value);
+    }
+    public static void setDestroyTime(int id, float val){
+        BlockMethods.setDestroyTime(id, val);
+    }
+    public static void setExplosionResistance(int id, float val){
+        BlockMethods.setExplosionResistance(id, val);
+    }
+    public static void setTranslucency(int id, float val){
+        BlockMethods.setTranslucency(id, val);
+    }
+    public static void setFriction(int id, float val){
+        BlockMethods.setFriction(id, val);
+    }
+    public static void setLightLevel(int id, int val){
+        BlockMethods.setLightLevel(id, val);
+    }
+    public static void setLightOpacity(int id, int val){
+        BlockMethods.setLightLevel(id, val);
+    }
+    public static void setRenderLayer(int id, int val){
+        BlockMethods.setRenderLayer(id, val);
+    }
+    public static void setRenderType(int id, int val){
+        BlockMethods.setRenderType(id, val);
+    }
+    public static void setBlockColorSource(int id, int val){
+        BlockMethods.setBlockColorSource(id, val);
+    }
+    public static void setMapColor(int id, int mapColor){
+        BlockMethods.setMapColor(id, mapColor);
+    }
+    public static void setCanContainLiquid(int id, boolean canContainLiquid){
+        BlockMethods.setCanContainLiquid(id, canContainLiquid);
+    }
+    public static void setCanBeExtraBlock(int id, boolean canBeExtraBlock){
+        BlockMethods.setCanBeExtraBlock(id, canBeExtraBlock);
+    }
     public static void setShape(int id, int data, float x1, float y1, float z1, float x2, float y2, float z2){
 
     }

@@ -259,7 +259,7 @@ public class NativeItem {
     public static void setCreativeCategory(CustomManager ptr, int val){}
 
     public static void setProperties(CustomManager ptr, String val){
-        InnerCoreServer.useNotSupport("setProperties");
+        //InnerCoreServer.useNotSupport("setProperties");
     }
 
     public static void setEnchantability(CustomManager ptr, int type, int value){
