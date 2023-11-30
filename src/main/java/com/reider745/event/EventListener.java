@@ -9,10 +9,7 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
-import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
-import cn.nukkit.event.entity.EntityDamageByEntityEvent;
-import cn.nukkit.event.entity.EntityDamageEvent;
-import cn.nukkit.event.entity.ProjectileHitEvent;
+import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.FurnaceBurnEvent;
 import cn.nukkit.event.inventory.InventoryClickEvent;
@@ -118,7 +115,12 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void openCraftTable(CraftItemEvent event){
-       // Workbench.addCraft(event);
+    public void addedEntity(EntitySpawnEvent event){
+        NativeCallback.onEntityAdded(event.getEntity().getId());
+    }
+
+    @EventHandler
+    public void removeEntity(EntityDespawnEvent event){
+        NativeCallback.onEntityRemoved(event.getEntity().getId());
     }
 }

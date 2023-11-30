@@ -1,6 +1,5 @@
 package com.reider745.item;
 
-//import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
@@ -8,6 +7,7 @@ import cn.nukkit.item.food.FoodNormal;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
+import com.reider745.item.ItemMethod.PropertiesNames;
 
 import java.util.*;
 
@@ -148,16 +148,17 @@ public class CustomItem {
 
         sortAddedToCreative.forEach(item -> {
             Item add = Item.get(item[0], item[2], item[1]);
-            System.out.println(add);
+            //System.out.println(add);
             Item.addCreativeItem(Item.v1_16_0, add);
         });
     }
 
     public static CustomManager registerItem(String textId, int id, String name, Class<?> item){
         CustomManager manager = new CustomManager(id, item, "item");
-        manager.put("name", name);
-        manager.put("max_damage", -1);
-        manager.put("max_stack", 64);
+        manager.put(PropertiesNames.NAME, name);
+        manager.put(PropertiesNames.MAX_DAMAGE, 0);
+        manager.put(PropertiesNames.MAX_STACK, 64);
+        manager.put(PropertiesNames.ID, id);
 
         items.put(id, manager);
         customItems.put("item_"+textId, id);
@@ -186,10 +187,10 @@ public class CustomItem {
 
     public static CustomManager registerArmorItem(String nameId, int id, String name, int slot, int defense, int durability, float knockbackResist) {
         CustomManager manager = registerItem(nameId, id, name, CustomItemArmor.class);
-        manager.put("slot", slot);
-        manager.put("defense", defense);
-        manager.put("max_damage", durability);
-        manager.put("knockbackResist", knockbackResist);
+        manager.put(PropertiesNames.Armors.SLOT, slot);
+        manager.put(PropertiesNames.Armors.DEFENSE, defense);
+        manager.put(PropertiesNames.MAX_DAMAGE, durability);
+        manager.put(PropertiesNames.Armors.KNOCKBACK_RESIST, knockbackResist);
         return manager;
     }
 }

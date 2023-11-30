@@ -20,6 +20,7 @@ public class HookController  {
     }
 
     public final void setResult(Object result) {
+        setReplace(true);
         this.result = result;
     }
     public final Object getResult(){

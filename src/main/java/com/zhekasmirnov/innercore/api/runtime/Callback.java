@@ -16,6 +16,8 @@ import java.util.List;
  */
 
 public class Callback {
+
+
     private static class CallbackFunction {
         public final Function function;
         public final int priority;
@@ -27,6 +29,10 @@ public class Callback {
     }
     
     private static HashMap<String, ArrayList<CallbackFunction>> callbacks = new HashMap<>();
+
+    public static int count(String name) {
+        return callbacks.getOrDefault(name, new ArrayList<>()).size();
+    }
 
     public static void addCallback(String name, Function func, int priority) {
         if (!callbacks.containsKey(name)) {

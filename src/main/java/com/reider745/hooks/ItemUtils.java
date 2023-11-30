@@ -2,6 +2,7 @@ package com.reider745.hooks;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.inventory.transaction.RepairItemTransaction;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.ItemID;
@@ -17,11 +18,13 @@ import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.pointers.PointerClassAdditionalValue;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.item.ItemExtraDataProvider;
+import com.reider745.item.Repairs;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -197,5 +200,13 @@ public class ItemUtils implements HookClass {
 
     public static void removePointer(long ptr){
         items_pointers.removePointer(ptr);
+    }
+
+    @Inject(class_name = "cn.nukkit.inventory.transaction.RepairItemTransaction", type_hook = TypeHook.BEFORE, signature = "()Z")
+    public static void isMapRecipe(HookController controller, RepairItemTransaction self){
+        ArrayList<Integer> repairs = Repairs.getRepairs(self.getInputItem().getId());
+        if(repairs != null)
+            controller.setResult(repairs.contains(self.getOutputItem().getId()));
+        controller.setReplace(false);
     }
 }

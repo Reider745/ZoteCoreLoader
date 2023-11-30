@@ -1,11 +1,12 @@
 package com.reider745.item;
 
-import cn.nukkit.entity.projectile.EntityThrownTrident;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ProjectileItem;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.api.CustomManager;
+
+import com.reider745.item.ItemMethod.PropertiesNames;
 
 public class CustomProjectileItem extends ProjectileItem {
     @Override
@@ -30,21 +31,26 @@ public class CustomProjectileItem extends ProjectileItem {
     }
 
     public CustomProjectileItem(int id, Integer meta, int count, CustomManager manager) {
-        super(id, meta, count, manager.get("name", "InnerCore item"));
+        super(id, meta, count, manager.get(PropertiesNames.NAME, "InnerCore item"));
 
         parameters = manager;
-        this.name = parameters.get("name", "InnerCore item");
+        this.name = parameters.get(PropertiesNames.NAME, "InnerCore item");
     }
 
 
     @Override
     public int getMaxDurability() {
-        return parameters.get("max_damage");
+        return parameters.get(PropertiesNames.MAX_USE_DURATION);
     }
 
     @Override
     public int getMaxStackSize() {
-        return parameters.get("max_stack");
+        return parameters.get(PropertiesNames.MAX_STACK);
+    }
+
+    @Override
+    public int getEnchantAbility() {
+        return parameters.get(PropertiesNames.ENCHANTABILITY_VALUE, 0);
     }
 
     @Override

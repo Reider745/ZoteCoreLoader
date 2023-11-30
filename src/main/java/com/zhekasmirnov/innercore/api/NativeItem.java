@@ -226,25 +226,35 @@ public class NativeItem {
 
     }
 
-    public static void setHandEquipped(CustomManager ptr, boolean val){}
+    public static void setHandEquipped(CustomManager ptr, boolean val){
+        ItemMethod.setHandEquipped(ptr, val);
+    }
 
-    public static native void setLiquidClip(CustomManager ptr, boolean val);
+    public static void setLiquidClip(CustomManager ptr, boolean val){
+        ItemMethod.setLiquidClip(ptr, val);
+    }
 
     public static void setUseAnimation(CustomManager ptr, int val){}
 
-    public static native void setMaxUseDuration(CustomManager ptr, int val);
+    public static void setMaxUseDuration(CustomManager ptr, int val){
+        ItemMethod.setMaxUseDuration(ptr, val);
+    }
 
     public static void setMaxDamage(CustomManager ptr, int val){
-
+        ItemMethod.setMaxDamage(ptr, val);
     }
 
     public static void setMaxStackSize(CustomManager ptr, int val){
         ItemMethod.setMaxStackSize(ptr, val);
     }
     
-    public static native void setStackedByData(CustomManager ptr, boolean val);
+    public static void setStackedByData(CustomManager ptr, boolean val){
+        ItemMethod.setStackedByData(ptr, val);
+    }
     
-    public static native void setAllowedInOffhand(CustomManager ptr, boolean val);
+    public static void setAllowedInOffhand(CustomManager ptr, boolean val){
+        ItemMethod.setAllowedInOffhand(ptr, val);
+    }
 
     public static void setCreativeCategory(CustomManager ptr, int val){}
 
@@ -252,11 +262,17 @@ public class NativeItem {
         InnerCoreServer.useNotSupport("setProperties");
     }
 
-    public static native void setEnchantability(CustomManager ptr, int type, int value);
+    public static void setEnchantability(CustomManager ptr, int type, int value){
+        ItemMethod.setEnchantability(ptr, type, value);
+    }
 
-    public static native void setArmorDamageable(CustomManager ptr, boolean value);
+    public static void setArmorDamageable(CustomManager ptr, boolean value){
+        ItemMethod.setArmorDamageable(ptr, value);
+    }
     
-    public static native void addRepairItemId(CustomManager ptr, int id);
+    public static void addRepairItemId(CustomManager ptr, int id){
+        ItemMethod.addRepairItemId(ptr, id);
+    }
 
 
 

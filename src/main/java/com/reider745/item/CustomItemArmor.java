@@ -4,11 +4,14 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemArmor;
 import com.reider745.api.CustomManager;
 
+import com.reider745.item.ItemMethod.PropertiesNames;
+
 public class CustomItemArmor extends ItemArmor {
     private CustomManager parameters;
     private int slot;
     private int defense;
     private float knockbackResist;
+    private boolean ARMOR_DAMAGEABLE;
 
     @Override
     public int getTier() {
@@ -50,23 +53,34 @@ public class CustomItemArmor extends ItemArmor {
     }
 
     public CustomItemArmor(int id, Integer meta, int count, CustomManager manager) {
-        super(id, meta, count, manager.get("name", "InnerCore item"));
+        super(id, meta, count, manager.get(PropertiesNames.NAME, "InnerCore item"));
 
         parameters = manager;
-        this.name = parameters.get("name", "InnerCore item");
-        this.slot = parameters.get("slot");
-        this.defense = parameters.get("defense");
-        this.knockbackResist = parameters.get("knockbackResist");
+        this.name = parameters.get(PropertiesNames.NAME, "InnerCore item");
+        this.slot = parameters.get(PropertiesNames.Armors.SLOT);
+        this.defense = parameters.get(PropertiesNames.Armors.DEFENSE);
+        this.knockbackResist = parameters.get(PropertiesNames.Armors.KNOCKBACK_RESIST);
+        this.ARMOR_DAMAGEABLE = parameters.get(PropertiesNames.ARMOR_DAMAGEABLE, false);
+    }
+
+    @Override
+    public int getEnchantAbility() {
+        return parameters.get(PropertiesNames.ENCHANTABILITY_VALUE, 0);
     }
 
     @Override
     public int getMaxDurability() {
-        return parameters.get("max_damage");
+        return parameters.get(PropertiesNames.MAX_DAMAGE);
     }
 
     @Override
     public int getMaxStackSize() {
-        return parameters.get("max_stack");
+        return parameters.get(PropertiesNames.MAX_STACK);
+    }
+
+    @Override
+    public boolean isUnbreakable() {
+        return ARMOR_DAMAGEABLE;
     }
 
     @Override
