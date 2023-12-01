@@ -7,6 +7,8 @@ import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
 
+import java.util.ArrayList;
+
 public class CustomBlocksCommands extends Command {
     public CustomBlocksCommands() {
         super("custom_blocks", "get list custom blocks");
@@ -16,12 +18,10 @@ public class CustomBlocksCommands extends Command {
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if(!commandSender.isOp()) return false;
 
-        String message = "===CustomBlocks===";
-        for(Integer id : CustomBlock.blocks.keySet()) {
-            CustomManager manager = CustomItem.getItemManager(id);
-            message += "\n"+manager.get(ItemMethod.PropertiesNames.NAME)+", id: "+id;
-        }
-        commandSender.sendMessage(message);
+        StringBuilder message = new StringBuilder("===CustomBlocks===");
+        for(Integer id : CustomBlock.blocks.keySet())
+            ((ArrayList<String>) CustomBlock.getBlockManager(id).get("variants")).forEach(name -> message.append("\n" + name + ", id: " + id));
+        commandSender.sendMessage(message.toString());
         return true;
     }
 }

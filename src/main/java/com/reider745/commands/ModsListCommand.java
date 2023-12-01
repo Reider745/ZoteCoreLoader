@@ -24,7 +24,7 @@ public class ModsListCommand extends Command {
         for(ApparatusMod mod : mods){
             if(mod instanceof LegacyInnerCoreMod legacyMod){
                 Mod instance = legacyMod.getLegacyModInstance();
-                message += "\n"+instance.getName()+", version: "+instance.getVersion()+", enabled: "+legacyMod.isEnabledAndAbleToRun();
+                message += "\n"+instance.getName()+", version: "+instance.getVersion();
             }
         }
         commandSender.sendMessage(message);
