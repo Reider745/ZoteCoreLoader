@@ -9,7 +9,7 @@ import com.reider745.item.ItemMethod;
 
 public class CustomBlocksCommands extends Command {
     public CustomBlocksCommands() {
-        super("mods", "get list custom blocks");
+        super("custom_blocks", "get list custom blocks");
     }
 
     @Override

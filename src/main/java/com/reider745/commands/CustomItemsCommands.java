@@ -9,7 +9,7 @@ import com.reider745.item.ItemMethod;
 
 public class CustomItemsCommands extends Command {
     public CustomItemsCommands() {
-        super("mods", "get list custom items");
+        super("custom_items", "get list custom items");
     }
 
     @Override
