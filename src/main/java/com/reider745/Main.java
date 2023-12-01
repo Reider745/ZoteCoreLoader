@@ -16,11 +16,11 @@ public class Main {
         }
 
         public static void preRegister(Server server) throws Exception {
-            innerCoreServer.preLoad(server);
+            innerCoreServer.preload(server);
         }
 
         public static void postRegister(Server server){
-            innerCoreServer.postLoad();
+            innerCoreServer.afterload();
         }
 
         public static void start(Server server)  {

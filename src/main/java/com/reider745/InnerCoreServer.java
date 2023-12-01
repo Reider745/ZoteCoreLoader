@@ -33,8 +33,14 @@ import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -47,30 +53,28 @@ public class InnerCoreServer {
     public static Server server;
 
     public static String getStringParam(String name) {
-        switch (name){
-            case "world_dir", "world_name" -> {
-                return "world";
-            }
-            case "path_for_world" -> {
-                return "worlds";
-            }
-        }
-        return null;
+        return switch (name) {
+            case "world_dir", "world_name" -> "world";
+            case "path_for_world" -> "worlds";
+            default -> null;
+        };
     }
 
-    public void loadMods(){
-
+    public void loadMods() {
+        // QQ!
     }
 
-    public void left(){
+    public void left() {
         NativeCallback.onGameStopped(true);
         NativeCallback.onMinecraftAppSuspended();
     }
-    private final ClassLoader classLoader = InnerCoreServer.class.getClassLoader();;
-    private File cloneFile(String name){
+
+    private static final ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
+
+    private static File cloneFile(String name) {
         try {
             final File file = new File(name);
-            if (!file.exists()){
+            if (!file.exists()) {
                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(name));
                 BufferedInputStream bis = new BufferedInputStream(classLoader.getResourceAsStream(name));
 
@@ -79,7 +83,7 @@ public class InnerCoreServer {
                 bos.close();
             }
             return file;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -87,7 +91,8 @@ public class InnerCoreServer {
 
     private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {
         final BufferedInputStream bis = new BufferedInputStream(file.getInputStream(entry));
-        final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(uncompressedDirectory + entry.getName()));
+        final BufferedOutputStream bos = new BufferedOutputStream(
+                new FileOutputStream(uncompressedDirectory + entry.getName()));
         bos.write(bis.readAllBytes());
 
         bos.close();
@@ -101,7 +106,8 @@ public class InnerCoreServer {
         }
     }
 
-    public static void unzip(final File zipFile, final String uncompressedDirectory){
+    @SuppressWarnings("unchecked")
+    public static void unzip(final File zipFile, final String uncompressedDirectory) {
         try {
             final ZipFile file = new ZipFile(zipFile);
             final Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) file.entries();
@@ -109,17 +115,66 @@ public class InnerCoreServer {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
 
-                if (entry.isDirectory()) processDirectory(uncompressedDirectory, entry);
-                else processFile(file, uncompressedDirectory, entry);
+                if (entry.isDirectory()) {
+                    processDirectory(uncompressedDirectory, entry);
+                } else {
+                    processFile(file, uncompressedDirectory, entry);
+                }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void preLoad(Server server) throws Exception {
-        long start = System.currentTimeMillis();
-        server.getLogger().info("start load inner core "+server.getDataPath());;
+    static void getFolderRootFromUri(URI uri, String targetPath, Consumer<? super Path> action) throws IOException {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        try (final FileSystem fileSystem = FileSystems.newFileSystem(uri, env)) {
+            action.accept(fileSystem.getPath(targetPath));
+        } catch (IllegalArgumentException e) {
+            action.accept(Paths.get(uri.getPath()));
+        }
+    }
+
+    static void traverseResourcesFileSystem(String targetPath, Consumer<? super Path> action)
+            throws URISyntaxException {
+        final URI uri = InnerCoreServer.class.getResource(targetPath).toURI();
+        try {
+            getFolderRootFromUri(uri, targetPath, folderRoot -> {
+                try (final Stream<Path> walk = Files.walk(folderRoot)) {
+                    walk.forEach(childPath -> {
+                        if (Files.isRegularFile(childPath)) {
+                            action.accept(folderRoot.relativize(childPath));
+                        }
+                    });
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void unpackResources(String targetPath, String outputPath) throws URISyntaxException {
+        traverseResourcesFileSystem(targetPath, childPath -> {
+            try (final InputStream inputStream = InnerCoreServer.class
+                    .getResourceAsStream(targetPath + "/" + childPath.toString())) {
+                File outputFile = new File(outputPath, childPath.toString());
+                outputFile.getParentFile().mkdirs();
+                try (final FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                    FileTools.inStreamToOutStream(inputStream, outputStream);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public void preload(Server server) throws Exception {
+        final long startupMillis = System.currentTimeMillis();
+        server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");
+
         PATH = server.getDataPath();
         InnerCoreServer.server = server;
         ICLog.server = server;
@@ -138,12 +193,15 @@ public class InnerCoreServer {
 
         plugin.init(null, server, new PluginDescription(configs), null, null);
 
-        if(!(new File(PATH+"/innercore").exists())){
-            final File zipFile = cloneFile("innercore.zip");
-            if(zipFile != null){
-                unzip(zipFile, PATH);
-                zipFile.deleteOnExit();
-            }
+        final File innercoreDirectory = new File(PATH, "innercore");
+        if (!innercoreDirectory.exists()) {
+            server.getLogger().info("Extracting internal package...");
+            unpackResources("/innercore", innercoreDirectory.getPath());
+            // final File zipFile = cloneFile("innercore.zip");
+            // if (zipFile != null) {
+                // unzip(zipFile, PATH);
+                // zipFile.deleteOnExit();
+            // }
         }
 
         cloneFile("innercore_default_config.json");
@@ -156,11 +214,14 @@ public class InnerCoreServer {
         NetworkEntity.loadClass();
         IdConversionMap.loadClass();
 
-
         JSONObject object = new JSONObject();
         object.put("fix", server.getPropertyBoolean("inner_core.legacy_inventory", true));
-        Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v ,v1) -> {});//legacy inner core for mod ServerFixed
-        Network.getSingleton().addServerInitializationPacket("system.dedicated_server", (client) -> object, (v ,v1) -> {});//for new inner core
+        Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v, v1) -> {
+            // legacy inner core for mod ServerFixed
+        });
+        Network.getSingleton().addServerInitializationPacket("system.dedicated_server", (client) -> object, (v, v1) -> {
+            // for new inner core
+        });
 
         RuntimeIdDataPacketSender.loadClass();
         Network.getSingleton().startLanServer();
@@ -169,7 +230,8 @@ public class InnerCoreServer {
 
         API.loadAllAPIs();
         ModLoader.initialize();
-        ModPackContext.getInstance().setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(new File(PATH+"innercore")));
+        ModPackContext.getInstance()
+                .setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(innercoreDirectory));
 
         ModLoader.loadModsAndSetupEnvViaNewModLoader();
         ModLoader.prepareResourcesViaNewModLoader();
@@ -180,12 +242,12 @@ public class InnerCoreServer {
 
         ItemContainer.loadClass();
 
-        Logger.info("INNERCORE", "end load, time: "+(System.currentTimeMillis()-start));
+        Logger.info("INNERCORE", "preloaded in " + (System.currentTimeMillis() - startupMillis) + "ms");
         Logger.info("INNERCORE", PackInfo.toInfo());
     }
 
-    public void postLoad(){
-        Logger.debug("Post loaded innercore...");
+    public void afterload() {
+        server.getLogger().info("Registering Nukkit-MOT containment...");
         server.getPluginManager().registerEvents(new EventListener(), plugin);
 
         CustomBlock.init();
@@ -198,41 +260,39 @@ public class InnerCoreServer {
         NativeCallback.onLevelCreated();
     }
 
-    public void start(){
-
+    public void start() {
+        // QQ!
     }
 
-    public void tick(){
+    public void tick() {
         NativeCallback.onTick();
     }
 
-    public static int getVersionCode(){
+    public static int getVersionCode() {
         return server.getPropertyInt("inner-core-version", 152);
-        //return 152;
     }
 
-    public static String getVersionName(){
+    public static String getVersionName() {
         return server.getPropertyString("inner-core-version-name", "2.3.1b115 test");
     }
 
-    public static String getName(){
+    public static String getName() {
         return server.getPropertyString("inner-core-pack-name", "Inner Core Test");
-        //return "Inner Core Test";
     }
 
-    public static void useNotSupport(String name){
-        throw new RuntimeException("Use not support multiplayer method "+name);
+    public static void useNotSupport(String name) {
+        throw new RuntimeException("Use not support multiplayer method " + name);
     }
 
-    public static void useClientMethod(String name){
-        throw new RuntimeException("Use client method "+name);
+    public static void useClientMethod(String name) {
+        throw new RuntimeException("Use client method " + name);
     }
 
-    public static void useNotCurrentSupport(String name){
-        throw new RuntimeException("The "+name+" method is currently not supported");
+    public static void useNotCurrentSupport(String name) {
+        throw new RuntimeException("The " + name + " method is currently not supported");
     }
 
-    public static void useHzMethod(String name){
-        throw new RuntimeException("В душе не ебу что делает данный метод, поэтому ты это сейчас читаешь "+name);
+    public static void useHzMethod(String name) {
+        throw new RuntimeException("В душе не ебу что делает данный метод, поэтому ты это сейчас читаешь " + name);
     }
 }
