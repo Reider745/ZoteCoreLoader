@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 @Hooks(class_name = "cn.nukkit.item.Item")
 public class ItemUtils implements HookClass {
-    public static PointersStorage<Item> items_pointers = new PointersStorage<>("items", ItemExtraDataProvider::new);
+    public static final PointersStorage<Item> items_pointers = new PointersStorage<>("items", ItemExtraDataProvider::new);
 
     @Inject(signature = "(ILjava/lang/Integer;I[B)Lcn/nukkit/item/Item;")
     public static Item get(int id, Integer meta, int count, byte[] tags){

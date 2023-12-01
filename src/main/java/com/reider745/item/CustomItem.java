@@ -53,8 +53,8 @@ public class CustomItem {
     public static void checkAddedItem(int id, int damage){
 
         if(!CustomItem.isCreativeItem(id, damage) && id > 2000) {
-            System.out.println(creative);
-            Server.getInstance().getLogger().info("clone item   "+id+":"+damage);
+            //System.out.println(creative);
+           // Server.getInstance().getLogger().info("clone item   "+id+":"+damage);
 
             CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, id);
             addFirst(CustomItem.creative, new int[] {id, 1, damage});

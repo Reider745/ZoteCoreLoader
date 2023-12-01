@@ -168,7 +168,7 @@ public class NativeItem {
         nameId = NativeAPI.convertNameId(nameId); // any name id must be lowercase
         
         if (!ResourcePackManager.isValidItemTexture(iconName, iconIndex)) {
-            Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
+            //Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
             iconName = "missing_icon";
             iconIndex = 0;
         }
@@ -187,7 +187,7 @@ public class NativeItem {
         nameId = NativeAPI.convertNameId(nameId); // any name id must be lowercase
         
         if (!ResourcePackManager.isValidItemTexture(iconName, iconIndex)) {
-            Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
+           // Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
             iconName = "missing_icon";
             iconIndex = 0;
         }

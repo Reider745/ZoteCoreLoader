@@ -58,7 +58,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
             CustomManager manager = getBlockManager(id);
             ArrayList<String> variants = getVariants(manager);
             for(int data = 0;data < variants.size();data++)
-                registerBlock(id, data, new CustomBlock(id, data, manager));
+                registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));
         });
     }
 
@@ -85,7 +85,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     public static HashMap<String, Integer> customBlocks = new HashMap<>();
 
-    public static CustomManager registerBlock(String textId, int id, String name, Class item){
+    public static CustomManager registerBlock(String textId, int id, String name, Class<?> item){
         CustomManager manager = new CustomManager(id, item, "block");
         manager.put("name", name);
 
@@ -111,11 +111,15 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     }
 
     protected CustomBlock(int id, int meta, CustomManager manager) {
+        this(id, meta, manager, "blank");
+    }
+
+    protected CustomBlock(int id, int meta, CustomManager manager, String name) {
         super(meta);
 
         this.manager = manager;
         this.id = id;
-        this.name = manager.get("name");
+        this.name = name;
 
         TickingTile = manager.get("TickingTile:"+meta, false);
     }

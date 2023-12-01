@@ -108,7 +108,7 @@ public class NativeBlockModel {
 
             for (int i = 0; i < 6; i++) {
                 if (!ResourcePackManager.isValidBlockTexture(names[i], ids[i])) {
-                    Logger.debug(BlockRegistry.LOGGER_TAG, "invalid block texture will be replaced with default: " + names[i] + " " + ids[i]);
+                    //Logger.debug(BlockRegistry.LOGGER_TAG, "invalid block texture will be replaced with default: " + names[i] + " " + ids[i]);
                     names[i] = "missing_block";
                     ids[i] = 0;
                 }

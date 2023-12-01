@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api.mod.ui.window;
 
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiAbstractContainer;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
+import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.ArrayList;
@@ -208,17 +209,17 @@ public class UIWindowGroup implements IWindow {
             window.invalidateAllContent();
         }
     }
-
-    public void setStyle(Object style) {
-
+    private UIStyle style;
+    public void setStyle(UIStyle style) {
+        this.style = style;
     }
 
     public void setStyle(ScriptableObject scriptable) {
 
     }
 
-    public Object getStyle() {
-        return null;
+    public UIStyle getStyle() {
+        return style;
     }
 
     public void setBlockingBackground(boolean val) {

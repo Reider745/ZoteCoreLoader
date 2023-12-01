@@ -2049,11 +2049,11 @@ public class AdaptedScriptAPI extends API {
         // legacy
         public static class StandartWindow extends UIWindowStandard {
             public StandartWindow(ScriptableObject content) {
-
+                super(content);
             }
 
             public StandartWindow() {
-
+                super(ScriptableObjectHelper.createEmpty());
             }
 
             protected boolean isLegacyFormat() {
@@ -2064,11 +2064,14 @@ public class AdaptedScriptAPI extends API {
         // new one
         public static class StandardWindow extends UIWindowStandard {
             public StandardWindow(ScriptableObject content) {
+                super(content);
             }
 
             public StandardWindow() {
+                super(ScriptableObjectHelper.createEmpty());
             }
 
+            @Override
             protected boolean isLegacyFormat() {
                 return false;
             }
