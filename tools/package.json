@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@types/node": "^20.6.5"
+  },
+  "scripts": {
+    "rebuildNumericIds": "tsx rebuild-numeric-ids.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.6.1"
+  }
+}
