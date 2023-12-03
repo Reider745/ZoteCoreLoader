@@ -26,13 +26,14 @@ import java.util.Map;
 
 public class BlockSourceMethods {
     private static void defDestroy(Level level, Block target){
-        BlockEntity blockEntity = level.getBlockEntity(target);
+        level.scheduleUpdate(target, target.tickRate());
+        /*BlockEntity blockEntity = level.getBlockEntity(target);
         if (blockEntity != null) {
             blockEntity.onBreak();
             blockEntity.close();
 
             level.updateComparatorOutputLevel(target);
-        }
+        }*/
     }
 
     public static Level getLevelForDimension(int dimension){

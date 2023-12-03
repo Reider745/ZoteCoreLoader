@@ -106,9 +106,28 @@ public class NativeAPI {
 
     }
 
-    public static String convertNameId(String name){
-        return name.replace(" ", "_").toLowerCase();
+    public static String convertNameId(String str) {
+        StringBuilder builder = new StringBuilder();
+        int upperCaseCount = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isUpperCase(c)) {
+                if (upperCaseCount == 0 && builder.length() > 0) {
+                    builder.append('_');
+                }
+                builder.append(Character.toLowerCase(c));
+                upperCaseCount++;
+            } else {
+                if (upperCaseCount > 1 && c != '_') {
+                    builder.insert(builder.length() - 1, '_');
+                }
+                builder.append(c);
+                upperCaseCount = 0;
+            }
+        }
+        return builder.toString();
     }
+
 
     public static boolean isGlintItemInstance(int id, int data, long extra){
         return false;

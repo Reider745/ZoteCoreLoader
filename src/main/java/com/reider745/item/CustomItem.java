@@ -153,6 +153,13 @@ public class CustomItem {
         });
     }
 
+    public static String getTextIdForNumber(int id){
+        for(String texId : customItems.keySet())
+            if(customItems.get(texId).equals(id))
+                return texId;
+        return null;
+    }
+
     public static CustomManager registerItem(String textId, int id, String name, Class<?> item){
         CustomManager manager = new CustomManager(id, item, "item");
         manager.put(PropertiesNames.NAME, name);

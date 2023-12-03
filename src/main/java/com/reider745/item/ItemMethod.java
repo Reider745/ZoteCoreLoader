@@ -3,6 +3,7 @@ package com.reider745.item;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import com.reider745.api.CustomManager;
+import com.reider745.block.CustomBlock;
 
 import java.util.ArrayList;
 
@@ -55,7 +56,11 @@ public class ItemMethod {
     }
 
     public static String getNameForId(int id, int data, long extra){
-        CustomManager manager = getCustomManager(id);
+        CustomManager manager = CustomBlock.getBlockManager(id);
+        if(manager != null)
+            return CustomBlock.getVariants(manager).get(data);
+
+        manager = getCustomManager(id);
         if(manager != null)
             return manager.get(PropertiesNames.NAME);
         return Item.get(id, data).getName();

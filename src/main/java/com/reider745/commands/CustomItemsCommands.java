@@ -19,7 +19,7 @@ public class CustomItemsCommands extends Command {
         String message = "===CustomItems===";
         for(Integer id : CustomItem.items.keySet()) {
             CustomManager manager = CustomItem.getItemManager(id);
-            message += "\n"+manager.get(ItemMethod.PropertiesNames.NAME)+", id: "+id;
+            message += "\n"+manager.get(ItemMethod.PropertiesNames.NAME)+", id: "+id+", texId: "+CustomItem.getTextIdForNumber(id);
         }
         commandSender.sendMessage(message);
         return true;

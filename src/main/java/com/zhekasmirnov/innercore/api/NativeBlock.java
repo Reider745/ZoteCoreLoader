@@ -74,7 +74,12 @@ public class NativeBlock {
     public static CustomManager constructBlock(int id, String nameId, String name, int materialBaseId){
         return CustomBlock.registerBlock(nameId, id, name);
     }
-    public static native CustomManager[] constructLiquidBlockPair(int id1, String nameId1, int id2, String nameId2, String name, int materialBaseId, int tickDelay, boolean isRenewable);
+    public static CustomManager[] constructLiquidBlockPair(int id1, String nameId1, int id2, String nameId2, String name, int materialBaseId, int tickDelay, boolean isRenewable){
+        return new CustomManager[]{
+                CustomBlock.registerBlock(nameId1, id1, name),
+                CustomBlock.registerBlock(nameId2, id2, name),
+        };
+    }
     public static long addVariant(CustomManager pointer, String name, String[] textureNames, int[] textureIds){
         ArrayList<String> variants = pointer.get("variants", new ArrayList<>());
         variants.add(name);

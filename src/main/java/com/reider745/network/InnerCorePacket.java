@@ -1,6 +1,7 @@
 package com.reider745.network;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
@@ -27,11 +28,17 @@ public class InnerCorePacket extends BasePacket {
 
     @Override
     public void decode() {
-        name = this.getString();
-        format_id = this.getVarInt();
-        bytes_length = this.getVarInt();
-        bytes = this.get();
-        reciveLogic();
+        try{
+            name = this.getString();
+            format_id = this.getVarInt();
+            bytes_length = this.getVarInt();
+            bytes = this.get();
+            reciveLogic();
+        }catch (Exception e){
+            final String message = "Error native protocol InnerCore";
+            Server.getInstance().getLogger().warning(message);
+            player.kick(message);
+        }
     }
 
     public void reciveLogic(){

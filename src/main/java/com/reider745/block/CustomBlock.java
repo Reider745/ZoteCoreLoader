@@ -52,6 +52,13 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         }
     }
 
+    public static String getTextIdForNumber(int id){
+        for(String texId : customBlocks.keySet())
+            if(customBlocks.get(texId).equals(id))
+                return texId;
+        return null;
+    }
+
 
     public static void init(){
         blocks.forEach((id, value) -> {
@@ -68,6 +75,17 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     public static ArrayList<String> getVariants(int id){
         return getVariants(getBlockManager(id));
+    }
+
+    public static ArrayList<String> getOrgVariants(int id){
+        CustomManager manager = getBlockManager(id);
+        if(manager == null) return new ArrayList<>();
+        return manager.get("variants", new ArrayList<>());
+    }
+
+    public static ArrayList<String> getOrgVariants(CustomManager manager){
+        if(manager == null) return new ArrayList<>();
+        return manager.get("variants", new ArrayList<>());
     }
 
     public static ArrayList<String> getVariants(CustomManager manager){
@@ -123,6 +141,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
         TickingTile = manager.get("TickingTile:"+meta, false);
     }
+
 
     @Override
     public boolean canRandomTickBlocks() {
