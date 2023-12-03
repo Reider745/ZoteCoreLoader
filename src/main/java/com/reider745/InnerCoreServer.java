@@ -107,9 +107,8 @@ public class InnerCoreServer {
     }
 
     @SuppressWarnings("unchecked")
-    public static void unzip(final File zipFile, final String uncompressedDirectory) {
+    public static void unzip(final ZipFile file, final String uncompressedDirectory) {
         try {
-            final ZipFile file = new ZipFile(zipFile);
             final Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) file.entries();
 
             while (entries.hasMoreElements()) {
@@ -123,6 +122,28 @@ public class InnerCoreServer {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void unzipMods(final String path) throws IOException {
+        final File directory_mods = new File(path);
+        final File[] files = directory_mods.listFiles();
+        if(files == null) return;
+
+        for(final File file : files){
+            final String name = file.getName();
+            if(file.isFile() && name.endsWith(".icmod")){
+                server.getLogger().info("Unzip mod "+name);
+
+                final ZipFile zipFile = new ZipFile(file);
+                if(zipFile.getEntry("build.config") == null)
+                    unzip(zipFile, path+"/");
+                else {
+                    final String nameFolder = name.replace(".icmod", "");
+                    new File(path + "/" + nameFolder).mkdir();
+                    unzip(zipFile, path + "/" + nameFolder + "/");
+                }
+            }
         }
     }
 
@@ -193,14 +214,10 @@ public class InnerCoreServer {
         if (!innercoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
             unpackResources("/innercore", innercoreDirectory.getPath());
-            // final File zipFile = cloneFile("innercore.zip");
-            // if (zipFile != null) {
-                // unzip(zipFile, PATH);
-                // zipFile.deleteOnExit();
-            // }
         }
 
         cloneFile("innercore_default_config.json");
+        unzipMods(PATH+"/innercore/mods");
 
         FileTools.init();
 
