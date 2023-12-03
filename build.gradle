@@ -49,3 +49,7 @@ run {
     workingDir = 'target'
     standardInput = System.in
 }
+
+task rebuildAndroidStubs(type: JavaExec, dependsOn: classes) {
+    main = 'com.reider745.api.hooks.RebuildJavadoc'
+}

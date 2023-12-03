@@ -1,21 +1,10 @@
+package-lock.json
+node_modules
 .gradle
 build
 
-target/innercore
-target/logs
-target/players
-target/plugins
-target/resource_packs
-target/worlds
-target/banned-ips.json
-target/banned-players.json
-target/innercore_default_config.json
-target/ops.txt
-target/scoreboard.json
-target/server.properties
-target/white-list.txt
-
-target/magical crops lite
-target/TreeCapitator
+target/*
+!target/README.md
+logs
 
 .idea

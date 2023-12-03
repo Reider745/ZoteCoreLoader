@@ -1,0 +1,60 @@
+{
+  "armor_type": {
+    "typename": "ArmorType"
+  },
+  "block_render_layer": {
+    "jsScopeVersion": 11,
+    "typename": "BlockRenderLayer"
+  },
+  "block_side": {
+    "typename": "BlockSide"
+  },
+  "block_states": {
+    "typename": "BlockStates"
+  },
+  "color": {
+    "typename": "Color"
+  },
+  "dimension": {
+    "typename": "Dimension"
+  },
+  "enchant_type": {
+    "typename": "EnchantType"
+  },
+  "enchantment": {
+    "typename": "Enchantment"
+  },
+  "entity_type": {
+    "typename": "EntityType"
+  },
+  "game_difficulty": {
+    "typename": "GameDifficulty"
+  },
+  "game_mode": {
+    "typename": "GameMode"
+  },
+  "item_animation": {
+    "typename": "ItemAnimation"
+  },
+  "item_category": {
+    "typename": "ItemCategory"
+  },
+  "mob_render_type": {
+    "typename": "MobRenderType"
+  },
+  "nbt_data_type": {
+    "typename": "NbtDataType"
+  },
+  "particle_type": {
+    "typename": "ParticleType"
+  },
+  "player_ability": {
+    "typename": "PlayerAbility"
+  },
+  "potion_effect": {
+    "typename": "PotionEffect"
+  },
+  "tile_entity_type": {
+    "typename": "TileEntityType"
+  }
+}
