@@ -2773,8 +2773,10 @@ public class AdaptedScriptAPI extends API {
                 try {
                     return Context.javaToJS(method.invoke(null, (Object[]) _params), parent);
                 } catch (IllegalAccessException e) {
+                    ICLog.i("ERROR", "failed to call required java method class=" + className + " method=" + methodName);
                     throw new RuntimeException(e.toString());
                 } catch (InvocationTargetException e) {
+                    ICLog.i("ERROR", "failed to call required java method class=" + className + " method=" + methodName);
                     throw new RuntimeException(e.toString());
                 } catch(Exception e) {
                     ICLog.i("ERROR", "failed to call required java method class=" + className + " method=" + methodName);
