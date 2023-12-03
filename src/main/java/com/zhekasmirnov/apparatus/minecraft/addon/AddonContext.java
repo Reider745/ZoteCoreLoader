@@ -6,7 +6,7 @@ import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 
 /* This class should allow access to all addon contents */
 public class AddonContext {
-    /*private static final AddonContext instance = MinecraftVersions.getCurrent().createAddonContext();
+    private static final AddonContext instance = MinecraftVersions.getCurrent().createAddonContext();
 
     public static AddonContext getInstance() {
         return instance;
@@ -27,5 +27,5 @@ public class AddonContext {
 
     public AddonRecipeParser getRecipeParser() {
         return recipeParser;
-    }*/
+    }
 }

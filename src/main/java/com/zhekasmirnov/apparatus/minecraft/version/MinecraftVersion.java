@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.minecraft.version;
 
+import com.zhekasmirnov.apparatus.minecraft.addon.AddonContext;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -54,6 +55,7 @@ public abstract class MinecraftVersion {
     public abstract String[] getVanillaResourcePacksDirs();
     public abstract String[] getVanillaBehaviorPacksDirs();
     public abstract JSONObject createRuntimePackManifest(String name, String headerUuid, String moduleType, JSONArray version);
+    public abstract AddonContext createAddonContext();
 
     public abstract void addSupportedFeatures(Set<String> features);
 

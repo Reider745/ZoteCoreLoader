@@ -70,7 +70,7 @@ public class WorkbenchRecipeListBuilder {
                 recipeJson.put("d", !pair.second);
                 jsonList.put(recipeJson);
             }
-        } catch (JSONException ignore) { }
+        } catch (JSONException ignore) {}
         return packet;
     }
 

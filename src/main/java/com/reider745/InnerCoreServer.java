@@ -20,6 +20,7 @@ import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerPackVersionChecker;
 import com.zhekasmirnov.apparatus.multiplayer.mod.RuntimeIdDataPacketSender;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
@@ -97,6 +98,10 @@ public class InnerCoreServer {
 
         bos.close();
         bis.close();
+    }
+
+    public boolean isLegacyWorkbench(){
+        return true;
     }
 
     private static void processDirectory(String uncompressedDirectory, ZipEntry entry) {
@@ -245,6 +250,8 @@ public class InnerCoreServer {
         ModLoader.initialize();
         ModPackContext.getInstance()
                 .setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(innercoreDirectory));
+
+        InnerCoreConfig.set("gameplay.use_legacy_workbench_override", isLegacyWorkbench());
 
         ModLoader.loadModsAndSetupEnvViaNewModLoader();
         ModLoader.prepareResourcesViaNewModLoader();

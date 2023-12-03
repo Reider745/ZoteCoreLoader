@@ -4,6 +4,9 @@ package com.zhekasmirnov.apparatus.minecraft.version;
 //import com.zhekasmirnov.apparatus.minecraft.addon.AddonContext;
 //import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser11;
 //import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser16;
+import com.zhekasmirnov.apparatus.minecraft.addon.AddonContext;
+import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser11;
+import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser16;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,13 +69,13 @@ public class MinecraftVersions {
             }
         }
 
-        /*@Override
+        @Override
         public AddonContext createAddonContext() {
             return new AddonContext(
                     this,
                     new AddonRecipeParser11()
             );
-        }*/
+        }
 
         @Override
         public void addSupportedFeatures(Set<String> features) {
@@ -138,13 +141,13 @@ public class MinecraftVersions {
             }
         }
 
-        /*@Override
+        @Override
         public AddonContext createAddonContext() {
             return new AddonContext(
                     this,
                     new AddonRecipeParser16()
             );
-        }*/
+        }
 
         @Override
         public void addSupportedFeatures(Set<String> features) {

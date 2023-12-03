@@ -157,8 +157,10 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         });
 
         send("system.client_awaiting_init", "");
+        try{
+            channel.listenerLoop();
+        }catch (Exception ignore){}
 
-        channel.listenerLoop();
         setClientState(ClientState.CLOSED);
 
         if (disconnectListener != null) {
