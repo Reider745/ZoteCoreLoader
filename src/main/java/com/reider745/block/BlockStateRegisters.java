@@ -33,17 +33,29 @@ public class BlockStateRegisters {
         statesForHash.put(hash, state);
     }
 
+    private static final HashMap<String, Integer> runtimeIdForIdAndData = new HashMap<>();
+
     public static void addRuntimeIdAndData(final long hash, final int runtimeId, final int id, final int data){
         Map<String, Integer> state = statesForHash.get(hash);
-        statesForRuntimeId.put(runtimeId, state);
         Map<Map<String, Integer>, Integer> states = runtimeIdsForStatesAndId.getOrDefault(id, new HashMap<>());
+
+        statesForRuntimeId.put(runtimeId, state);
         states.put(state, runtimeId);
         runtimeIdsForStatesAndId.put(id, states);
         dataForRuntimeId.put(runtimeId, data);
+        runtimeIdForIdAndData.put(id+":"+data, runtimeId);
     }
 
     public static int getDataForRuntimeId(final int runtimeId){
         return dataForRuntimeId.getOrDefault(runtimeId, 0);
+    }
+
+    public static Map<String, Integer> getStateFor(int runtimeId){
+        return statesForRuntimeId.get(runtimeId);
+    }
+
+    public static int getStateFor(int id, int data){
+        return runtimeIdForIdAndData.get(id+":"+data);
     }
 
     public static int getStateFromId(int runtimeId, int state){

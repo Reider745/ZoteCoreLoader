@@ -47,4 +47,5 @@ jar {
 
 run {
     workingDir = 'target'
+    standardInput = System.in
 }

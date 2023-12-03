@@ -92,7 +92,7 @@ public class RuntimeItemsHooks implements HookClass {
                 runtimeId2Name.put(runtimeId, name);
                 name2RuntimeId.put(name, runtimeId);
 
-                RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, 0);
+                RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, data);
 
                 runtime2Legacy.put(runtimeId, legacyEntry);
                 identifier2Legacy.put(name, legacyEntry);

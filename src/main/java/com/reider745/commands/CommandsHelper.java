@@ -5,9 +5,12 @@ import com.reider745.InnerCoreServer;
 
 public class CommandsHelper {
     public static void init(){
-        SimpleCommandMap map = InnerCoreServer.server.getCommandMap();
-        map.register("innercore", new ModsListCommand());
-        map.register("innercore", new CustomBlocksCommands());
-        map.register("innercore", new CustomItemsCommands());
+        final SimpleCommandMap map = InnerCoreServer.server.getCommandMap();
+        final String fallbackPrefix = "inner_core";
+
+        map.register(fallbackPrefix, new ModsListCommand());
+        map.register(fallbackPrefix, new CustomBlocksCommands());
+        map.register(fallbackPrefix, new CustomItemsCommands());
+        map.register(fallbackPrefix, new StateCommand());
     }
 }
