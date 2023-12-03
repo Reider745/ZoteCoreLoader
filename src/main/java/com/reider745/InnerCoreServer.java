@@ -126,34 +126,30 @@ public class InnerCoreServer {
         }
     }
 
-    static void getFolderRootFromUri(URI uri, String targetPath, Consumer<? super Path> action) throws IOException {
+    static void getFolderRootFromUri(URI uri, String targetPath, Consumer<? super Path> action) {
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
         try (final FileSystem fileSystem = FileSystems.newFileSystem(uri, env)) {
             action.accept(fileSystem.getPath(targetPath));
-        } catch (IllegalArgumentException e) {
-            action.accept(Paths.get(uri.getPath()));
+        } catch (IllegalArgumentException | IOException e) {
+            action.accept(Paths.get(uri));
         }
     }
 
     static void traverseResourcesFileSystem(String targetPath, Consumer<? super Path> action)
             throws URISyntaxException {
         final URI uri = InnerCoreServer.class.getResource(targetPath).toURI();
-        try {
-            getFolderRootFromUri(uri, targetPath, folderRoot -> {
-                try (final Stream<Path> walk = Files.walk(folderRoot)) {
-                    walk.forEach(childPath -> {
-                        if (Files.isRegularFile(childPath)) {
-                            action.accept(folderRoot.relativize(childPath));
-                        }
-                    });
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        getFolderRootFromUri(uri, targetPath, folderRoot -> {
+            try (final Stream<Path> walk = Files.walk(folderRoot)) {
+                walk.forEach(childPath -> {
+                    if (Files.isRegularFile(childPath)) {
+                        action.accept(folderRoot.relativize(childPath));
+                    }
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     static void unpackResources(String targetPath, String outputPath) throws URISyntaxException {
