@@ -17,7 +17,7 @@ import java.util.List;
 
 @Hooks(class_name = "cn.nukkit.Player")
 public class PlayerHooks implements HookClass {
-    private static boolean isAddres(String addres1, String addres2){
+    private static boolean isAddress(String addres1, String addres2){
         String[] split1 = addres1.split(":");
         String[] split2 = addres2.split(":");
 
@@ -31,12 +31,12 @@ public class PlayerHooks implements HookClass {
     public static ConnectedClient getForPlayer(Player player){
         List<ConnectedClient> clients = Network.getSingleton().getServer().getInitializingClients();
         for(ConnectedClient client : clients)
-            if (isAddres(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
+            if (isAddress(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
                 return client;
 
         clients = Network.getSingleton().getServer().getConnectedClients();
         for(ConnectedClient client : clients)
-            if(isAddres(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
+            if(isAddress(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
                 return client;
 
         return null;

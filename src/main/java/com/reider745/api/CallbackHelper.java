@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 public class CallbackHelper {
     public enum Type {
-        GENERATION_CHUNK_OVER_WORLD,
+        GENERATION_CHUNK_OVERWORLD,
         GENERATION_CHUNK_NETHER,
         GENERATION_CHUNK_END;
     }
@@ -29,7 +29,7 @@ public class CallbackHelper {
             return region;
         }
 
-        public void add(ICallbackApply apply){
+        public void add(ICallbackApply apply) {
             synchronized (applys) {
                 this.applys.add(apply);
             }
@@ -52,15 +52,15 @@ public class CallbackHelper {
         }
     }
 
-    public static void registerCallback(Type type){
+    public static void registerCallback(Type type) {
         ThreadRegion threadRegion = new ThreadRegion();
         threadRegion.start();
 
         types.put(type, threadRegion);
     }
 
-    public static void init(){
-        for(Type type : Type.values())
+    public static void init() {
+        for (Type type : Type.values())
             registerCallback(type);
     }
 
@@ -77,14 +77,14 @@ public class CallbackHelper {
             this.prevent_status = true;
         }
 
-
-        public ThreadCallback(ICallbackApply apply){
+        public ThreadCallback(ICallbackApply apply) {
             this.apply = apply;
         }
     }
 
     private static class ThreadCallbackEvent extends ThreadCallback {
         protected final Event event;
+
         public ThreadCallbackEvent(Event event, ICallbackApply apply) {
             super(apply);
             this.event = event;
@@ -92,7 +92,8 @@ public class CallbackHelper {
 
         @Override
         public void run() {
-            if(event.isCancelled()) return;
+            if (event.isCancelled())
+                return;
             apply.apply();
             event.setCancelled(isPrevent());
         }
@@ -100,6 +101,7 @@ public class CallbackHelper {
 
     private static class ThreadCallbackController extends ThreadCallback {
         protected final HookController event;
+
         public ThreadCallbackController(HookController event, ICallbackApply apply) {
             super(apply);
             this.event = event;
@@ -112,44 +114,45 @@ public class CallbackHelper {
         }
     }
 
-    public static void applyRegion(Type type, Level level, ICallbackApply apply){
+    public static void applyRegion(Type type, Level level, ICallbackApply apply) {
         ThreadRegion threadRegion = types.get(type);
         threadRegion.region = level;
         threadRegion.add(apply);
     }
 
-    public static void apply(Event event, ICallbackApply apply){
+    public static void apply(Event event, ICallbackApply apply) {
         Thread thread = new ThreadCallbackEvent(event, apply);
         thread.start();
-        while(thread.isAlive()){}
+        while (thread.isAlive()) {
+        }
     }
 
-    public static void apply(HookController controller, ICallbackApply apply){
+    public static void apply(HookController controller, ICallbackApply apply) {
         Thread thread = new ThreadCallbackController(controller, apply);
         thread.start();
-        while(thread.isAlive()){}
+        while (thread.isAlive()) {
+        }
     }
 
-
-    public static void prevent(){
+    public static void prevent() {
         Thread thread = Thread.currentThread();
 
-        if(thread instanceof ThreadCallback threadCallback)
+        if (thread instanceof ThreadCallback threadCallback)
             threadCallback.prevent();
     }
 
-    public static boolean isPrevent(){
+    public static boolean isPrevent() {
         Thread thread = Thread.currentThread();
 
-        if(thread instanceof ThreadCallback threadCallback)
+        if (thread instanceof ThreadCallback threadCallback)
             return threadCallback.isPrevent();
         return false;
     }
 
-    public static Level getForCurrentThread(){
+    public static Level getForCurrentThread() {
         Thread thread = Thread.currentThread();
 
-        if(thread instanceof ThreadRegion threadCallback)
+        if (thread instanceof ThreadRegion threadCallback)
             return threadCallback.getRegion();
         return null;
     }

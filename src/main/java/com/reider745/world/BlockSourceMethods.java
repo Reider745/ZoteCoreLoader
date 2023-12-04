@@ -23,140 +23,158 @@ import com.reider745.hooks.ItemUtils;
 
 import java.util.Map;
 
-
 public class BlockSourceMethods {
-    private static void defDestroy(Level level, Block target){
+    private static void defDestroy(Level level, Block target) {
         level.scheduleUpdate(target, target.tickRate());
-        /*BlockEntity blockEntity = level.getBlockEntity(target);
-        if (blockEntity != null) {
-            blockEntity.onBreak();
-            blockEntity.close();
-
-            level.updateComparatorOutputLevel(target);
-        }*/
+        /*
+         * BlockEntity blockEntity = level.getBlockEntity(target);
+         * if (blockEntity != null) {
+         * blockEntity.onBreak();
+         * blockEntity.close();
+         * 
+         * level.updateComparatorOutputLevel(target);
+         * }
+         */
     }
 
-    public static Level getLevelForDimension(int dimension){
-        if(dimension >= 0 && dimension <= 2){
-            switch (dimension) {
-                case 0 -> {
-                    return InnerCoreServer.server.getLevelByName("world");
-                }
-                case 1 -> {
-                    return InnerCoreServer.server.getLevelByName("nether");
-                }
-                case 2 -> {
-                    return InnerCoreServer.server.getLevelByName("the_end");
-                }
-            }
+    public static Level getLevelForDimension(int dimension) {
+        if (dimension >= 0 && dimension <= 2) {
+            return InnerCoreServer.server.getLevelByName(switch (dimension) {
+                case 0 -> "world";
+                case 1 -> "nether";
+                case 2 -> "the_end";
+                default -> throw new UnsupportedOperationException();
+            });
         }
         return InnerCoreServer.server.getLevel(dimension);
     }
 
-    public static void destroyBlock(Level pointer, int x, int y, int z, boolean drop, int updateType, boolean destroyParticles){
+    public static void destroyBlock(Level pointer, int x, int y, int z, boolean drop, int updateType,
+            boolean destroyParticles) {
         boolean update = updateType == 3;
         Block block = pointer.getBlock(x, y, z);
         pointer.setBlock(x, y, z, Block.get(0), update, update);
-        if(destroyParticles) {
+        if (destroyParticles) {
             Map<Integer, Player> players = pointer.getChunkPlayers((int) x >> 4, (int) z >> 4);
             pointer.addParticle(new DestroyBlockParticle(block.add(0.5), block), players.values());
         }
-        if(drop){
+        if (drop) {
             Item[] drops = block.getDrops(Item.get(0));
             Vector3 pos = new Vector3(x, y, z);
-            for(Item item : drops)
+            for (Item item : drops)
                 pointer.dropItem(pos, item);
         }
         defDestroy(pointer, block);
     }
 
-    public static int getBlockId(Level pointer, int x, int y, int z){
+    public static int getBlockId(Level pointer, int x, int y, int z) {
         return pointer.getBlock(x, y, z).getId();
     }
 
-    public static boolean isChunkLoaded(Level level, int x, int z){
+    public static boolean isChunkLoaded(Level level, int x, int z) {
         return level.isChunkLoaded(x, z);
     }
 
-    public static long spawnDroppedItem(Level pointer, float x, float y, float z, int id, int count, int data, long extra){
+    public static long spawnDroppedItem(Level pointer, float x, float y, float z, int id, int count, int data,
+            long extra) {
         EntityItem item = pointer.dropAndGetItem(new Vector3(x, y, z), ItemUtils.get(id, count, data, extra));
-        if(item == null) return 0;
+        if (item == null)
+            return 0;
         return item.getId();
     }
 
-    public static Long nativeGetForClientSide(){
+    public static Long nativeGetForClientSide() {
         return null;
     }
-    public static void nativeFinalize(long pointer){
+
+    public static void nativeFinalize(long pointer) {
 
     }
 
-    public static boolean canSeeSky(Level pointer, int x, int y, int z){
+    public static boolean canSeeSky(Level pointer, int x, int y, int z) {
         return pointer.canBlockSeeSky(new Vector3(x, y, z));
     }
-    public static int getBiome(Level pointer, int x, int y, int z){
+
+    public static int getBiome(Level pointer, int x, int y, int z) {
         return pointer.getBiomeId(x, z);
     }
-    public static float getBiomeTemperatureAt(Level pointer, int x, int y, int z){
+
+    public static float getBiomeTemperatureAt(Level pointer, int x, int y, int z) {
         return 0;
         // return Biome.getBiome(pointer.getBiomeId(x, z)).get
     }
-    public static float getBiomeDownfallAt(Level pointer, int x, int y, int z){
-        return 0;
-    }
-    public static int getBrightness(Level Level, int x, int y, int z){
+
+    public static float getBiomeDownfallAt(Level pointer, int x, int y, int z) {
         return 0;
     }
 
-    public static int getBlockData(Level pointer, int x, int y, int z){
+    public static int getBrightness(Level Level, int x, int y, int z) {
+        return 0;
+    }
+
+    public static int getBlockData(Level pointer, int x, int y, int z) {
         return pointer.getBlockDataAt(x, y, z);
     }
-    public static Block getBlockIdDataAndState(Level pointer, int x, int y, int z){
+
+    public static Block getBlockIdDataAndState(Level pointer, int x, int y, int z) {
         return pointer.getBlock(x, y, z);
     }
-    public static Block getExtraBlockIdDataAndState(Level pointer, int x, int y, int z){
+
+    public static Block getExtraBlockIdDataAndState(Level pointer, int x, int y, int z) {
         return pointer.getBlock(x, y, z);
     }
-    public static void setBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
+
+    public static void setBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate,
+            int updateType) {
         Block block = pointer.getBlock(x, y, z);
         pointer.setBlock(x, y, z, Block.get(id, data).clone(), allowUpdate, allowUpdate);
         defDestroy(pointer, block);
     }
-    public static void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType){
+
+    public static void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate,
+            int updateType) {
         Block block = pointer.getBlock(x, y, z);
         int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
         setBlock(pointer, x, y, z, legacyId >> 6, legacyId & 0x3F, allowUpdate, updateType);
         defDestroy(pointer, block);
     }
-    public static void setExtraBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate, int updateType){
+
+    public static void setExtraBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate,
+            int updateType) {
         pointer.setBlockExtraDataAt(x, y, z, id, data);
     }
-    public static void setExtraBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate, int updateType){
+
+    public static void setExtraBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate,
+            int updateType) {
         int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
         setExtraBlock(pointer, x, y, z, legacyId >> 6, legacyId & 0x3F, allowUpdate, updateType);
     }
-    public static int getGrassColor(Level pointer, int x, int y, int z){
+
+    public static int getGrassColor(Level pointer, int x, int y, int z) {
         return 0;
     }
-    public static BlockEntity getBlockEntity(Level pointer, int x, int y, int z){
+
+    public static BlockEntity getBlockEntity(Level pointer, int x, int y, int z) {
         return pointer.getBlockEntity(new BlockVector3(x, y, z));
     }
-    public static int getDimension(Level pointer){
+
+    public static int getDimension(Level pointer) {
         return pointer.getDimension();
     }
 
-    public static void setBiome(Level pointer, int chunkX, int chunkZ, int id){
+    public static void setBiome(Level pointer, int chunkX, int chunkZ, int id) {
         pointer.setBiomeId(chunkX, chunkZ, (byte) id);
     }
-    public static int getChunkState(Level pointer, int chunkX, int chunkZ){
+
+    public static int getChunkState(Level pointer, int chunkX, int chunkZ) {
         return 0;
     }
 
-    public static void addToTickingQueue(Level pointer, int x, int y, int z, int runtimeId /* = -1 */, int delay, int unknown /* = 0 */){
-
+    public static void addToTickingQueue(Level pointer, int x, int y, int z, int runtimeId /* = -1 */, int delay,
+            int unknown /* = 0 */) {
     }
 
-    public static void explode(Level pointer, float x, float y, float z, float power, boolean fire){
+    public static void explode(Level pointer, float x, float y, float z, float power, boolean fire) {
         EntityExplosionPrimeEvent event = new EntityExplosionPrimeEvent(null, 4);
         InnerCoreServer.server.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
@@ -169,19 +187,27 @@ public class BlockSourceMethods {
         explosion.explodeB();
     }
 
-    public static long clip(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] joutput){
+    public static long clip(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode,
+            float[] joutput) {
         return 0;
     }
 
-    public static native long[] fetchEntitiesInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag);
-    public static native long[] fetchEntitiesOfTypeInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, String namespace, String name);
-    public static long spawnEntity(Level pointer, int type, float x, float y, float z){
+    public static native long[] fetchEntitiesInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2,
+            float z2, int backCompEntityType, boolean flag);
+
+    public static native long[] fetchEntitiesOfTypeInAABB(Level pointer, float x1, float y1, float z1, float x2,
+            float y2, float z2, String namespace, String name);
+
+    public static long spawnEntity(Level pointer, int type, float x, float y, float z) {
         Entity entity = Entity.createEntity(type, new Position(x, y, z));
         pointer.addEntity(entity);
         return entity.getId();
     }
-    public static native long spawnNamespacedEntity(Level pointer, float x, float y, float z, String str1, String str2, String str3);
-    public static long spawnExpOrbs(Level pointer, float x, float y, float z, int amount){
+
+    public static native long spawnNamespacedEntity(Level pointer, float x, float y, float z, String str1, String str2,
+            String str3);
+
+    public static long spawnExpOrbs(Level pointer, float x, float y, float z, int amount) {
         Vector3 source = new Vector3(x, y, z);
         CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3(0, 0, 0));
         Entity entity = Entity.createEntity("XpOrb", pointer.getChunk(source.getChunkX(), source.getChunkZ()), nbt);

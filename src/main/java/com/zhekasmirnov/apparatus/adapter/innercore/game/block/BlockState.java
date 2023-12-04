@@ -207,7 +207,7 @@ public class BlockState {
         return BlockStateRegisters.runtimeIdByStates(id, statesAndValues);
     }
     public static int getIdFromRuntimeId(int runtimeId){
-        InnerCoreServer.useHzMethod("getIdFromRuntimeId");
+        InnerCoreServer.useIncomprehensibleMethod("getIdFromRuntimeId");
         return 0;
     }
     public static int getDataFromRuntimeId(int runtimeId){

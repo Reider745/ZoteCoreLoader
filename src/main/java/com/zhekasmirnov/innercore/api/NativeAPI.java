@@ -1,96 +1,90 @@
 package com.zhekasmirnov.innercore.api;
 
-import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
-import cn.nukkit.level.Position;
 import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.ItemMethod;
-import com.reider745.world.BlockSourceMethods;
 import com.reider745.world.WorldMethod;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 
 public class NativeAPI {
 
-
-    public static int getEntityDimension(long entity){
+    public static int getEntityDimension(long entity) {
         return EntityMethod.getEntityDimension(entity);
     }
 
-    public static void getPosition(long entity, float[] pos){
+    public static void getPosition(long entity, float[] pos) {
         EntityMethod.getPosition(entity, pos);
     }
 
-    public static int getHealth(long entity){
+    public static int getHealth(long entity) {
         return EntityMethod.getHealth(entity);
     }
 
-    public static int getMaxHealth(long entity){
+    public static int getMaxHealth(long entity) {
         return EntityMethod.getMaxHealth(entity);
     }
 
-    public static Item getEntityCarriedItem(long entity){
+    public static Item getEntityCarriedItem(long entity) {
         return EntityMethod.getEntityCarriedItem(entity);
     }
 
-    public static Item getEntityOffhandItem(long entity){
+    public static Item getEntityOffhandItem(long entity) {
         return EntityMethod.getEntityOffhandItem(entity);
     }
-    public static Item getEntityArmor(long entity, int armor){
+
+    public static Item getEntityArmor(long entity, int armor) {
         return EntityMethod.getEntityArmor(entity, armor);
     }
 
-    public static void setEntityArmor(long entity, int slot, int id, int count, int data, long extra){
+    public static void setEntityArmor(long entity, int slot, int id, int count, int data, long extra) {
         EntityMethod.setEntityArmor(entity, slot, id, count, data, extra);
     }
 
-    public static void setPlayerArmor(int slot, int id, int count, int data, long extra){
+    public static void setPlayerArmor(int slot, int id, int count, int data, long extra) {
         InnerCoreServer.useNotSupport("setPlayerArmor");
     }
 
-    public static String getGameLanguage(){
+    public static String getGameLanguage() {
         return "en";
     }
 
-    public static void sendCachedItemNameOverride(int id, int data, String name){
-
+    public static void sendCachedItemNameOverride(int id, int data, String name) {
     }
 
-    public static boolean isValidEntity(long entity){
+    public static boolean isValidEntity(long entity) {
         return EntityMethod.isValidEntity(entity);
     }
 
-    public static long getPlayer(){
+    public static long getPlayer() {
         InnerCoreServer.useNotSupport("getPlayer");
         return 0;
     }
 
-    public static Item getPlayerArmor(int player){
+    public static Item getPlayerArmor(int player) {
         InnerCoreServer.useNotSupport("getPlayerArmor");
         return null;
     }
 
-    public static String getStringIdAndTypeForIntegerId(int id){
+    public static String getStringIdAndTypeForIntegerId(int id) {
         return ItemMethod.getStringIdAndTypeForIntegerId(id);
     }
 
-    public static int getSeed(){
+    public static int getSeed() {
         return 0;
     }
-    public static void forceLevelSave(){
 
+    public static void forceLevelSave() {
     }
 
-
-    public static boolean isDefaultPrevented(){
+    public static boolean isDefaultPrevented() {
         return CallbackHelper.isPrevent();
     }
 
-    public static int getTile(int x, int y, int z){
+    public static int getTile(int x, int y, int z) {
         return NativeBlockSource.getCurrentWorldGenRegion().getBlockId(x, y, z);
     }
 
@@ -98,12 +92,12 @@ public class NativeAPI {
         InnerCoreServer.useNotSupport("getTileAndData");
         return 0;
     }
-    public static void setTile(int x, int y, int z, int id, int data){
+
+    public static void setTile(int x, int y, int z, int id, int data) {
         NativeBlockSource.getCurrentWorldGenRegion().setBlock(x, y, z, id, data);
     }
 
-    public static void addTextureToLoad(String name){
-
+    public static void addTextureToLoad(String name) {
     }
 
     public static String convertNameId(String str) {
@@ -128,25 +122,22 @@ public class NativeAPI {
         return builder.toString();
     }
 
-
-    public static boolean isGlintItemInstance(int id, int data, long extra){
+    public static boolean isGlintItemInstance(int id, int data, long extra) {
         return false;
     }
 
-    public static void setItemRequiresIconOverride(int id, boolean enable){
-
+    public static void setItemRequiresIconOverride(int id, boolean enable) {
     }
 
-    public static void overrideItemIcon(String name, int index){
-
+    public static void overrideItemIcon(String name, int index) {
     }
 
-    public static Item getInventorySlot(int index){
+    public static Item getInventorySlot(int index) {
         InnerCoreServer.useNotSupport("getInventorySlot");
         return null;
     }
 
-    public static void setInventorySlot(int index, int id, int count, int data, long extra){
+    public static void setInventorySlot(int index, int id, int count, int data, long extra) {
         InnerCoreServer.useNotSupport("setInventorySlot");
     }
 
@@ -154,17 +145,14 @@ public class NativeAPI {
         CallbackHelper.prevent();
     }
 
-
     public static void explode(float x, float y, float z, float power, boolean onFire) {
         InnerCoreServer.useNotSupport("explode");
     }
 
-    public static void addParticle(){
-
+    public static void addParticle() {
     }
 
-    public static void addFarParticle(){
-
+    public static void addFarParticle() {
     }
 
     public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
@@ -246,11 +234,11 @@ public class NativeAPI {
         return WorldMethod.getTime();
     }
 
-    public static void setTileUpdateType(){
+    public static void setTileUpdateType() {
         InnerCoreServer.useNotSupport("setTileUpdateType");
     }
 
-    public static void setTileUpdateAllowed(){
+    public static void setTileUpdateAllowed() {
         InnerCoreServer.useNotSupport("setTileUpdateAllowed");
     }
 
@@ -291,15 +279,15 @@ public class NativeAPI {
     }
 
     public static void playSound(String name, float x, float y, float z, float f1, float f2) {
-        //InnerCoreServer.useClientMethod("playSound");
+        // InnerCoreServer.useClientMethod("playSound");
     }
 
     public static void playSoundEnt(String name, long unwrapEntity, float f1, float f2) {
-        //InnerCoreServer.useClientMethod("playSound");
+        // InnerCoreServer.useClientMethod("playSoundEnt");
     }
 
     public static void setNightMode(boolean val) {
-        InnerCoreServer.useClientMethod("playSound");
+        InnerCoreServer.useClientMethod("setNightMode");
     }
 
     public static void setRespawnCoords(int x, int y, int z) {
@@ -307,7 +295,7 @@ public class NativeAPI {
     }
 
     public static long clipWorld(float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] clip) {
-        InnerCoreServer.useHzMethod("clipWorld");
+        InnerCoreServer.useIncomprehensibleMethod("clipWorld");
         return 0;
     }
 
@@ -354,8 +342,7 @@ public class NativeAPI {
     public static void resetUnderwaterFogDistance() {
     }
 
-    public static void setItemNameOverrideCallbackForced(int id){
-
+    public static void setItemNameOverrideCallbackForced(int id) {
     }
 
     public static void setPosition(long unwrapEntity, float x, float y, float z) {
@@ -467,7 +454,8 @@ public class NativeAPI {
         EntityMethod.removeEntity(unwrapEntity);
     }
 
-    public static void addEffect(long unwrapEntity, int effect, int duration, int level, boolean b1, boolean b2, boolean effectAnimation) {
+    public static void addEffect(long unwrapEntity, int effect, int duration, int level, boolean b1, boolean b2,
+            boolean effectAnimation) {
         EntityMethod.addEffect(unwrapEntity, effect, duration, level, b1, b2, effectAnimation);
     }
 
@@ -531,8 +519,9 @@ public class NativeAPI {
         EntityMethod.dealDamage(unwrapEntity, damage, l, b1, b2);
     }
 
-    public static long[] fetchEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2, int type, boolean flag) {
-        return new long[] {};
+    public static long[] fetchEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2, int type,
+            boolean flag) {
+        return new long[0];
     }
 
     public static long getServerPlayer() {
@@ -644,7 +633,8 @@ public class NativeAPI {
     public static void overrideItemName(String name) {
     }
 
-    public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side, float vx, float vy, float vz, long unwrapEntity) {
+    public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side,
+            float vx, float vy, float vz, long unwrapEntity) {
         EntityMethod.invokeUseItemOn(id, count, data, unwrapValue, x, y, z, side, vx, vy, vz, unwrapEntity);
     }
 

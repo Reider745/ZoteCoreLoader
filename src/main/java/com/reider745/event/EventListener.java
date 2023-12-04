@@ -10,31 +10,18 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
-import cn.nukkit.event.inventory.CraftItemEvent;
-import cn.nukkit.event.inventory.FurnaceBurnEvent;
-import cn.nukkit.event.inventory.InventoryClickEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
-import cn.nukkit.event.player.CraftingTableOpenEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
-import cn.nukkit.event.redstone.RedstoneUpdateEvent;
-import cn.nukkit.inventory.CraftingGrid;
-import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.network.protocol.InventoryTransactionPacket;
 import com.reider745.api.CallbackHelper;
-import com.reider745.api.hooks.HookController;
-import com.reider745.workbench.Workbench;
 import com.zhekasmirnov.innercore.api.NativeCallback;
-import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
-
-import java.util.Arrays;
 
 public class EventListener implements Listener {
-    public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply){
+    public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply) {
         CallbackHelper.apply(event, apply);
     }
 
@@ -45,82 +32,99 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         PlayerInteractEvent.Action action = event.getAction();
 
-        if(event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
-            preventedCallback(event, () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z, event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true, player.getHealth() > 0, player.getId()));
-      //  else if(action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)
-           // preventedCallback(event, () -> NativeCallback._onBlockDestroyStarted((int) block.x, (int) block.y, (int) block.z, event.getFace().getIndex(), player.getId()));
-
+        if (action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
+            preventedCallback(event,
+                    () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z,
+                            event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true,
+                            player.getHealth() > 0, player.getId()));
+        // else if (action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)
+        // preventedCallback(event, () -> NativeCallback._onBlockDestroyStarted((int)
+        // block.x, (int) block.y, (int) block.z, event.getFace().getIndex(),
+        // player.getId()));
 
     }
 
-
     @EventHandler(priority = EventPriority.LOWEST)
-    public void breakBlock(BlockBreakEvent event){
+    public void breakBlock(BlockBreakEvent event) {
         Block block = event.getBlock();
-        preventedCallback(event, () -> NativeCallback.onBlockDestroyed((int) block.x, (int) block.y, (int) block.z, event.getFace().getIndex(), event.getPlayer().getId()));
+        preventedCallback(event, () -> NativeCallback.onBlockDestroyed((int) block.x, (int) block.y, (int) block.z,
+                event.getFace().getIndex(), event.getPlayer().getId()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void playerEat(PlayerEatFoodEvent event){
+    public void playerEat(PlayerEatFoodEvent event) {
         Food food = event.getFood();
-        preventedCallback(event, () ->  NativeCallback.onPlayerEat(food.getRestoreFood(), food.getRestoreSaturation(), event.getPlayer().getId()));
+        preventedCallback(event, () -> NativeCallback.onPlayerEat(food.getRestoreFood(), food.getRestoreSaturation(),
+                event.getPlayer().getId()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void placeBlock(BlockPlaceEvent event){
+    public void placeBlock(BlockPlaceEvent event) {
         Block block = event.getBlock();
-        preventedCallback(event, () -> NativeCallback.onBlockBuild((int) block.x, (int) block.y, (int) block.z, 0, event.getPlayer().getId()));
+        preventedCallback(event, () -> NativeCallback.onBlockBuild((int) block.x, (int) block.y, (int) block.z, 0,
+                event.getPlayer().getId()));
     }
 
-    /*@EventHandler
-    public void restoneUpdate(RedstoneUpdateEvent event){
-        Block block = event.getBlock();
-        NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z, 0, false, event.getBlock().getLevel());
-    }*/
+    /*
+     * @EventHandler
+     * public void restoneUpdate(RedstoneUpdateEvent event){
+     * Block block = event.getBlock();
+     * NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int)
+     * block.z, 0, false, event.getBlock().getLevel());
+     * }
+     */
 
     @EventHandler
-    public void projectileHit(ProjectileHitEvent event){
-        /*Vector3 pos = event.
-        NativeCallback.onThrowableHit(event.getEntity().getId(), );*/
+    public void projectileHit(ProjectileHitEvent event) {
+        /*
+         * Vector3 pos = event.
+         * NativeCallback.onThrowableHit(event.getEntity().getId(), );
+         */
     }
 
     @EventHandler
-    public void chunkGeneration(ChunkPopulateEvent event){
+    public void chunkGeneration(ChunkPopulateEvent event) {
         FullChunk fullChunk = event.getChunk();
         Level level = event.getLevel();
-        CallbackHelper.ICallbackApply apply = () -> NativeCallback.onChunkPostProcessed(fullChunk.getX(), fullChunk.getZ());
+        CallbackHelper.ICallbackApply apply = () -> NativeCallback.onChunkPostProcessed(fullChunk.getX(),
+                fullChunk.getZ());
 
-        switch (level.getDimension()){
-            case Level.DIMENSION_OVERWORLD -> CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVER_WORLD, level, apply);
-            case Level.DIMENSION_NETHER -> CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_NETHER, level, apply);
-            case Level.DIMENSION_THE_END -> CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, apply);
+        switch (level.getDimension()) {
+            case Level.DIMENSION_OVERWORLD ->
+                CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVERWORLD, level, apply);
+            case Level.DIMENSION_NETHER ->
+                CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_NETHER, level, apply);
+            case Level.DIMENSION_THE_END ->
+                CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, apply);
         }
     }
 
     @EventHandler
-    public void damageEntity(EntityDamageEvent event){
+    public void damageEntity(EntityDamageEvent event) {
         Entity self = event.getEntity();
 
         Entity attacker;
-        if(event instanceof EntityDamageByEntityEvent child) {
+        if (event instanceof EntityDamageByEntityEvent child) {
             attacker = child.getDamager();
-            preventedCallback(event, () ->
-                NativeCallback.onEntityAttacked(self.getId(), attacker == null ? -1 : attacker.getId()));
-        }else {
+            preventedCallback(event,
+                    () -> NativeCallback.onEntityAttacked(self.getId(), attacker != null ? attacker.getId() : -1));
+        } else {
             attacker = null;
         }
 
-        preventedCallback(event, () ->
-                NativeCallback.onEntityHurt(self.getId(), attacker == null ? -1 : attacker.getId(), event.getCause().ordinal(), (int) event.getDamage() * 2, event.canBeReducedByArmor(), event.isBreakShield()));//последний 2 boolean тут врменн
+        preventedCallback(event,
+                () -> NativeCallback.onEntityHurt(self.getId(), attacker != null ? attacker.getId() : -1,
+                        event.getCause().ordinal(), (int) event.getDamage() * 2, event.canBeReducedByArmor(),
+                        event.isBreakShield())); // последний 2 boolean тут временно
     }
 
     @EventHandler
-    public void addedEntity(EntitySpawnEvent event){
+    public void addedEntity(EntitySpawnEvent event) {
         NativeCallback.onEntityAdded(event.getEntity().getId());
     }
 
     @EventHandler
-    public void removeEntity(EntityDespawnEvent event){
+    public void removeEntity(EntityDespawnEvent event) {
         NativeCallback.onEntityRemoved(event.getEntity().getId());
     }
 }

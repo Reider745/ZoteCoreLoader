@@ -62,7 +62,6 @@ public class InnerCoreServer {
     }
 
     public void loadMods() {
-        // QQ!
     }
 
     public void left() {
@@ -218,7 +217,16 @@ public class InnerCoreServer {
         final File innercoreDirectory = new File(PATH, "innercore");
         if (!innercoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
-            unpackResources("/innercore", innercoreDirectory.getPath());
+            final File zipFile = cloneFile("innercore.zip");
+            if (zipFile != null) {
+                unzip(zipFile, PATH);
+                try {
+                    zipFile.delete();
+                } catch (SecurityException e) {
+                }
+            } else {
+                unpackResources("/innercore", innercoreDirectory.getPath());
+            }
         }
 
         cloneFile("innercore_default_config.json");
@@ -281,7 +289,6 @@ public class InnerCoreServer {
     }
 
     public void start() {
-        // QQ!
     }
 
     public void tick() {
@@ -312,7 +319,7 @@ public class InnerCoreServer {
         throw new RuntimeException("The " + name + " method is currently not supported");
     }
 
-    public static void useHzMethod(String name) {
-        throw new RuntimeException("В душе не ебу что делает данный метод, поэтому ты это сейчас читаешь " + name);
+    public static void useIncomprehensibleMethod(String name) {
+        throw new RuntimeException("I don't really understand what this method does (" + name + "), which is why you're reading this right now");
     }
 }

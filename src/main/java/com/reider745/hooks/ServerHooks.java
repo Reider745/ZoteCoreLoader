@@ -12,27 +12,30 @@ import com.reider745.api.hooks.annotation.Hooks;
 public class ServerHooks implements HookClass {
     @Inject
     public static void start(Server self) throws Exception {
-        Main.LoadingStages.postRegister(self);
+        Main.LoadingStages.afterload(self);
         Main.LoadingStages.start(self);
     }
 
     @Inject
-    public static void registerEntities() throws Exception{
-        Main.LoadingStages.preRegister(Server.getInstance());
+    public static void registerEntities() throws Exception {
+        Main.LoadingStages.preload(Server.getInstance());
     }
 
     @Inject
-    public static int getPropertyInt(Server server, String variable, Integer defaultValue){
-        if(variable.equals("multiversion-min-protocol") || variable.equals("multiversion-max-protocol"))
+    public static int getPropertyInt(Server server, String variable, Integer defaultValue) {
+        if (variable.equals("multiversion-min-protocol") || variable.equals("multiversion-max-protocol"))
             return InnerCoreServer.PROTOCOL;
 
         Config properties = server.getProperties();
-        return properties.exists(variable) ? (!properties.get(variable).equals("") ? Integer.parseInt(String.valueOf(properties.get(variable))) : defaultValue) : defaultValue;
+        return properties.exists(variable)
+                ? (!properties.get(variable).equals("") ? Integer.parseInt(String.valueOf(properties.get(variable)))
+                        : defaultValue)
+                : defaultValue;
     }
 
     @Inject
-    public static boolean getPropertyBoolean(Server server, String variable, Object defaultValue){
-        if(variable.equals("xbox-auth") || variable.equals("save-player-data-by-uuid"))
+    public static boolean getPropertyBoolean(Server server, String variable, Object defaultValue) {
+        if (variable.equals("xbox-auth") || variable.equals("save-player-data-by-uuid"))
             return false;
 
         Config properties = server.getProperties();
@@ -41,18 +44,14 @@ public class ServerHooks implements HookClass {
         if (value instanceof Boolean)
             return (Boolean) value;
 
-        switch (String.valueOf(value)) {
-            case "on":
-            case "true":
-            case "1":
-            case "yes":
-                return true;
-        }
-        return false;
+        return switch (String.valueOf(value)) {
+            case "on", "true", "1", "yes" -> true;
+            default -> false;
+        };
     }
 
     @Inject
-    public static void checkTickUpdates(Server server, int tick){
+    public static void checkTickUpdates(Server server, int tick) {
         Main.innerCoreServer.tick();
     }
 
