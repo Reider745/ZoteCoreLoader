@@ -6,60 +6,69 @@ import com.reider745.api.hooks.JarEditor;
 import com.reider745.hooks.*;
 import com.reider745.network.InnerCorePacket;
 
-
 public class Main {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
 
     public static class LoadingStages {
-        public static void registerPacket(Network network){
+        public static void registerPacket(Network network) {
             network.registerPacket(InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
         }
 
-        public static void preRegister(Server server) throws Exception {
+        public static void preload(Server server) throws Exception {
             innerCoreServer.preload(server);
         }
 
-        public static void postRegister(Server server){
+        public static void afterload(Server server) {
             innerCoreServer.afterload();
         }
 
-        public static void start(Server server)  {
+        public static void start(Server server) {
             innerCoreServer.start();
         }
 
         public static void stop(Server server) throws Exception {
-            try{
+            try {
                 innerCoreServer.left();
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    /*@Hooks(class_name = "org.example.Perlin2D")
-    public static class TestHook {
-        @Inject(controller = false)
-        public static float lerp(Object perlin, float a, float b, float t){
-            return a + (b - a) * t;
-            *//*Arguments arguments = controller.getArguments();
-            float a = arguments.arg("a");
-            float b = arguments.arg("b");
-            float t = arguments.arg("t");*//*
-        }
-        *//*@Inject(arguments_map = true)
-        public static float lerp(HookController controller){
-            Arguments arguments = controller.getArguments();
-            float a = arguments.arg("a");
-            float b = arguments.arg("b");
-            float t = arguments.arg("t");
-            return a + (b - a) * t;
-        }*//*
-    }*/
+    /*
+     * @Hooks(class_name = "org.example.Perlin2D")
+     * public static class TestHook {
+     * 
+     * @Inject(controller = false)
+     * public static float lerp(Object perlin, float a, float b, float t){
+     * return a + (b - a) * t;
+     *//*
+        * Arguments arguments = controller.getArguments();
+        * float a = arguments.arg("a");
+        * float b = arguments.arg("b");
+        * float t = arguments.arg("t");
+        *//*
+           * }
+           *//*
+              * @Inject(arguments_map = true)
+              * public static float lerp(HookController controller){
+              * Arguments arguments = controller.getArguments();
+              * float a = arguments.arg("a");
+              * float b = arguments.arg("b");
+              * float t = arguments.arg("t");
+              * return a + (b - a) * t;
+              * }
+              *//*
+                 * }
+                 */
 
     public static void main(String[] args) throws Throwable {
-        /*JarFileLoader loader = new JarFileLoader("C:\\vs\\untitled1\\build\\libs\\untitled1-1.0-SNAPSHOT.jar");
-        loader.registerHooksForClass(TestHook.class);
-        loader.run("org.example.Main", args);*/
+        /*
+         * JarFileLoader loader = new
+         * JarFileLoader("C:\\vs\\untitled1\\build\\libs\\untitled1-1.0-SNAPSHOT.jar");
+         * loader.registerHooksForClass(TestHook.class);
+         * loader.run("org.example.Main", args);
+         */
 
         JarEditor loader = new JarEditor();
 
@@ -73,10 +82,9 @@ public class Main {
         loader.registerHooksInitializationForClass(BlocksHooks.class);
         loader.registerHooksInitializationForClass(LevelHooks.class);
         loader.registerHooksInitializationForClass(ItemUtils.class);
+        loader.registerHooksInitializationForClass(AndroidSdkHooks.class);
 
         loader.init();
         loader.run("cn.nukkit.Nukkit", args);
-
-
     }
 }

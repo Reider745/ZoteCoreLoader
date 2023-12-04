@@ -99,7 +99,7 @@ public class InnerCoreServer {
         bis.close();
     }
 
-    public boolean isLegacyWorkbench(){
+    public boolean isLegacyWorkbench() {
         return true;
     }
 
@@ -132,16 +132,17 @@ public class InnerCoreServer {
     public static void unzipMods(final String path) throws IOException {
         final File directory_mods = new File(path);
         final File[] files = directory_mods.listFiles();
-        if(files == null) return;
+        if (files == null)
+            return;
 
-        for(final File file : files){
+        for (final File file : files) {
             final String name = file.getName();
-            if(file.isFile() && name.endsWith(".icmod")){
-                server.getLogger().info("Unzip mod "+name);
+            if (file.isFile() && name.endsWith(".icmod")) {
+                server.getLogger().info("Unzip mod " + name);
 
                 final ZipFile zipFile = new ZipFile(file);
-                if(zipFile.getEntry("build.config") == null)
-                    unzip(zipFile, path+"/");
+                if (zipFile.getEntry("build.config") == null)
+                    unzip(zipFile, path + "/");
                 else {
                     final String nameFolder = name.replace(".icmod", "");
                     new File(path + "/" + nameFolder).mkdir();
@@ -219,7 +220,7 @@ public class InnerCoreServer {
             server.getLogger().info("Extracting internal package...");
             final File zipFile = cloneFile("innercore.zip");
             if (zipFile != null) {
-                unzip(zipFile, PATH);
+                unzip(new ZipFile(zipFile), PATH);
                 try {
                     zipFile.delete();
                 } catch (SecurityException e) {
@@ -230,7 +231,7 @@ public class InnerCoreServer {
         }
 
         cloneFile("innercore_default_config.json");
-        unzipMods(PATH+"/innercore/mods");
+        unzipMods(PATH + "/innercore/mods");
 
         FileTools.init();
 
@@ -320,6 +321,7 @@ public class InnerCoreServer {
     }
 
     public static void useIncomprehensibleMethod(String name) {
-        throw new RuntimeException("I don't really understand what this method does (" + name + "), which is why you're reading this right now");
+        throw new RuntimeException("I don't really understand what this method does (" + name
+                + "), which is why you're reading this right now");
     }
 }
