@@ -1,5 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.furnace;
 
+import cn.nukkit.Server;
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;

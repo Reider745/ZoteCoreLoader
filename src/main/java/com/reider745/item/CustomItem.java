@@ -200,4 +200,10 @@ public class CustomItem {
         manager.put(PropertiesNames.Armors.KNOCKBACK_RESIST, knockbackResist);
         return manager;
     }
+
+    public static boolean hasData(int id) {
+        CustomManager manager = getItemManager(id);
+        if(manager == null) return false;
+        return manager.get(PropertiesNames.MAX_DAMAGE, 0) > 0;
+    }
 }

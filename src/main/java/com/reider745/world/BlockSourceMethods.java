@@ -55,10 +55,10 @@ public class BlockSourceMethods {
         Block block = pointer.getBlock(x, y, z);
         pointer.setBlock(x, y, z, Block.get(0), update, update);
         if (destroyParticles) {
-            Map<Integer, Player> players = pointer.getChunkPlayers((int) x >> 4, (int) z >> 4);
+            Map<Integer, Player> players = pointer.getChunkPlayers( x >> 4,  z >> 4);
             pointer.addParticle(new DestroyBlockParticle(block.add(0.5), block), players.values());
         }
-        if (drop) {
+        if (drop && block.getId() < 8000) {
             Item[] drops = block.getDrops(Item.get(0));
             Vector3 pos = new Vector3(x, y, z);
             for (Item item : drops)
@@ -108,8 +108,11 @@ public class BlockSourceMethods {
         return 0;
     }
 
-    public static int getBrightness(Level Level, int x, int y, int z) {
-        return 0;
+    public static int getBrightness(Level level, int x, int y, int z) {
+        int time = level.getTime();;
+        if(!(time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE) && level.canBlockSeeSky(new Vector3(x, y, z)))
+            return 15;
+        return level.getBlockLightAt(x, y, z);
     }
 
     public static int getBlockData(Level pointer, int x, int y, int z) {

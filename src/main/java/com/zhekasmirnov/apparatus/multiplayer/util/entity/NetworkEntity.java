@@ -27,67 +27,6 @@ public class NetworkEntity {
     }
 
     static {
-        Network.getSingleton().addClientPacket("system.entity.add", (Object data, String meta, Class<?> dataType) -> {
-            synchronized (clientEntities) {
-                String[] metaArr = meta.split("#");
-                if (metaArr.length == 2) {
-                    NetworkEntityType entityType = NetworkEntityType.getByName(metaArr[0]);
-                    String entityName = metaArr[1];
-                    if (entityType != null && entityName.length() > 0) {
-                        if (!clientEntities.containsKey(entityName)) {
-                            NetworkEntity entity = new NetworkEntity(entityType, null, entityName, false);
-                            clientEntities.put(entityName, entity);
-                            entity.getClientExecutor().add(() -> entityType.onClientEntityAdded(entity, data));
-                        } else {
-                            if (entityType.isDuplicateAddPacketAllowed()) {
-                                NetworkEntity entity = clientEntities.get(entityName);
-                                if (entity != null) {
-                                    entity.getClientExecutor().add(() -> entityType.onClientEntityAdded(entity, data));
-                                }
-                            } else {
-                                Logger.debug("duplicate add packet received for network entity " + entityName + ", it will be ignored");
-                            }
-                        }
-                    }
-                }
-            }
-        }, null);
-
-        Network.getSingleton().addClientPacket("system.entity.remove", (Object data, String meta, Class<?> dataType) -> {
-            synchronized (clientEntities) {
-                NetworkEntity entity = clientEntities.get(meta);
-                if (entity != null) {
-                    entity.isRemoved = true;
-                    entity.getClientExecutor().add(() -> entity.type.onClientEntityRemoved(entity, data));
-                    clientEntities.remove(meta);
-                }
-            }
-        }, null); // use entity executor instead
-
-        Network.getSingleton().addClientPacket("system.entity.packet", (Object data, String meta, Class<?> dataType) -> {
-            synchronized (clientEntities) {
-                int sepIndex = meta.indexOf('#');
-                if (sepIndex != -1) {
-                    NetworkEntity entity = clientEntities.get(meta.substring(0, sepIndex));
-                    String packetName = meta.substring(sepIndex + 1);
-                    sepIndex = packetName.indexOf('#');
-                    if (sepIndex != -1) {
-                        meta = packetName.substring(sepIndex + 1);
-                        packetName = packetName.substring(0, sepIndex);
-                    } else {
-                        meta = null;
-                    }
-                    if (entity != null) {
-                        String finalPacketName = packetName;
-                        String finalMeta = meta;
-                        entity.getClientExecutor().add(() -> {
-                            entity.type.onClientPacket(entity, finalPacketName, data, finalMeta);
-                        });
-                    }
-                }
-            }
-        }, null); // use entity executor instead
-
         Network.getSingleton().addServerPacket("system.entity.packet", (ConnectedClient client, Object data, String meta, Class<?> dataType) -> {
             synchronized (serverEntities) {
                 int sepIndex = meta.indexOf('#');
@@ -120,15 +59,6 @@ public class NetworkEntity {
                     entity.removeOnShutdown();
                 }
                 serverEntities.clear();
-            }
-        });
-
-        Network.getSingleton().addClientShutdownListener(reason -> {
-            synchronized (clientEntities) {
-                for (NetworkEntity entity : clientEntities.values()) {
-                    entity.removeOnShutdown();
-                }
-                clientEntities.clear();
             }
         });
     }

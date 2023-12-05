@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.utils;
 
 import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.Apparatus;
+import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,7 +29,7 @@ public class FileTools {
         DIR_PACK = DIR_ROOT + "/";
         DIR_WORK = DIR_ROOT + "innercore/";
         checkdirs();
-        //DIR_MINECRAFT = MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath() + "/";
+       // DIR_MINECRAFT = MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath() + "/";
     }
 
     // Should be called before anything else

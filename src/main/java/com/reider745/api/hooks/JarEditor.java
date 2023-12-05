@@ -6,6 +6,7 @@ import javassist.bytecode.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class JarEditor {
     private final ClassPool cp = new ClassPool();
     private final ClassPath ccp;
 
-    public JarEditor() throws Exception {
+    public JarEditor() {
         loader = new Loader(JarEditor.class.getClassLoader(), cp);
         ccp = new LoaderClassPath(loader);
 
@@ -119,52 +120,6 @@ public class JarEditor {
             list.forEach(data -> addHook(data.className, data.method, data.sig, data.replaced, data.typeHook,
                     data.controller, data.arguments_map));
         });
-    }
-
-    public JarEditor registerHooksForClass(Class<? extends HookClass> clazz)
-            throws InstantiationException, IllegalAccessException, NotFoundException, NoSuchMethodException,
-            SecurityException, IllegalArgumentException, InvocationTargetException {
-        Constructor<?> hookConstructor = clazz.getDeclaredConstructor(new Class[0]);
-        try {
-            hookConstructor.setAccessible(true);
-        } catch (SecurityException e) {
-        }
-        HookClass instance = (HookClass) hookConstructor.newInstance();
-        Annotation[] annotatedsClass = clazz.getAnnotations();
-        for (Annotation annotationClass : annotatedsClass)
-            if (annotationClass instanceof Hooks hooks) {
-                String className = getClassName(hooks.class_name());
-                System.out.println("=====" + className + "=====");
-                Method[] methods = clazz.getMethods();
-
-                for (Method method : methods) {
-                    Annotation[] annotationsMethod = method.getAnnotations();
-
-                    for (Annotation annotationMethod : annotationsMethod)
-                        if (annotationMethod instanceof Inject inject) {
-                            String method_name = inject.method();
-                            String className_ = getClassName(inject.class_name());
-                            String sig = inject.signature();
-
-                            this.addHook(className_.equals("-1") ? className : className_,
-                                    method_name.equals("-1") ? method.getName() : method_name, sig, method,
-                                    inject.type_hook(), isController(method), inject.arguments_map());
-                        } else if (annotationMethod instanceof Injects inject) {
-                            String method_name = inject.method();
-                            String className_ = getClassName(inject.class_name());
-                            String[] sigs = inject.signature();
-                            String className__ = className_.equals("-1") ? className : className_;
-
-                            for (String sig : sigs)
-                                this.addHook(className__, method_name.equals("-1") ? method.getName() : method_name,
-                                        sig, method, inject.type_hook(), isController(method), inject.arguments_map());
-                        }
-                }
-                if (!className.equals("-1"))
-                    instance.init(cp.get(className));
-                replaceField(className, instance);
-            }
-        return this;
     }
 
     private String getCode(Method replaced, String[] arguments, String[] argumentTypes, String returnType,

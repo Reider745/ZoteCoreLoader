@@ -52,6 +52,7 @@ public class InnerCoreServer {
 
     public static String PATH;
     public static Server server;
+    public static InnerCoreServer ic_server;
 
     public static String getStringParam(String name) {
         return switch (name) {
@@ -71,11 +72,15 @@ public class InnerCoreServer {
 
     private static final ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
 
-    private static File cloneFile(String name) {
+    public static File cloneFile(String name) {
+        return cloneFile(name, name);
+    }
+
+    public static File cloneFile(String name, String path) {
         try {
             final File file = new File(name);
             if (!file.exists()) {
-                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(name));
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path));
                 BufferedInputStream bis = new BufferedInputStream(classLoader.getResourceAsStream(name));
 
                 bos.write(bis.readAllBytes());
@@ -199,6 +204,7 @@ public class InnerCoreServer {
 
         PATH = server.getDataPath();
         InnerCoreServer.server = server;
+        InnerCoreServer.ic_server = this;
         ICLog.server = server;
         com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
 
@@ -218,7 +224,7 @@ public class InnerCoreServer {
         final File innercoreDirectory = new File(PATH, "innercore");
         if (!innercoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
-            final File zipFile = cloneFile("innercore.zip");
+            final File zipFile = cloneFile("innercore.zip");//но у нас нет в ресурсах innercore.zip :D
             if (zipFile != null) {
                 unzip(new ZipFile(zipFile), PATH);
                 try {
@@ -251,7 +257,6 @@ public class InnerCoreServer {
         });
 
         RuntimeIdDataPacketSender.loadClass();
-        Network.getSingleton().startLanServer();
         NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
@@ -292,9 +297,6 @@ public class InnerCoreServer {
     public void start() {
     }
 
-    public void tick() {
-        NativeCallback.onTick();
-    }
 
     public static int getVersionCode() {
         return server.getPropertyInt("inner-core-version", 152);

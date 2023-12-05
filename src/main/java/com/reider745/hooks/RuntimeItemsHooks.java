@@ -67,16 +67,17 @@ public class RuntimeItemsHooks implements HookClass {
             int fullId = RuntimeItems.getFullId(id, 0);
             int legacyId = id;
             int runtimeId = id;
+            boolean hasData = CustomItem.hasData(id);
 
             runtimeId2Name.put(runtimeId, name);
             name2RuntimeId.put(name, runtimeId);
 
-            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, 0);
+            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, hasData, 0);
 
             runtime2Legacy.put(runtimeId, legacyEntry);
             identifier2Legacy.put(name, legacyEntry);
 
-            legacy2Runtime.put(fullId, new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false));
+            legacy2Runtime.put(fullId, new RuntimeItemMapping.RuntimeEntry(name, runtimeId, hasData));
         });
 
         CustomBlock.customBlocks.forEach((name, id) -> {

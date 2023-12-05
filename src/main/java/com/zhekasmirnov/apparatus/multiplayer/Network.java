@@ -110,7 +110,7 @@ public class Network {
     }
 
     public void startServer(int port) {
-        shutdown();
+        //shutdown();
         getConfig().updateFromEngineConfig();
         server.start(port);
     }
@@ -189,7 +189,7 @@ public class Network {
     }
 
     public void startLanServer(int port) {
-        shutdown();
+        //shutdown();
 
         NativeNetworking.NetworkLoopHandler handler = new NativeNetworking.NetworkLoopHandler(
                 NativeNetworking.NetworkLoopHandler.GLOBAL_HANDLER | NativeNetworking.NetworkLoopHandler.SERVER_HANDLER | NativeNetworking.NetworkLoopHandler.CLIENT_HANDLER
