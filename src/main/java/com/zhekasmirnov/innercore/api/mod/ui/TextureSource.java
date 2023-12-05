@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.ui;
 
+import android.graphics.Bitmap;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 
@@ -34,19 +35,19 @@ public class TextureSource {
         }
     }
 
-    private HashMap<String, Object> loadedTextures = new HashMap<>();
+    private HashMap<String, Bitmap> loadedTextures = new HashMap<>();
 
 
-    public void put(String name, Object bmp) {
+    public void put(String name, Bitmap bmp) {
         loadedTextures.put(name, bmp);
     }
 
-    public Object get(String name) {
+    public Bitmap get(String name) {
         return loadedTextures.get(name);
     }
 
-    public Object getSafe(String name) {
-        Object bmp = get(name);
+    public Bitmap getSafe(String name) {
+        Bitmap bmp = get(name);
         if (bmp == null)
             return get("missing_texture");
         return bmp;
@@ -59,14 +60,14 @@ public class TextureSource {
         if (file.exists()) {
             String name = file.getName();
             name = namePrefix + name.substring(0, name.lastIndexOf("."));
-            Object bmp = FileTools.readFileAsBitmap(file.getAbsolutePath());
+            Bitmap bmp = FileTools.readFileAsBitmap(file.getAbsolutePath());
 
             loadedTextures.put(name, bmp);
         }
     }
 
     public void loadAsset(String name) {
-        Object bmp = null;
+        Bitmap bmp = null;
         bmp = FileTools.getAssetAsBitmap(name);
         if (bmp != null) {
             name = name.substring(name.lastIndexOf("/") + 1);

@@ -1,6 +1,8 @@
 package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.blockentity.BlockEntityContainer;
+import cn.nukkit.blockentity.BlockEntitySpawnable;
 import cn.nukkit.blockentity.BlockEntitySpawnableContainer;
 import cn.nukkit.item.Item;
 import cn.nukkit.math.BlockVector3;
@@ -174,6 +176,7 @@ public class NativeTileEntity {
                 return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "end_gateway"));
             }
             default -> {
+                InnerCoreServer.server.getLogger().warning("Not convert native tile entity"+id);
                 return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "none"));
             }
         }
@@ -181,25 +184,26 @@ public class NativeTileEntity {
     }
 
     public static int getSize(BlockEntity pointer){
-        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
+        if(pointer instanceof BlockEntityContainer blockEntity)
             return blockEntity.getSize();
         return 0;
     }
 
     public static Item getSlot(BlockEntity pointer, int slot){
-        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
-            return blockEntity.getInventory().getItem(slot);
+        if(pointer instanceof BlockEntityContainer blockEntity)
+            return blockEntity.getItem(slot);
         return null;
     }
 
     public static void setSlot(BlockEntity pointer, int slot, int id, int count, int data, long extra){
-        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
-            blockEntity.getInventory().setItem(slot, ItemUtils.get(id, count, data, extra));
+        Item item = ItemUtils.get(id, count, data, extra);
+        if(pointer instanceof BlockEntityContainer blockEntity)
+            blockEntity.setItem(slot, item);
     }
 
     public static void setSlot2(BlockEntity pointer, int slot, Item itemInstance){
-        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
-            blockEntity.getInventory().setItem(slot, itemInstance);
+        if(pointer instanceof BlockEntityContainer blockEntity)
+            blockEntity.setItem(slot, itemInstance);
     }
 
     public static CompoundTag getCompoundTag(BlockEntity pointer){

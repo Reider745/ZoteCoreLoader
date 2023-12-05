@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.ui;
 
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
+import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
 
 /**
  * Created by zheka on 31.07.2017.
@@ -16,5 +17,5 @@ public interface IElementProvider {
     void runCachePreparation();
 
     Object getStyleFor(UIElement element);
-    void setWindowStyle(Object style);
+    void setWindowStyle(UIStyle style);
 }

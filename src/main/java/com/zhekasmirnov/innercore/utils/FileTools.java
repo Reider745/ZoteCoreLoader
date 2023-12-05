@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.utils;
 
+import android.graphics.Bitmap;
 import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.Apparatus;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
@@ -91,11 +92,11 @@ public class FileTools {
         return null;
     }
 
-    public static Object bitmapFromBytes(byte[] bytes) {
+    public static Bitmap bitmapFromBytes(byte[] bytes) {
         return null;
     }
 
-    public static Object getAssetAsBitmap(String name) {
+    public static Bitmap getAssetAsBitmap(String name) {
         return null;
     }
 
@@ -201,7 +202,7 @@ public class FileTools {
         writer.close();
     }
 
-    public static Object readFileAsBitmap(String path) {
+    public static Bitmap readFileAsBitmap(String path) {
         return null;
     }
 

@@ -45,7 +45,7 @@ public class ItemMethod {
     }
 
     public static void setMaxStackSize(CustomManager manager, int stack){
-        manager.put("max_stack", stack);
+        manager.put(PropertiesNames.MAX_STACK, stack);
     }
 
     public static int getMaxStackForId(int id, int data){

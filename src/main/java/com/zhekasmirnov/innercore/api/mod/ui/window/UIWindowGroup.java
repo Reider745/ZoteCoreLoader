@@ -20,6 +20,8 @@ public class UIWindowGroup implements IWindow {
     private HashMap<String, UIWindow> windowByName = new HashMap<>();
     private HashMap<String, UIElement> allElements = new HashMap<>();
 
+    private UIStyle style = new UIStyle();
+
     private boolean isOpened = false;
 
     public void removeWindow(String name) {
@@ -66,7 +68,7 @@ public class UIWindowGroup implements IWindow {
     }
 
     public UIWindow getWindow(String name) {
-        return new UIWindow((UIWindowLocation) null);
+        return windowByName.get(name);
     }
 
     public ScriptableObject getWindowContent(String name) {
@@ -209,13 +211,18 @@ public class UIWindowGroup implements IWindow {
             window.invalidateAllContent();
         }
     }
-    private UIStyle style;
+
     public void setStyle(UIStyle style) {
+        UIStyle old = this.style;
         this.style = style;
+        if (old != style) {
+            invalidateAllContent();
+        }
     }
 
     public void setStyle(ScriptableObject scriptable) {
-
+        style.addAllBindings(scriptable);
+        invalidateAllContent();
     }
 
     public UIStyle getStyle() {
@@ -241,8 +248,8 @@ public class UIWindowGroup implements IWindow {
         }
     }
 
-    
-    
+
+
     public boolean closeOnBackPressed = false;
     public void setCloseOnBackPressed(boolean val) {
         closeOnBackPressed = val;
