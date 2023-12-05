@@ -1,17 +1,19 @@
 package com.zhekasmirnov.innercore.api.mod.adaptedscript;
 
-
-import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.annotations.APIStaticModule;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
 import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
+import com.zhekasmirnov.innercore.utils.IMessageReceiver;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -28,8 +30,6 @@ public class PreferencesWindowAPI extends AdaptedScriptAPI {
     public static void log(String str) {
         ICLog.d("PREFS", str);
     }
-
-
 
     @APIStaticModule
     public static class Prefs {
@@ -49,19 +49,22 @@ public class PreferencesWindowAPI extends AdaptedScriptAPI {
         }
 
         @JSStaticFunction
-        public static ArrayList<String> installModFile(String path, Object _log) {
-            return new ArrayList<>();
-            //return ExtractionHelper.extractICModFile(new File(path), log, null);
+        public static ArrayList<String> installModFile(String path, Object logger) {
+            return ExtractionHelper.extractICModFile(new File(path),
+                    (IMessageReceiver) Context.jsToJava(logger, IMessageReceiver.class), null);
         }
     }
 
-    public static class WorkbenchRecipeListBuilder extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListBuilder {
-        public WorkbenchRecipeListBuilder(long player, com.zhekasmirnov.apparatus.api.container.ItemContainer container) {
+    public static class WorkbenchRecipeListBuilder
+            extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListBuilder {
+        public WorkbenchRecipeListBuilder(long player,
+                com.zhekasmirnov.apparatus.api.container.ItemContainer container) {
             super(player, container);
         }
     }
 
-    public static class WorkbenchRecipeListProcessor extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListProcessor {
+    public static class WorkbenchRecipeListProcessor
+            extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListProcessor {
         public WorkbenchRecipeListProcessor(ScriptableObject target) {
             super(target);
         }

@@ -29,8 +29,11 @@ import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
 import com.zhekasmirnov.innercore.api.runtime.Updatable;
+import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
+import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
+import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
 import com.zhekasmirnov.innercore.modpack.ModPackFactory;
 import com.zhekasmirnov.innercore.utils.FileTools;
 
@@ -112,29 +115,6 @@ public class InnerCoreServer {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    public static void unzipMods(final String path) throws IOException {
-        final File directory_mods = new File(path);
-        final File[] files = directory_mods.listFiles();
-        if (files == null)
-            return;
-
-        for (final File file : files) {
-            final String name = file.getName();
-            if (file.isFile() && name.endsWith(".icmod")) {
-                server.getLogger().info("Unzip mod " + name);
-
-                final ZipFile zipFile = new ZipFile(file);
-                if (zipFile.getEntry("build.config") == null)
-                    unzip(zipFile, path + "/");
-                else {
-                    final String nameFolder = name.replace(".icmod", "");
-                    new File(path + "/" + nameFolder).mkdir();
-                    unzip(zipFile, path + "/" + nameFolder + "/");
-                }
-            }
         }
     }
 
@@ -253,7 +233,6 @@ public class InnerCoreServer {
         }
 
         unpackResources("/innercore_default_config.json", PATH);
-        unzipMods(PATH + "/innercore/mods");
 
         FileTools.init();
 
@@ -276,13 +255,24 @@ public class InnerCoreServer {
         NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
-        API.loadAllAPIs();
-        ModLoader.initialize();
-        ModPackContext.getInstance()
-                .setCurrentModPack(ModPackFactory.getInstance().createFromDirectory(innercoreDirectory));
+        ModPack innercoreModPack = ModPackFactory.getInstance().createFromDirectory(innercoreDirectory);
+        ModPackContext.getInstance().setCurrentModPack(innercoreModPack);
+
+        for (ModPackDirectory directoryWithMods : innercoreModPack
+                .getDirectoriesOfType(ModPackDirectory.DirectoryType.MODS)) {
+            directoryWithMods.assureDirectoryRoot();
+            for (File potentialIcmodFile : directoryWithMods.getLocation().listFiles()) {
+                if (potentialIcmodFile.isFile() && potentialIcmodFile.getName().endsWith(".icmod")) {
+                    ExtractionHelper.extractICModFile(potentialIcmodFile, str -> server.getLogger().debug(str), null);
+                    potentialIcmodFile.deleteOnExit();
+                }
+            }
+        }
 
         InnerCoreConfig.set("gameplay.use_legacy_workbench_override", isLegacyWorkbench());
 
+        API.loadAllAPIs();
+        ModLoader.initialize();
         ModLoader.loadModsAndSetupEnvViaNewModLoader();
         ModLoader.prepareResourcesViaNewModLoader();
         new AsyncModLauncher().launchModsInCurrentThread();
