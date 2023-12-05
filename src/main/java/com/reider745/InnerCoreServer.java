@@ -40,7 +40,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
-import java.nio.file.FileSystem;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +51,7 @@ import java.util.zip.ZipFile;
 
 public class InnerCoreServer {
     public static final int PROTOCOL = 422;
+    public static final int EXIT_CODE_NO_INTERNAL_PACKAGE = 32;
 
     public static InnerCorePlugin plugin;
 
@@ -74,32 +75,8 @@ public class InnerCoreServer {
         NativeCallback.onMinecraftAppSuspended();
     }
 
-    private static final ClassLoader classLoader = InnerCoreServer.class.getClassLoader();
-
-    public static File cloneFile(String name) {
-        return cloneFile(name, name);
-    }
-
-    public static File cloneFile(String name, String path) {
-        final File file = new File(name);
-        try {
-            if (!file.exists()) {
-                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path));
-                BufferedInputStream bis = new BufferedInputStream(classLoader.getResourceAsStream(name));
-
-                bos.write(bis.readAllBytes());
-                bis.close();
-                bos.close();
-            }
-            return file;
-        } catch (Exception e) {
-            try {
-                file.delete();
-            } catch (SecurityException se) {
-            }
-            server.getLogger().warning("Resource '" + name + "' cannot be accessed: " + e.getMessage());
-        }
-        return null;
+    public boolean isLegacyWorkbench() {
+        return true;
     }
 
     private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {
@@ -110,10 +87,6 @@ public class InnerCoreServer {
 
         bos.close();
         bis.close();
-    }
-
-    public boolean isLegacyWorkbench() {
-        return true;
     }
 
     private static void processDirectory(String uncompressedDirectory, ZipEntry entry) {
@@ -166,7 +139,7 @@ public class InnerCoreServer {
     }
 
     static void getFolderRootFromUri(URI uri, String targetPath, Consumer<? super Path> action) {
-        Map<String, String> env = new HashMap<>();
+        final Map<String, String> env = new HashMap<>();
         env.put("create", "true");
         try (final FileSystem fileSystem = FileSystems.newFileSystem(uri, env)) {
             action.accept(fileSystem.getPath(targetPath));
@@ -176,34 +149,58 @@ public class InnerCoreServer {
     }
 
     static void traverseResourcesFileSystem(String targetPath, Consumer<? super Path> action)
-            throws URISyntaxException {
-        final URI uri = InnerCoreServer.class.getResource(targetPath).toURI();
-        getFolderRootFromUri(uri, targetPath, folderRoot -> {
-            try (final Stream<Path> walk = Files.walk(folderRoot)) {
-                walk.forEach(childPath -> {
-                    if (Files.isRegularFile(childPath)) {
-                        action.accept(folderRoot.relativize(childPath));
-                    }
-                });
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+            throws IOException {
+        try {
+            final URI uri = InnerCoreServer.class.getResource(targetPath).toURI();
+            getFolderRootFromUri(uri, targetPath, folderRoot -> {
+                try (final Stream<Path> walk = Files.walk(folderRoot)) {
+                    walk.forEach(childPath -> {
+                        if (Files.isRegularFile(childPath)) {
+                            action.accept(childPath.equals(folderRoot) ? childPath.getFileName()
+                                    : folderRoot.relativize(childPath));
+                        }
+                    });
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (RuntimeException | URISyntaxException e) {
+            throw new IOException(e);
+        }
     }
 
-    static void unpackResources(String targetPath, String outputPath) throws URISyntaxException {
+    static File unpackExistingResources(String targetPath, String outputPath) throws IOException {
+        final AtomicReference<File> result = new AtomicReference<>(new File(outputPath));
         traverseResourcesFileSystem(targetPath, childPath -> {
-            try (final InputStream inputStream = InnerCoreServer.class
-                    .getResourceAsStream(targetPath + "/" + childPath.toString())) {
-                File outputFile = new File(outputPath, childPath.toString());
+            final File outputFile = new File(outputPath, childPath.toString());
+            if (!outputFile.exists()) {
+                final boolean isSingleFile = targetPath.equals("/" + childPath.toString());
                 outputFile.getParentFile().mkdirs();
-                try (final FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-                    FileTools.inStreamToOutStream(inputStream, outputStream);
+                try (final InputStream inputStream = InnerCoreServer.class
+                        .getResourceAsStream(isSingleFile ? targetPath
+                                : targetPath + "/" + childPath.toString())) {
+                    try (final FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                        FileTools.inStreamToOutStream(inputStream, outputStream);
+                        if (isSingleFile) {
+                            result.set(outputFile);
+                        }
+                    }
+                } catch (IOException | NullPointerException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         });
+        return result.get();
+    }
+
+    static File unpackResources(String targetPath, String outputPath) {
+        try {
+            return unpackExistingResources(targetPath, outputPath);
+        } catch (IOException | SecurityException e) {
+            server.getLogger().warning("Failed to unpack '" + targetPath + "' or it was not found");
+            server.getLogger().debug("Failed to unpack '" + targetPath + "' or it was not found", e);
+        }
+        return null;
     }
 
     public void preload(Server server) throws Exception {
@@ -232,19 +229,30 @@ public class InnerCoreServer {
         final File innercoreDirectory = new File(PATH, "innercore");
         if (!innercoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
-            final File zipFile = cloneFile("innercore.zip");// но у нас нет в ресурсах innercore.zip :D
-            if (zipFile != null) {
-                unzip(new ZipFile(zipFile), PATH);
-                try {
-                    zipFile.delete();
-                } catch (SecurityException e) {
+            try {
+                File innercoreFile = unpackExistingResources("/innercore.zip", PATH);
+                try (final ZipFile zipFile = new ZipFile(innercoreFile)) {
+                    unzip(zipFile, PATH);
                 }
-            } else {
-                unpackResources("/innercore", innercoreDirectory.getPath());
+            } catch (IOException | SecurityException fileExc) {
+                try {
+                    unpackExistingResources("/innercore", innercoreDirectory.getPath());
+                } catch (IOException | SecurityException directoryExc) {
+                    server.getLogger().debug("Failed to unpack 'innercore.zip' or it was not found", fileExc);
+                    server.getLogger().debug("Failed to unpack 'innercore' or it was not found", directoryExc);
+                    server.getLogger().critical(
+                            "Failed to extract 'innercore.zip' or 'innercore' folder containing pack with necessary files. "
+                                    + "Please check your ZoteCore installation, or try enabling debug mode to obtain more information.");
+                    try {
+                        System.exit(EXIT_CODE_NO_INTERNAL_PACKAGE);
+                    } catch (SecurityException e) {
+                        throw new RuntimeException("EXIT_CODE_NO_INTERNAL_PACKAGE");
+                    }
+                }
             }
         }
 
-        cloneFile("innercore_default_config.json");
+        unpackResources("/innercore_default_config.json", PATH);
         unzipMods(PATH + "/innercore/mods");
 
         FileTools.init();
