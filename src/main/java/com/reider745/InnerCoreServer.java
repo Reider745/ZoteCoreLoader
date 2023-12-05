@@ -2,12 +2,14 @@ package com.reider745;
 
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginDescription;
+
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
 import com.reider745.item.CustomItem;
+
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
@@ -31,12 +33,14 @@ import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.modpack.ModPackFactory;
 import com.zhekasmirnov.innercore.utils.FileTools;
+
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,8 +81,8 @@ public class InnerCoreServer {
     }
 
     public static File cloneFile(String name, String path) {
+        final File file = new File(name);
         try {
-            final File file = new File(name);
             if (!file.exists()) {
                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path));
                 BufferedInputStream bis = new BufferedInputStream(classLoader.getResourceAsStream(name));
@@ -89,7 +93,11 @@ public class InnerCoreServer {
             }
             return file;
         } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                file.delete();
+            } catch (SecurityException se) {
+            }
+            server.getLogger().warning("Resource '" + name + "' cannot be accessed: " + e.getMessage());
         }
         return null;
     }
@@ -224,7 +232,7 @@ public class InnerCoreServer {
         final File innercoreDirectory = new File(PATH, "innercore");
         if (!innercoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
-            final File zipFile = cloneFile("innercore.zip");//но у нас нет в ресурсах innercore.zip :D
+            final File zipFile = cloneFile("innercore.zip");// но у нас нет в ресурсах innercore.zip :D
             if (zipFile != null) {
                 unzip(new ZipFile(zipFile), PATH);
                 try {
@@ -296,7 +304,6 @@ public class InnerCoreServer {
 
     public void start() {
     }
-
 
     public static int getVersionCode() {
         return server.getPropertyInt("inner-core-version", 152);

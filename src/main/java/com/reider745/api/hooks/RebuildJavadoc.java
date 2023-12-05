@@ -129,6 +129,7 @@ public class RebuildJavadoc {
             ctClass.defrost();
         }
         boolean isEnum = ctClass.isEnum();
+        boolean isInterface = ctClass.isInterface();
         String classSignature = null;
         if (isEnum) {
             classSignature = ctClass.getName().replace(".", "/");
@@ -146,6 +147,9 @@ public class RebuildJavadoc {
                             continue;
                         }
                 }
+            }
+            if (isInterface && method.isEmpty()) {
+                continue;
             }
             String desiredValue = "null";
             try {
@@ -174,7 +178,7 @@ public class RebuildJavadoc {
         if (ctClass.isFrozen()) {
             ctClass.defrost();
         }
-        if (ctClass.isEnum()) {
+        if (ctClass.isEnum() || ctClass.isInterface()) {
             return;
         }
         CtConstructor minimumConstructor = getMinimumConstructor(ctClass.getDeclaredConstructors());
@@ -222,7 +226,7 @@ public class RebuildJavadoc {
             }
             try {
                 CtClass returnClass = method.getReturnType();
-                if (returnClass.isEnum()) {
+                if (returnClass.isEnum() || returnClass.isInterface()) {
                     continue;
                 }
                 String returnType = returnClass.getName();

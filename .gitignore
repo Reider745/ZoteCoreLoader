@@ -1,6 +1,7 @@
 package-lock.json
 node_modules
 .gradle
+bin
 build
 
 target/*

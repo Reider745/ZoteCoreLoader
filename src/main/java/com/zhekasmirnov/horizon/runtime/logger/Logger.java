@@ -4,22 +4,28 @@ import cn.nukkit.Server;
 
 public class Logger {
     public static Server server;
-    public static void debug(String debug){
-        server.getLogger().info(debug);
+
+    public static void debug(String message) {
+        server.getLogger().info(message);
     }
-    public static void debug(String title, String debug){
-        server.getLogger().info("["+title+"]"+debug);
+
+    public static void debug(String tag, String message) {
+        server.getLogger().info("[" + tag + "] " + message);
     }
-    public static void error(String debug){
-        server.getLogger().info(debug);
+
+    public static void error(String message) {
+        server.getLogger().error(message);
     }
-    public static void error(String title, String debug){
-        server.getLogger().error("["+title+"]"+debug);
+
+    public static void error(String tag, String message) {
+        server.getLogger().error("[" + tag + "] " + message);
     }
-    public static void error(String title, Exception e){
-        server.getLogger().error("["+title+"]", e);
+
+    public static void error(String tag, Exception exc) {
+        server.getLogger().error("[" + tag + "] ", exc);
     }
-    public static void info(String title, String info){
-        server.getLogger().info("["+title+"]"+info);
+
+    public static void info(String tag, String message) {
+        server.getLogger().info("[" + tag + "] " + message);
     }
 }
