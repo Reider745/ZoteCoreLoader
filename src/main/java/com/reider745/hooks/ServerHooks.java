@@ -9,7 +9,7 @@ import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
-@Hooks(class_name = "cn.nukkit.Server")
+@Hooks(className = "cn.nukkit.Server")
 public class ServerHooks implements HookClass {
     @Inject
     public static void start(Server self) throws Exception {

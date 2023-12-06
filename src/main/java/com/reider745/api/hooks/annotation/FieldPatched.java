@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface FieldPatched {
-    String name() default "-1";
-    String class_name() default "-1";
+    String name() default "";
+    String className() default "";
 }

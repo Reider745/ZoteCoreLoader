@@ -8,14 +8,11 @@ import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.ItemID;
 import cn.nukkit.item.RuntimeItems;
 import cn.nukkit.nbt.tag.CompoundTag;
-import com.reider745.InnerCoreServer;
-import com.reider745.Logger;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
-import com.reider745.api.pointers.PointerClassAdditionalValue;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.item.ItemExtraDataProvider;
 import com.reider745.item.Repairs;
@@ -30,12 +27,13 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Hooks(class_name = "cn.nukkit.item.Item")
+@Hooks(className = "cn.nukkit.item.Item")
 public class ItemUtils implements HookClass {
-    public static final PointersStorage<Item> items_pointers = new PointersStorage<>("items", ItemExtraDataProvider::new);
+    public static final PointersStorage<Item> items_pointers = new PointersStorage<>("items",
+            ItemExtraDataProvider::new);
 
     @Inject(signature = "(ILjava/lang/Integer;I[B)Lcn/nukkit/item/Item;")
-    public static Item get(int id, Integer meta, int count, byte[] tags){
+    public static Item get(int id, Integer meta, int count, byte[] tags) {
         try {
             Class<?> c = null;
             if (id < 0) {
@@ -54,7 +52,7 @@ public class ItemUtils implements HookClass {
                 } else {
                     item = new ItemBlock(Block.get(id), meta, count);
                 }
-            } else if(id > 2000){
+            } else if (id > 2000) {
                 item = ((Item) c.getConstructor(int.class, Integer.class, int.class).newInstance(id, meta, count));
             } else {
                 item = ((Item) c.getConstructor(Integer.class, int.class).newInstance(meta, count));
@@ -71,12 +69,11 @@ public class ItemUtils implements HookClass {
     }
 
     private static final Pattern ITEM_STRING_PATTERN = Pattern.compile(
-            //       1:namespace    2:name           3:damage   4:num-id    5:damage
+            // 1:namespace 2:name 3:damage 4:num-id 5:damage
             "^(?:(?:([a-z_]\\w*):)?([a-z._]\\w*)(?::(-?\\d+))?|(-?\\d+)(?::(-?\\d+))?)$");
 
-
     @Inject
-    public static Item fromString(String str){
+    public static Item fromString(String str) {
         String normalized = str.trim().replace(' ', '_').toLowerCase();
         Matcher matcher = ITEM_STRING_PATTERN.matcher(normalized);
         if (!matcher.matches()) {
@@ -113,11 +110,12 @@ public class ItemUtils implements HookClass {
                 try {
                     return constructor.get();
                 } catch (Exception e) {
-                    System.out.printf("Could not create a new instance of {} using the namespaced id {}", constructor, namespacedId, e);
+                    System.out.printf("Could not create a new instance of {} using the namespaced id {}", constructor,
+                            namespacedId, e);
                 }
             }
 
-            //common item
+            // common item
             int id = RuntimeItems.getLegacyIdFromLegacyString(namespacedId);
             if (id > 0) {
                 return Item.get(id, meta.orElse(0));
@@ -145,16 +143,17 @@ public class ItemUtils implements HookClass {
             } catch (Exception ignore1) {
                 try {
                     id = IDRegistry.getIdByStrId(name);
-                }catch (Exception e){}
+                } catch (Exception e) {
+                }
             }
         }
         return Item.get(id, meta.orElse(0));
     }
 
-    @Inject(signature = "()Ljava/lang/Short;", type_hook = TypeHook.BEFORE)
-    public static void getFuelTime(HookController controller){
+    @Inject(signature = "()Ljava/lang/Short;", type = TypeHook.BEFORE)
+    public static void getFuelTime(HookController controller) {
         short fuel = NativeFurnaceRegistry.getBurnTime(controller.getSelf());
-        if(fuel > 0){
+        if (fuel > 0) {
             controller.setReplace(true);
             controller.setResult(Short.valueOf(fuel));
         }
@@ -162,14 +161,13 @@ public class ItemUtils implements HookClass {
 
     public static final String INNER_CORE_TAG_NAME = "$mod";
 
-
-    public static Item get(int id, int count, int meta, NativeItemInstanceExtra extra){
+    public static Item get(int id, int count, int meta, NativeItemInstanceExtra extra) {
         Item item = Item.get(id, meta, count, new byte[] {});
-        if(extra != null) {
+        if (extra != null) {
             CompoundTag tag = item.getOrCreateNamedTag();
 
             JSONObject custom = extra.getCustomDataJSON();
-            if(custom != null)
+            if (custom != null)
                 tag.putString(INNER_CORE_TAG_NAME, custom.toString());
 
             item.setCompoundTag(tag);
@@ -181,15 +179,15 @@ public class ItemUtils implements HookClass {
         return item;
     }
 
-    public static Item get(int id, int count, int meta, long extra){
+    public static Item get(int id, int count, int meta, long extra) {
         ItemExtraDataProvider provider = (ItemExtraDataProvider) items_pointers.getInstance(extra);
         return get(id, count, meta, provider == null ? null : provider.extra);
     }
 
-    public static NativeItemInstanceExtra getItemInstanceExtra(Item item){
+    public static NativeItemInstanceExtra getItemInstanceExtra(Item item) {
         CompoundTag tag = item.getOrCreateNamedTag();
         String custom = tag.getString(INNER_CORE_TAG_NAME);
-        if(!custom.equals("")){
+        if (!custom.equals("")) {
             NativeItemInstanceExtra extra = new NativeItemInstanceExtra();
             extra.getProvider().apply(item);
             extra.setAllCustomData(custom);
@@ -198,14 +196,14 @@ public class ItemUtils implements HookClass {
         return null;
     }
 
-    public static void removePointer(long ptr){
+    public static void removePointer(long ptr) {
         items_pointers.removePointer(ptr);
     }
 
-    @Inject(class_name = "cn.nukkit.inventory.transaction.RepairItemTransaction", type_hook = TypeHook.BEFORE, signature = "()Z")
-    public static void isMapRecipe(HookController controller, RepairItemTransaction self){
+    @Inject(className = "cn.nukkit.inventory.transaction.RepairItemTransaction", type = TypeHook.BEFORE, signature = "()Z")
+    public static void isMapRecipe(HookController controller, RepairItemTransaction self) {
         ArrayList<Integer> repairs = Repairs.getRepairs(self.getInputItem().getId());
-        if(repairs != null)
+        if (repairs != null)
             controller.setResult(repairs.contains(self.getOutputItem().getId()));
         controller.setReplace(false);
     }

@@ -10,7 +10,7 @@ import javassist.Modifier;
 public class LevelHooks implements HookClass {
     @Override
     public void rebuildField(CtClass ctClass, CtField field) {
-        if(field.getName().equals("randomTickBlocks"))
+        if (field.getName().equals("randomTickBlocks"))
             field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
     }
 }

@@ -1,8 +1,6 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Server;
-import cn.nukkit.block.Block;
-import cn.nukkit.item.Item;
 import cn.nukkit.item.RuntimeItemMapping;
 import cn.nukkit.item.RuntimeItems;
 import cn.nukkit.network.protocol.ProtocolInfo;
@@ -18,20 +16,20 @@ import com.reider745.item.CustomItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
-
 import java.util.*;
 
-@Hooks(class_name = "cn.nukkit.item.RuntimeItemMapping")
+@Hooks(className = "cn.nukkit.item.RuntimeItemMapping")
 public class RuntimeItemsHooks implements HookClass {
-    @Inject(type_hook = TypeHook.BEFORE_REPLACE)
-    public static void generatePalette(RuntimeItemMapping self){
+    @Inject(type = TypeHook.BEFORE_REPLACE)
+    public static void generatePalette(RuntimeItemMapping self) {
         int protocolId = ReflectHelper.getField(self, "protocolId");
         List<RuntimeItemMapping.RuntimeEntry> itemPaletteEntries = ReflectHelper.getField(self, "itemPaletteEntries");
 
         BinaryStream paletteBuffer = new BinaryStream();
         int size = 0;
         for (RuntimeItemMapping.RuntimeEntry entry : itemPaletteEntries) {
-            if (entry.isCustomItem() && (!Server.getInstance().enableExperimentMode || protocolId < ProtocolInfo.v1_16_100)) {
+            if (entry.isCustomItem()
+                    && (!Server.getInstance().enableExperimentMode || protocolId < ProtocolInfo.v1_16_100)) {
                 break;
             }
             size++;
@@ -54,10 +52,13 @@ public class RuntimeItemsHooks implements HookClass {
         }
 
         final Int2ObjectMap<String> runtimeId2Name = ReflectHelper.getField(self, "runtimeId2Name");
-        final Map<String, RuntimeItemMapping.LegacyEntry> identifier2Legacy = ReflectHelper.getField(self, "identifier2Legacy");
+        final Map<String, RuntimeItemMapping.LegacyEntry> identifier2Legacy = ReflectHelper.getField(self,
+                "identifier2Legacy");
         final Object2IntMap<String> name2RuntimeId = ReflectHelper.getField(self, "name2RuntimeId");
-        final Int2ObjectMap<RuntimeItemMapping.LegacyEntry> runtime2Legacy = ReflectHelper.getField(self, "runtime2Legacy");
-        final Int2ObjectMap<RuntimeItemMapping.RuntimeEntry> legacy2Runtime = ReflectHelper.getField(self, "legacy2Runtime");
+        final Int2ObjectMap<RuntimeItemMapping.LegacyEntry> runtime2Legacy = ReflectHelper.getField(self,
+                "runtime2Legacy");
+        final Int2ObjectMap<RuntimeItemMapping.RuntimeEntry> legacy2Runtime = ReflectHelper.getField(self,
+                "legacy2Runtime");
 
         CustomItem.customItems.forEach((name, id) -> {
             paletteBuffer.putString(name);
@@ -104,9 +105,10 @@ public class RuntimeItemsHooks implements HookClass {
         ReflectHelper.setField(self, "itemPalette", paletteBuffer.getBuffer());
     }
 
-    @Inject(class_name = "cn.nukkit.item.RuntimeItems")
-    public static void init(){
-        final Map<String, Integer> legacyString2LegacyInt = ReflectHelper.getField(RuntimeItems.class, "legacyString2LegacyInt");
+    @Inject(className = "cn.nukkit.item.RuntimeItems")
+    public static void init() {
+        final Map<String, Integer> legacyString2LegacyInt = ReflectHelper.getField(RuntimeItems.class,
+                "legacyString2LegacyInt");
 
         CustomItem.customItems.forEach((name, id) -> legacyString2LegacyInt.put(name, id));
         CustomBlock.customBlocks.forEach((name, id) -> legacyString2LegacyInt.put(name, id));

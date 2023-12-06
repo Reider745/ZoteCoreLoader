@@ -9,10 +9,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface Inject {
-    String method() default "-1";
-    String signature() default "-1";
-    TypeHook type_hook() default TypeHook.AUTO;
-
-    String class_name() default "-1";
-    ArgumentTypes arguments_map() default ArgumentTypes.AUTO;
+    String method() default "";
+    String signature() default "";
+    TypeHook type() default TypeHook.AUTO;
+    String className() default "";
+    ArgumentTypes argumentMap() default ArgumentTypes.AUTO;
 }

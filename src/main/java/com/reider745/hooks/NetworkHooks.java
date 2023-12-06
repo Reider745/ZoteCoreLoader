@@ -9,24 +9,20 @@ import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.VarInt;
 import com.reider745.Main;
-import com.reider745.api.hooks.Arguments;
 import com.reider745.api.hooks.HookClass;
-import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
-import com.reider745.network.InnerCorePacket;
-
 import java.io.ByteArrayInputStream;
 import java.net.ProtocolException;
 import java.util.Collection;
-import java.util.List;
 
-@Hooks(class_name = "cn.nukkit.network.Network")
+@Hooks(className = "cn.nukkit.network.Network")
 public class NetworkHooks implements HookClass {
-    @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type_hook = TypeHook.BEFORE_REPLACE)
-    public static void processBatch(Network self, byte[] payload, Collection<DataPacket> packets, CompressionProvider compression, int raknetProtocol, Player player){
+    @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
+    public static void processBatch(Network self, byte[] payload, Collection<DataPacket> packets,
+            CompressionProvider compression, int raknetProtocol, Player player) {
         MainLogger log = Server.getInstance().getLogger();
 
         int maxSize = 3145728; // 3 * 1024 * 1024
@@ -55,7 +51,6 @@ public class NetworkHooks implements HookClass {
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(buf);
 
-
                 switch (raknetProtocol) {
                     case 7:
                         packetId = bais.read();
@@ -67,23 +62,24 @@ public class NetworkHooks implements HookClass {
                     default:
                         int header = (int) VarInt.readUnsignedVarInt(bais);
                         // | Client ID | Sender ID | Packet ID |
-                        // |   2 bits  |   2 bits  |  10 bits  |
+                        // | 2 bits | 2 bits | 10 bits |
                         packetId = header & 0x3FF;
                         break;
                 }
-                log.debug("read packet: "+packetId);
+                log.debug("read packet: " + packetId);
                 DataPacket pk = self.getPacket(packetId);
 
                 if (pk != null) {
                     pk.protocol = player == null ? Integer.MAX_VALUE : player.protocol;
                     pk.setBuffer(buf, buf.length - bais.available());
 
-                    if(pk instanceof BasePacket) ((BasePacket) pk).player = player;
+                    if (pk instanceof BasePacket)
+                        ((BasePacket) pk).player = player;
 
                     try {
                         if (raknetProtocol > 8) {
                             pk.decode();
-                        }else { // version < 1.6
+                        } else { // version < 1.6
                             pk.setBuffer(buf, 3);
                             pk.decode();
                         }
@@ -94,7 +90,7 @@ public class NetworkHooks implements HookClass {
 
                     packets.add(pk);
                 } else {
-                    log.debug("Received unknown packet with ID: "+packetId);
+                    log.debug("Received unknown packet with ID: " + packetId);
                 }
             }
         } catch (Exception e) {
@@ -103,7 +99,7 @@ public class NetworkHooks implements HookClass {
     }
 
     @Inject
-    public static void registerPackets(Network self){
+    public static void registerPackets(Network self) {
         Main.LoadingStages.registerPacket(self);
     }
 }

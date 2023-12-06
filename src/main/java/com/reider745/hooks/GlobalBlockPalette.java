@@ -20,14 +20,15 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.*;
 
-@Hooks(class_name = "cn.nukkit.level.GlobalBlockPalette")
+@Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
 public class GlobalBlockPalette implements HookClass {
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
     private static final ArrayList<Pair<Integer, Long>> assignedRuntimeIds = new ArrayList<>();
+
     private static long computeStateHash(int id, int[][] allStatesSorted) {
         long hash = (long) id;
-        //hash = hash * 314159L + (long) data;
+        // hash = hash * 314159L + (long) data;
 
         for (int[] state : allStatesSorted) {
             hash = hash * 314159L + (long) (state[1] | ((state[0] + 1) << 5));
@@ -54,28 +55,30 @@ public class GlobalBlockPalette implements HookClass {
     }
 
     @Inject
-    public static void init(){
+    public static void init() {
         MainLogger log = Server.getInstance().getLogger();
         log.info("Loading runtime blocks...");
         legacyToRuntimeId.defaultReturnValue(-1);
         runtimeIdToLegacy.defaultReturnValue(-1);
 
-
-
         HashMap<String, Integer> stateIdByName = new HashMap<>();
         try {
-            JSONObject json = new JSONObject(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("state-name-to-id.json"))));
+            JSONObject json = new JSONObject(new String(ByteStreams
+                    .toByteArray(Server.class.getClassLoader().getResourceAsStream("state-name-to-id.json"))));
             for (String key : json.keySet()) {
                 stateIdByName.put(key, json.getInt(key));
             }
-        }catch (Exception e){log.error(e.getMessage());}
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
 
         BlockStateRegisters.init(stateIdByName);
 
         final HashMap<Long, Integer> stateHashToLegacyIdData = new HashMap<>();
         final HashMap<Long, JSONObject> debug_hash = new HashMap<>();
         try {
-            final JSONArray json = new JSONArray(new String(ByteStreams.toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
+            final JSONArray json = new JSONArray(new String(ByteStreams
+                    .toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
             for (Object elem : json) {
                 final JSONObject e = (JSONObject) elem;
 
@@ -83,18 +86,18 @@ public class GlobalBlockPalette implements HookClass {
                 final int legacyData = e.getInt("data");
                 final JSONObject states = e.getJSONObject("states");
 
-                if(legacyId > 8000)
-                    throw new IOException("Ты чё еблан? Какова хуя в дампе блок с id "+legacyId);
+                if (legacyId > 8000)
+                    throw new IOException("Ты чё еблан? Какова хуя в дампе блок с id " + legacyId);
 
                 final long hash = computeStateHash(legacyId, states, stateIdByName);
                 if (stateHashToLegacyIdData.containsKey(hash))
-                    throw new RuntimeException("hash collision: " + hash + " "+e);
+                    throw new RuntimeException("hash collision: " + hash + " " + e);
 
                 debug_hash.put(hash, e);
                 BlockStateRegisters.addState(hash, states);
                 stateHashToLegacyIdData.put(hash, (legacyId << 16) | legacyData);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -102,22 +105,22 @@ public class GlobalBlockPalette implements HookClass {
             CustomBlock.blocks.forEach((id, manager) -> {
                 final ArrayList<String> variants = CustomBlock.getVariants(manager);
 
-                for(int i = 0;i < variants.size();i++) {
+                for (int i = 0; i < variants.size(); i++) {
                     final JSONObject state = new JSONObject().put("color", i);
 
                     final long hash = computeStateHash(id, state, stateIdByName);
                     if (stateHashToLegacyIdData.containsKey(hash))
-                        throw new RuntimeException("hash collision: " + hash + " "+debug_hash.get(hash).toString());
+                        throw new RuntimeException("hash collision: " + hash + " " + debug_hash.get(hash).toString());
 
                     BlockStateRegisters.addState(hash, state);
 
-                    debug_hash.put(hash, new JSONObject().put("block", id+":"+i));
+                    debug_hash.put(hash, new JSONObject().put("block", id + ":" + i));
                     stateHashToLegacyIdData.put(hash, (id << 16) | i);
                 }
             });
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         ArrayList<Long> sortedStateHash = new ArrayList<>(stateHashToLegacyIdData.keySet());
         sortedStateHash.sort((a, b) -> {
@@ -148,22 +151,22 @@ public class GlobalBlockPalette implements HookClass {
     }
 
     @Inject
-    public static int getLegacyFullId(int protocol, int runtimeId){
+    public static int getLegacyFullId(int protocol, int runtimeId) {
         return runtimeIdToLegacy.get(runtimeId);
     }
 
     @Inject
-    public static int getLegacyFullId(int runtimeId){
+    public static int getLegacyFullId(int runtimeId) {
         return runtimeIdToLegacy.get(runtimeId);
     }
 
     @Inject
-    public static int getLegacyFullId(int protocol, CompoundTag tag){
+    public static int getLegacyFullId(int protocol, CompoundTag tag) {
         throw new RuntimeException("use getLegacyFullId(int, CompoundTag)");
     }
 
     @Inject
-    public static int getOrCreateRuntimeId(int protocol, int id, int meta){
+    public static int getOrCreateRuntimeId(int protocol, int id, int meta) {
         return get(id, meta);
     }
 
@@ -173,11 +176,11 @@ public class GlobalBlockPalette implements HookClass {
     }
 
     @Inject
-    public static int getOrCreateRuntimeId(int legacyId){
+    public static int getOrCreateRuntimeId(int legacyId) {
         return getOrCreateRuntimeId(ProtocolInfo.CURRENT_PROTOCOL, legacyId >> 4, legacyId & 0xf);
     }
 
-    private static int get(int id, int meta){
+    private static int get(int id, int meta) {
         int legacyId = id << 6 | meta;
         int runtimeId = legacyToRuntimeId.get(legacyId);
         if (runtimeId == -1) {
@@ -186,10 +189,10 @@ public class GlobalBlockPalette implements HookClass {
                 Server.getInstance().getLogger().error("failed to locate state for id: " + id + ":" + meta);
                 runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << 6);
                 if (runtimeId == -1)
-                    throw new RuntimeException("failed to fallback to BlockID.INFO_UPDATE state "+id+" "+meta);
+                    throw new RuntimeException("failed to fallback to BlockID.INFO_UPDATE state " + id + " " + meta);
                 return runtimeId;
-            } else if (id == BlockID.INFO_UPDATE){
-                throw new IllegalStateException("BlockID.INFO_UPDATE state is missing! "+id+" "+meta);
+            } else if (id == BlockID.INFO_UPDATE) {
+                throw new IllegalStateException("BlockID.INFO_UPDATE state is missing! " + id + " " + meta);
             }
         }
         return runtimeId;

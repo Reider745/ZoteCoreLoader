@@ -55,7 +55,7 @@ public class Arguments extends HashMap<String, Object> {
     }
 
     /*public static String[] parseSignature(String signature){
-        if(signature.equals("-1")) return new String[]{};
+        if(signature.isBlank()) return new String[]{};
 
         ArrayList<String> types = new ArrayList<>();
         boolean is1 = false, is2 = true;

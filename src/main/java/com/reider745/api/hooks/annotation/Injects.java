@@ -11,12 +11,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface Injects {
-
-    String[] signature() default "-1";
-    TypeHook type_hook() default TypeHook.AUTO;
-
-    String class_name() default "-1";
-    String method() default "-1";
-    ArgumentTypes arguments_map() default ArgumentTypes.AUTO;
-
+    String[] signature() default "";
+    TypeHook type() default TypeHook.AUTO;
+    String className() default "";
+    String method() default "";
+    ArgumentTypes argumentMap() default ArgumentTypes.AUTO;
 }
