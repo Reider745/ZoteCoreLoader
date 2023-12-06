@@ -35,7 +35,9 @@ import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
 import com.zhekasmirnov.innercore.modpack.ModPackFactory;
+import com.zhekasmirnov.innercore.utils.ColorsPatch;
 import com.zhekasmirnov.innercore.utils.FileTools;
+import com.zhekasmirnov.innercore.utils.ReflectionPatch;
 
 import org.json.JSONObject;
 
@@ -43,6 +45,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -185,6 +188,7 @@ public class InnerCoreServer {
 
     public void preload(Server server) throws Exception {
         final long startupMillis = System.currentTimeMillis();
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");
 
         PATH = server.getDataPath();
@@ -234,7 +238,26 @@ public class InnerCoreServer {
 
         unpackResources("/innercore_default_config.json", PATH);
 
+        // Required to be called before modpack instantiation
         FileTools.init();
+
+        ModPack innercoreModPack = ModPackFactory.getInstance().createFromDirectory(innercoreDirectory);
+        ModPackContext.getInstance().setCurrentModPack(innercoreModPack);
+
+        for (ModPackDirectory directoryWithMods : innercoreModPack
+                .getDirectoriesOfType(ModPackDirectory.DirectoryType.MODS)) {
+            directoryWithMods.assureDirectoryRoot();
+            for (File potentialIcmodFile : directoryWithMods.getLocation().listFiles()) {
+                if (potentialIcmodFile.isFile() && potentialIcmodFile.getName().endsWith(".icmod")) {
+                    ExtractionHelper.extractICModFile(potentialIcmodFile, str -> server.getLogger().debug(str), null);
+                    potentialIcmodFile.deleteOnExit();
+                }
+            }
+        }
+
+        // Rhino JavaMembers.reflect patches
+        ColorsPatch.init();
+        ReflectionPatch.init();
 
         MultiplayerModList.loadClass();
         NetworkPlayerRegistry.loadClass();
@@ -253,22 +276,6 @@ public class InnerCoreServer {
 
         RuntimeIdDataPacketSender.loadClass();
         NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
-        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-
-        ModPack innercoreModPack = ModPackFactory.getInstance().createFromDirectory(innercoreDirectory);
-        ModPackContext.getInstance().setCurrentModPack(innercoreModPack);
-
-        for (ModPackDirectory directoryWithMods : innercoreModPack
-                .getDirectoriesOfType(ModPackDirectory.DirectoryType.MODS)) {
-            directoryWithMods.assureDirectoryRoot();
-            for (File potentialIcmodFile : directoryWithMods.getLocation().listFiles()) {
-                if (potentialIcmodFile.isFile() && potentialIcmodFile.getName().endsWith(".icmod")) {
-                    ExtractionHelper.extractICModFile(potentialIcmodFile, str -> server.getLogger().debug(str), null);
-                    potentialIcmodFile.deleteOnExit();
-                }
-            }
-        }
-
         InnerCoreConfig.set("gameplay.use_legacy_workbench_override", isLegacyWorkbench());
 
         API.loadAllAPIs();
