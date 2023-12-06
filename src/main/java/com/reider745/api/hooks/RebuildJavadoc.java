@@ -202,7 +202,7 @@ public class RebuildJavadoc {
         ctClass.addField(newInstanceField);
         CtMethod newInstance = new CtMethod(ctClass, "getSingletonInternalProxy", new CtClass[0], ctClass);
         newInstance.setExceptionTypes(minimumConstructor.getExceptionTypes());
-        newInstance.setModifiers(AccessFlag.STATIC);
+        newInstance.setModifiers(AccessFlag.PUBLIC | AccessFlag.STATIC);
         StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append("{ if (singletonInternalProxy == null) { singletonInternalProxy = new ");
         if (parameters.isEmpty()) {
