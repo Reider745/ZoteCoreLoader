@@ -1,12 +1,9 @@
 package com.zhekasmirnov.innercore.api.runtime;
 
-import com.zhekasmirnov.apparatus.util.Java8BackComp;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
-import com.zhekasmirnov.innercore.api.runtime.saver.GlobalSaves;
-import com.zhekasmirnov.innercore.api.runtime.saver.GlobalSavesScope;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
-import com.zhekasmirnov.innercore.api.runtime.saver.serializer.ScriptableSerializer;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.ScriptableSaverScope;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
@@ -14,7 +11,6 @@ import org.mozilla.javascript.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Created by zheka on 10.08.2017.
@@ -28,7 +24,6 @@ public class Updatable {
     private Updatable(boolean isMultithreadingAllowed) {
         this.isMultithreadingAllowed = isMultithreadingAllowed;
     }
-
 
     public void cleanUp() {
         updatableObjects.clear();
@@ -46,9 +41,9 @@ public class Updatable {
         Object _update = obj.get("update", obj);
         if (_update instanceof Function) {
             updatableObjects.add(obj);
-        }
-        else {
-            throw new IllegalArgumentException("cannot add updatable object: <obj>.update must be a function, not " + (_update != null ? _update.getClass() : null) + " " + _update);
+        } else {
+            throw new IllegalArgumentException("cannot add updatable object: <obj>.update must be a function, not "
+                    + (_update != null ? _update.getClass() : null) + " " + _update);
         }
     }
 
@@ -56,7 +51,6 @@ public class Updatable {
         getForServer().cleanUp();
         getForClient().cleanUp();
     }
-
 
     public static final int MODE_COUNT_BASED = 0;
     public static final int MODE_TIME_BASED = 1;
@@ -82,7 +76,6 @@ public class Updatable {
         currentMode = mode;
     }
 
-
     private static boolean shouldBeRemoved(Scriptable obj) {
         Object _remove = obj.get("remove", obj);
         return (_remove instanceof Boolean && (boolean) _remove);
@@ -94,16 +87,19 @@ public class Updatable {
             try {
                 Function to_string = (Function) _to_string;
                 return "" + to_string.call(ctx, to_string.getParentScope(), obj, EMPTY_ARGS);
-            } catch (Throwable ignore) { }
+            } catch (Throwable ignore) {
+            }
         }
         return "" + obj;
     }
 
     public static void reportError(Throwable err, String updatableStr) {
+        Logger.error("UPDATABLE ERROR", new RuntimeException("Updatable " + updatableStr
+                + " was disabled due to error, corresponding object will be disabled. To re-enable it re-enter the world.",
+                err));
     }
 
-
-    private static final Object[] EMPTY_ARGS = new Object[]{};
+    private static final Object[] EMPTY_ARGS = new Object[] {};
 
     private Context currentContext = null;
 
@@ -119,8 +115,11 @@ public class Updatable {
             if (_handle_error instanceof Function) {
                 try {
                     Function handle_error = (Function) _handle_error;
-                    handle_error.call(ctx, handle_error.getParentScope(), obj, new Object[]{err});
-                } catch (Throwable err2) {}
+                    handle_error.call(ctx, handle_error.getParentScope(), obj, new Object[] { err });
+                } catch (Throwable err2) {
+                    Logger.error("Error occurred in error handler for " + updatableToString(ctx, obj) + " hash="
+                            + obj.hashCode(), err2);
+                }
             } else {
                 reportError(err, updatableToString(ctx, obj));
             }
@@ -148,7 +147,7 @@ public class Updatable {
         } else {
             executeUpdateWithContext(currentContext, obj);
         }
-    
+
         return true;
     }
 
@@ -162,7 +161,6 @@ public class Updatable {
         postedRemovedUpdatables.clear();
     }
 
-    private int statCurrentCalls = 0;
     private boolean executeCurrentToNext() {
         if (updatableObjects.size() == 0) {
             return true;
@@ -170,9 +168,6 @@ public class Updatable {
         currentArrayPosition = currentArrayPosition % updatableObjects.size();
         boolean executed = executeUpdate(updatableObjects.get(currentArrayPosition));
         currentArrayPosition++;
-        if (executed) {
-            statCurrentCalls++;
-        }
         return executed;
     }
 
@@ -207,16 +202,11 @@ public class Updatable {
         if (currentContext == null) {
             currentContext = Compiler.assureContextForCurrentThread();
         }
-
-        statCurrentCalls = 0;
         if (currentMode == MODE_COUNT_BASED || isMultithreadingAllowed && TickExecutor.getInstance().isAvailable()) {
             onCountBasedTick();
-        }
-        else if (currentMode == MODE_TIME_BASED) {
+        } else if (currentMode == MODE_TIME_BASED) {
             onTimeBasedTick();
         }
-
-        //NativeAPI.tipMessage("upd: calls=" + statCurrentCalls + " total=" + updatableObjects.size() + " time=" + (end - start));
     }
 
     public void onPostTick() {
@@ -227,8 +217,6 @@ public class Updatable {
         onTick();
         onPostTick();
     }
-
-
 
     private static final Updatable serverInstance = new Updatable(true);
     private static final Updatable clientInstance = new Updatable(false);
@@ -241,7 +229,9 @@ public class Updatable {
         return clientInstance;
     }
 
-    public static void init(){}
+    public static void init() {
+        // TODO: UNATTENDED
+    }
 
     static {
         setPreferences(MODE_COUNT_BASED, 256);
@@ -277,10 +267,11 @@ public class Updatable {
                                 continue;
                             }
                         }
-                        ICLog.i("UPDATABLE", "loaded updatable data is not a scriptable object or it does not have update function, loading failed. obj=" + possibleUpdatable);
+                        ICLog.i("UPDATABLE",
+                                "loaded updatable data is not a scriptable object or it does not have update function, loading failed. obj="
+                                        + possibleUpdatable);
                     }
-                }
-                else {
+                } else {
                     ICLog.i("UPDATABLE", "assertion failed: updatable scope is not an array, loading failed");
                 }
 

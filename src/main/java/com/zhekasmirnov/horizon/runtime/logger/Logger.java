@@ -21,7 +21,7 @@ public class Logger {
         server.getLogger().error("[" + tag + "] " + message);
     }
 
-    public static void error(String tag, Exception exc) {
+    public static void error(String tag, Throwable exc) {
         server.getLogger().error("[" + tag + "] ", exc);
     }
 

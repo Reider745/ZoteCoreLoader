@@ -124,11 +124,9 @@ public class JsonHelper {
                 str = str.replace("\n", "\\n");
                 str = str.replace("\"", "\\\"");
                 strVal = "\"" + str + "\"";
-            }
-            else if (val instanceof Number && ((Number) val).doubleValue() == ((Number) val).longValue()) {
+            } else if (val instanceof Number && ((Number) val).doubleValue() == ((Number) val).longValue()) {
                 strVal = format.format(val);
-            }
-            else {
+            } else {
                 strVal = val.toString();
             }
 
@@ -139,8 +137,6 @@ public class JsonHelper {
             return result.toString();
         }
     }
-
-
 
     private static HashMap<Integer, ScriptableObject> scriptableByHashCode = new HashMap<>();
 
@@ -179,12 +175,10 @@ public class JsonHelper {
                         jsonToString.key(key);
                         stringify(jsonToString, (ScriptableObject) val);
                     }
-                }
-                else if (val instanceof CharSequence || val instanceof Number || val instanceof Boolean) {
+                } else if (val instanceof CharSequence || val instanceof Number || val instanceof Boolean) {
                     jsonToString.key(key);
                     jsonToString.value(val);
-                }
-                else {
+                } else {
                     ScriptableObject saveResult = ObjectSaverRegistry.saveObject(val);
                     if (saveResult != null) {
                         jsonToString.key(key);
@@ -205,7 +199,6 @@ public class JsonHelper {
     public static Scriptable jsonToScriptable(Object object) {
         ScriptableObject scriptable;
         if (object instanceof JSONArray) {
-            // scriptable = ScriptableObjectHelper.createEmptyArray();
             JSONArray arr = (JSONArray) object;
             List<Object> list = new ArrayList<>();
 
@@ -215,13 +208,10 @@ public class JsonHelper {
                     val = jsonToScriptable(val);
                 }
                 list.add(val);
-                //scriptable.put(i, scriptable, val);
             }
 
-            //scriptable.put("length", scriptable, arr.length());
             scriptable = ScriptableObjectHelper.createArray(list);
-        }
-        else if (object instanceof JSONObject) {
+        } else if (object instanceof JSONObject) {
             scriptable = ScriptableObjectHelper.createEmpty();
             JSONObject json = (JSONObject) object;
             JSONArray arr = json.names();
@@ -236,9 +226,9 @@ public class JsonHelper {
                     scriptable.put(key, scriptable, val);
                 }
             }
-        }
-        else {
-            throw new IllegalArgumentException("FAILED ASSERTION: JsonHelper.jsonToScriptable can get only JSONObject or JSONArray");
+        } else {
+            throw new IllegalArgumentException(
+                    "FAILED ASSERTION: JsonHelper.jsonToScriptable can get only JSONObject or JSONArray");
         }
 
         return ObjectSaverRegistry.readObject(scriptable);

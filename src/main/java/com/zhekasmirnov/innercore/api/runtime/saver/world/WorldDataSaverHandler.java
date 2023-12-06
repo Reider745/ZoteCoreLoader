@@ -4,6 +4,7 @@ import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.utils.OperationTimeLogger;
 
 import java.io.File;
 
@@ -13,7 +14,6 @@ public class WorldDataSaverHandler {
     public static WorldDataSaverHandler getInstance() {
         return instance;
     }
-
 
     private WorldDataSaver worldDataSaver = null;
 
@@ -28,8 +28,7 @@ public class WorldDataSaverHandler {
         setParams(
                 EngineConfig.getBoolean("background.auto_save", true),
                 EngineConfig.getBoolean("background.auto_save_world", true),
-                EngineConfig.getInt("background.auto_save_period", 30) * 1000
-        );
+                EngineConfig.getInt("background.auto_save_period", 30) * 1000);
     }
 
     public void setParams(boolean autoSaveEnabled, boolean autoSaveMinecraftWorld, int autoSaveInterval) {
@@ -42,7 +41,6 @@ public class WorldDataSaverHandler {
         saveWasQueued = true;
     }
 
-
     public void onLevelSelected(File worldDirectory) {
         ICLog.d("WorldDataSaverHandler", "level selected: " + worldDirectory.getAbsolutePath());
         initSaverOnNewWorldLoad(worldDirectory);
@@ -53,13 +51,15 @@ public class WorldDataSaverHandler {
     }
 
     public void onLevelLoading() {
-        ICLog.d("WorldDataSaverHandler", "reading data: " + (worldDataSaver != null ? "dir=" + worldDataSaver.getWorldDirectory() : "save is null"));
+        ICLog.d("WorldDataSaverHandler", "reading data: "
+                + (worldDataSaver != null ? "dir=" + worldDataSaver.getWorldDirectory() : "save is null"));
         readDataOnLoad();
         previousAutoSave = System.currentTimeMillis();
     }
 
     public void onLevelLeft() {
-        ICLog.d("WorldDataSaverHandler", "level left: " + (worldDataSaver != null ? "dir=" + worldDataSaver.getWorldDirectory() : "save is null"));
+        ICLog.d("WorldDataSaverHandler", "level left: "
+                + (worldDataSaver != null ? "dir=" + worldDataSaver.getWorldDirectory() : "save is null"));
         saveAndReleaseSaver();
     }
 
@@ -80,16 +80,14 @@ public class WorldDataSaverHandler {
         }
     }
 
-
-
-
     public synchronized WorldDataSaver getWorldDataSaver() {
         return worldDataSaver;
     }
 
     // if directory was changed save and release previous instance
     private synchronized WorldDataSaver initSaverOnNewWorldLoad(File worldDirectory) {
-        if (worldDataSaver != null && (worldDirectory == null || !worldDirectory.equals(worldDataSaver.getWorldDirectory()))) {
+        if (worldDataSaver != null
+                && (worldDirectory == null || !worldDirectory.equals(worldDataSaver.getWorldDirectory()))) {
             saveAndReleaseSaver();
         }
         worldDataSaver = new WorldDataSaver(worldDirectory);
@@ -98,12 +96,12 @@ public class WorldDataSaverHandler {
 
     private synchronized void runWorldAndDataSave() {
         if (worldDataSaver != null) {
-            //OperationTimeLogger logger = new OperationTimeLogger(false).start();
+            OperationTimeLogger logger = new OperationTimeLogger(false).start();
             worldDataSaver.saveAllData(true);
-            //Logger.debug("saving all mod data done in %f seconds");
+            logger.finish("saving all mod data done in %f seconds");
             if (autoSaveMinecraftWorld) {
                 NativeAPI.forceLevelSave();
-                //Logger.debug("minecraft world done in %f seconds");
+                logger.finish("minecraft world done in %f seconds");
             }
         } else {
             reportUnexpectedStateError("World data saver was not initialized during runWorldAndDataSave() call");
@@ -112,9 +110,9 @@ public class WorldDataSaverHandler {
 
     private synchronized void readDataOnLoad() {
         if (worldDataSaver != null) {
-            //OperationTimeLogger logger = new OperationTimeLogger(EngineConfig.isDeveloperMode()).start();
+            OperationTimeLogger logger = new OperationTimeLogger(EngineConfig.isDeveloperMode()).start();
             worldDataSaver.readAllData(true);
-            Logger.debug("reading all mod data done in %f seconds");
+            logger.finish("reading all mod data done in %f seconds");
         } else {
             reportUnexpectedStateError("World data saver was not initialized during readDataOnLoad() call");
         }
@@ -122,9 +120,9 @@ public class WorldDataSaverHandler {
 
     private synchronized void saveAndReleaseSaver() {
         if (worldDataSaver != null) {
-            //OperationTimeLogger logger = new OperationTimeLogger(EngineConfig.isDeveloperMode()).start();
+            OperationTimeLogger logger = new OperationTimeLogger(EngineConfig.isDeveloperMode()).start();
             worldDataSaver.saveAllData(true);
-            Logger.debug("saving all mod data done in %f seconds");//.start();
+            logger.finish("saving all mod data done in %f seconds").start();
             worldDataSaver = null;
         } else {
             reportUnexpectedStateError("World data saver was not initialized during saveAndReleaseSaver() call");

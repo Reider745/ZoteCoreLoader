@@ -51,7 +51,7 @@ public class MainThreadQueue {
                 while (iterator.hasNext()) {
                     Entry<Runnable, Integer> entry = iterator.next();
                     int value = entry.getValue();
-                    if(value-- <= 0){
+                    if (value-- <= 0) {
                         entry.getKey().run();
                         iterator.remove();
                     }
@@ -59,7 +59,6 @@ public class MainThreadQueue {
                 }
             } catch (Throwable err) {
                 ICLog.e("ERROR", "Error occurred in main thread queue, all posted delayed actions was cleared", err);
-                //DialogHelper.reportNonFatalError("Error occurred in main thread queue, all posted delayed actions was cleared", err);
             }
         }
 
@@ -79,8 +78,8 @@ public class MainThreadQueue {
         }
     }
 
-    public void enqueueDelayed(int ticks, Runnable action){
-        synchronized (delayedQueue){
+    public void enqueueDelayed(int ticks, Runnable action) {
+        synchronized (delayedQueue) {
             delayedQueue.put(action, ticks);
         }
     }

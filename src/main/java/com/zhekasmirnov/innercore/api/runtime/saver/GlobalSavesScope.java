@@ -16,5 +16,6 @@ public abstract class GlobalSavesScope {
     }
 
     public abstract Object save();
+
     public abstract void read(Object scope);
 }

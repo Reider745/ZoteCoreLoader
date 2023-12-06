@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api.runtime.other;
 
-import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.utils.FileTools;
@@ -10,7 +9,6 @@ import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,8 +26,7 @@ public class NameTranslation {
     private static HashMap<Integer, String> getTranslationMap(String language) {
         if (allLanguageTranslations.containsKey(language)) {
             return allLanguageTranslations.get(language);
-        }
-        else {
+        } else {
             HashMap<Integer, String> map = new HashMap<>();
             allLanguageTranslations.put(language, map);
             return map;
@@ -40,13 +37,29 @@ public class NameTranslation {
         int index = lang.indexOf('_');
         if (index == -1) {
             return lang;
-        }
-        else {
+        } else {
             return lang.substring(0, index);
         }
     }
 
     private static String language = "en";
+
+    public static void loadBuiltinTranslations() {
+        try {
+            JSONObject translations = FileTools.getAssetAsJSON("innercore/builtin_translations.json");
+            for (Iterator<String> it = translations.keys(); it.hasNext();) {
+                String name = it.next();
+                JSONObject languages = translations.getJSONObject(name);
+                for (Iterator<String> it2 = languages.keys(); it2.hasNext();) {
+                    String lang = it2.next();
+                    String translation = languages.getString(lang);
+                    addSingleTranslation(lang, name, translation);
+                }
+            }
+        } catch (JSONException e) {
+            ICLog.e("TRANSLATION", "failed to load builtin translations", e);
+        }
+    }
 
     public static void setLanguage(String lang) {
         language = toShortName(lang);
@@ -97,7 +110,6 @@ public class NameTranslation {
         return str;
     }
 
-
     private static final HashMap<Integer, String> namesToGenerateCache = new HashMap<>();
 
     public static void refresh(boolean sendOverrideCache) {
@@ -108,11 +120,11 @@ public class NameTranslation {
             for (String line : lines) {
                 String[] opts = line.split(":");
                 if (opts[0].equals("game_language")) {
-                    if(opts.length == 2){
+                    if (opts.length == 2) {
                         setLanguage(opts[1]);
                     } else {
                         refreshFromNative();
-                    }                    
+                    }
                     return;
                 }
             }
@@ -133,10 +145,10 @@ public class NameTranslation {
         }
     }
 
-    private static void refreshFromNative(){
+    private static void refreshFromNative() {
         ICLog.d("TRANSLATION", "failed to get language settings from file, trying native method");
         String language = NativeAPI.getGameLanguage();
-        if(language != null){
+        if (language != null) {
             setLanguage(language);
         } else {
             ICLog.d("TRANSLATION", "failed to get language settings");
@@ -145,7 +157,7 @@ public class NameTranslation {
     }
 
     public static void sendNameToGenerateCache(int id, int data, String name) {
-        synchronized(namesToGenerateCache) {
+        synchronized (namesToGenerateCache) {
             data = Math.min(15, Math.max(0, data));
             namesToGenerateCache.put(id * 16 + data, name);
         }

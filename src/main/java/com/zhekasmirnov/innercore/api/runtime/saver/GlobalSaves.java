@@ -1,11 +1,13 @@
 package com.zhekasmirnov.innercore.api.runtime.saver;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+
 /**
  * Created by zheka on 20.08.2017.
  */
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
+// import com.zhekasmirnov.innercore.api.log.DialogHelper;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
@@ -37,7 +39,6 @@ public class GlobalSaves {
         String dir = LevelInfo.getAbsoluteDir();
         if (dir == null) {
             return;
-//            throwError(new IllegalStateException("reading data while world is not loading"));
         }
 
         globalScope = null;
@@ -60,7 +61,6 @@ public class GlobalSaves {
         String dir = LevelInfo.getAbsoluteDir();
         if (dir == null || globalScope == null) {
             return;
-            // throwError(new IllegalStateException("writing data while world is not loading"));
         }
 
         try {
@@ -72,19 +72,18 @@ public class GlobalSaves {
         }
     }
 
-
     private static class LoggedSavesError {
         final String message;
         final Throwable error;
-    
+
         LoggedSavesError(String message, Throwable error) {
             this.message = message;
             this.error = error;
         }
     }
-    
+
     private static ArrayList<LoggedSavesError> savesErrors = new ArrayList<>();
-    
+
     public static void logSavesError(String message, Throwable err) {
         savesErrors.add(new LoggedSavesError(message, err));
     }
@@ -101,12 +100,13 @@ public class GlobalSaves {
         if (!savesErrors.isEmpty()) {
             StringBuilder log = new StringBuilder();
             for (LoggedSavesError err : savesErrors) {
-                log.append(err.message).append("\n").append(err.message).append("\n\n");
+                // TODO: log.append(err.message).append("\n").append(DialogHelper.getFormattedStackTrace(err.error)).append("\n\n");
             }
-            Logger.error("Errors occurred while " + (isReading ? "reading" : "saving") + " data:\n\n" + log, "SOME " + (isReading ? "READING" : "SAVING") + " ERRORS OCCURRED");
+            Logger.error(
+                    "Errors occurred while " + (isReading ? "reading" : "saving") + " data:\n\n" + log,
+                    "SOME " + (isReading ? "READING" : "SAVING") + " ERRORS OCCURRED");
         }
     }
-
 
     private static HashMap<String, GlobalSavesScope> globalScopeMap = new HashMap<>();
 
@@ -123,16 +123,14 @@ public class GlobalSaves {
         ICLog.d("SAVES", "reading saves...");
         updateAutoSaveTime();
 
-
         try {
             clearSavesErrorLog();
             readScope(SAVES_FILE_NAME);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             try {
                 clearSavesErrorLog();
                 readScope(SAVES_RESERVE_FILE_NAME);
-            } catch(RuntimeException e2) {
+            } catch (RuntimeException e2) {
                 ICLog.e("SAVES", "failed to read saves", e2);
                 globalScope = ScriptableObjectHelper.createEmpty();
             }
@@ -142,8 +140,7 @@ public class GlobalSaves {
             Object saverScope;
             if (globalScope.has(name, globalScope)) {
                 saverScope = globalScope.get(name);
-            }
-            else {
+            } else {
                 saverScope = ScriptableObjectHelper.createEmpty();
             }
 
@@ -177,14 +174,11 @@ public class GlobalSaves {
 
         try {
             writeScope();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             ICLog.e("SAVES", "failed to write saves", e);
         }
         showSavesErrorsDialogIfRequired(false);
     }
-
-
 
     private static Thread currentThread = null;
     private static int currentThreadQueueSize = 0;
@@ -209,6 +203,7 @@ public class GlobalSaves {
                     long start, end;
                     while (currentThreadQueueSize > 0) {
                         ICLog.d("SAVES", "started saving world data");
+                        ICLog.flush();
 
                         MainThreadQueue.serverThread.enqueue(new Runnable() {
                             public void run() {
@@ -250,8 +245,6 @@ public class GlobalSaves {
         ICLog.d("SAVES", "delaying main thread while saving data took " + (end - start) + " ms");
     }
 
-
-
     private static boolean autoSaveEnabled = false;
     private static int autoSavePeriod = 30000;
     private static long lastAutoSave = 0;
@@ -265,26 +258,6 @@ public class GlobalSaves {
     private static void updateAutoSaveTime() {
         lastAutoSave = System.currentTimeMillis();
     }
-
-    // private static void _crashTest() {
-    //     for (int i = 0; i < 10000; i++) {
-    //         final int id = i;
-    //         new Thread(new Runnable() {
-    //             @Override
-    //             public void run() {
-    //                 Process.setThreadPriority(19);
-    //                 try {
-    //                     Thread.sleep(100);
-    //                 } catch (InterruptedException e) {
-    //                     e.printStackTrace();
-    //                 }
-    //                 ICLog.d("SAVES", "crash test started " + id);
-    //                 NativeAPI.forceLevelSave();
-    //                 ICLog.d("SAVES", "crash test ended " + id);
-    //             }
-    //         }).start();
-    //     }
-    // }
 
     public static void startAutoSaveIfNeeded() {
         if (autoSaveEnabled) {

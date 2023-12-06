@@ -28,5 +28,6 @@ public abstract class BinarySaverScope implements WorldDataScopeRegistry.SaverSc
     }
 
     public abstract void read(InputStream inputStream);
+
     public abstract void save(OutputStream outputStream);
 }

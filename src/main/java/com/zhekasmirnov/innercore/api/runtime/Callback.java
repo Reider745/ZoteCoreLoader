@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api.runtime;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.mozilla.javascript.Context;
@@ -16,8 +15,6 @@ import java.util.List;
  */
 
 public class Callback {
-
-
     private static class CallbackFunction {
         public final Function function;
         public final int priority;
@@ -27,18 +24,19 @@ public class Callback {
             this.priority = priority;
         }
     }
-    
+
     private static HashMap<String, ArrayList<CallbackFunction>> callbacks = new HashMap<>();
 
     public static int count(String name) {
-        return callbacks.getOrDefault(name, new ArrayList<>()).size();
+        List<CallbackFunction> encounted = callbacks.getOrDefault(name, null);
+        return encounted != null ? encounted.size() : 0;
     }
 
     public static void addCallback(String name, Function func, int priority) {
         if (!callbacks.containsKey(name)) {
             callbacks.put(name, new ArrayList<CallbackFunction>());
         }
-        
+
         CallbackFunction callback = new CallbackFunction(func, priority);
         ArrayList<CallbackFunction> callbacksByName = callbacks.get(name);
         for (int i = 0; i < callbacksByName.size(); i++) {
@@ -67,7 +65,6 @@ public class Callback {
         ArrayList<CallbackFunction> funcs = callbacks.get(name);
         if (funcs != null) {
             for (CallbackFunction func0 : funcs) {
-                final CallbackFunction func = func0;
                 result.add(new Runnable() {
                     public void run() {
                         Scriptable parent = func0.function.getParentScope();
@@ -79,7 +76,7 @@ public class Callback {
         return result;
     }
 
-    public static void invokeCallback(String name, Object ... params) {
+    public static void invokeCallback(String name, Object... params) {
         invokeCallbackV(name, params);
     }
 
@@ -87,15 +84,13 @@ public class Callback {
         invokeCallbackV(name, params);
     }
 
-    public static Throwable invokeAPICallback(String name, Object ... params) {
-        Throwable result = null;
+    public static Throwable invokeAPICallback(String name, Object... params) {
         try {
             invokeAPICallbackUnsafe(name, params);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             ICLog.e("INNERCORE-CALLBACK", "error occurred while calling callback " + name, e);
-            result = e;
-            Logger.error("Non-Fatal error occurred in callback " + name, e);
+            return e;
         }
-        return result;
+        return null;
     }
 }

@@ -77,10 +77,10 @@ public class LoadingStage {
         for (int stage = 0; stage < STAGE_COUNT; stage++) {
             long time = getStageBeginTime(stage);
             if (time != -1) {
-               Logger.debug("PROFILING", "stage " + stageToString(stage) + " started at " + (time - startupTime) * .001 + "s");
-            }
-            else {
-               Logger.debug("PROFILING", "stage " + stageToString(stage) + " was ignored");
+                Logger.debug("PROFILING",
+                        "stage " + stageToString(stage) + " started at " + (time - startupTime) * .001 + "s");
+            } else {
+                Logger.debug("PROFILING", "stage " + stageToString(stage) + " was ignored");
             }
         }
     }

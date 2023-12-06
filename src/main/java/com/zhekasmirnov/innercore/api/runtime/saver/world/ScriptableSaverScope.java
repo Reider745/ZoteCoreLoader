@@ -1,11 +1,7 @@
 package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
-import com.zhekasmirnov.innercore.api.runtime.saver.JsonHelper;
 import com.zhekasmirnov.innercore.api.runtime.saver.serializer.ScriptableSerializer;
-import org.json.JSONObject;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-
 import java.io.IOException;
 
 public abstract class ScriptableSaverScope implements WorldDataScopeRegistry.SaverScope {
@@ -28,5 +24,6 @@ public abstract class ScriptableSaverScope implements WorldDataScopeRegistry.Sav
     }
 
     public abstract void read(Object object);
+
     public abstract Object save();
 }

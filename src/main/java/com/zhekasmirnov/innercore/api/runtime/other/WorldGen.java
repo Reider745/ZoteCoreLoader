@@ -5,8 +5,8 @@ import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersion;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
-//import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
-//import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
+import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
+import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 
@@ -36,12 +36,14 @@ public class WorldGen {
         int worldSeed = NativeAPI.getSeed();
         long seed = (long) worldSeed + (chunkX ^ 836430234L) * (chunkZ ^ 827774123L);
         Random random = new Random(seed);
-        List<Runnable> callbacks = Callback.getCallbackAsRunnableList(name, new Object[] {chunkX, chunkZ, random, dimensionId, seed, worldSeed, worldSeed ^ (dimensionId * 131071)});
+        List<Runnable> callbacks = Callback.getCallbackAsRunnableList(name, new Object[] { chunkX, chunkZ, random,
+                dimensionId, seed, worldSeed, worldSeed ^ (dimensionId * 131071) });
         for (Runnable callback : callbacks) {
             try {
                 callback.run();
-            } catch (Exception err) {
-                Logger.error("error occurred in chunk generation " + chunkX + ", " + chunkZ + " for dimension " + dimensionId, err);
+            } catch (Throwable err) {
+                Logger.error("error occurred in chunk generation " + chunkX + ", " + chunkZ
+                        + " for dimension " + dimensionId, err);
             }
         }
     }
@@ -66,7 +68,7 @@ public class WorldGen {
             }
 
             // execute legacy universal generation
-            invokeGenerateChunkCallback("GenerateChunkUniversal",chunkX, chunkZ, dimensionId);
+            invokeGenerateChunkCallback("GenerateChunkUniversal", chunkX, chunkZ, dimensionId);
         }
 
         // execute world generation by level (new universal generation)
@@ -81,7 +83,7 @@ public class WorldGen {
     }
 
     private static int dimensionIdToGenerationMode(int id) {
-        switch(id) {
+        switch (id) {
             case 0:
                 return MODE_SURFACE;
             case 1:
@@ -102,7 +104,8 @@ public class WorldGen {
         }
 
         // if feature is not supported, call every generation level at once
-        if (!MinecraftVersions.getCurrent().isFeatureSupported(MinecraftVersion.FEATURE_VANILLA_WORLD_GENERATION_LEVELS)) {
+        if (!MinecraftVersions.getCurrent()
+                .isFeatureSupported(MinecraftVersion.FEATURE_VANILLA_WORLD_GENERATION_LEVELS)) {
             for (int lvl : allLevels) {
                 generateChunk(x, z, dimension, lvl);
             }
@@ -110,19 +113,20 @@ public class WorldGen {
             generateChunk(x, z, dimension, level);
         }
     }
-    
+
     public static void generateChunk(int x, int z, int dimensionId, int level) {
         // execute base vanilla dimension world gen
-        /*CustomDimension customDimension = CustomDimension.getDimensionById(dimensionId);
+        CustomDimension customDimension = CustomDimension.getDimensionById(dimensionId);
         if (customDimension != null) {
             CustomDimensionGenerator generator = customDimension.getGenerator();
             if (generator != null) {
                 int baseDimensionId = generator.getModGenerationBaseDimension();
                 if (baseDimensionId != -1) {
-                    generateChunkByLevelAndMode(x, z, baseDimensionId, level, dimensionIdToGenerationMode(baseDimensionId));
+                    generateChunkByLevelAndMode(x, z, baseDimensionId, level,
+                            dimensionIdToGenerationMode(baseDimensionId));
                 }
             }
-        }*/
+        }
 
         // execute dimension based generation
         generateChunkByLevelAndMode(x, z, dimensionId, level, dimensionIdToGenerationMode(dimensionId));
@@ -132,11 +136,10 @@ public class WorldGen {
         invokeGenerateChunkCallback("GenerateBiomeMap", x, z, dimensionId);
     }
 
-    
-    public static class ChunkPos{
+    public static class ChunkPos {
         public final int dimension, x, z;
-        
-        public ChunkPos(int dimension, int x, int z){
+
+        public ChunkPos(int dimension, int x, int z) {
             this.dimension = dimension;
             this.x = x;
             this.z = z;
@@ -144,12 +147,11 @@ public class WorldGen {
 
         @Override
         public boolean equals(Object obj) {
-            if(obj instanceof ChunkPos){
+            if (obj instanceof ChunkPos) {
                 ChunkPos other = (ChunkPos) obj;
                 return x == other.x && z == other.z && dimension == other.dimension;
             }
             return false;
         }
     }
-    
 }

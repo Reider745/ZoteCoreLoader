@@ -3,7 +3,6 @@ package com.zhekasmirnov.innercore.api.runtime.saver.world;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import org.json.JSONObject;
-import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.HashMap;
@@ -36,9 +35,9 @@ public class WorldDataScopeRegistry {
         return instance;
     }
 
-
     public interface SaverScope {
         void readJson(Object json) throws Exception;
+
         Object saveAsJson() throws Exception;
     }
 
@@ -49,7 +48,6 @@ public class WorldDataScopeRegistry {
     public interface MissingScopeHandler {
         void handle(String name, Object data);
     }
-
 
     private final Map<String, SaverScope> scopeMap = new HashMap<>();
 
@@ -63,7 +61,8 @@ public class WorldDataScopeRegistry {
         scopeMap.put(name, scope);
     }
 
-    public void readAllScopes(JSONObject json, SavesErrorHandler errorHandler, MissingScopeHandler missingScopeHandler) {
+    public void readAllScopes(JSONObject json, SavesErrorHandler errorHandler,
+            MissingScopeHandler missingScopeHandler) {
         for (Map.Entry<String, SaverScope> entry : scopeMap.entrySet()) {
             String key = entry.getKey();
             Object data = json.opt(key);
@@ -74,7 +73,7 @@ public class WorldDataScopeRegistry {
             }
         }
 
-        for (Iterator<String> it = json.keys(); it.hasNext(); ) {
+        for (Iterator<String> it = json.keys(); it.hasNext();) {
             String key = it.next();
             if (!scopeMap.containsKey(key)) {
                 missingScopeHandler.handle(key, json.opt(key));

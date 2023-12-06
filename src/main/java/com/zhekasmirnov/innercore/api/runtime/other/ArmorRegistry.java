@@ -20,11 +20,13 @@ import java.util.HashMap;
 public class ArmorRegistry {
     public interface IArmorCallback {
         boolean tick(ItemInstance slot, int index, ArmorInfo armorInfo);
+
         boolean hurt(ScriptableParams params, ItemInstance slot, int index, ArmorInfo armorInfo);
     }
 
     public interface IJSArmorCallback {
         boolean tick(ItemInstance slot, int index, int durability);
+
         boolean hurt(ScriptableParams params, ItemInstance slot, int index, int durability);
     }
 
@@ -90,7 +92,8 @@ public class ArmorRegistry {
             if (armorSlots[slot] != null) {
                 armorSlots[slot].destroy();
             }
-            //armorSlots[slot] = new NativeItemInstance(NativeAPI.getPlayerArmor(slot));
+            // TODO: armorSlots[slot] = new
+            // NativeItemInstance(NativeAPI.getPlayerArmor(slot));
         }
     }
 
@@ -135,8 +138,7 @@ public class ArmorRegistry {
                 new Pair<String, Object>("damage", damage),
                 new Pair<String, Object>("type", type),
                 new Pair<String, Object>("bool1", b1),
-                new Pair<String, Object>("bool2", b2)
-        );
+                new Pair<String, Object>("bool2", b2));
 
         for (int slot = 0; slot < 4; slot++) {
             NativeItemInstance item = armorSlots[slot];

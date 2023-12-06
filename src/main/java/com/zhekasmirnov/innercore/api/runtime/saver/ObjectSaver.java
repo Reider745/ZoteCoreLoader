@@ -18,5 +18,6 @@ public abstract class ObjectSaver {
     }
 
     public abstract Object read(ScriptableObject input);
+
     public abstract ScriptableObject save(Object input);
 }

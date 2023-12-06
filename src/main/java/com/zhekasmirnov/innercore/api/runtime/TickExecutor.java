@@ -12,7 +12,6 @@ public class TickExecutor {
         return instance;
     }
 
-
     private int threadCount = 0;
     private int additionalThreadPriority = 3;
     private ThreadPoolExecutor executor = null;
@@ -31,7 +30,7 @@ public class TickExecutor {
             }
             if (count > 0) {
                 ThreadFactory defaultThreadFactory = Executors.defaultThreadFactory();
-                executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount, new ThreadFactory(){
+                executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount, new ThreadFactory() {
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread thread = defaultThreadFactory.newThread(r);
@@ -85,9 +84,9 @@ public class TickExecutor {
                 }
                 // wait until additional threads complete
                 while (executor.getActiveCount() > 0) {
-                    Thread.sleep(2);   
+                    Thread.sleep(2);
                 }
-            } catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }

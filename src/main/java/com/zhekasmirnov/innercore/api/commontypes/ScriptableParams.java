@@ -13,7 +13,8 @@ public class ScriptableParams extends ScriptableObject {
         return "Parameters";
     }
 
-    public ScriptableParams(Pair<String, Object> ... params) {
+    @SafeVarargs
+    public ScriptableParams(Pair<String, Object>... params) {
         for (Pair<String, Object> param : params) {
             put(param.first, this, param.second);
         }

@@ -31,8 +31,10 @@ public class ScriptableSerializer {
         return object;
     }
 
-    private static Object scriptableToJson0(Object input, SerializationErrorHandler handler, Set<ScriptableObject> iteratedObjects) {
-        // this will unwrap object if required, run saver, if exists, or just return object itself
+    private static Object scriptableToJson0(Object input, SerializationErrorHandler handler,
+            Set<ScriptableObject> iteratedObjects) {
+        // this will unwrap object if required, run saver, if exists, or just return
+        // object itself
         input = ObjectSaverRegistry.saveOrSkipObject(input);
 
         // if instance of scriptable, serialize to json, otherwise return as it is
@@ -80,18 +82,21 @@ public class ScriptableSerializer {
         }
     }
 
-    // receives scriptable or plain object, that should be serialized using scriptable based serialization and returns resulting json, base type value or null
+    // receives scriptable or plain object, that should be serialized using
+    // scriptable based serialization and returns resulting json, base type value or
+    // null
     // this method will replace cycle references with null
     public static Object scriptableToJson(Object object, SerializationErrorHandler handler) {
         return scriptableToJson0(object, handler, new HashSet<>());
     }
 
-    // receives base type value, json object or array and deserializes it into scriptable or any other object type, by using scriptable based serialization
+    // receives base type value, json object or array and deserializes it into
+    // scriptable or any other object type, by using scriptable based serialization
     public static Object scriptableFromJson(Object object) {
         if (object instanceof JSONObject) {
             JSONObject json = (JSONObject) object;
             ScriptableObject scriptable = ScriptableObjectHelper.createEmpty();
-            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
+            for (Iterator<String> it = json.keys(); it.hasNext();) {
                 String key = it.next();
                 scriptable.put(key, scriptable, scriptableFromJson(json.opt(key)));
             }

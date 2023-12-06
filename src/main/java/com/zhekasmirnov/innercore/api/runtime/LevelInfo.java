@@ -15,7 +15,6 @@ public class LevelInfo {
 
     public static String worldsPathOverride = null;
 
-
     public static int state = STATE_OFFLINE;
     public static String levelName, levelDir;
 
@@ -56,8 +55,6 @@ public class LevelInfo {
         }
         return null;
     }
-
-
 
     public static void onEnter(String name, String dir) {
         state = STATE_LOADING;
