@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
+import com.reider745.world.GenerationUtilsMethods;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -11,20 +12,32 @@ import java.util.Random;
 
 public class NativeGenerationUtils {
     @JSStaticFunction
-    public static native boolean isTerrainBlock(int id);
+    public static boolean isTerrainBlock(int id){
+        return GenerationUtilsMethods.isTerrainBlock(id);
+    }
 
     @JSStaticFunction
-    public static native boolean isTransparentBlock(int id);
+    public static boolean isTransparentBlock(int id){
+        return GenerationUtilsMethods.isTerrainBlock(id);
+    }
 
     @JSStaticFunction
-    public static native boolean canSeeSky(int x, int y, int z);
+    public static boolean canSeeSky(int x, int y, int z){
+        return GenerationUtilsMethods.canSeeSky(x, y, z);
+    }
 
     @JSStaticFunction
-    public static native int findSurface(int x, int y, int z);
+    public static int findSurface(int x, int y, int z){
+        return GenerationUtilsMethods.findSurface(x, y, z);
+    }
 
-    public static native void generateOreNative(int x, int y, int z, int id, int data, int amount, boolean whitelist, int[] blockIds, int seed);
+    public static void generateOreNative(int x, int y, int z, int id, int data, int amount, boolean whitelist, int[] blockIds, int seed){
+        GenerationUtilsMethods.generateOreNative(x, y, z, id, data, amount, whitelist, blockIds, seed);
+    }
 
-    public static native float nativeGetPerlinNoise(float x, float y, float z, int seed, float scale, int numOctaves);
+    public static float nativeGetPerlinNoise(float x, float y, float z, int seed, float scale, int numOctaves){
+        return GenerationUtilsMethods.nativeGetPerlinNoise(x, y, z, seed, scale, numOctaves);
+    }
 
 
     private static final int[] emptyOreBlacklist = new int[0];
