@@ -1,9 +1,8 @@
 package com.zhekasmirnov.innercore.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import com.reider745.InnerCoreServer;
-import com.zhekasmirnov.apparatus.Apparatus;
-import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,17 +23,22 @@ public class FileTools {
     public static final String LOGGER_TAG = "INNERCORE-FILE";
     public static String DIR_ROOT, DIR_PACK, DIR_WORK, DIR_MINECRAFT, DIR_HORIZON;
 
+    // static {
+        // DIR_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+        // DIR_HORIZON = DIR_ROOT + "games/horizon/";
+        // DIR_MINECRAFT =
+        // MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath()
+        // + "/";
+    // }
+
     public static void init() {
-        DIR_ROOT = InnerCoreServer.PATH;
-        DIR_HORIZON = DIR_ROOT;
-        DIR_PACK = DIR_ROOT + "/";
+        DIR_ROOT = DIR_HORIZON = DIR_PACK = InnerCoreServer.PATH + "/";
         DIR_WORK = DIR_ROOT + "innercore/";
         checkdirs();
-       // DIR_MINECRAFT = MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath() + "/";
     }
 
     // Should be called before anything else
-    public static void initializeDirectories(File packPath){
+    public static void initializeDirectories(File packPath) {
         DIR_PACK = packPath.getAbsolutePath() + "/";
         DIR_WORK = DIR_PACK + "innercore/";
         checkdirs();
@@ -64,9 +68,9 @@ public class FileTools {
         return outputFile;
     }
 
-    public static boolean assetExists(String name){
+    public static boolean assetExists(String name) {
         InputStream is = getAssetInputStream(name);
-        if(is == null){
+        if (is == null) {
             return false;
         }
         try {
@@ -82,26 +86,28 @@ public class FileTools {
     }
 
     public static byte[] getAssetBytes(String name) {
-        try{
-            return readFileText(DIR_WORK+"assets/"+name).getBytes();
-        }catch (Exception e){Logger.debug("Not resource "+name);}
-        return new byte[] {};
+        try {
+            return readFileText(DIR_WORK + "assets/" + name).getBytes();
+        } catch (Exception e) {
+            Logger.debug("Failed to find resource or it should not exist: " + name);
+        }
+        return new byte[0];
     }
 
     public static byte[] getAssetBytes(String name, String[] searchPaths, boolean includeAbsPath) {
-        return null;
+        return getAssetBytes(name);
     }
 
     public static Bitmap bitmapFromBytes(byte[] bytes) {
-        return null;
+        return bytes != null ? Bitmap.getSingletonInternalProxy() : null;
     }
 
     public static Bitmap getAssetAsBitmap(String name) {
-        return null;
+        return Bitmap.getSingletonInternalProxy();
     }
 
     public static String[] listAssets(String dir) {
-        return null;
+        return new String[0];
     }
 
     public static String getAssetAsString(String name) {
@@ -117,15 +123,14 @@ public class FileTools {
     }
 
     public static File unpackResource(int resource, String path) throws IOException {
-        return null;
+        throw new IOException("FileTools.unpackResource");
     }
 
     public static File unpackAsset(String name, String path) throws IOException {
-        return null;
+        throw new IOException("FileTools.unpackAsset");
     }
 
     public static void unpackAssetDir(String name, String path) {
-
     }
 
     public static void checkdirs() {
@@ -135,12 +140,10 @@ public class FileTools {
             boolean succeeded = dir.mkdirs();
             if (succeeded) {
                 Logger.debug(LOGGER_TAG, "created work directory: " + DIR_WORK);
-            }
-            else {
+            } else {
                 Logger.debug(LOGGER_TAG, "failed to create work directory: " + DIR_WORK);
             }
-        }
-        else {
+        } else {
             Logger.debug(LOGGER_TAG, "work directory check successful");
         }
     }
@@ -161,19 +164,15 @@ public class FileTools {
 
     public static boolean assureFileDir(File file) {
         String path = file.getAbsolutePath();
-        int index = path.lastIndexOf("/");
-        if(index == -1)
-            index = path.lastIndexOf("\\");
-        String dir = path.substring(0, index);
+        String dir = path.substring(0, path.lastIndexOf(File.separatorChar));
         return assureDir(dir);
     }
 
-    //private static Typeface mcTypeface;
-    public static Object getMcTypeface() {
-        return null;
+    public static Typeface getMcTypeface() {
+        return Typeface.getSingletonInternalProxy();
     }
 
-    public static String[] listDirectory(String path){
+    public static String[] listDirectory(String path) {
         File directory = new File(path);
         return directory.list();
     }
@@ -203,12 +202,10 @@ public class FileTools {
     }
 
     public static Bitmap readFileAsBitmap(String path) {
-        return null;
+        return Bitmap.getSingletonInternalProxy();
     }
 
-
-    public static void writeBitmap(String path, Object bmp) {
-
+    public static void writeBitmap(String path, Bitmap bmp) {
     }
 
     public static JSONObject readJSON(String path) throws IOException, JSONException {
@@ -221,13 +218,13 @@ public class FileTools {
 
     public static void writeJSON(String path, JSONObject json) throws IOException {
         String result = json.toString();
-       // result = com.cedarsoftware.util.io.JsonWriter.formatJson(result);
+        result = com.cedarsoftware.util.io.JsonWriter.formatJson(result);
         writeFileText(path, result);
     }
 
     public static void writeJSON(String path, JSONArray json) throws IOException {
         String result = json.toString();
-        //result = com.cedarsoftware.util.io.JsonWriter.formatJson(result);
+        result = com.cedarsoftware.util.io.JsonWriter.formatJson(result);
         writeFileText(path, result);
     }
 
@@ -278,24 +275,24 @@ public class FileTools {
         byte[] buffer = new byte[1024];
 
         int length;
-        while((length = inputStream.read(buffer)) != -1) {
+        while ((length = inputStream.read(buffer)) != -1) {
             result.write(buffer, 0, length);
         }
 
         return result.toByteArray();
     }
 
-    public static void delete(String path){
+    public static void delete(String path) {
         deleteRecursive(new File(path));
     }
 
     private static void deleteRecursive(File file) {
-        if (file.isDirectory()){
-            for (File child : file.listFiles()){
+        if (file.isDirectory()) {
+            for (File child : file.listFiles()) {
                 deleteRecursive(child);
             }
         }
-        
+
         file.delete();
     }
 
@@ -308,29 +305,34 @@ public class FileTools {
                 result.write(buffer, 0, length);
             }
             return result.toString("UTF-8");
-        }catch (Exception e){return null;}
+        } catch (Exception e) {
+            return null;
+        }
     }
+
     public static String readFileText(File file) throws IOException {
         String line;
-        BufferedReader reader = new BufferedReader((Reader)new FileReader(file));
-        StringBuilder text = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-            text.append(line).append("\n");
+        try (BufferedReader reader = new BufferedReader((Reader) new FileReader(file))) {
+            StringBuilder text = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                text.append(line).append("\n");
+            }
+            return text.toString();
         }
-        return text.toString();
     }
 
     public static void writeFileText(File path, String text) throws IOException {
-        PrintWriter writer = new PrintWriter((Writer)new BufferedWriter((Writer)new FileWriter(path, false)));
-        writer.write(text);
-        writer.close();
+        try (PrintWriter writer = new PrintWriter((Writer) new BufferedWriter((Writer) new FileWriter(path, false)))) {
+            writer.write(text);
+        }
     }
 
     public static void addFileText(File path, String text) throws IOException {
-        PrintWriter writer = new PrintWriter((Writer)new BufferedWriter((Writer)new FileWriter(path, true)));
-        writer.write(text);
-        writer.close();
+        try (PrintWriter writer = new PrintWriter((Writer) new BufferedWriter((Writer) new FileWriter(path, true)))) {
+            writer.write(text);
+        }
     }
+
     public static JSONObject readJSON(File path) throws IOException, JSONException {
         return new JSONObject(readFileText(path));
     }
@@ -340,13 +342,11 @@ public class FileTools {
     }
 
     public static void writeJSON(File path, JSONObject json) throws IOException {
-        String result = json.toString();
-        writeFileText(path, result);
+        writeFileText(path, json.toString());
     }
 
     public static void writeJSON(File path, JSONArray json) throws IOException {
-        String result = json.toString();
-        writeFileText(path, result);
+        writeFileText(path, json.toString());
     }
 
     public static String cleanupPath(String path) {
