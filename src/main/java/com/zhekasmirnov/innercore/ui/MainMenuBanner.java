@@ -1,9 +1,12 @@
 package com.zhekasmirnov.innercore.ui;
 
 public class MainMenuBanner {
-    private static final MainMenuBanner instance = new MainMenuBanner();
+    private static MainMenuBanner instance;
 
     public static MainMenuBanner getInstance() {
+        if (instance == null) {
+            instance = new MainMenuBanner();
+        }
         return instance;
     }
 
@@ -12,42 +15,23 @@ public class MainMenuBanner {
         LEFT_SIDE
     }
 
+    public final boolean isAvailable;
 
-    //private final double density = AdsManager.getInstance().getDesiredAdDensity();
-    //private final HashMap<String, PopupWindow> windows = new HashMap<>();
-    
     private MainMenuBanner() {
-        /*if (density == 1) {
-            isAvailable = false;
-            return;
-        }
-        if (density < 0.8) {
-            isAvailable = false;
-        } else {
-            isAvailable = Math.random() < (density - 0.8) * 10;
-        }*/
+        isAvailable = false;
     }
 
     public boolean runFullScreenAdRandom() {
-        /*if (density < 0.8) {
-            return AdsManager.getInstance().runDesiredDensityRandom();
-        } else if (density < 0.9) {
-            return !isAvailable;
-        } else {
-            return Math.random() < (density - 0.9) * 10;
-        }*/
         return false;
     }
 
     public boolean isShowed(String name) {
-        return true;
+        return false;
     }
 
     public void close(final String name) {
-
     }
 
     public void show(final String name, final Location location) {
-
     }
 }

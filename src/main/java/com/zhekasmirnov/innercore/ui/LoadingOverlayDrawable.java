@@ -1,31 +1,42 @@
 package com.zhekasmirnov.innercore.ui;
 
+import android.graphics.*;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.View;
+
 /**
  * Created by zheka on 05.01.2018.
  */
 
-public class LoadingOverlayDrawable {
-    public LoadingOverlayDrawable() {
-
+public class LoadingOverlayDrawable extends Drawable {
+    public LoadingOverlayDrawable(View parent) {
     }
 
-    private String text = "", tip = "";
-
     public void setText(String text) {
-        this.text = text;
     }
 
     public void setTip(String tip) {
-        this.tip = tip;
     }
-
-    float progressTarget;
 
     public void setProgress(float progress) {
-        this.progressTarget = progress;
     }
 
-    private long lastTime = 0;
+    @Override
+    public void draw(@NonNull Canvas canvas) {
+    }
 
+    @Override
+    public void setAlpha(int alpha) {
+    }
 
+    @Override
+    public void setColorFilter(@Nullable ColorFilter colorFilter) {
+    }
+
+    @Override
+    public int getOpacity() {
+        return PixelFormat.OPAQUE;
+    }
 }
