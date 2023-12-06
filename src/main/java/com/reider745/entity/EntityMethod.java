@@ -295,8 +295,8 @@ public class EntityMethod {
     public static int getEntityType(long unwrapEntity) {
         Entity entity = getEntityToLong(unwrapEntity);
         if(entity != null)
-            return 1;
-        return 0;
+            return entity.getNetworkId();
+        return -1;
     }
 
     public static CompoundTag getEntityCompoundTag(long unwrapEntity) {

@@ -21,6 +21,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.ItemUtils;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class BlockSourceMethods {
@@ -178,28 +179,63 @@ public class BlockSourceMethods {
     }
 
     public static void explode(Level pointer, float x, float y, float z, float power, boolean fire) {
-        EntityExplosionPrimeEvent event = new EntityExplosionPrimeEvent(null, 4);
+        EntityExplosionPrimeEvent event = new EntityExplosionPrimeEvent(null, power);
         InnerCoreServer.server.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             return;
         }
-        Explosion explosion = new Explosion(new Position(x, y, z), event.getForce(), (Entity) null);
+        Position position = new Position(x, y, z);
+        position.setLevel(pointer);
+        Explosion explosion = new Explosion(position, event.getForce(), (Entity) null);
         if (event.isBlockBreaking()) {
             explosion.explodeA();
         }
         explosion.explodeB();
     }
 
-    public static long clip(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode,
-            float[] joutput) {
+    public static long clip(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] joutput) {
         return 0;
     }
 
-    public static native long[] fetchEntitiesInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2,
-            float z2, int backCompEntityType, boolean flag);
+    private static long[] convert(ArrayList<Long> list){
+        final int size = list.size();
+        if(size == 0)
+            return new long[]{};
 
-    public static native long[] fetchEntitiesOfTypeInAABB(Level pointer, float x1, float y1, float z1, float x2,
-            float y2, float z2, String namespace, String name);
+        long[] result = new long[size];
+        for(int i = 0;i < size;i++)
+            result[i] = list.get(i);
+
+        return result;
+    }
+
+    public static long[] fetchEntitiesInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, int backCompEntityType, boolean flag){
+        Entity[] entities = pointer.getEntities();
+        ArrayList<Long> list = new ArrayList<>();
+
+        for(Entity entity : entities){
+            Position position = entity.getPosition();
+            if((flag == (entity.getNetworkId() != backCompEntityType)) && (x1 >= position.x && position.x <= x2) && (y1 >= position.y && position.y <= y2) && (z1 >= position.z && position.z <= z2))
+                list.add(entity.getId());
+        }
+
+        return convert(list);
+    }
+
+    public static long[] fetchEntitiesOfTypeInAABB(Level pointer, float x1, float y1, float z1, float x2, float y2, float z2, String namespace, String name){
+        Entity[] entities = pointer.getEntities();
+        ArrayList<Long> list = new ArrayList<>();
+
+        for(Entity entity : entities){
+            Position position = entity.getPosition();
+            // TODO: Добавить проверку моба по name
+            if((x1 >= position.x && position.x <= x2) && (y1 >= position.y && position.y <= y2) && (z1 >= position.z && position.z <= z2))
+                list.add(entity.getId());
+        }
+
+        return convert(list);
+    }
+
 
     public static long spawnEntity(Level pointer, int type, float x, float y, float z) {
         Entity entity = Entity.createEntity(type, new Position(x, y, z));

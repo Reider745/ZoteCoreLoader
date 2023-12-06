@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
+import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -78,6 +79,7 @@ public class NativeAPI {
     }
 
     public static void forceLevelSave() {
+        Server.getInstance().doAutoSave();
     }
 
     public static boolean isDefaultPrevented() {

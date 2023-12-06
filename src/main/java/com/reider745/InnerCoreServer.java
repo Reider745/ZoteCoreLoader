@@ -322,20 +322,28 @@ public class InnerCoreServer {
         return server.getPropertyString("inner-core-pack-name", "Inner Core Test");
     }
 
+    public static boolean isRuntimeException(){
+        return server.getPropertyBoolean("inner_core.runtime_exception", false);
+    }
+
     public static void useNotSupport(String name) {
-        throw new RuntimeException("Use not support multiplayer method " + name);
+        if(isRuntimeException())
+            throw new RuntimeException("Use not support multiplayer method " + name);
     }
 
     public static void useClientMethod(String name) {
-        throw new RuntimeException("Use client method " + name);
+        if(isRuntimeException())
+            throw new RuntimeException("Use client method " + name);
     }
 
     public static void useNotCurrentSupport(String name) {
-        throw new RuntimeException("The " + name + " method is currently not supported");
+        if(isRuntimeException())
+            throw new RuntimeException("The " + name + " method is currently not supported");
     }
 
     public static void useIncomprehensibleMethod(String name) {
-        throw new RuntimeException("I don't really understand what this method does (" + name
+        if(isRuntimeException())
+            throw new RuntimeException("I don't really understand what this method does (" + name
                 + "), which is why you're reading this right now");
     }
 }
