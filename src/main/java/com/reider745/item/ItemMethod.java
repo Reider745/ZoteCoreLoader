@@ -49,6 +49,8 @@ public class ItemMethod {
     }
 
     public static int getMaxStackForId(int id, int data){
+        if(id >= 8000)
+            return 64;
         CustomManager manager = getCustomManager(id);
         if(manager != null)
             return manager.get(PropertiesNames.MAX_STACK);
