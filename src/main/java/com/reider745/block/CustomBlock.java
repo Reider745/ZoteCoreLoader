@@ -2,12 +2,14 @@ package com.reider745.block;
 
 //import cn.nukkit.blockstate.BlockStorage;
 import cn.nukkit.block.*;
+import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Level;
 import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
 import com.zhekasmirnov.innercore.api.NativeBlock;
+import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI;
 
 import java.util.ArrayList;
@@ -171,7 +173,14 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_RANDOM) {
-            NativeBlock.onRandomTickCallback((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(), AdaptedScriptAPI.BlockSource.getFromCallbackPointer(this.level));
+            NativeCallback.onRandomBlockTick((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(), this.level);
+            return 1;
+        }else if(type == Level.BLOCK_UPDATE_REDSTONE){
+            RedstoneUpdateEvent ev = new RedstoneUpdateEvent(this);
+            getLevel().getServer().getPluginManager().callEvent(ev);
+            if (ev.isCancelled())
+                return 0;
+            return 1;
         }
         return 0;
     }

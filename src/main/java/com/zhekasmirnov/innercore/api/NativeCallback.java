@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import android.util.Pair;
+import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
@@ -806,11 +807,15 @@ public class NativeCallback {
     }
 
     public static void onRedstoneSignalChange(int x, int y, int z, int signal, boolean isLoadingChange, Level region) {
+        Block block = region.getBlock(x, y, z);
         Callback.invokeAPICallback("RedstoneSignal", new Coords(x, y, z), new ScriptableParams(
             new Pair<String, Object>("power", signal),
             new Pair<String, Object>("signal", signal),
             new Pair<String, Object>("onLoad", isLoadingChange)
-        ), new FullBlock(NativeAPI.getTileAndData(x, y, z)), NativeBlockSource.getFromServerCallbackPointer(region));
+        ), new FullBlock(
+                block.getId(),
+                block.getDamage()
+        ), NativeBlockSource.getFromServerCallbackPointer(region));
     }
 
     public static void onRandomBlockTick(int x, int y, int z, int id, int data, Level region) {
