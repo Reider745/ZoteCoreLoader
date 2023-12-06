@@ -151,6 +151,13 @@ public class RebuildJavadoc {
             if (isInterface && method.isEmpty()) {
                 continue;
             }
+            int modifiers = method.getModifiers();
+            if ((modifiers & AccessFlag.ABSTRACT) != 0) {
+                continue;
+            }
+            if ((modifiers & AccessFlag.NATIVE) != 0) {
+                method.setModifiers(modifiers & ~AccessFlag.NATIVE);
+            }
             String desiredValue = "null";
             try {
                 desiredValue = getStubReturnForMethod(method);
@@ -178,7 +185,7 @@ public class RebuildJavadoc {
         if (ctClass.isFrozen()) {
             ctClass.defrost();
         }
-        if (ctClass.isEnum() || ctClass.isInterface()) {
+        if (ctClass.isEnum() || ctClass.isInterface() || (ctClass.getModifiers() & AccessFlag.ABSTRACT) != 0) {
             return;
         }
         CtConstructor minimumConstructor = getMinimumConstructor(ctClass.getDeclaredConstructors());
@@ -226,11 +233,12 @@ public class RebuildJavadoc {
             }
             try {
                 CtClass returnClass = method.getReturnType();
-                if (returnClass.isEnum() || returnClass.isInterface()) {
+                if (returnClass.isEnum() || returnClass.isInterface() || (returnClass.getModifiers() & AccessFlag.ABSTRACT) != 0) {
                     continue;
                 }
                 String returnType = returnClass.getName();
-                if ((method.getModifiers() & AccessFlag.STATIC) == 0 && returnType.equals(ctClass.getName())) {
+                int modifiers = method.getModifiers();
+                if ((modifiers & AccessFlag.ABSTRACT) != 0 || ((modifiers & AccessFlag.STATIC) == 0 && returnType.equals(ctClass.getName()))) {
                     continue;
                 }
                 if (rewrittenSingletonClasses.contains(returnType)) {

@@ -127,7 +127,16 @@ public class FileTools {
     }
 
     public static File unpackAsset(String name, String path) throws IOException {
-        throw new IOException("FileTools.unpackAsset");
+        File inputFile = new File(DIR_WORK + "assets/" + name);
+        File outputFile = new File(path);
+
+        if (inputFile.equals(outputFile)) {
+            return outputFile;
+        }
+
+        outputFile.createNewFile();
+        copy(inputFile, outputFile);
+        return outputFile;
     }
 
     public static void unpackAssetDir(String name, String path) {
