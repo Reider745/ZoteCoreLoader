@@ -46,10 +46,13 @@ public class PlayerHooks implements HookClass {
 
     @Inject
     public static void close(Player self, TextContainer message, String reason, boolean notify) {
-        /*
-         * ConnectedClient client = getForPlayer(self);
-         * if(client != null)
-         * client.getChannelInterface().close();
-         */
+        ConnectedClient client = getForPlayer(self);
+        try{
+            if(client != null)
+                client.getChannelInterface().close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

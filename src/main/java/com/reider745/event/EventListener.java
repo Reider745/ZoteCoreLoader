@@ -3,6 +3,8 @@ package com.reider745.event;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.projectile.EntityProjectile;
+import cn.nukkit.entity.projectile.EntitySnowball;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -13,12 +15,18 @@ import cn.nukkit.event.entity.*;
 import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.event.redstone.RedstoneUpdateEvent;
+import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.NBTIO;
 import com.reider745.api.CallbackHelper;
+import com.reider745.entity.EntityMethod;
+import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.innercore.api.NativeCallback;
+import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 public class EventListener implements Listener {
     public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply) {
@@ -65,21 +73,28 @@ public class EventListener implements Listener {
                 event.getPlayer().getId()));
     }
 
-    /*
-     * @EventHandler
-     * public void restoneUpdate(RedstoneUpdateEvent event){
-     * Block block = event.getBlock();
-     * NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int)
-     * block.z, 0, false, event.getBlock().getLevel());
-     * }
-     */
+    @EventHandler
+    public void redstoneUpdate(RedstoneUpdateEvent event){
+        Block block = event.getBlock();
+        Level level = event.getBlock().getLevel();
+
+        NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int)
+            block.z, level.getStrongPower(block), true, level);
+    }
 
     @EventHandler
     public void projectileHit(ProjectileHitEvent event) {
-        /*
-         * Vector3 pos = event.
-         * NativeCallback.onThrowableHit(event.getEntity().getId(), );
-         */
+        Entity entity = event.getEntity();
+        if(entity instanceof EntitySnowball){
+            Vector3 pos = entity.getPosition();
+            Block block = entity.getLevelBlock();
+            Item item = EntityMethod.getItemFromProjectile(entity.getId());
+            NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
+
+            NativeCallback.onThrowableHit(event.getEntity().getId(), (float) pos.x, (float) pos.y, (float) pos.z,
+                    entity.getId(), (int) block.x, (int) block.y, (int) block.z, 0,
+                    item.getId(), item.count, item.getDamage(), extra != null ? extra.getPtr() : 0);
+        }
     }
 
     @EventHandler
