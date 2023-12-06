@@ -137,7 +137,7 @@ public class FurnaceRecipeRegistry {
         } try {
             FileTools.unpackAsset("innercore/recipes/furnace_fuel.json", FileTools.DIR_WORK + "furnace.json");
         } catch (IOException e) {
-            ICLog.e("RECIPES", "failed to unpack recipes", e);
+            //ICLog.e("RECIPES", "failed to unpack recipes", e);
             return;
         }
 

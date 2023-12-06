@@ -638,7 +638,6 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static NativeArray getAll() {
-            logDeprecation("Entity.getAll()");
             return new NativeArray(NativeCallback.getAllEntities().toArray());
         }
 

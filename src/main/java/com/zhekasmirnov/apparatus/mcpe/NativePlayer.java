@@ -23,7 +23,7 @@ public class NativePlayer {
         try {
             return PlayerActorMethods.isValid(pointer);
         } catch (NoSuchMethodError e) {
-            return pointer != null;
+            return pointer != null && pointer.isValid();
         }
     }
 

@@ -90,7 +90,7 @@ public abstract class DataChannel {
         }
         isPanic = true;
         if (exception != null) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
         if (!isClosed) {
             if (EngineConfig.isDeveloperMode()) {

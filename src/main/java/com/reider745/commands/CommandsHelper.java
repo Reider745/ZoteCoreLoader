@@ -12,5 +12,6 @@ public class CommandsHelper {
         map.register(fallbackPrefix, new CustomBlocksCommands());
         map.register(fallbackPrefix, new CustomItemsCommands());
         map.register(fallbackPrefix, new StateCommand());
+        map.register(fallbackPrefix, new InnerCoreNetworkCommand());
     }
 }
