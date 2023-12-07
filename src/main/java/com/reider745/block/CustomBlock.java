@@ -1,16 +1,16 @@
 package com.reider745.block;
 
-//import cn.nukkit.blockstate.BlockStorage;
+import cn.nukkit.Player;
 import cn.nukkit.block.*;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Level;
+import cn.nukkit.math.BlockFace;
 import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
-import com.zhekasmirnov.innercore.api.NativeBlock;
 import com.zhekasmirnov.innercore.api.NativeCallback;
-import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +125,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     private String name;
 
     private boolean TickingTile;
+    private boolean NeighbourChange;
 
     protected CustomBlock(int id, int meta){
         this(id, meta, getBlockManager(id));
@@ -142,6 +143,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         this.name = name;
 
         TickingTile = manager.get("TickingTile:"+meta, false);
+        NeighbourChange = manager.get("NeighbourChange", false);
     }
 
 
@@ -171,18 +173,24 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     }
 
     @Override
+    public void onNeighborChange(@NotNull BlockFace side) {
+        Block changeBlock = getSide(side);
+        NativeCallback.onBlockEventNeighbourChange((int) x, (int) y, (int) z, (int) changeBlock.x, (int) changeBlock.y, (int) changeBlock.z, level);
+    }
+
+    @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_RANDOM) {
             NativeCallback.onRandomBlockTick((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(), this.level);
-            return 1;
-        }else if(type == Level.BLOCK_UPDATE_REDSTONE){
+            return type;
+        } else if (type == Level.BLOCK_UPDATE_REDSTONE) {
             RedstoneUpdateEvent ev = new RedstoneUpdateEvent(this);
             getLevel().getServer().getPluginManager().callEvent(ev);
             if (ev.isCancelled())
-                return 0;
-            return 1;
+                return type;
+            return type;
         }
-        return 0;
+        return type;
     }
 
     @Override

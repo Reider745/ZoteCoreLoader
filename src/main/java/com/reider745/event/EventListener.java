@@ -20,6 +20,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.NBTIO;
 import com.reider745.api.CallbackHelper;
@@ -45,11 +46,6 @@ public class EventListener implements Listener {
                     () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z,
                             event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true,
                             player.getHealth() > 0, player.getId()));
-        // else if (action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)
-        // preventedCallback(event, () -> NativeCallback._onBlockDestroyStarted((int)
-        // block.x, (int) block.y, (int) block.z, event.getFace().getIndex(),
-        // player.getId()));
-
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -92,7 +88,7 @@ public class EventListener implements Listener {
             NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
 
             NativeCallback.onThrowableHit(event.getEntity().getId(), (float) pos.x, (float) pos.y, (float) pos.z,
-                    entity.getId(), (int) block.x, (int) block.y, (int) block.z, 0,
+                    entity.getId(), (int) block.x, (int) block.y, (int) block.z, block.getDamage(),
                     item.getId(), item.count, item.getDamage(), extra != null ? extra.getPtr() : 0);
         }
     }
@@ -104,6 +100,9 @@ public class EventListener implements Listener {
         CallbackHelper.ICallbackApply apply = () -> NativeCallback.onChunkPostProcessed(fullChunk.getX(),
                 fullChunk.getZ());
 
+        CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK, level, () -> NativeCallback.onPreChunkPostProcessed(
+                fullChunk.getX(), fullChunk.getZ())
+        );
         switch (level.getDimension()) {
             case Level.DIMENSION_OVERWORLD ->
                 CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVERWORLD, level, apply);

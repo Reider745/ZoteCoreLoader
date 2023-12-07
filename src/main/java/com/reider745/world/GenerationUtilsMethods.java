@@ -1,6 +1,5 @@
 package com.reider745.world;
 
-import android.security.AppUriAuthenticationPolicy;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.level.Level;
@@ -12,30 +11,41 @@ import com.reider745.api.CallbackHelper;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
-import java.util.Random;
+import java.util.ArrayList;
 
 public class GenerationUtilsMethods {
     public static boolean isTerrainBlock(int id){
         return id == BlockID.GRASS;
     }
 
-    @JSStaticFunction
     public static boolean isTransparentBlock(int id){
         return Block.transparent[id];
     }
 
-    @JSStaticFunction
     public static boolean canSeeSky(int x, int y, int z){
         return NativeBlockSource.getCurrentWorldGenRegion().canSeeSky(x, y, z);
     }
 
-    @JSStaticFunction
+    private static final ArrayList<Integer> blackListSurface = new ArrayList<>();
+
+    static {
+        blackListSurface.add(BlockID.AIR);
+        blackListSurface.add(BlockID.LEAVES);
+        blackListSurface.add(BlockID.LEAVES2);
+        blackListSurface.add(BlockID.SNOW_LAYER);
+        blackListSurface.add(BlockID.DOUBLE_PLANT);
+    }
+
     public static int findSurface(int x, int y, int z){
-        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region == null) throw new RuntimeException("Region null");
+        Level level = CallbackHelper.getForCurrentThread();
+        if(level == null) throw new RuntimeException("Region null");
         for(int i = y;i < 256;i++){
-            if(region.getBlockId(x, i, z) == 0)
-                return i;
+            if(!blackListSurface.contains(level.getBlockIdAt(x, i, z)) && level.getBlockIdAt(x, i+1, z) == 0)
+                return i-1;
+        }
+        for(int i = y;i > 0;i--){
+            if(!blackListSurface.contains(level.getBlockIdAt(x, i, z)) && level.getBlockIdAt(x, i+1, z) == 0)
+                return i-1;
         }
         return y;
     }
@@ -53,12 +63,13 @@ public class GenerationUtilsMethods {
         return true;
     }
 
+    private static NukkitRandom rand = null;
+
     public static void generateOreNative(int x, int y, int z, int id, int data, int clusterSize, boolean whitelist, int[] blockIds, int seed){
         Level level = CallbackHelper.getForCurrentThread();
 
         if(level == null) throw new RuntimeException("Region null");
-
-        final NukkitRandom rand = new NukkitRandom();
+        if(rand == null) rand = new NukkitRandom();
 
         final float piScaled = rand.nextFloat() * (float) Math.PI;
         final double scaleMaxX = (float) (x + 8) + MathHelper.sin(piScaled) * (float) clusterSize / 8.0F;
@@ -67,6 +78,7 @@ public class GenerationUtilsMethods {
         final double scaleMinZ = (float) (z + 8) - MathHelper.cos(piScaled) * (float) clusterSize / 8.0F;
         final double scaleMaxY = y + rand.nextBoundedInt(3) - 2;
         final double scaleMinY = y + rand.nextBoundedInt(3) - 2;
+        final Block ore = Block.get(id, data);
 
         for (int i = 0; i < clusterSize; ++i) {
             final float sizeIncr = (float) i / (float) clusterSize;
@@ -97,7 +109,7 @@ public class GenerationUtilsMethods {
                                 if (xVal * xVal + yVal * yVal + zVal * zVal < 1.0D) {
                                     int block_replace = level.getBlock(xSeg, ySeg, zSeg).getId();
                                     if (block_replace != BlockID.AIR && isReplace(blockIds, block_replace, whitelist)) {
-                                        level.setBlock(new Vector3(x, y, z), Block.get(id, data));
+                                        level.setBlock(new Vector3(xSeg, ySeg, zSeg), ore);
                                     }
                                 }
                             }

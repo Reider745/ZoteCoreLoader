@@ -24,6 +24,10 @@ public class NativeItemInstance {
             this.id = ptr.getId();
             this.count = ptr.getCount();
             this.data = ptr.getAttackDamage() == 0 ? ptr.getAttackDamage() : ptr.getDamage();
+            if(id == 351 && data == 15){//bone_meal fix
+                id = 858;
+                data = 0;
+            }
 
             this.extra = ItemUtils.getItemInstanceExtra(ptr);
            // this.extra = extra != 0 ? new NativeItemInstanceExtra(extra) : null;

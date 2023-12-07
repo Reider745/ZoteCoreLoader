@@ -12,7 +12,8 @@ public class CallbackHelper {
     public enum Type {
         GENERATION_CHUNK_OVERWORLD,
         GENERATION_CHUNK_NETHER,
-        GENERATION_CHUNK_END;
+        GENERATION_CHUNK_END,
+        PRE_GENERATION_CHUNK;
     }
 
     private static final HashMap<Type, ThreadRegion> types = new HashMap<>();

@@ -839,7 +839,11 @@ public class NativeCallback {
     }
 
     public static void onBlockEventNeighbourChange(int x, int y, int z, int changedX, int changedY, int changedZ, Level region) {
-        Callback.invokeAPICallback("BlockEventNeighbourChange", new Coords(x, y, z), new FullBlock(NativeAPI.getTileAndData(x, y, z)), new Coords(changedX, changedY, changedZ), NativeBlockSource.getFromServerCallbackPointer(region));
+        Block block = region.getBlock(x, y, z);
+        Callback.invokeAPICallback("BlockEventNeighbourChange", new Coords(x, y, z), new FullBlock(
+                block.getId(),
+                block.getDamage()
+        ), new Coords(changedX, changedY, changedZ), NativeBlockSource.getFromServerCallbackPointer(region));
     }
 
     public static void onCustomTessellation(long tessellator, int x, int y, int z, int id, int data, boolean b) {

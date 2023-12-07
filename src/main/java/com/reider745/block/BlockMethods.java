@@ -67,7 +67,7 @@ public class BlockMethods {
         SpecialType type = customs.get(id);
         if(type != null)
             return type.light_level;
-        return 0;
+        return Block.light[id];
     }
     public static int getLightOpacity(int id){
         return 0;
@@ -122,7 +122,7 @@ public class BlockMethods {
 
     }
     public static void setReceivingNeighbourChangeEvent(int id, boolean value){
-
+        CustomBlock.getBlockManager(id).put("NeighbourChange", value);
     }
     public static void setDestroyTime(int id, float val){
         SpecialType type = customs.getOrDefault(id, new SpecialType());
