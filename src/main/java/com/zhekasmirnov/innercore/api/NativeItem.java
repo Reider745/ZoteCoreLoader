@@ -256,7 +256,9 @@ public class NativeItem {
         ItemMethod.setAllowedInOffhand(ptr, val);
     }
 
-    public static void setCreativeCategory(CustomManager ptr, int val){}
+    public static void setCreativeCategory(CustomManager ptr, int val){
+        ItemMethod.setCreativeCategory(ptr, val);
+    }
 
     public static void setProperties(CustomManager ptr, String val){
         //InnerCoreServer.useNotSupport("setProperties");

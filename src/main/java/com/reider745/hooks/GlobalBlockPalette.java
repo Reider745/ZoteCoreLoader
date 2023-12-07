@@ -86,12 +86,9 @@ public class GlobalBlockPalette implements HookClass {
                 final int legacyData = e.getInt("data");
                 final JSONObject states = e.getJSONObject("states");
 
-                if (legacyId > 8000)
-                    throw new IOException("Ты чё еблан? Какова хуя в дампе блок с id " + legacyId);
-
                 final long hash = computeStateHash(legacyId, states, stateIdByName);
-                if (stateHashToLegacyIdData.containsKey(hash))
-                    throw new RuntimeException("hash collision: " + hash + " " + e);
+               /* if (stateHashToLegacyIdData.containsKey(hash))
+                    throw new RuntimeException("hash collision: " + hash + " " + e);*/
 
                 debug_hash.put(hash, e);
                 BlockStateRegisters.addState(hash, states);
@@ -102,15 +99,19 @@ public class GlobalBlockPalette implements HookClass {
         }
 
         try {
+            final JSONObject[] states = new JSONObject[16];
+            for(int i = 0;i < states.length;i++)
+                states[i] = new JSONObject().put("color", i);
+
             CustomBlock.blocks.forEach((id, manager) -> {
                 final ArrayList<String> variants = CustomBlock.getVariants(manager);
 
                 for (int i = 0; i < variants.size(); i++) {
-                    final JSONObject state = new JSONObject().put("color", i);
+                    final JSONObject state = states[i];
 
                     final long hash = computeStateHash(id, state, stateIdByName);
-                    if (stateHashToLegacyIdData.containsKey(hash))
-                        throw new RuntimeException("hash collision: " + hash + " " + debug_hash.get(hash).toString());
+                    /*if (stateHashToLegacyIdData.containsKey(hash))
+                        throw new RuntimeException("hash collision: " + hash + " " + debug_hash.get(hash).toString());*/
 
                     BlockStateRegisters.addState(hash, state);
 

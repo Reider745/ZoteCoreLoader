@@ -1,13 +1,14 @@
 package com.reider745.item;
 
-import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.item.food.FoodNormal;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
+import com.reider745.hooks.ItemUtils;
 import com.reider745.item.ItemMethod.PropertiesNames;
+import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import java.util.*;
 
@@ -29,12 +30,23 @@ public class CustomItem {
 
     public static HashMap<String, Integer> customItems = new HashMap<>();
 
-    public static ArrayList<int[]> creative = new ArrayList<>();
-    public static HashMap<String, ArrayList<Integer>> categories = new HashMap<>();
+    public static class ItemCreative {
+        public int id, count, data;
+        public NativeItemInstanceExtra extra;
+        public ItemCreative(int id, int count, int data, NativeItemInstanceExtra extra){
+            this.id = id;
+            this.count = count;
+            this.data = data;
+            this.extra = extra;
+        }
+    }
+
+    public static ArrayList<ItemCreative> creative = new ArrayList<>();
+    public static HashMap<String, ArrayList<Integer>> groups = new HashMap<>();
 
     public static boolean isCreativeItem(int id, int damage){
-        for(int[] item : creative)
-            if(item[0] == id && item[2] == damage)
+        for(ItemCreative item : creative)
+            if(item.id == id && item.data == damage && item.extra == null)
                 return true;
         return false;
     }
@@ -50,104 +62,33 @@ public class CustomItem {
         list.addAll(newList);
     }
 
-    public static void checkAddedItem(int id, int damage){
+    public static void checkAddedItem(int id, int count, int damage, NativeItemInstanceExtra extra){
         if(!CustomItem.isCreativeItem(id, damage) && id > 2000) {
             CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, id);
-            addFirst(CustomItem.creative, new int[] {id, 1, damage});
+            addFirst(CustomItem.creative, new ItemCreative(id, count, damage, extra));
         }
     }
 
     public static void addToCreativeGroup(String id, int itemId){
-        ArrayList<Integer> items = categories.get(id);
+        ArrayList<Integer> items = groups.get(id);
         if(items == null)
             items = new ArrayList<>();
 
         items.add(itemId);
 
-        categories.put(id, items);
+        groups.put(id, items);
     }
 
-    private static boolean hasForSet(Set<String> sets, String str){
-        for(String id : sets)
-            if(id.equals(str))
-                return true;
-        return false;
-    }
-
-    private static Object[] getFullGroupForItem(int itemId, Set<String> skip){
-        Set<String> sets = categories.keySet();
-
-        for (String id : sets){
-            ArrayList<Integer> items = categories.get(id);
-
-            if(items.indexOf(itemId) != -1 && hasForSet(skip, id))
-                return new Object[] {id, items};
-        }
-
-        return null;
-    }
-
-    private static Object[] getCreativeItemForId(int itemId, ArrayList<Integer> black){
-        for(int i = 0;i < creative.size();i++) {
-            int[] item = creative.get(i);
-            if (item[0] == itemId && black.indexOf(i) == -1)
-                return new Object[]{i, item};
-        }
+    public static ArrayList<Integer> getGroupForElement(int id){
+        for(ArrayList<Integer> items : groups.values())
+            for(Integer id_item_group : items)
+                if(id_item_group == id)
+                    return items;
         return null;
     }
 
     public static final String TECHNICAL_GROUP = "technical_modded_item";
 
-    public static void initCreativeItems(){
-        ArrayList<int[]> sortAddedToCreative = new ArrayList<>();
-
-        ArrayList<Integer> blackListItemIndex = new ArrayList<>();
-        HashMap<String, Boolean> hasAddedGroup = new HashMap<>();
-
-        ArrayList<Integer> items_technical = categories.get(TECHNICAL_GROUP);
-        if(items_technical != null){
-            for(Integer id : items_technical) {
-                Object[] itemForCreative = getCreativeItemForId(id, blackListItemIndex);
-
-                if(itemForCreative != null) {
-                    blackListItemIndex.add((int) itemForCreative[0]);
-                    sortAddedToCreative.add((int[]) itemForCreative[1]);
-                }
-            }
-            hasAddedGroup.put(TECHNICAL_GROUP, true);
-        }
-
-
-        for(int i = 0;i < creative.size();i++){
-            int[] item = creative.get(i);
-            blackListItemIndex.add(i);
-
-            Object[] group = getFullGroupForItem(item[0], hasAddedGroup.keySet());
-            if(group != null  && !hasAddedGroup.containsKey(group[0])){
-                ArrayList<Integer> items = (ArrayList<Integer>) group[1];
-
-                for(Integer id : items) {
-                    Object[] itemForCreative = getCreativeItemForId(id, blackListItemIndex);
-
-                    if(itemForCreative != null) {
-                        blackListItemIndex.add((int) itemForCreative[0]);
-                        sortAddedToCreative.add((int[]) itemForCreative[1]);
-                    }
-                }
-
-                hasAddedGroup.put((String) group[0], true);
-                return;
-            }
-
-            sortAddedToCreative.add(item);
-        }
-
-        sortAddedToCreative.forEach(item -> {
-            Item add = Item.get(item[0], item[2], item[1]);
-            //System.out.println(add);
-            Item.addCreativeItem(Item.v1_16_0, add);
-        });
-    }
 
     public static String getTextIdForNumber(int id){
         for(String texId : customItems.keySet())
@@ -181,7 +122,7 @@ public class CustomItem {
     }
 
     public static void addCreative(int id, int count, int data, long extra) {
-        creative.add(new int[] {id, count, data});
+        creative.add(new ItemCreative(id, count, data, null));// TODO: потом добавть поддержку extra
     }
 
     public static CustomManager registerThrowableItem(String nameId, int id, String name) {
@@ -201,5 +142,76 @@ public class CustomItem {
         CustomManager manager = getItemManager(id);
         if(manager == null) return false;
         return manager.get(PropertiesNames.MAX_DAMAGE, 0) > 0;
+    }
+
+    private static final HashMap<Integer, ArrayList<ItemCreative>> category_all = new HashMap<>();
+
+    public static void sortCategory(){
+        for (ItemCreative item : creative){
+            int cat_id = ItemMethod.getCreativeCategory(item.id);
+            ArrayList<ItemCreative> items = category_all.getOrDefault(cat_id, new ArrayList<>());
+            items.add(item);
+            category_all.put(cat_id, items);
+        }
+
+    }
+
+    private static int get(int id, ArrayList<ItemCreative> items){
+        for (int i = 0; i < items.size(); i++) {
+            ItemCreative item = items.get(i);
+            if(item.id == id)
+                return i;
+        }
+        return -1;
+    }
+
+    private static int get(ItemCreative item_check, ArrayList<ItemCreative> items){
+        for (int i = 0; i < items.size(); i++) {
+            ItemCreative item = items.get(i);
+            if(item == item_check)
+                return i;
+        }
+        return -1;
+    }
+
+    public static ArrayList<ItemCreative> sortCreativeItems(int category){
+        ArrayList<ItemCreative> items = category_all.getOrDefault(category, new ArrayList<>());
+        ArrayList<ItemCreative> items_clone = (ArrayList<ItemCreative>) items.clone();
+        ArrayList<ItemCreative> result = new ArrayList<>();
+
+        for (ItemCreative item : items){
+            if(items_clone.size() == 0) break;
+
+            ArrayList<Integer> ids = getGroupForElement(item.id);
+            if(ids != null)
+                for(Integer id : ids)
+                    while (true){
+                        int index = get(id, items_clone);
+                        if(index == -1) break;
+                        result.add(items_clone.remove(index));
+                    }
+
+            int index = get(item, items_clone);
+            if(index != -1)
+                result.add(items_clone.remove(index));
+        }
+        return result;
+    }
+
+    public static void addCreativeItemsBuild() {
+        sortCategory();
+        sortCreativeItems(1).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
+    }
+
+    public static void addCreativeItemsWeapons() {
+        sortCreativeItems(3).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
+    }
+
+    public static void addCreativeItems() {
+        sortCreativeItems(4).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
+    }
+
+    public static void addCreativeItemsNature() {
+        sortCreativeItems(2).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
     }
 }

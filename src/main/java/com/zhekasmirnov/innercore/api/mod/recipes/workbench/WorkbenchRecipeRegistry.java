@@ -61,7 +61,7 @@ public class WorkbenchRecipeRegistry {
             return;
         }
 
-        CustomItem.checkAddedItem(recipe.id, recipe.data);
+        CustomItem.checkAddedItem(recipe.id, recipe.count, recipe.data, recipe.extra);
         
         ArrayList<WorkbenchRecipe> vars = new ArrayList<>();
         recipe.addVariants(vars);

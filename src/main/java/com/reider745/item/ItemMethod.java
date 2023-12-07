@@ -22,6 +22,7 @@ public class ItemMethod {
         public static final String ENCHANTABILITY_VALUE = "enchantability_value";
         public static final String ARMOR_DAMAGEABLE = "armor_damageable";
         public static final String REPAIRS = "repairs";
+        public static final String CREATIVE_CATEGORY = "creative_category";
 
         public static class Armors {
             public static final String SLOT = "slot";
@@ -46,6 +47,19 @@ public class ItemMethod {
 
     public static void setMaxStackSize(CustomManager manager, int stack){
         manager.put(PropertiesNames.MAX_STACK, stack);
+    }
+
+    public static void setCreativeCategory(CustomManager ptr, int val) {
+        ptr.put(PropertiesNames.CREATIVE_CATEGORY, val);
+    }
+
+    public static int getCreativeCategory(int id) {
+        if(id > 8000)
+            return 1;
+        CustomManager ptr = getCustomManager(id);
+        if(ptr != null)
+            return ptr.get(PropertiesNames.CREATIVE_CATEGORY, 3);
+        throw new RuntimeException("not get CreativeCategory "+id);
     }
 
     public static int getMaxStackForId(int id, int data){

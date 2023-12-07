@@ -8,20 +8,24 @@ import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.ItemID;
 import cn.nukkit.item.RuntimeItems;
 import cn.nukkit.nbt.tag.CompoundTag;
+import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.pointers.PointersStorage;
+import com.reider745.item.CustomItem;
 import com.reider745.item.ItemExtraDataProvider;
 import com.reider745.item.Repairs;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -206,5 +210,21 @@ public class ItemUtils implements HookClass {
         if (repairs != null)
             controller.setResult(repairs.contains(self.getOutputItem().getId()));
         controller.setReplace(false);
+    }
+
+    @Inject
+    public static void addCreativeItem(int protocol, Item item){
+        if(protocol == 407){
+            int id = item.getId();
+            int damage = item.getDamage();
+            if(id == BlockID.PLANKS && damage == 0)
+                CustomItem.addCreativeItemsBuild();
+            else if(id == ItemID.ARROW && damage == 0)
+                CustomItem.addCreativeItemsWeapons();
+            else if(id == ItemID.STICK)
+                CustomItem.addCreativeItems();
+            else if(id == BlockID.BLOCK_NETHER_WART_BLOCK)
+                CustomItem.addCreativeItemsNature();
+        }
     }
 }

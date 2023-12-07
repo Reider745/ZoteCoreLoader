@@ -3,7 +3,9 @@ package com.reider745.item;
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemDurable;
+import cn.nukkit.item.customitem.data.ItemCreativeCategory;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.api.CustomManager;
 
 import com.reider745.item.ItemMethod.PropertiesNames;
@@ -27,6 +29,23 @@ public class CustomItemClass extends Item implements ItemDurable {
         this.max_damage = parameters.get(PropertiesNames.MAX_DAMAGE);
         this.max_stack = parameters.get(PropertiesNames.MAX_STACK);
         this.use_no_target = Callback.count("ItemUseNoTarget") > 0;
+
+        CompoundTag tag = getOrCreateNamedTag();
+
+        CompoundTag components = tag.getCompound("components");
+        if(components == null){
+            components = new CompoundTag();
+            tag.put("components", components);
+        }
+
+        CompoundTag item_properties = components.getCompound("item_properties");
+        if(item_properties == null){
+            item_properties = new CompoundTag();
+            tag.put("item_properties", components);
+        }
+
+        item_properties.putInt("creative_category", parameters.get(PropertiesNames.CREATIVE_CATEGORY, ItemCreativeCategory.EQUIPMENT.ordinal()));
+        setCompoundTag(tag);
     }
 
     @Override

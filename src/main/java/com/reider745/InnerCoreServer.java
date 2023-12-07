@@ -302,7 +302,6 @@ public class InnerCoreServer {
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
         CommandsHelper.init();
-        CustomItem.initCreativeItems();
 
         NativeCallback.onLevelCreated();
     }
