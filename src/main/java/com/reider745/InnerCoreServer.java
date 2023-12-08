@@ -30,6 +30,7 @@ import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
 import com.zhekasmirnov.innercore.api.runtime.Updatable;
 import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
+import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
@@ -87,8 +88,11 @@ public class InnerCoreServer {
 
     private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {
         final BufferedInputStream bis = new BufferedInputStream(file.getInputStream(entry));
-        final BufferedOutputStream bos = new BufferedOutputStream(
-                new FileOutputStream(uncompressedDirectory + entry.getName()));
+
+        final File out = new File(uncompressedDirectory + entry.getName());
+        out.getParentFile().mkdirs();
+
+        final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(out));
         bos.write(bis.readAllBytes());
 
         bos.close();
@@ -109,7 +113,6 @@ public class InnerCoreServer {
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-
                 if (entry.isDirectory()) {
                     processDirectory(uncompressedDirectory, entry);
                 } else {

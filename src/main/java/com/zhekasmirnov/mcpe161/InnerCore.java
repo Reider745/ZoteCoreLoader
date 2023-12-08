@@ -1,73 +1,55 @@
 package com.zhekasmirnov.mcpe161;
 
-/*import com.zhekasmirnov.apparatus.adapter.env.EnvironmentSetupProxy;
+import android.app.Activity;
+import com.zhekasmirnov.apparatus.adapter.env.EnvironmentSetupProxy;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.modloader.ApparatusMod;
-import com.zhekasmirnov.apparatus.util.HorizonPackUtils;
-import com.zhekasmirnov.horizon.launcher.pack.Pack;
 import com.zhekasmirnov.horizon.modloader.java.JavaDirectory;
 import com.zhekasmirnov.horizon.modloader.library.LibraryDirectory;
-import com.zhekasmirnov.horizon.modloader.resource.ResourceManager;
-import com.zhekasmirnov.horizon.modloader.resource.directory.ResourceDirectory;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.horizon.util.FileUtils;
-import com.zhekasmirnov.horizon.util.JsonIterator;
-import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.log.ModLoaderEventHandler;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ui.TextureSource;
 import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
-import com.zhekasmirnov.innercore.modpack.DirectorySetRequestHandler;
-import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
-import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.ColorsPatch;
-import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.innercore.utils.ReflectionPatch;
-import com.zhekasmirnov.innercore.utils.UIUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;*/
+import java.util.List;
 
 public class InnerCore {
-    /*public static final String LOGGER_TAG = "INNERCORE-LAUNHER";
+    public static final String LOGGER_TAG = "INNERCORE-LAUNHER";
     public static final boolean isLicenceVersion = true;
 
-    private static InnerCore instance;
+    private static InnerCore instance = new InnerCore(null, null);
 
-    private final Pack pack;
+   // private final Pack pack;
 
-    private WeakReference<Activity> currentActivity;
+   // private WeakReference<Activity> currentActivity;
 
     public static InnerCore getInstance() {
         return instance;
     }
 
-    public Pack getPack() {
+   /* public Pack getPack() {
         return pack;
-    }
+    }*/
 
     public static List<File> getJavaDirectoriesFromProxy() {
         return javaDirectoriesFromProxy;
     }
 
-    public InnerCore(Activity context, Pack pack) {
-        FileTools.initializeDirectories(pack.directory);
+    public InnerCore(Activity context, Object pack) {
 
         instance = this;
-        this.pack = pack;
-        currentActivity = new WeakReference<>(context);
+        //this.pack = pack;
+        //currentActivity = new WeakReference<>(context);
         
-        Logger.info("initializing innercore");
+        //Logger.info("initializing innercore");
     }
 
     public static boolean checkLicence(Activity activity){
@@ -82,16 +64,17 @@ public class InnerCore {
         initiateLoading();
     }
 
-    public void setMinecraftActivity(Activity activity) {
+   /* public void setMinecraftActivity(Activity activity) {
         currentActivity = new WeakReference<>(activity);
     }
 
     public Activity getCurrentActivity(){
         return currentActivity.get();
-    }
+    }*/
 
     private static boolean isMCPEInstalled(Activity activity) {
-        try {
+        return true;
+        /*try {
             activity.getPackageManager().getPackageInfo("com.mojang.minecraftpe", 0);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
@@ -99,7 +82,7 @@ public class InnerCore {
         } catch (NullPointerException e) {
             // check fails are rare, so just let in
             return true;
-        }
+        }*/
     }
 
     private void initiateLoading() {
@@ -117,7 +100,7 @@ public class InnerCore {
     public List<File> allResourceDirectories = new ArrayList<>();
 
     private void addAllResourcePacks() {
-        File defaultResourcePacksDir = new File(pack.getWorkingDirectory(), "resourcepacks");
+        /*File defaultResourcePacksDir = new File(pack.getWorkingDirectory(), "resourcepacks");
         if (!defaultResourcePacksDir.isDirectory()) {
             defaultResourcePacksDir.delete();
         }
@@ -165,30 +148,20 @@ public class InnerCore {
             if (resourceDir.isDirectory()) {
                 allResourceDirectories.add(resourceDir);
             }
-        }
+        }*/
     }
 
     private void addAllModResources() {
-        File defaultTextures = new File(pack.getWorkingDirectory(), "assets/textures/");
+        /*File defaultTextures = new File(pack.getWorkingDirectory(), "assets/textures/");
         allResourceDirectories.add(defaultTextures);
 
-        allResourceDirectories.addAll(resourceDirectoriesFromProxy);
-        *//*
-        for(Mod mod: ModLoader.instance.modsList){
-            for(ResourceDir resourceDir: mod.buildConfig.resourceDirs){
-                File file = new File(mod.dir + resourceDir.path);
-                if(file.exists() && file.isDirectory()){
-                    allResourceDirectories.add(file);
-                }
-            }
-        } *//*
+        allResourceDirectories.addAll(resourceDirectoriesFromProxy);*/
     }
 
     private void preloadInnerCore() {
         // select default modpack if none selected
         ModPackContext.getInstance().assurePackSelected();
 
-        ICLog.setupEventHandlerForCurrentThread(new ModLoaderEventHandler());
 
         LoadingUI.setTextAndProgressBar("Initializing Resources...", 0f);
         try {
@@ -197,8 +170,6 @@ public class InnerCore {
         }
         LoadingStage.setStage(LoadingStage.STAGE_RESOURCES_LOADING);
 
-        // init
-        UIUtils.initialize(currentActivity.get());
 
         // load
         ResourcePackManager.instance.initializeResources();
@@ -215,50 +186,25 @@ public class InnerCore {
     }
 
 
-	public void addResourceDirectories(ArrayList<ResourceDirectory> list) {
-        ResourceManager manager = getResourceManager();
-        Logger.debug("addResourceDirectories", list.size() + " " + list.toString());
-        for (File dir : allResourceDirectories) {
-            list.add(new ResourceDirectory(manager, dir));
-        }
-        File additionalResDir = new File(FileTools.DIR_PACK, "assets/innercore/default_additional_resources");
-        if (additionalResDir.isDirectory()) {
-            list.add(new ResourceDirectory(manager, additionalResDir));
-        }
-    }
-    
-    public void addNativeDirectories(ArrayList<LibraryDirectory> list) {
+    /*public void addNativeDirectories(ArrayList<LibraryDirectory> list) {
         for (File directory : nativeDirectoriesFromProxy) {
             list.add(new LibraryDirectory(directory));
         }
-        *//* for(Mod mod: ModLoader.instance.modsList){
-            for(String nativeDir: mod.buildConfig.nativeDirectories){
-                File file = new File(mod.dir + nativeDir);
-                list.add(new LibraryDirectory(file));
-            }
-        } *//*
-    }
+    }*/
 
     public void addJavaDirectories(ArrayList<JavaDirectory> list){
         for (File directory : javaDirectoriesFromProxy) {
             list.add(new JavaDirectory(null, directory));
         }
-        *//* for(Mod mod: ModLoader.instance.modsList){
-            for(String javaDir: mod.buildConfig.javaDirectories){
-                File file = new File(mod.dir + javaDir);
-                list.add(new JavaDirectory(null, file));
-            }
-        } *//*
     }
     
     public void onFinalLoadComplete(){
         LoadingStage.setStage(LoadingStage.STAGE_COMPLETE);
         LoadingUI.close();
-        ICLog.showIfErrorsAreFound();
         LoadingStage.outputTimeMap();
     }
 
-    public String getWorkingDirectory(){
+    /*public String getWorkingDirectory(){
         return pack.getWorkingDirectory().getAbsolutePath();
     }
 
@@ -272,7 +218,7 @@ public class InnerCore {
 
     public TextureAtlas getItemTextureAtlas(){
         return EnvironmentSetup.getItemTextureAtlas();
-    }
+    }*/
 
 
     // environment proxy for new code
@@ -327,5 +273,5 @@ public class InnerCore {
 
     public static EnvironmentSetupProxy getEnvironmentSetupProxy() {
         return environmentSetupProxy;
-    }*/
+    }
 }

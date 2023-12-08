@@ -7,6 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileUtils {
+    public static void clearFileTree(File var0, boolean var1) {
+        if (var0.exists()) {
+            if (var0.isDirectory()) {
+                File[] var4 = var0.listFiles();
+                int var3 = var4.length;
+
+                for(int var2 = 0; var2 < var3; ++var2) {
+                    clearFileTree(var4[var2], true);
+                }
+            }
+
+            if (var1) {
+                var0.delete();
+            }
+        }
+    }
+
     public static JSONObject readJSON(File file) {
         try {
             return new JSONObject(readFileText(file));

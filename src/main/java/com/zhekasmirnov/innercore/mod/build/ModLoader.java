@@ -445,7 +445,7 @@ public class ModLoader {
                 }
             }
         });
-        ApparatusModLoader.getSingleton().reloadModsAndSetupEnvironment(modSources,null, defaultLogReporter);
+        ApparatusModLoader.getSingleton().reloadModsAndSetupEnvironment(modSources,InnerCore.getEnvironmentSetupProxy(), defaultLogReporter);
     }
 
     public static void prepareResourcesViaNewModLoader() {
