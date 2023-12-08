@@ -95,30 +95,30 @@ public class NativeTileEntity {
     static {
         nukkitToEnumMappings = new HashMap<>(); // Keep in Nukkit order please
         nukkitToEnumMappings.put(BlockEntity.CHEST, "chest");
-        // nukkitToEnumMappings.put(BlockEntity.ENDER_CHEST, "ender_chest");
-        // nukkitToEnumMappings.put(BlockEntity.FURNACE, "furnace");
+        nukkitToEnumMappings.put(BlockEntity.ENDER_CHEST, "ender_chest");
+        nukkitToEnumMappings.put(BlockEntity.FURNACE, "furnace");
         nukkitToEnumMappings.put(BlockEntity.SIGN, "sign");
         nukkitToEnumMappings.put(BlockEntity.MOB_SPAWNER, "mob_spawner");
-        nukkitToEnumMappings.put(BlockEntity.ENCHANT_TABLE, "enchanting_table");
+        nukkitToEnumMappings.put(BlockEntity.ENCHANT_TABLE, "enchant_table");
         nukkitToEnumMappings.put(BlockEntity.SKULL, "skull");
         nukkitToEnumMappings.put(BlockEntity.FLOWER_POT, "flower_pot");
         nukkitToEnumMappings.put(BlockEntity.BREWING_STAND, "brewing_stand");
         nukkitToEnumMappings.put(BlockEntity.DAYLIGHT_DETECTOR, "daylight_detector");
-        nukkitToEnumMappings.put(BlockEntity.MUSIC, "music_block");
+        nukkitToEnumMappings.put(BlockEntity.MUSIC, "music");
         nukkitToEnumMappings.put(BlockEntity.ITEM_FRAME, "item_frame");
         nukkitToEnumMappings.put(BlockEntity.CAULDRON, "cauldron");
         nukkitToEnumMappings.put(BlockEntity.BEACON, "beacon");
-        nukkitToEnumMappings.put(BlockEntity.PISTON_ARM, "piston");
-        // nukkitToEnumMappings.put(BlockEntity.MOVING_BLOCK, "moving_block");
+        nukkitToEnumMappings.put(BlockEntity.PISTON_ARM, "piston_arm");
+        nukkitToEnumMappings.put(BlockEntity.MOVING_BLOCK, "moving_block");
         nukkitToEnumMappings.put(BlockEntity.COMPARATOR, "comparator");
         nukkitToEnumMappings.put(BlockEntity.HOPPER, "hopper");
         nukkitToEnumMappings.put(BlockEntity.BED, "bed");
         nukkitToEnumMappings.put(BlockEntity.JUKEBOX, "jukebox");
-        nukkitToEnumMappings.put(BlockEntity.SHULKER_BOX, "chest"); // TODO: shulker_box
-        // nukkitToEnumMappings.put(BlockEntity.BANNER, "banner");
+        nukkitToEnumMappings.put(BlockEntity.SHULKER_BOX, "shulker_box");
+        nukkitToEnumMappings.put(BlockEntity.BANNER, "banner");
         nukkitToEnumMappings.put(BlockEntity.LECTERN, "lectern");
-        // nukkitToEnumMappings.put(BlockEntity.DROPPER, "dropper");
-        // nukkitToEnumMappings.put(BlockEntity.DISPENSER, "dispenser");
+        nukkitToEnumMappings.put(BlockEntity.DROPPER, "dropper");
+        nukkitToEnumMappings.put(BlockEntity.DISPENSER, "dispenser");
         nukkitToEnumMappings.put(BlockEntity.BARREL, "barrel");
         nukkitToEnumMappings.put(BlockEntity.CAMPFIRE, "campfire");
         nukkitToEnumMappings.put(BlockEntity.BELL, "bell");
