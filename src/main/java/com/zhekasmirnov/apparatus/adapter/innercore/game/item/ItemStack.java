@@ -1,6 +1,8 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.item;
 
 import cn.nukkit.item.Item;
+
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.json.JSONException;
@@ -44,9 +46,14 @@ public class ItemStack {
         );
     }
 
-    public static ItemStack fromPtr(Item ptr) {
-        if (ptr != null) {
-            return new ItemStack(new NativeItemInstance(ptr));
+    public static ItemStack fromPtr(long ptr) {
+        InnerCoreServer.useNotCurrentSupport("ItemStack.fromPtr(ptr)");
+        return new ItemStack();
+    }
+
+    public static ItemStack fromPtr(Item item) {
+        if (item != null) {
+            return new ItemStack(new NativeItemInstance(item));
         } else {
             return new ItemStack();
         }

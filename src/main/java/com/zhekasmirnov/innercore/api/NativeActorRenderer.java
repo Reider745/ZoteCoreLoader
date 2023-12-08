@@ -3,6 +3,8 @@ package com.zhekasmirnov.innercore.api;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.reider745.InnerCoreServer;
+
 public class NativeActorRenderer {
     private static final Map<String, Integer> templateNameToId = new HashMap<>();
 
@@ -73,7 +75,8 @@ public class NativeActorRenderer {
         }
         ModelPart parent = getPart(parentName);
         if (parent == null) {
-            throw new IllegalArgumentException("cannot add part " + name + ", parent part " + parentName + " does not exist");
+            throw new IllegalArgumentException(
+                    "cannot add part " + name + ", parent part " + parentName + " does not exist");
         }
         synchronized (parts) {
             long partPointer = nativeAddPart(pointer, parent.pointer, name);
@@ -155,7 +158,8 @@ public class NativeActorRenderer {
             return this;
         }
 
-        public ModelPart addBox(float x, float y, float z, float xs, float ys, float zs, float inflate, float u, float v) {
+        public ModelPart addBox(float x, float y, float z, float xs, float ys, float zs, float inflate, float u,
+                float v) {
             nativePartAddBox(pointer, x, y, z, xs, ys, zs, inflate, u, v);
             return this;
         }
@@ -171,61 +175,83 @@ public class NativeActorRenderer {
         }
     }
 
-
-    private static long nativeConstruct(){
-        return 0;
-    }
-    private static long nativeGetUniformSet(long pointer){
-        return 0;
-    }
-    private static long nativeConstructFromTemplate(int template){
-        return 0;
-    }
-    private static void nativeSetRendererTexture(long pointer, String name){
-
-    }
-    private static void nativeSetRendererMaterial(long pointer, String name){
-
-    }
-
-    private static long nativeGetPart(long pointer, String name){
-        return 0;
-    }
-    private static long nativeAddRootPart(long pointer, String name){
-        return 0;
-    }
-    private static long nativeAddPart(long pointer, long parent, String name){
+    private static long nativeConstruct() {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeConstruct()");
         return 0;
     }
 
-    private static void nativePartClear(long part){
-
+    private static long nativeGetUniformSet(long pointer) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeGetUniformSet(pointer)");
+        return 0;
     }
-    private static void nativePartAddBox(long part, float x, float y, float z, float xs, float ys, float zs, float inflate, float u, float v){
 
+    private static long nativeConstructFromTemplate(int template) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeConstructFromTemplate(template)");
+        return 0;
     }
-    private static void nativePartSetMesh(long part, long mesh){
 
+    private static void nativeSetRendererTexture(long pointer, String name) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeSetRendererTexture(pointer, name)");
     }
-    private static void nativePartSetTexture(long part, String name){
 
+    private static void nativeSetRendererMaterial(long pointer, String name) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeSetRendererMaterial(pointer, name)");
     }
-    private static void nativePartSetMaterial(long part, String name){
 
+    private static long nativeGetPart(long pointer, String name) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeGetPart(pointer, name)");
+        return 0;
     }
-    private static void nativePartSetTextureSize(long part, float width, float height){
 
+    private static long nativeAddRootPart(long pointer, String name) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeAddRootPart(pointer, name)");
+        return 0;
     }
-    private static void nativePartSetOffset(long part, float x, float y, float z){
 
+    private static long nativeAddPart(long pointer, long parent, String name) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativeAddPart(pointer, parent, name)");
+        return 0;
     }
-    private static void nativePartSetRotation(long part, float x, float y, float z){
 
+    private static void nativePartClear(long part) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartClear(part)");
     }
-    private static void nativePartSetPivot(long part, float x, float y, float z){
 
+    private static void nativePartAddBox(long part, float x, float y, float z, float xs, float ys, float zs,
+            float inflate, float u, float v) {
+        InnerCoreServer
+                .useNotCurrentSupport("NativeActorRenderer.nativePartAddBox(part, x, y, z, xs, ys, zs, inflate, u, v)");
     }
-    private static void nativePartSetMirrored(long part, boolean mirrored){
 
+    private static void nativePartSetMesh(long part, long mesh) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetMesh(part, mesh)");
+    }
+
+    private static void nativePartSetTexture(long part, String name) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetTexture(part, name)");
+    }
+
+    private static void nativePartSetMaterial(long part, String name) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetMaterial(part, name)");
+    }
+
+    private static void nativePartSetTextureSize(long part, float width, float height) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetTextureSize(part, width, height)");
+    }
+
+    private static void nativePartSetOffset(long part, float x, float y, float z) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetOffset(part, x, y, z)");
+    }
+
+    private static void nativePartSetRotation(long part, float x, float y, float z) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetRotation(part, x, y, z)");
+    }
+
+    private static void nativePartSetPivot(long part, float x, float y, float z) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetPivot(part, x, y, z)");
+    }
+
+    private static void nativePartSetMirrored(long part, boolean mirrored) {
+        InnerCoreServer.useNotCurrentSupport("NativeActorRenderer.nativePartSetMirrored(part, mirrored)");
     }
 }

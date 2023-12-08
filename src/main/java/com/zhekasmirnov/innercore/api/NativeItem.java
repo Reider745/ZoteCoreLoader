@@ -10,7 +10,6 @@ import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
 import com.zhekasmirnov.apparatus.ecs.types.ECSTags;
 import com.zhekasmirnov.apparatus.ecs.types.item.ArmorItemComponent;
 import com.zhekasmirnov.apparatus.ecs.types.item.ItemComponent;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
@@ -30,7 +29,7 @@ public class NativeItem {
     private static NativeItem[] itemById = new NativeItem[MAX_ITEM_ID];
 
     public int id;
-    private CustomManager pointer;
+    private CustomManager itemManager;
     public final String nameId;
     public final String nameToDisplay;
 
@@ -39,73 +38,78 @@ public class NativeItem {
     private static final ComponentCollection initCC = new ComponentCollection()
             .setTypes(ItemComponent.COMPONENT_ID, ECSTags.CONTENT_ID);
 
-    protected NativeItem(int id, CustomManager ptr, String nameId, String nameToDisplay) {
+    @Deprecated
+    protected NativeItem(int id, long ptr, String nameId, String nameToDisplay) {
+        throw new UnsupportedOperationException("NativeItem(id, ptr, nameIdm nameToDisplay)");
+    }
+
+    protected NativeItem(int id, CustomManager itemManager, String nameId, String nameToDisplay) {
         this.id = id;
-        this.pointer = ptr;
+        this.itemManager = itemManager;
         this.nameId = nameId;
         this.nameToDisplay = nameToDisplay;
         itemById[id] = this;
         NameTranslation.sendNameToGenerateCache(id, 0, nameToDisplay);
 
         EntityManager em = ECS.getEntityManager();
-        entity = em.createEntity();
+        this.entity = em.createEntity();
         em.extend(entity, initCC.setValues(new ItemComponent(id, nameId, nameToDisplay)));
     }
 
-    public static NativeItem newNativeItem(int id, CustomManager ptr, String nameId, String name){
+    public static NativeItem newNativeItem(int id, CustomManager ptr, String nameId, String name) {
         return new NativeItem(id, ptr, nameId, name);
     }
 
     public void setGlint(boolean val) {
-        setGlint(pointer, val);
+        InnerCoreServer.useNotCurrentSupport("NativeItem.setGlint(val)");
     }
 
     public void setHandEquipped(boolean val) {
-        setHandEquipped(pointer, val);
+        ItemMethod.setHandEquipped(itemManager, val);
     }
 
     public void setLiquidClip(boolean val) {
-        setLiquidClip(pointer, val);
+        ItemMethod.setLiquidClip(itemManager, val);
     }
 
     public void setUseAnimation(int val) {
-        setUseAnimation(pointer, val);
+        InnerCoreServer.useNotCurrentSupport("NativeItem.setUseAnimation(val)");
     }
 
-    public void setMaxUseDuration(int val){
-        //setMaxUseDuration(pointer, val);
+    public void setMaxUseDuration(int val) {
+        ItemMethod.setMaxUseDuration(itemManager, val);
     }
 
     public void setMaxDamage(int val) {
-        setMaxDamage(pointer, val);
+        ItemMethod.setMaxDamage(itemManager, val);
     }
 
     public void setMaxStackSize(int val) {
-        setMaxStackSize(pointer, val);
+        ItemMethod.setMaxStackSize(itemManager, val);
     }
 
     public void setStackedByData(boolean val) {
-        setStackedByData(pointer, val);
+        ItemMethod.setStackedByData(itemManager, val);
     }
 
     public void setAllowedInOffhand(boolean val) {
-        setAllowedInOffhand(pointer, val);
+        ItemMethod.setAllowedInOffhand(itemManager, val);
     }
 
-    public void setCreativeCategory(int val){
-        setCreativeCategory(pointer, val);
+    public void setCreativeCategory(int val) {
+        ItemMethod.setCreativeCategory(itemManager, val);
     }
 
-    public void setProperties(String val){
-        setProperties(pointer, val);
+    public void setProperties(String val) {
+        InnerCoreServer.useNotCurrentSupport("NativeItem.setProperties(val)");
     }
 
     public void setEnchantType(int type, int value) {
-        setEnchantability(pointer, type, value);
+        ItemMethod.setEnchantability(itemManager, type, value);
     }
 
     public void setEnchantability(int type, int value) {
-        setEnchantability(pointer, type, value);
+        ItemMethod.setEnchantability(itemManager, type, value);
     }
 
     public void setEnchantType(int type) {
@@ -113,31 +117,18 @@ public class NativeItem {
     }
 
     public void addRepairItem(int id) {
-        addRepairItemId(pointer, id);
+        ItemMethod.addRepairItemId(itemManager, id);
     }
 
-    public void addRepairItems(int ... ids) {
+    public void addRepairItems(int... ids) {
         for (int id : ids) {
-            addRepairItemId(pointer, id);
+            ItemMethod.addRepairItemId(itemManager, id);
         }
     }
 
     public void setArmorDamageable(boolean value) {
-        setArmorDamageable(pointer, value);
+        ItemMethod.setArmorDamageable(itemManager, value);
     }
-
-
-
-    private static void registerIcon(int id, String iconName, int iconIndex) {
-        String name = ResourcePackManager.getItemTextureName(iconName, iconIndex);
-        if (name != null) {
-            NativeAPI.addTextureToLoad(name);
-            NativeItemModel.getFor(id, 0).setItemTexturePath(name);
-        }
-        // ItemIconSource.instance.registerIcon(id, name);
-    }
-
-
 
     @JSStaticFunction
     public static NativeItem getItemById(int id) {
@@ -150,36 +141,31 @@ public class NativeItem {
     @JSStaticFunction
     public static NativeItem createItem(int id, String nameId, String name, String iconName, int iconIndex) {
         nameId = NativeAPI.convertNameId(nameId); // any name id must be lowercase
-
-        /*if (!ResourcePackManager.isValidItemTexture(iconName, iconIndex)) {
-            Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
-            iconName = "missing_icon";
-            iconIndex = 0;
-        }
-        registerIcon(id, iconName, iconIndex);*/
-        return new NativeItem(id, constructItem(id, nameId, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), iconName, iconIndex), nameId, name);
+        return new NativeItem(id,
+                CustomItem.registerItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name)),
+                nameId, name);
     }
 
-    public static NativeItem createFoodItem(int id, String nameId, String name, int food){
+    public static NativeItem createFoodItem(int id, String nameId, String name, String iconName, int iconIndex,
+            int food) {
         nameId = NativeAPI.convertNameId(nameId);
-        return new NativeItem(id, CustomItem.registerItemFood(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), food), nameId, name);
+        return new NativeItem(id, CustomItem.registerItemFood(nameId, id,
+                NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), food), nameId, name);
     }
 
-    private static final ComponentCollection armorCC = new ComponentCollection().setTypes(ArmorItemComponent.COMPONENT_ID);
+    private static final ComponentCollection armorCC = new ComponentCollection()
+            .setTypes(ArmorItemComponent.COMPONENT_ID);
 
     @JSStaticFunction
-    public static NativeItem createArmorItem(int id, String nameId, String name, String iconName, int iconIndex, String texture, int slot, int defense, int durability, double knockbackResist) {
+    public static NativeItem createArmorItem(int id, String nameId, String name, String iconName, int iconIndex,
+            String texture, int slot, int defense, int durability, double knockbackResist) {
         nameId = NativeAPI.convertNameId(nameId); // any name id must be lowercase
-        
-        if (!ResourcePackManager.isValidItemTexture(iconName, iconIndex)) {
-            //Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
-            iconName = "missing_icon";
-            iconIndex = 0;
-        }
         ArmorItemComponent component = new ArmorItemComponent(slot, defense, (float) knockbackResist);
-        registerIcon(id, iconName, iconIndex);
-        NativeItem item = new NativeItem(id, constructArmorItem(id, nameId, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), iconName, iconIndex, texture, slot, defense, durability, (float) knockbackResist), nameId, name);
-        //ArmorRegistry.registerArmor(id, component);
+        NativeItem item = new NativeItem(id,
+                CustomItem.registerArmorItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name),
+                        slot, defense, durability, (float) knockbackResist),
+                nameId, name);
+        ArmorRegistry.registerArmor(id, component);
         ECS.getEntityManager().extend(item.entity, armorCC.setValues(component));
         return item;
     }
@@ -189,14 +175,8 @@ public class NativeItem {
     @JSStaticFunction
     public static NativeItem createThrowableItem(int id, String nameId, String name, String iconName, int iconIndex) {
         nameId = NativeAPI.convertNameId(nameId); // any name id must be lowercase
-        
-        if (!ResourcePackManager.isValidItemTexture(iconName, iconIndex)) {
-           // Logger.debug("WARNING", "invalid item icon: " + iconName + " " + iconIndex);
-            iconName = "missing_icon";
-            iconIndex = 0;
-        }
-        registerIcon(id, iconName, iconIndex);
-        NativeItem item = new NativeItem(id, constructThrowableItem(id, nameId, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name), iconName, iconIndex), nameId, name);
+        NativeItem item = new NativeItem(id, CustomItem.registerThrowableItem(nameId, id,
+                NameTranslation.fixUnicodeIfRequired("item_" + nameId, name)), nameId, name);
         ECS.getEntityManager().extend(item.entity, throwableCC);
         return item;
     }
@@ -206,116 +186,116 @@ public class NativeItem {
         return NativeAPI.isGlintItemInstance(id, data, NativeItemInstanceExtra.unwrapValue(extra));
     }
 
-
-
     /*
      * native part
      */
 
-    public static CustomManager constructItem(int id, String nameId, String name, String iconName, int iconIndex){
-        return CustomItem.registerItem(nameId, id, name);
+    public static long constructItem(int id, String nameId, String name, String iconName, int iconIndex) {
+        InnerCoreServer.useNotSupport("NativeItem.constructItem(id, nameId, name, iconName, iconIndex)");
+        return 0;
     }
 
-    public static CustomManager constructArmorItem(int id, String nameId, String name, String iconName, int iconIndex, String texture, int slot, int defense, int durability, float knockbackResist){
-        return CustomItem.registerArmorItem(nameId, id, name, slot, defense, durability, knockbackResist);
+    public static long constructArmorItem(int id, String nameId, String name, String iconName, int iconIndex,
+            String texture, int slot, int defense, int durability, float knockbackResist) {
+        InnerCoreServer.useNotSupport(
+                "NativeItem.constructArmorItem(id, nameId, name, iconName, iconIndex, texture, slot, defense, durability, knockbackResist)");
+        return 0;
     }
 
-    public static CustomManager constructThrowableItem(int id, String nameId, String name, String iconName, int iconIndex){
-        return CustomItem.registerThrowableItem(nameId, id, name);
+    public static long constructThrowableItem(int id, String nameId, String name, String iconName, int iconIndex) {
+        InnerCoreServer.useNotSupport("NativeItem.constructThrowableItem(id, nameId, name, iconName, iconIndex)");
+        return 0;
     }
 
-
-
-    public static void setGlint(CustomManager ptr, boolean val){
-
+    public static void setGlint(long ptr, boolean val) {
+        InnerCoreServer.useNotSupport("NativeItem.setGlint(ptr, val)");
     }
 
-    public static void setHandEquipped(CustomManager ptr, boolean val){
-        ItemMethod.setHandEquipped(ptr, val);
+    public static void setHandEquipped(long ptr, boolean val) {
+        InnerCoreServer.useNotSupport("NativeItem.setHandEquipped(ptr, val)");
     }
 
-    public static void setLiquidClip(CustomManager ptr, boolean val){
-        ItemMethod.setLiquidClip(ptr, val);
+    public static void setLiquidClip(long ptr, boolean val) {
+        InnerCoreServer.useNotSupport("NativeItem.setLiquidClip(ptr, val)");
     }
 
-    public static void setUseAnimation(CustomManager ptr, int val){}
-
-    public static void setMaxUseDuration(CustomManager ptr, int val){
-        ItemMethod.setMaxUseDuration(ptr, val);
+    public static void setUseAnimation(long ptr, int val) {
+        InnerCoreServer.useNotSupport("NativeItem.setUseAnimation(ptr, val)");
     }
 
-    public static void setMaxDamage(CustomManager ptr, int val){
-        ItemMethod.setMaxDamage(ptr, val);
+    public static void setMaxUseDuration(long ptr, int val) {
+        InnerCoreServer.useNotSupport("NativeItem.setMaxUseDuration(ptr, val)");
     }
 
-    public static void setMaxStackSize(CustomManager ptr, int val){
-        ItemMethod.setMaxStackSize(ptr, val);
-    }
-    
-    public static void setStackedByData(CustomManager ptr, boolean val){
-        ItemMethod.setStackedByData(ptr, val);
-    }
-    
-    public static void setAllowedInOffhand(CustomManager ptr, boolean val){
-        ItemMethod.setAllowedInOffhand(ptr, val);
+    public static void setMaxDamage(long ptr, int val) {
+        InnerCoreServer.useNotSupport("NativeItem.setMaxDamage(ptr, val)");
     }
 
-    public static void setCreativeCategory(CustomManager ptr, int val){
-        ItemMethod.setCreativeCategory(ptr, val);
+    public static void setMaxStackSize(long ptr, int val) {
+        InnerCoreServer.useNotSupport("NativeItem.setMaxStackSize(ptr, val)");
     }
 
-    public static void setProperties(CustomManager ptr, String val){
-        //InnerCoreServer.useNotSupport("setProperties");
+    public static void setStackedByData(long ptr, boolean val) {
+        InnerCoreServer.useNotSupport("NativeItem.setStackedByData(ptr, val)");
     }
 
-    public static void setEnchantability(CustomManager ptr, int type, int value){
-        ItemMethod.setEnchantability(ptr, type, value);
+    public static void setAllowedInOffhand(long ptr, boolean val) {
+        InnerCoreServer.useNotSupport("NativeItem.setAllowedInOffhand(ptr, val)");
     }
 
-    public static void setArmorDamageable(CustomManager ptr, boolean value){
-        ItemMethod.setArmorDamageable(ptr, value);
-    }
-    
-    public static void addRepairItemId(CustomManager ptr, int id){
-        ItemMethod.addRepairItemId(ptr, id);
+    public static void setCreativeCategory(long ptr, int val) {
+        InnerCoreServer.useNotSupport("NativeItem.setCreativeCategory(ptr, val)");
     }
 
+    public static void setProperties(long ptr, String val) {
+        InnerCoreServer.useNotSupport("NativeItem.setProperties(ptr, val)");
+    }
 
+    public static void setEnchantability(long ptr, int type, int value) {
+        InnerCoreServer.useNotSupport("NativeItem.setEnchantability(ptr, type, value)");
+    }
 
-    public static int getMaxStackForId(int id, int data){
+    public static void setArmorDamageable(long ptr, boolean value) {
+        InnerCoreServer.useNotSupport("NativeItem.setArmorDamageable(ptr, value)");
+    }
+
+    public static void addRepairItemId(long ptr, int id) {
+        InnerCoreServer.useNotSupport("NativeItem.addRepairItemId(ptr, id)");
+    }
+
+    public static int getMaxStackForId(int id, int data) {
         return ItemMethod.getMaxStackForId(id, data);
     }
 
-    public static int getMaxDamageForId(int id, int data){
+    public static int getMaxDamageForId(int id, int data) {
         return ItemMethod.getMaxDamageForId(id, data);
     }
 
-    public static String getNameForId(int id, int data, long extra){
+    public static String getNameForId(int id, int data, long extra) {
         return ItemMethod.getNameForId(id, data, extra);
     }
 
-    public static void setCreativeCategoryForId(int id, int category){
+    public static void setCreativeCategoryForId(int id, int category) {
+        InnerCoreServer.useNotCurrentSupport("NativeItem.setCreativeCategoryForId(id, category)");
     }
-    
+
     public static String getNameForId(int id, int data) {
         return getNameForId(id, data, 0);
     }
-
 
     @JSStaticFunction
     public static boolean isValid(int id) {
         return NativeAPI.getStringIdAndTypeForIntegerId(id) != null;
     }
 
-
-    public static void addToCreativeInternal(int id, int count, int data, long extra){
+    public static void addToCreativeInternal(int id, int count, int data, long extra) {
         CustomItem.addCreative(id, count, data, extra);
 
-        //Item.addCreativeItem(Item.get(id, data, count));
+        // TODO: Item.addCreativeItem(Item.get(id, data, count));
     }
 
     @JSStaticFunction
-    public static void addToCreativeGroup(String groupName, String displayName, int id){
+    public static void addToCreativeGroup(String groupName, String displayName, int id) {
         CustomItem.addToCreativeGroup(groupName, id);
     }
 
@@ -335,18 +315,16 @@ public class NativeItem {
             addToCreativeGroup(groupName, displayName, ((Number) ids.get(i)).intValue());
         }
     }
-    
-
 
     public static final Object DYNAMIC_ICON_LOCK = new Object();
     public static final Object DYNAMIC_NAME_LOCK = new Object();
 
     private static HashSet<Integer> itemIdsWithDynamicIcon = new HashSet<>();
+
     public static void setItemRequiresIconOverride(int id, boolean enabled) {
         if (enabled) {
             itemIdsWithDynamicIcon.add(id);
-        }
-        else {
+        } else {
             itemIdsWithDynamicIcon.remove(id);
         }
         NativeAPI.setItemRequiresIconOverride(id, enabled);
@@ -356,12 +334,11 @@ public class NativeItem {
         return itemIdsWithDynamicIcon.contains(id);
     }
 
-
     private static boolean isInnerCoreUIOverride = false;
     private static String lastIconOverridePath = null;
 
     public static void overrideItemIcon(String name, int index) {
-        synchronized(DYNAMIC_ICON_LOCK) {
+        synchronized (DYNAMIC_ICON_LOCK) {
             if (!isInnerCoreUIOverride) {
                 NativeAPI.overrideItemIcon(name, index);
             }
@@ -376,17 +353,17 @@ public class NativeItem {
         return lastIconOverridePath;
     }
 
-    public static synchronized String getDynamicItemIconOverride(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static synchronized String getDynamicItemIconOverride(int id, int count, int data,
+            NativeItemInstanceExtra extra) {
         if (isDynamicIconItem(id)) {
-            synchronized(DYNAMIC_ICON_LOCK) {
+            synchronized (DYNAMIC_ICON_LOCK) {
                 isInnerCoreUIOverride = true;
                 lastIconOverridePath = null;
                 Callback.invokeAPICallback("ItemIconOverride", new ItemInstance(id, count, data, extra), true);
                 isInnerCoreUIOverride = false;
                 return lastIconOverridePath;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }

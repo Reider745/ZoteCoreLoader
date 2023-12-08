@@ -2,6 +2,8 @@ package com.zhekasmirnov.innercore.api;
 
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
+import com.reider745.InnerCoreServer;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,61 +28,51 @@ public class NativeRenderer {
 
         public Renderer(long ptr) {
             this.pointer = ptr;
-            this.model = new Model(NativeRenderer.getModel(pointer), this);
-            this.id = getRendererId(pointer);
+            this.model = new Model(0, this);
+            this.id = 0;
         }
-
 
         public Transform transform = new Transform();
 
         public class Transform {
-            public Transform clear(){
-                NativeRenderer.transformClear(pointer);
+            public Transform clear() {
                 return this;
             }
 
-            public Transform lock(){
-                NativeRenderer.transformLock(pointer);
+            public Transform lock() {
                 return this;
             }
-            
-            public Transform unlock(){
-                NativeRenderer.transformUnlock(pointer);
+
+            public Transform unlock() {
                 return this;
             }
-    
-            public Transform matrix(float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15){
-                NativeRenderer.transformAddTransform(pointer, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15);
+
+            public Transform matrix(float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7,
+                    float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15) {
                 return this;
             }
-    
-            public Transform scale(float x, float y, float z){
-                NativeRenderer.transformScale(pointer, x, y, z);
+
+            public Transform scale(float x, float y, float z) {
                 return this;
             }
-    
-            public Transform rotate(double x, double y, double z){
-                NativeRenderer.transformRotate(pointer, (float) x, (float) y, (float) z);
+
+            public Transform rotate(double x, double y, double z) {
                 return this;
             }
-    
-            public Transform translate(double x, double y, double z){
-                NativeRenderer.transformTranslate(pointer, (float) x, (float) y, (float) z);
+
+            public Transform translate(double x, double y, double z) {
                 return this;
             }
         }
-        
 
         public float getScale() {
-            return NativeRenderer.getScale(pointer);
+            return 1.0f;
         }
 
         public void setScale(float scale) {
-            NativeRenderer.setScale(pointer, scale);
         }
 
         public void setSkin(String skin) {
-            NativeRenderer.setSkin(pointer, skin);
         }
 
         public Model getModel() {
@@ -95,7 +87,6 @@ public class NativeRenderer {
             return pointer;
         }
 
-        
         private boolean isReleased = false;
         private final ArrayList<FinalizeCallback> finalizeCallbacks = new ArrayList<>();
 
@@ -110,6 +101,7 @@ public class NativeRenderer {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         protected void finalize() throws Throwable {
             release();
             super.finalize();
@@ -131,7 +123,6 @@ public class NativeRenderer {
 
     }
 
-
     public static class SpriteRenderer extends Renderer {
         protected SpriteRenderer(long ptr) {
             super();
@@ -141,75 +132,47 @@ public class NativeRenderer {
     }
 
     public static class Model {
-        private long pointer;
-
-        private Renderer renderer;
-
         protected Model(long ptr, Renderer renderer) {
-            this.pointer = ptr;
-            this.renderer = renderer;
         }
 
         public boolean hasPart(String name) {
-            return NativeRenderer.hasModelPart(pointer, name);
+            return false;
         }
 
         public ModelPart getPart(String name) {
-            if (hasPart(name)) {
-                return new ModelPart(NativeRenderer.getModelPart(pointer, name), this);
-            }
-            else {
-                return null;
-            }
+            return new ModelPart(0, this);
         }
 
         public void reset() {
-            NativeRenderer.resetModel(pointer);
         }
 
         public void clearAllParts() {
-            NativeRenderer.clearAllModelParts(pointer);
         }
     }
 
     public static class ModelPart {
-        private long pointer;
-
-        private Model model;
-
         protected ModelPart(long ptr, Model model) {
-            this.pointer = ptr;
-            this.model = model;
         }
 
         public void clear() {
-            NativeRenderer.clearModelPart(pointer);
             setMesh(null);
         }
 
         public void addBox(float x, float y, float z, float w, float h, float l, float add) {
-            NativeRenderer.addBox(pointer, x, y, z, w, h, l, add);
         }
 
         public void addBox(float x, float y, float z, float w, float h, float l) {
-            NativeRenderer.addBox(pointer, x, y, z, w, h, l, 0);
         }
 
-         public void addColoredBox(float x, float y, float z, float w, float h, float l, float add, float r, float g, float b, float a){
-             NativeRenderer.addColoredBox(pointer, x, y, z, w, h, l, add, r, g, b, a);
-         }
+        // public void addColoredBox(float x, float y, float z, float w, float h, float
+        // l, float add, float r, float g, float b, float a) {
+        // }
 
         public ModelPart addPart(String name) {
-            if (model.hasPart(name)) {
-                ModelPart part = model.getPart(name);
-                part.clear();
-                return part;
-            }
-            return new ModelPart(NativeRenderer.addModelPart(model.pointer, pointer, name), model);    
+            return new ModelPart(0, null);
         }
 
         public void setTextureOffset(int x, int y) {
-            NativeRenderer.setTextureOffset(pointer, x, y);
         }
 
         public void setTextureOffset(int x, int y, boolean placeholder) {
@@ -217,7 +180,6 @@ public class NativeRenderer {
         }
 
         public void setTextureSize(int x, int y) {
-            NativeRenderer.setTextureSize(pointer, x, y);
         }
 
         public void setTextureSize(int x, int y, boolean placeholder) {
@@ -225,18 +187,15 @@ public class NativeRenderer {
         }
 
         public void setOffset(float x, float y, float z) {
-            NativeRenderer.setOffset(pointer, x, y, z);
         }
 
         public void setRotation(float x, float y, float z) {
-            NativeRenderer.setRotation(pointer, x, y, z);
         }
 
         private NativeRenderMesh mesh = null;
 
         public void setMesh(NativeRenderMesh mesh) {
             this.mesh = mesh;
-            NativeRenderer.setMesh(pointer, mesh != null ? mesh.getPtr() : 0);
         }
 
         public NativeRenderMesh getMesh() {
@@ -244,16 +203,12 @@ public class NativeRenderer {
         }
     }
 
-
     private static HashMap<Integer, Renderer> rendererById = new HashMap<Integer, Renderer>();
     private static HashMap<Integer, WeakReference<Renderer>> weakRendererById = new HashMap<>();
 
     @JSStaticFunction
     public static Renderer createHumanoidRenderer(double scale) {
-        if (scale == 0) {
-            scale = 1;
-        }
-        Renderer renderer = new Renderer(constructHumanoidRenderer((float) scale));
+        Renderer renderer = new Renderer(0);
         renderer.isHumanoid = true;
         rendererById.put(renderer.getRenderType(), renderer);
         return renderer;
@@ -261,10 +216,7 @@ public class NativeRenderer {
 
     @JSStaticFunction
     public static Renderer createRendererWithSkin(String skin, double scale) {
-        if (scale == 0) {
-            scale = 1;
-        }
-        Renderer renderer = new Renderer(constructHumanoidRendererWithSkin(skin, (float) scale));
+        Renderer renderer = new Renderer(0);
         renderer.isHumanoid = true;
         rendererById.put(renderer.getRenderType(), renderer);
         return renderer;
@@ -272,7 +224,7 @@ public class NativeRenderer {
 
     @JSStaticFunction
     public static Renderer createItemSpriteRenderer(int id) {
-        Renderer renderer = new SpriteRenderer(constructSpriteRenderer(id));
+        Renderer renderer = new SpriteRenderer(0);
         renderer.isHumanoid = false;
         rendererById.put(renderer.getRenderType(), renderer);
         return renderer;
@@ -280,18 +232,17 @@ public class NativeRenderer {
 
     @JSStaticFunction
     public static Renderer getRendererById(int id) {
-        return rendererById.containsKey(id) ? rendererById.get(id) : (weakRendererById.containsKey(id) ? weakRendererById.get(id).get() : null);
+        return rendererById.containsKey(id) ? rendererById.get(id)
+                : (weakRendererById.containsKey(id) ? weakRendererById.get(id).get() : null);
     }
 
     public interface FinalizeCallback {
         void onFinalized(NativeRenderer.Renderer renderer);
     }
 
-
     public static class RenderPool {
         private final ArrayList<Renderer> pool = new ArrayList<>();
         private final IFactory renderFactory;
-        private int totalRenderInstances = 0;
 
         public interface IFactory {
             Renderer newRender();
@@ -302,7 +253,7 @@ public class NativeRenderer {
         }
 
         public RenderPool() {
-            renderFactory = new IFactory(){
+            renderFactory = new IFactory() {
                 @Override
                 public Renderer newRender() {
                     return createHumanoidRenderer(1);
@@ -311,12 +262,12 @@ public class NativeRenderer {
         }
 
         public Renderer getRender() {
-            synchronized(pool) {
+            synchronized (pool) {
                 if (pool.size() > 0) {
                     return pool.remove(0);
                 } else {
                     Renderer render = renderFactory.newRender();
-                    render.addFinalizeCallback(new NativeRenderer.FinalizeCallback(){
+                    render.addFinalizeCallback(new NativeRenderer.FinalizeCallback() {
                         @Override
                         public void onFinalized(NativeRenderer.Renderer render) {
                             synchronized (pool) {
@@ -325,7 +276,7 @@ public class NativeRenderer {
                                 newRender.addFinalizeCallback(this);
                                 newRender.isHumanoid = render.isHumanoid;
                                 pool.add(newRender); // move to a new render object and pool it
-                            } 
+                            }
                         }
                     });
                     render.setFinalizeable(true);
@@ -339,117 +290,127 @@ public class NativeRenderer {
      * native part
      */
 
-    public static long constructHumanoidRenderer(float scale){
+    public static long constructHumanoidRenderer(float scale) {
+        InnerCoreServer.useClientMethod("NativeRenderer.constructHumanoidRenderer(scale)");
         return 0;
     }
 
-    public static long constructHumanoidRendererWithSkin(String skin, float scale){
+    public static long constructHumanoidRendererWithSkin(String skin, float scale) {
+        InnerCoreServer.useClientMethod("NativeRenderer.constructHumanoidRendererWithSkin(skin, scale)");
         return 0;
     }
 
-    public static long constructSpriteRenderer(int id){
+    public static long constructSpriteRenderer(int id) {
+        InnerCoreServer.useClientMethod("NativeRenderer.constructSpriteRenderer(id)");
         return 0;
     }
 
-    public static long getModel(long pointer){
+    public static long getModel(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.getModel(pointer)");
         return 0;
     }
 
-    public static long getModelPart(long pointer, String name){
+    public static long getModelPart(long pointer, String name) {
+        InnerCoreServer.useClientMethod("NativeRenderer.getModelPart(pointer, name)");
         return 0;
     }
 
-    public static int getRendererId(long pointer){
+    public static int getRendererId(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.getRendererId(pointer)");
         return 0;
     }
 
-    public static void setScale(long pointer, float scale){
-
-    }
-    
-    public static void setSkin(long pointer, String skin){
-
+    public static void setScale(long pointer, float scale) {
+        InnerCoreServer.useClientMethod("NativeRenderer.setScale(pointer, scale)");
     }
 
-    public static void transformClear(long pointer){
-
-    }
-    
-    public static void transformLock(long pointer){
-
+    public static void setSkin(long pointer, String skin) {
+        InnerCoreServer.useClientMethod("NativeRenderer.setSkin(pointer, skin)");
     }
 
-    public static void transformUnlock(long pointer){
-
+    public static void transformClear(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.transformClear(pointer)");
     }
 
-    public static void transformAddTransform(long pointer, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15){
-
+    public static void transformLock(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.transformLock(pointer)");
     }
 
-    public static void transformScale(long pointer, float x, float y, float z){
-
+    public static void transformUnlock(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.transformUnlock(pointer)");
     }
 
-    public static void transformRotate(long pointer, float x, float y, float z){
-
+    public static void transformAddTransform(long pointer, float f0, float f1, float f2, float f3, float f4, float f5,
+            float f6, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15) {
+        InnerCoreServer.useClientMethod(
+                "NativeRenderer.transformAddTransform(pointer, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15)");
     }
 
-    public static void transformTranslate(long pointer, float x, float y, float z){
-
+    public static void transformScale(long pointer, float x, float y, float z) {
+        InnerCoreServer.useClientMethod("NativeRenderer.transformScale(pointer, x, y, z)");
     }
 
-    public static float getScale(long pointer){
+    public static void transformRotate(long pointer, float x, float y, float z) {
+        InnerCoreServer.useClientMethod("NativeRenderer.transformRotate(pointer, x, y, z)");
+    }
+
+    public static void transformTranslate(long pointer, float x, float y, float z) {
+        InnerCoreServer.useClientMethod("NativeRenderer.transformTranslate(pointer, x, y, z)");
+    }
+
+    public static float getScale(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.getScale(pointer)");
         return 0;
     }
 
-
-
-    public static boolean hasModelPart(long pointer, String name){
-        return true;
+    public static boolean hasModelPart(long pointer, String name) {
+        InnerCoreServer.useClientMethod("NativeRenderer.hasModelPart(pointer, name)");
+        return false;
     }
 
-    public static long addModelPart(long model, long pointer, String name){
+    public static long addModelPart(long model, long pointer, String name) {
+        InnerCoreServer.useClientMethod("NativeRenderer.addModelPart(model, pointer, name)");
         return 0;
     }
 
-    public static void clearAllModelParts(long model){
-
+    public static void clearAllModelParts(long model) {
+        InnerCoreServer.useClientMethod("NativeRenderer.clearAllModelParts(model)");
     }
 
-    public static void addBox(long pointer, float x, float y, float z, float w, float h, float l, float add){
-
+    public static void addBox(long pointer, float x, float y, float z, float w, float h, float l, float add) {
+        InnerCoreServer.useClientMethod("NativeRenderer.addBox(pointer, x, y, z, w, h, l, add)");
     }
 
-    public static void addColoredBox(long pointer, float x, float y, float z, float w, float h, float l, float add, float r, float g, float b, float a){
-
+    public static void addColoredBox(long pointer, float x, float y, float z, float w, float h, float l, float add,
+            float r, float g, float b, float a) {
+        InnerCoreServer.useClientMethod("NativeRenderer.addColoredBox(pointer, x, y, z, w, h, l, add, r, g, b, a)");
     }
 
-    public static void setMesh(long pointer, long mesh){
-
+    public static void setMesh(long pointer, long mesh) {
+        InnerCoreServer.useClientMethod("NativeRenderer.setMesh(pointer, mesh)");
     }
 
-    public static void setOffset(long pointer, float x, float y, float z){
-
+    public static void setOffset(long pointer, float x, float y, float z) {
+        InnerCoreServer.useClientMethod("NativeRenderer.setOffset(pointer, x, y, z)");
     }
 
-    public static void setRotation(long pointer, float x, float y, float z){
-
+    public static void setRotation(long pointer, float x, float y, float z) {
+        InnerCoreServer.useClientMethod("NativeRenderer.setRotation(pointer, x, y, z)");
     }
 
-    public static void setTextureOffset(long pointer, int x, int y){
-
+    public static void setTextureOffset(long pointer, int x, int y) {
+        InnerCoreServer.useClientMethod("NativeRenderer.setTextureOffset(pointer, x, y)");
     }
 
-    public static void setTextureSize(long pointer, int x, int y){
-
+    public static void setTextureSize(long pointer, int x, int y) {
+        InnerCoreServer.useClientMethod("NativeRenderer.setTextureSize(pointer, x, y)");
     }
 
-    public static void clearModelPart(long pointer){
-
+    public static void clearModelPart(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.clearModelPart(pointer)");
     }
 
-    public static void resetModel(long pointer){
-
+    public static void resetModel(long pointer) {
+        InnerCoreServer.useClientMethod("NativeRenderer.resetModel(pointer)");
     }
 }

@@ -1,29 +1,24 @@
 package com.zhekasmirnov.innercore.api;
 
-import android.util.Pair;
-import cn.nukkit.block.Block;
-import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
+import android.graphics.Bitmap;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.ICRender;
+import com.zhekasmirnov.innercore.api.mod.ui.GuiBlockModel;
+import com.zhekasmirnov.innercore.api.mod.ui.GuiRenderMesh;
+import com.zhekasmirnov.innercore.api.mod.ui.ItemModelCacheManager;
 import com.zhekasmirnov.innercore.api.unlimited.BlockRegistry;
 import com.zhekasmirnov.innercore.api.unlimited.BlockVariant;
-import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
-import com.zhekasmirnov.innercore.utils.FileTools;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class NativeItemModel {
     private static final HashMap<Long, NativeItemModel> modelByPointer = new HashMap<>();
-    
+
     // globals
     public final long pointer;
     public final int id, data;
@@ -45,50 +40,53 @@ public class NativeItemModel {
     private String mWorldTextureName = null;
     private String mWorldMaterialName = null;
     private String mWorldGlintMaterialName = null;
-    
+
     // ui model
     private boolean isUiModelDirty = false;
+    private GuiBlockModel mGuiBlockModel = null;
+    private GuiRenderMesh mGuiRenderMesh = null;
 
     // mesh model
     private boolean isWorldModelDirty = false;
+    private GuiBlockModel mWorldCompiledBlockModel = null;
 
-    // 
+    //
     private String mCacheKey = null;
-    private String mCacheGroup = null;
-    private String mCachePath = null;
 
     private String mItemTexturePath = null;
-    private boolean mIsItemTexturePathForced = false;
-
 
     protected NativeItemModel(long pointer, int id, int data) {
         this.pointer = pointer;
         this.id = id;
         this.data = data;
-        shaderUniformSet = new NativeShaderUniformSet(nativeGetShaderUniformSet(pointer));
+        shaderUniformSet = new NativeShaderUniformSet(0);
     }
 
     protected NativeItemModel() {
-        pointer = nativeConstructStandalone();
-        id = data = 0;
+        pointer = id = data = 0;
         shaderUniformSet = null;
+    }
+
+    public void updateCacheGroupToCurrent() {
     }
 
     @JSStaticFunction
     public static NativeItemModel getFor(int id, int data) {
-        long pointer = nativeGetFor(id, data);
-        NativeItemModel model = modelByPointer.get(pointer);
+        NativeItemModel model = modelByPointer.get(0L);
         if (model == null) {
-            model = new NativeItemModel(pointer, id, data);
-            modelByPointer.put(pointer, model);
+            model = new NativeItemModel(0, id, data);
+            modelByPointer.put(0L, model);
         }
         return model;
     };
 
     @JSStaticFunction
     public static NativeItemModel getForWithFallback(int id, int data) {
-        return getFor(id, 0);
-
+        NativeItemModel model = getFor(id, data);
+        if (model.isNonExisting()) {
+            return getFor(id, 0);
+        }
+        return model;
     };
 
     @JSStaticFunction
@@ -100,6 +98,7 @@ public class NativeItemModel {
 
     @JSStaticFunction
     public static void setCurrentCacheGroup(String name, String lock) {
+        ItemModelCacheManager.getSingleton().setCurrentCacheGroup(name, lock);
     }
 
     public static NativeItemModel getByPointer(long pointer) {
@@ -113,18 +112,6 @@ public class NativeItemModel {
 
     @JSStaticFunction
     public static void tryReleaseModelBitmapsOnLowMemory(int bytes) {
-        int releasedBytes = 0;
-        int releasedCount = 0;
-        for (NativeItemModel model : modelByPointer.values()) {
-            if (releasedBytes >= bytes) {
-                break;
-            }
-
-        }
-        ICLog.d("ItemModels", "released " + releasedCount + " of total " + modelByPointer.size() + " cached item icons (" + releasedBytes + " of required " + bytes + " bytes)");
-    }
-    public void updateForBlockVariant(BlockVariant variant){
-
     }
 
     public NativeItemModel occupy() {
@@ -135,7 +122,7 @@ public class NativeItemModel {
     public boolean isSpriteInUi() {
         return mItemTexturePath != null && isEmptyInUi();
     }
-    
+
     public boolean isEmptyInUi() {
         return mUiBlockModel == null && mUiIcRender == null && mUiRenderMesh == null;
     }
@@ -149,15 +136,20 @@ public class NativeItemModel {
     }
 
     public boolean isEmpty() {
-        return !isOccupied && nativeIsEmpty(pointer);
+        return !isOccupied;
+    }
+
+    public boolean isNonExisting() {
+        return !isOccupied && isEmptyInUi() && isEmptyInWorld() && mItemTexturePath == null && mGuiBlockModel == null
+                && mWorldCompiledBlockModel == null;
     }
 
     public boolean overridesHand() {
-        return nativeOverridesHand(pointer);
+        return false;
     }
 
     public boolean overridesUi() {
-        return nativeOverridesUi(pointer);
+        return false;
     }
 
     public NativeShaderUniformSet getShaderUniforms() {
@@ -165,15 +157,12 @@ public class NativeItemModel {
     }
 
     public NativeItemModel setSpriteUiRender(boolean isSprite) {
-        nativeSetSpriteInUi(pointer, isSprite);
         return this;
     }
 
     public NativeItemModel setSpriteHandRender(boolean isSprite) {
-        nativeSetSpriteInHand(pointer, isSprite);
         return this;
     }
-
 
     // Hand
 
@@ -191,8 +180,6 @@ public class NativeItemModel {
     }
 
     public NativeItemModel setHandModel(NativeRenderMesh mesh) {
-        nativeSetHandMesh(pointer, mesh != null ? mesh.getPtr() : 0);
-        nativeSetHandBlockRender(pointer, 0);
         if (mesh != null) {
             mesh.invalidate();
         }
@@ -202,32 +189,28 @@ public class NativeItemModel {
         isWorldModelDirty = true;
         return this;
     }
-    
+
     public NativeItemModel setHandModel(NativeICRender.Model blockRenderer, String material) {
         setHandModel(blockRenderer);
         setHandMaterial(material);
         return this;
     }
-    
+
     public NativeItemModel setHandModel(NativeICRender.Model blockRenderer) {
-        nativeSetHandBlockRender(pointer, blockRenderer != null ? blockRenderer.getPtr() : 0);
-        nativeSetHandMesh(pointer, 0);
         mWorldIcRender = blockRenderer;
         mWorldRenderMesh = null;
         mWorldBlockModel = null;
         isWorldModelDirty = true;
         return this;
     }
-    
+
     public NativeItemModel setHandModel(NativeBlockModel blockModel, String material) {
         setHandModel(blockModel);
         setHandMaterial(material);
         return this;
     }
-    
+
     public NativeItemModel setHandModel(NativeBlockModel blockModel) {
-        nativeSetHandBlockRender(pointer, blockModel != null ? blockModel.pointer : 0);
-        nativeSetHandMesh(pointer, 0);
         mWorldBlockModel = blockModel;
         mWorldRenderMesh = null;
         mWorldIcRender = null;
@@ -236,13 +219,11 @@ public class NativeItemModel {
     }
 
     public NativeItemModel setHandTexture(String texture) {
-        nativeSetHandTexture(pointer, texture);
         mWorldTextureName = texture;
         return this;
     }
 
     public NativeItemModel setHandMaterial(String material) {
-        nativeSetHandMaterial(pointer, material);
         mWorldMaterialName = material;
         if (mWorldGlintMaterialName == null) {
             setHandGlintMaterial(material);
@@ -251,7 +232,6 @@ public class NativeItemModel {
     }
 
     public NativeItemModel setHandGlintMaterial(String material) {
-        nativeSetHandGlintMaterial(pointer, material);
         mWorldGlintMaterialName = material;
         return this;
     }
@@ -271,7 +251,6 @@ public class NativeItemModel {
         return mWorldGlintMaterialName != null ? mWorldGlintMaterialName : "entity_alphatest_custom_glint";
     }
 
-
     // UI
 
     public NativeItemModel setUiModel(NativeRenderMesh mesh, String texture, String material) {
@@ -288,56 +267,56 @@ public class NativeItemModel {
     }
 
     public NativeItemModel setUiModel(NativeRenderMesh mesh) {
-        nativeSetUiMesh(pointer, mesh != null ? mesh.getPtr() : 0);
-        nativeSetUiBlockRender(pointer, 0);
         mUiRenderMesh = mesh;
         mUiBlockModel = null;
         mUiIcRender = null;
         isUiModelDirty = true;
+        if (mCacheKey == null) {
+            setCacheKey("item-model");
+        }
         return this;
     }
-    
+
     public NativeItemModel setUiModel(NativeICRender.Model blockRenderer, String material) {
         setUiModel(blockRenderer);
         setUiMaterial(material);
         return this;
     }
-    
+
     public NativeItemModel setUiModel(NativeICRender.Model blockRenderer) {
-        nativeSetUiBlockRender(pointer, blockRenderer != null ? blockRenderer.getPtr() : 0);
-        nativeSetUiMesh(pointer, 0);
         mUiIcRender = blockRenderer;
         mUiRenderMesh = null;
         mUiBlockModel = null;
         isUiModelDirty = true;
-
+        if (mCacheKey == null) {
+            setCacheKey("item-model");
+        }
         return this;
     }
-    
+
     public NativeItemModel setUiModel(NativeBlockModel blockModel, String material) {
         setUiModel(blockModel);
         setUiMaterial(material);
         return this;
     }
-    
+
     public NativeItemModel setUiModel(NativeBlockModel blockModel) {
-        nativeSetUiBlockRender(pointer, blockModel != null ? blockModel.pointer : 0);
-        nativeSetUiMesh(pointer, 0);
         mUiBlockModel = blockModel;
         mUiRenderMesh = null;
         mUiIcRender = null;
         isUiModelDirty = true;
+        if (mCacheKey == null) {
+            setCacheKey("item-model");
+        }
         return this;
     }
 
     public NativeItemModel setUiTexture(String texture) {
-        nativeSetUiTexture(pointer, texture);
         mUiTextureName = texture;
         return this;
     }
 
     public NativeItemModel setUiMaterial(String material) {
-        nativeSetUiMaterial(pointer, material);
         mUiMaterialName = material;
         if (mUiGlintMaterialName == null) {
             setUiGlintMaterial(material);
@@ -346,7 +325,6 @@ public class NativeItemModel {
     }
 
     public NativeItemModel setUiGlintMaterial(String material) {
-        nativeSetUiGlintMaterial(pointer, material);
         mUiGlintMaterialName = material;
         return this;
     }
@@ -366,10 +344,7 @@ public class NativeItemModel {
         return mUiGlintMaterialName != null ? mUiGlintMaterialName : "ui_custom_item_glint";
     }
 
-
     // Both
-
-    
 
     public NativeItemModel setModel(NativeRenderMesh mesh, String texture, String material) {
         return setHandModel(mesh, texture, material).setUiModel(mesh, texture, material);
@@ -382,19 +357,19 @@ public class NativeItemModel {
     public NativeItemModel setModel(NativeRenderMesh mesh) {
         return setHandModel(mesh).setUiModel(mesh);
     }
-    
+
     public NativeItemModel setModel(NativeICRender.Model blockRenderer, String material) {
         return setHandModel(blockRenderer, material).setUiModel(blockRenderer, material);
     }
-    
+
     public NativeItemModel setModel(NativeICRender.Model blockRenderer) {
         return setHandModel(blockRenderer).setUiModel(blockRenderer);
     }
-    
+
     public NativeItemModel setModel(NativeBlockModel blockModel, String material) {
         return setHandModel(blockModel, material).setUiModel(blockModel, material);
     }
-    
+
     public NativeItemModel setModel(NativeBlockModel blockModel) {
         return setHandModel(blockModel).setUiModel(blockModel);
     }
@@ -411,71 +386,78 @@ public class NativeItemModel {
         return setHandGlintMaterial(material).setUiGlintMaterial(material);
     }
 
-
     //
 
+    public GuiBlockModel getGuiBlockModel() {
+        if (mGuiBlockModel == null || isUiModelDirty) {
+            if (mUiIcRender != null) {
+                mGuiBlockModel = mUiIcRender.buildGuiModel(true);
+            } else if (mUiBlockModel != null) {
+                mGuiBlockModel = mUiBlockModel.buildGuiModel(true);
+            } else {
+                BlockVariant block = BlockRegistry.getBlockVariant(id, data);
+                if (block != null) {
+                    mGuiBlockModel = block.getGuiBlockModel();
+                }
+            }
+            // if not mesh mode
+            if (mUiRenderMesh == null) {
+                isUiModelDirty = false;
+            }
+        }
+        return mGuiBlockModel;
+    }
+
+    public GuiBlockModel getWorldBlockModel() {
+        if (mWorldCompiledBlockModel == null || isWorldModelDirty) {
+            if (mWorldIcRender != null) {
+                mWorldCompiledBlockModel = mWorldIcRender.buildGuiModel(false);
+            } else if (mWorldBlockModel != null) {
+                mWorldCompiledBlockModel = mWorldBlockModel.buildGuiModel(false);
+            } else {
+                BlockVariant block = BlockRegistry.getBlockVariant(id, data);
+                if (block != null) {
+                    mWorldCompiledBlockModel = block.getGuiBlockModel();
+                }
+            }
+            // if not mesh mode
+            if (mWorldRenderMesh == null) {
+                isWorldModelDirty = false;
+            }
+        }
+        return mWorldCompiledBlockModel;
+    }
+
+    public GuiRenderMesh getGuiRenderMesh() {
+        if (mGuiRenderMesh == null || isUiModelDirty) {
+            if (mUiRenderMesh != null) {
+                mGuiRenderMesh = mUiRenderMesh.newGuiRenderMesh();
+                isUiModelDirty = false;
+            }
+        }
+        return mGuiRenderMesh;
+    }
 
     private boolean isSpriteMeshDirty = false;
     private NativeRenderMesh mSpriteMesh = null;
 
-    private void addBoxToSpriteMesh(NativeRenderMesh mesh, float x, float y, float z, float sx, float sy, float sz, float u, float v) {
-        sx /= 2;
-        sy /= 2;
-        sz /= 2;
-        
-        mesh.setNormal(0, -1, 0);
-        mesh.addVertex(x + sx, y - sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y - sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y - sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y - sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y - sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y - sy, z - sz, u, v);
+    public synchronized NativeRenderMesh getSpriteMesh() {
+        if (mSpriteMesh == null || isSpriteMeshDirty) {
+            if (mSpriteMesh != null) {
+                mSpriteMesh.clear();
+            } else {
+                mSpriteMesh = new NativeRenderMesh();
+            }
+        }
+        return mSpriteMesh;
+    }
 
-        mesh.setNormal(0, 1, 0);
-        mesh.addVertex(x + sx, y + sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z - sz, u, v);
-
-        mesh.setNormal(-1, 0, 0);
-        mesh.addVertex(x - sx, y - sy, z - sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z - sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y - sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y - sy, z - sz, u, v);
-
-        mesh.setNormal(1, 0, 0);
-        mesh.addVertex(x + sx, y - sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x + sx, y - sy, z + sz, u, v);
-        mesh.addVertex(x + sx, y - sy, z - sz, u, v);
-
-        mesh.setNormal(0, 0, -1);
-        mesh.addVertex(x - sx, y - sy, z - sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z - sz, u, v);
-        mesh.addVertex(x + sx, y - sy, z - sz, u, v);
-        mesh.addVertex(x - sx, y - sy, z - sz, u, v);
-
-        mesh.setNormal(0, 0, 1);
-        mesh.addVertex(x - sx, y - sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x + sx, y + sy, z + sz, u, v);
-        mesh.addVertex(x + sx, y - sy, z + sz, u, v);
-        mesh.addVertex(x - sx, y - sy, z + sz, u, v);
+    public void addToMesh(NativeRenderMesh mesh, float x, float y, float z) {
     }
 
     public String getMeshTextureName() {
         return isSpriteInWorld() ? (mItemTexturePath != null ? mItemTexturePath : "atlas::terrain") : "atlas::terrain";
     }
-
 
     public NativeItemModel setItemTexturePath(String path) {
         if (!path.endsWith(".png")) {
@@ -491,26 +473,34 @@ public class NativeItemModel {
     }
 
     public NativeItemModel removeModUiSpriteTexture() {
-        isIconBitmapDirty = true;
-
-        mIsItemTexturePathForced = false;
         return this;
     }
 
     public NativeItemModel setModUiSpritePath(String path) {
-        isIconBitmapDirty = true;
-        mIsItemTexturePathForced = true;
         setItemTexturePath(path);
         return this;
     }
 
     public NativeItemModel setModUiSpriteName(String name, int index) {
-        isIconBitmapDirty = true;
-        mIsItemTexturePathForced = true;
         setItemTexture(name, index);
         return this;
     }
 
+    public NativeItemModel setModUiSpriteBitmap(Bitmap bitmap) {
+        return this;
+    }
+
+    public void setUiBlockModel(GuiBlockModel model) {
+        mGuiBlockModel = model;
+        mGuiRenderMesh = null;
+        mItemTexturePath = null;
+        isUiModelDirty = false;
+    }
+
+    public void setWorldBlockModel(GuiBlockModel model) {
+        mWorldCompiledBlockModel = model;
+        isWorldModelDirty = false;
+    }
 
     public interface IOverrideCallback {
         NativeItemModel overrideModel(ItemInstance extra);
@@ -527,7 +517,6 @@ public class NativeItemModel {
 
     public NativeItemModel setModelOverrideCallback(IOverrideCallback overrideCallback) {
         mModelOverrideCallback = overrideCallback;
-        nativeSetHasOverrideCallback(pointer, overrideCallback != null);
         return this;
     }
 
@@ -535,25 +524,57 @@ public class NativeItemModel {
         return mModelOverrideCallback != null;
     }
 
-
     public boolean isLazyLoading = false;
 
-    private final Object iconLock = new Object();
-    private boolean isIconBitmapDirty = false;
+    public void releaseIcon() {
+    }
 
+    public void reloadIconIfDirty() {
+    }
 
+    public Bitmap getIconBitmap() {
+        return Bitmap.getSingletonInternalProxy();
+    }
 
+    public Bitmap getIconBitmapNoReload() {
+        return Bitmap.getSingletonInternalProxy();
+    }
 
+    public void reloadIcon(boolean straightToCache) {
+    }
 
+    public void reloadIcon() {
+        reloadIcon(false);
+    }
+
+    public interface IIconRebuildListener {
+        public void onIconRebuild(NativeItemModel model, Bitmap newIcon);
+    }
+
+    public Bitmap queueReload(IIconRebuildListener listener) {
+        return Bitmap.getSingletonInternalProxy();
+    }
+
+    public Bitmap queueReload() {
+        return queueReload(null);
+    }
+
+    public void setCacheKey(String key) {
+        mCacheKey = key;
+    }
+
+    public void setCacheGroup(String group) {
+    }
 
     public String getCacheKey() {
         return mCacheKey;
     }
 
-
+    public void updateForBlockVariant(BlockVariant variant) {
+    }
 
     private static final ArrayList<NativeRenderMesh> itemModelMeshPool = new ArrayList<>();
-    
+
     @JSStaticFunction
     public static NativeRenderMesh getEmptyMeshFromPool() {
         synchronized (itemModelMeshPool) {
@@ -566,7 +587,7 @@ public class NativeItemModel {
             }
         }
     }
-    
+
     @JSStaticFunction
     public static void releaseMesh(Object mesh) {
         synchronized (itemModelMeshPool) {
@@ -574,67 +595,17 @@ public class NativeItemModel {
         }
     }
 
+    public NativeRenderMesh getItemRenderMesh(int count, boolean randomize) {
+        return getEmptyMeshFromPool();
+    }
+
+    @JSStaticFunction
+    public static NativeRenderMesh getItemRenderMeshFor(int id, int count, int data, boolean randomize) {
+        return getForWithFallback(id, data).getItemRenderMesh(count, randomize);
+    }
+
     @JSStaticFunction
     public static String getItemMeshTextureFor(int id, int data) {
         return getForWithFallback(id, data).getMeshTextureName();
-    }
-
-    private static long nativeConstructStandalone(){
-        return 0;
-    }
-    private static long nativeGetFor(int id, int data){
-        return 0;
-    }
-    private static long nativeGetShaderUniformSet(long pointer){
-        return 0;
-    }
-    private static boolean nativeIsEmpty(long pointer){
-        return false;
-    }
-    private static boolean nativeOverridesHand(long pointer){
-        return false;
-    }
-    private static boolean nativeOverridesUi(long pointer){
-        return false;
-    }
-    private static boolean nativeSetHasOverrideCallback(long pointer, boolean value){
-        return false;
-    }
-
-    private static long nativeSetSpriteInUi(long pointer, boolean isSprite){
-        return 0;
-    }
-    private static long nativeSetSpriteInHand(long pointer, boolean isSprite){
-        return 0;
-    }
-    private static long nativeSetHandMesh(long pointer, long mesh){
-        return 0;
-    }
-    private static long nativeSetHandBlockRender(long pointer, long render){
-        return 0;
-    }
-    private static long nativeSetHandTexture(long pointer, String name){
-        return 0;
-    }
-    private static long nativeSetHandMaterial(long pointer, String name){
-        return 0;
-    }
-    private static long nativeSetHandGlintMaterial(long pointer, String name){
-        return 0;
-    }
-    private static long nativeSetUiMesh(long pointer, long mesh){
-        return 0;
-    }
-    private static long nativeSetUiBlockRender(long pointer, long render){
-        return 0;
-    }
-    private static long nativeSetUiTexture(long pointer, String name){
-        return 0;
-    }
-    private static long nativeSetUiMaterial(long pointer, String name){
-        return 0;
-    }
-    private static long nativeSetUiGlintMaterial(long pointer, String name){
-        return 0;
     }
 }

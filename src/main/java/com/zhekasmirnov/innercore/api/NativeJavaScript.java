@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
@@ -12,23 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-
 public class NativeJavaScript {
-    private static native String[] getFunctionListForModule(String module);
-    private static native long getFunctionHandle(String module, String name);
-    private static native int getFunctionCallType(long handle);
-    private static native String getFunctionSignature(long handle);
-    private static native long invokeBasicParameterFunction(long handle, byte[] buffer);
-    private static native long invokeComplexParameterFunction(long handle, byte[] buffer);
-
-    private static native long unwrapLongResult(long result);
-    private static native double unwrapDoubleResult(long result);
-    private static native String unwrapStringResult(long result);
-    private static native Object unwrapObjectResult(long result);
-
-    private static final int CALL_TYPE_BASIC = 1;
-    private static final int CALL_TYPE_COMPLEX = 2;
-
     private static final int TYPE_BYTE = 0;
     private static final int TYPE_INT = 1;
     private static final int TYPE_LONG = 2;
@@ -56,13 +39,15 @@ public class NativeJavaScript {
             stream.writeByte(TYPE_STRING);
             stream.writeUTF(value.toString());
         } else {
-            Logger.error("NativeJavaScript", "invalid parameter passed for key " + key + ": " + value + ", it will be replaced with zero byte");
+            Logger.error("NativeJavaScript",
+                    "invalid parameter passed for key " + key + ": " + value + ", it will be replaced with zero byte");
             stream.writeByte(TYPE_BYTE);
             stream.writeByte(0);
         }
     }
 
-    private static int parseComplexParameters(DataOutputStream stream, ScriptableObject scriptable, String prefix) throws IOException {
+    private static int parseComplexParameters(DataOutputStream stream, ScriptableObject scriptable, String prefix)
+            throws IOException {
         int count = 0;
         Object[] ids = scriptable.getAllIds();
         for (Object key : ids) {
@@ -101,17 +86,16 @@ public class NativeJavaScript {
 
         switch (signature.charAt(0)) {
             case 'V': // void
-            return null;
+            case 'O': // object
+                return null;
             case 'I':
-            return unwrapLongResult(result);
+                return 0L;
             case 'F':
-            return unwrapDoubleResult(result);
+                return 0.0d;
             case 'S':
-            return unwrapStringResult(result);
-            case 'O':
-            return unwrapObjectResult(result);
+                return "";
             default:
-            throw new RuntimeException("invalid native function signature: " + signature);
+                throw new RuntimeException("invalid native function signature: " + signature);
         }
     }
 
@@ -131,95 +115,35 @@ public class NativeJavaScript {
                 throw new RuntimeException("invalid native function signature: " + signature);
             }
             this.params = signature.substring(begin, end);
-            
+
             int argsSize = 0;
             for (int i = 0; i < params.length(); i++) {
-                switch(params.charAt(i)) {
+                switch (params.charAt(i)) {
                     case 'B':
                     case 'C':
-                        while ((argsSize + 4) % 4 != 0) argsSize++;
+                        while ((argsSize + 4) % 4 != 0)
+                            argsSize++;
                         argsSize += 1;
                         break;
                     case 'I':
                     case 'F':
-                        while ((argsSize + 4) % 4 != 0) argsSize++;
+                        while ((argsSize + 4) % 4 != 0)
+                            argsSize++;
                         argsSize += 4;
                         break;
                     case 'L':
                     case 'D':
-                        while ((argsSize + 4) % 8 != 0) argsSize++;
+                        while ((argsSize + 4) % 8 != 0)
+                            argsSize++;
                         argsSize += 8;
                         break;
-                };
-            };
+                }
+            }
             this.argsSize = argsSize;
         }
 
         public Object call(Context ctx, Scriptable scope1, Scriptable scope2, Object[] args) {
-            byte[] argsBytes = new byte[argsSize];
-            int index = 0;
-
-            for (int i = 0; i < args.length; i++) {
-                if (i >= params.length()) {
-                    ICLog.d("NativeJavaScript", "native function " + module + ":" + name + " have excess parameters passed");
-                    break;
-                }
-                int iBits;
-                long lBits;
-                switch (params.charAt(i)) {
-                    case 'C':
-                    while ((index + 4) % 4 != 0) argsBytes[index++] = 0;
-                    argsBytes[index++] = ((Number) args[i]).byteValue();
-                    break;
-                    case 'B':
-                    while ((index + 4) % 4 != 0) argsBytes[index++] = 0;
-                    argsBytes[index++] = Context.toBoolean(args[i]) ? (byte) 1 : (byte) 0;
-                    break;
-                    case 'I':
-                    while ((index + 4) % 4 != 0) argsBytes[index++] = 0;
-                    iBits = ((Number) args[i]).intValue();
-                    argsBytes[index++] = (byte) ((iBits >>> 0) & 0xFF);
-                    argsBytes[index++] = (byte) ((iBits >>> 8) & 0xFF);
-                    argsBytes[index++] = (byte) ((iBits >>> 16) & 0xFF);
-                    argsBytes[index++] = (byte) ((iBits >>> 24) & 0xFF);
-                    break;
-                    case 'F':
-                    while ((index + 4) % 4 != 0) argsBytes[index++] = 0;
-                    iBits = Float.floatToIntBits(((Number) args[i]).floatValue());
-                    argsBytes[index++] = (byte) ((iBits >>> 0) & 0xFF);
-                    argsBytes[index++] = (byte) ((iBits >>> 8) & 0xFF);
-                    argsBytes[index++] = (byte) ((iBits >>> 16) & 0xFF);
-                    argsBytes[index++] = (byte) ((iBits >>> 24) & 0xFF);
-                    break;
-                    case 'L':
-                    while ((index + 4) % 8 != 0) argsBytes[index++] = 0;
-                    lBits = ((Number) Context.jsToJava(args[i], Number.class)).longValue();
-                    argsBytes[index++] = (byte) ((lBits >>> 0L) & 0xFFL);
-                    argsBytes[index++] = (byte) ((lBits >>> 8L) & 0xFFL);
-                    argsBytes[index++] = (byte) ((lBits >>> 16L) & 0xFFL);
-                    argsBytes[index++] = (byte) ((lBits >>> 24L) & 0xFFL);
-                    argsBytes[index++] = (byte) ((lBits >>> 32L) & 0xFFL);
-                    argsBytes[index++] = (byte) ((lBits >>> 40L) & 0xFFL);
-                    argsBytes[index++] = (byte) ((lBits >>> 48L) & 0xFFL);
-                    argsBytes[index++] = (byte) ((lBits >>> 56L) & 0xFFL);
-                    break;
-                    case 'D':
-                    while ((index + 4) % 8 != 0) argsBytes[index++] = 0;
-                    lBits = Double.doubleToLongBits(((Number) Context.jsToJava(args[i], Number.class)).doubleValue());
-                    argsBytes[index++] = (byte) ((lBits >>> 0) & 0xFF);
-                    argsBytes[index++] = (byte) ((lBits >>> 8) & 0xFF);
-                    argsBytes[index++] = (byte) ((lBits >>> 16) & 0xFF);
-                    argsBytes[index++] = (byte) ((lBits >>> 24) & 0xFF);
-                    argsBytes[index++] = (byte) ((lBits >>> 32) & 0xFF);
-                    argsBytes[index++] = (byte) ((lBits >>> 40) & 0xFF);
-                    argsBytes[index++] = (byte) ((lBits >>> 48) & 0xFF);
-                    argsBytes[index++] = (byte) ((lBits >>> 56) & 0xFF);
-                    break;
-                }
-            }
-
-            long result = invokeBasicParameterFunction(handle, argsBytes);
-            return unwrapResult(result, signature);
+            return unwrapResult(0, signature);
         }
     }
 
@@ -236,56 +160,27 @@ public class NativeJavaScript {
 
         public Object call(Context ctx, Scriptable scope1, Scriptable scope2, Object[] args) {
             if (args.length != 1 || !(args[0] instanceof ScriptableObject)) {
-                throw new IllegalArgumentException("complex native function " + module + "::" + name + " => " + signature + " must receive exactly one javascript object as parameter");
+                throw new IllegalArgumentException("complex native function " + module + "::" + name + " => "
+                        + signature + " must receive exactly one javascript object as parameter");
             }
-            long result = invokeComplexParameterFunction(handle, parseComplexParameters((ScriptableObject) args[0]));
-            return unwrapResult(result, signature);
+            return unwrapResult(0, signature);
         }
     }
 
     public static Callable getFunction(String module, String name) {
-        long handle = getFunctionHandle(module, name);
-        if (handle != 0) {
-            String signature = getFunctionSignature(handle);
-            switch (getFunctionCallType(handle)) {
-                case CALL_TYPE_BASIC:
-                    return new BasicCaller(handle, module, name, signature);
-                case CALL_TYPE_COMPLEX:
-                    return new ComplexCaller(handle, module, name, signature);
-            }
-        }
-        Logger.error("NativeJavaScript", "failed to wrap native function " + module + "::" + name + " for some reason");
-        return null;
+        return new BasicCaller(0, module, name, "V()");
     }
-    
+
     public static boolean injectNativeModule(String module, ScriptableObject scope) {
-        String[] functions = getFunctionListForModule(module);
-        if (functions != null && functions.length > 0) {
-            for (String functionName : functions) {
-                Callable function = getFunction(module, functionName);
-                if (function != null) {
-                    scope.put(functionName, scope, function);
-                }
-            }
-            return true;
-        }
-        Logger.error("NativeJavaScript", "failed to import native module: " + module);
         return false;
     }
 
     public static ScriptableObject wrapNativeModule(String module) {
-        ScriptableObject scope = new ScriptableObject() {
+        return new ScriptableObject() {
             @Override
             public String getClassName() {
                 return "NativeJSModule_" + module;
             }
         };
-        if (injectNativeModule(module, scope)) {
-            return scope;
-        } else {
-            return null;
-        }
-    };
-
-
-};
+    }
+}

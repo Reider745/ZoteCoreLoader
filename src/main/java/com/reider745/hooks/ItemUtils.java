@@ -176,7 +176,7 @@ public class ItemUtils implements HookClass {
 
             item.setCompoundTag(tag);
 
-            ItemExtraDataProvider provider = (ItemExtraDataProvider) items_pointers.getInstance(extra.getPtr());
+            ItemExtraDataProvider provider = (ItemExtraDataProvider) items_pointers.getInstance(extra.getValue());
             provider.apply(item);
             items_pointers.replace(items_pointers.getPointerForInstance(item), provider);
         }
@@ -193,7 +193,7 @@ public class ItemUtils implements HookClass {
         String custom = tag.getString(INNER_CORE_TAG_NAME);
         if (!custom.equals("")) {
             NativeItemInstanceExtra extra = new NativeItemInstanceExtra();
-            extra.getProvider().apply(item);
+            extra.getExtraProvider().apply(item);
             extra.setAllCustomData(custom);
             return extra;
         }

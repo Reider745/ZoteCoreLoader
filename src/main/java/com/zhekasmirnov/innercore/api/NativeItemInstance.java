@@ -1,6 +1,8 @@
 package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.item.Item;
+
+import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
 
 /**
@@ -8,36 +10,41 @@ import com.reider745.hooks.ItemUtils;
  */
 
 public class NativeItemInstance {
-    public Item item;
+    private Item item;
     public int id, count, data;
     public NativeItemInstanceExtra extra;
 
     public boolean isValid = false;
 
-    public NativeItemInstance(Item ptr) {
-        if (ptr == null) {
-            item = Item.get(0).clone();
+    @Deprecated
+    public NativeItemInstance(long ptr) {
+        throw new UnsupportedOperationException("NativeItemInstance(ptr)");
+    }
+
+    public NativeItemInstance(Item item) {
+        if (item == null) {
+            this.item = Item.get(0).clone();
             this.id = this.count = this.data = 0;
             this.extra = null;
         } else {
-            item = ptr;
-            this.id = ptr.getId();
-            this.count = ptr.getCount();
-            this.data = ptr.getAttackDamage() == 0 ? ptr.getAttackDamage() : ptr.getDamage();
-            if(id == 351 && data == 15){//bone_meal fix
-                id = 858;
-                data = 0;
+            this.item = item;
+            this.id = item.getId();
+            this.count = item.getCount();
+            this.data = item.getAttackDamage() == 0 ? item.getAttackDamage() : item.getDamage();
+            if (this.id == 351 && this.data == 15) { // bone_meal fix
+                this.id = 858;
+                this.data = 0;
             }
 
-            this.extra = ItemUtils.getItemInstanceExtra(ptr);
-           // this.extra = extra != 0 ? new NativeItemInstanceExtra(extra) : null;
+            this.extra = ItemUtils.getItemInstanceExtra(item);
+            // this.extra = extra != 0 ? new NativeItemInstanceExtra(extra) : null;
         }
 
         isValid = true;
     }
 
     public NativeItemInstance(int id, int count, int data) {
-        this.item = createItemInstanceData(id, count, data);
+        this.item = Item.get(id, count, data);
         this.id = id;
         this.count = count;
         this.data = data;
@@ -45,32 +52,82 @@ public class NativeItemInstance {
         isValid = true;
     }
 
-    //public long getPointer() {
-        //setItemInstance(pointer, id, count, data);
-        //return pointer;
-    //}
+    public long getPointer() {
+        InnerCoreServer.useNotSupport("NativeItemInstance.getPointer()");
+        return 0;
+    }
+
+    public Item getItem() {
+        if (item != null) {
+            if (item.getId() != id) {
+                InnerCoreServer.useNotCurrentSupport("NativeItemInstance.id");
+            }
+            if (item.getCount() != count) {
+                item.setCount(count);
+            }
+            if (item.getDamage() != data) {
+                item.setDamage(data);
+            }
+            long extra = getExtra(item);
+            if (this.extra != null ? extra != this.extra.getValue() : extra != 0) {
+                InnerCoreServer.useNotCurrentSupport("NativeItemInstance.extra");
+            }
+        }
+        return item;
+    }
 
     public void destroy() {
         isValid = false;
-        // destroy(pointer);
     }
 
     public String toString() {
         return "[item=" + id + "," + count + "," + data + "]";
     }
 
-
-    public static Item createItemInstanceData(int id, int count, int data){
-        return Item.get(id, count, data);
+    public static long createItemInstanceData(int id, int count, int data) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.createItemInstanceData(id, count, data)");
+        return 0;
     }
 
-    public static native int setItemInstance(long ptr, int id, int count, int data);
-    public static native int destroy(long ptr);
-    public static long getExtra(Item ptr){
-        if(ptr == null) return 0;
-        NativeItemInstanceExtra extra1 = ItemUtils.getItemInstanceExtra(ptr);
-        return extra1 != null ? extra1.getPtr() : 0;
+    public static int getId(long ptr) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.getId(ptr)");
+        return 0;
     }
-    public static native void setExtra(long ptr, int ench);
 
+    public static int getCount(long ptr) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.getCount(ptr)");
+        return 0;
+    }
+
+    public static int getData(long ptr) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.getData(ptr)");
+        return 0;
+    }
+
+    public static int setItemInstance(long ptr, int id, int count, int data) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.setItemInstance(ptr, id, count, data)");
+        return 0;
+    }
+
+    public static int destroy(long ptr) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.destroy(ptr)");
+        return 0;
+    }
+
+    public static long getExtra(Item item) {
+        if (item == null) {
+            return 0;
+        }
+        NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
+        return extra != null ? extra.getValue() : 0;
+    }
+
+    public static long getExtra(long ptr) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.getExtra(ptr)");
+        return 0;
+    }
+
+    public static void setExtra(long ptr, int ench) {
+        InnerCoreServer.useNotSupport("NativeItemInstance.setExtra(ptr, ench)");
+    }
 }

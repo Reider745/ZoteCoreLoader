@@ -69,15 +69,6 @@ public class BlockMethods {
             return type.light_level;
         return Block.light[id];
     }
-    public static int getLightOpacity(int id){
-        return 0;
-    }
-    public static int getRenderLayer(int id){
-        return 0;
-    }
-    public static int getRenderType(int id){
-        return 0;
-    }
     public static int getMapColor(int id){
         return 0;
     }
@@ -148,15 +139,6 @@ public class BlockMethods {
         SpecialType type = customs.getOrDefault(id, new SpecialType());
         type.light_level = val;
         customs.put(id, type);
-    }
-    public static void setLightOpacity(int id, int val){
-
-    }
-    public static void setRenderLayer(int id, int val){
-
-    }
-    public static void setRenderType(int id, int val){
-
     }
     public static void setBlockColorSource(int id, int val){
 

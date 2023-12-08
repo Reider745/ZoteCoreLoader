@@ -1,17 +1,19 @@
 package com.zhekasmirnov.innercore.api;
 
-import cn.nukkit.blockentity.BlockEntity;
-import cn.nukkit.blockentity.BlockEntityContainer;
-import cn.nukkit.blockentity.BlockEntitySpawnable;
-import cn.nukkit.blockentity.BlockEntitySpawnableContainer;
-import cn.nukkit.inventory.InventoryHolder;
-import cn.nukkit.item.Item;
-import cn.nukkit.math.BlockVector3;
-import cn.nukkit.nbt.tag.CompoundTag;
+import java.util.Map;
+import java.util.HashMap;
+
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
+
+import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.blockentity.BlockEntityContainer;
+import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.item.Item;
+import cn.nukkit.nbt.tag.CompoundTag;
 
 /**
  * Created by zheka on 26.07.2017.
@@ -20,16 +22,21 @@ import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 public class NativeTileEntity {
     public static final boolean isContainer = false;
 
-    private BlockEntity pointer;
+    private BlockEntity blockEntity;
 
     protected int type;
     protected int size;
     protected int x, y, z;
 
-    public NativeTileEntity(BlockEntity ptr) {
-        this.pointer = ptr;
-        this.type = getType(ptr);
-        this.size = getSize(ptr);
+    @Deprecated
+    public NativeTileEntity(long ptr) {
+        throw new UnsupportedOperationException("NativeTileEntity(ptr)");
+    }
+
+    public NativeTileEntity(BlockEntity blockEntity) {
+        this.blockEntity = blockEntity;
+        this.type = getType(blockEntity);
+        this.size = getSize(blockEntity);
     }
 
     public int getType() {
@@ -43,189 +50,182 @@ public class NativeTileEntity {
     public NativeItemInstance getSlot(int slot) {
         if (slot < 0 || slot >= size)
             return null;
-        Item itemPtr = getSlot(pointer, slot);
-        if (itemPtr == null)
-            return null;
-        return new NativeItemInstance(itemPtr);
+        Item item = getSlot(blockEntity, slot);
+        return item != null ? new NativeItemInstance(item) : null;
     }
 
     public void setSlot(int slot, int id, int count, int data, Object extra) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot(pointer, slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+        setSlot(blockEntity, slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
     }
 
     public void setSlot(int slot, int id, int count, int data) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot(pointer, slot, id, count, data, 0);
+        setSlot(blockEntity, slot, id, count, data, 0);
     }
 
     public void setSlot(int slot, NativeItemInstance item) {
-        System.out.println("setSlot2 "+slot);
         if (slot < 0 || slot >= size)
             return;
-        setSlot2(pointer, slot, item.item);
+        setSlot2(blockEntity, slot, item.getItem());
     }
 
     public NativeCompoundTag getCompoundTag() {
-        return new NativeCompoundTag(getCompoundTag(pointer));
+        return new NativeCompoundTag(getCompoundTag(blockEntity));
     }
 
     public void setCompoundTag(NativeCompoundTag tag) {
         if (tag != null) {
-            setCompoundTag(pointer, tag.pointer);
+            setCompoundTag(blockEntity, tag.pointer);
         }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        nativeFinalize(pointer);
     }
 
     public static NativeTileEntity getTileEntity(int x, int y, int z) {
-        BlockEntity ptr = getInWorld(x, y, z);
-        if (ptr == null) {
-            return null;
-        }
-        else {
-            return new NativeTileEntity(ptr);
-        }
+        return new NativeTileEntity(0);
     }
 
     /*
      * native part
      */
 
-    public static BlockEntity getInWorld(int x, int y, int z){
-        InnerCoreServer.useNotSupport("getInWorld");
-        return null;
+    private static final Map<String, String> nukkitToEnumMappings;
+
+    static {
+        nukkitToEnumMappings = new HashMap<>(); // Keep in Nukkit order please
+        nukkitToEnumMappings.put(BlockEntity.CHEST, "chest");
+        // nukkitToEnumMappings.put(BlockEntity.ENDER_CHEST, "ender_chest");
+        // nukkitToEnumMappings.put(BlockEntity.FURNACE, "furnace");
+        nukkitToEnumMappings.put(BlockEntity.SIGN, "sign");
+        nukkitToEnumMappings.put(BlockEntity.MOB_SPAWNER, "mob_spawner");
+        nukkitToEnumMappings.put(BlockEntity.ENCHANT_TABLE, "enchanting_table");
+        nukkitToEnumMappings.put(BlockEntity.SKULL, "skull");
+        nukkitToEnumMappings.put(BlockEntity.FLOWER_POT, "flower_pot");
+        nukkitToEnumMappings.put(BlockEntity.BREWING_STAND, "brewing_stand");
+        nukkitToEnumMappings.put(BlockEntity.DAYLIGHT_DETECTOR, "daylight_detector");
+        nukkitToEnumMappings.put(BlockEntity.MUSIC, "music_block");
+        nukkitToEnumMappings.put(BlockEntity.ITEM_FRAME, "item_frame");
+        nukkitToEnumMappings.put(BlockEntity.CAULDRON, "cauldron");
+        nukkitToEnumMappings.put(BlockEntity.BEACON, "beacon");
+        nukkitToEnumMappings.put(BlockEntity.PISTON_ARM, "piston");
+        // nukkitToEnumMappings.put(BlockEntity.MOVING_BLOCK, "moving_block");
+        nukkitToEnumMappings.put(BlockEntity.COMPARATOR, "comparator");
+        nukkitToEnumMappings.put(BlockEntity.HOPPER, "hopper");
+        nukkitToEnumMappings.put(BlockEntity.BED, "bed");
+        nukkitToEnumMappings.put(BlockEntity.JUKEBOX, "jukebox");
+        nukkitToEnumMappings.put(BlockEntity.SHULKER_BOX, "chest"); // TODO: shulker_box
+        // nukkitToEnumMappings.put(BlockEntity.BANNER, "banner");
+        nukkitToEnumMappings.put(BlockEntity.LECTERN, "lectern");
+        // nukkitToEnumMappings.put(BlockEntity.DROPPER, "dropper");
+        // nukkitToEnumMappings.put(BlockEntity.DISPENSER, "dispenser");
+        nukkitToEnumMappings.put(BlockEntity.BARREL, "barrel");
+        nukkitToEnumMappings.put(BlockEntity.CAMPFIRE, "campfire");
+        nukkitToEnumMappings.put(BlockEntity.BELL, "bell");
+        nukkitToEnumMappings.put(BlockEntity.END_GATEWAY, "end_gateway");
     }
 
-    public static void nativeFinalize(BlockEntity pointer){
-
-    }
-
-    public static int getType(BlockEntity pointer){
-        String id = pointer.getName();
-
-        switch (id){
-            case BlockEntity.BED -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "bed"));
-            }
-            case BlockEntity.BARREL -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "barrel"));
-            }
-            case BlockEntity.BEACON -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "beacon"));
-            }
-            case BlockEntity.BELL -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "bell"));
-            }
-            case BlockEntity.CHEST, BlockEntity.SHULKER_BOX -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "chest"));
-            }
-            case BlockEntity.SIGN -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "sign"));
-            }
-            case BlockEntity.MOB_SPAWNER -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "mob_spawner"));
-            }
-            case BlockEntity.ENCHANT_TABLE -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "enchanting_table"));
-            }
-            case BlockEntity.SKULL  -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "skull"));
-            }
-            case BlockEntity.FLOWER_POT  -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "flower_pot"));
-            }
-            case BlockEntity.BREWING_STAND  -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "brewing_stand"));
-            }
-            case BlockEntity.DAYLIGHT_DETECTOR  -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "daylight_detector"));
-            }
-            case BlockEntity.MUSIC -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "music_block"));
-            }
-            case BlockEntity.ITEM_FRAME -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "item_frame"));
-            }
-            case BlockEntity.CAULDRON -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "cauldron"));
-            }
-            case BlockEntity.PISTON_ARM -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "piston"));
-            }
-            case BlockEntity.COMPARATOR -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "comparator"));
-            }
-            case BlockEntity.HOPPER -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "hopper"));
-            }
-            case BlockEntity.JUKEBOX -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "jukebox"));
-            }
-            case BlockEntity.LECTERN -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "lectern"));
-            }
-            case BlockEntity.CAMPFIRE -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "campfire"));
-            }
-            case BlockEntity.END_GATEWAY -> {
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "end_gateway"));
-            }
-            default -> {
-                InnerCoreServer.server.getLogger().warning("Not convert native tile entity"+id);
-                return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "none"));
-            }
+    public static int getType(BlockEntity blockEntity) {
+        if (blockEntity == null) {
+            return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", "none"));
         }
-        //throw new RuntimeException("Not convert "+id);
+        String tileEntityName = nukkitToEnumMappings.getOrDefault(blockEntity.getName(), null);
+        if (tileEntityName == null) {
+            Logger.error("NativeTileEntity",
+                    "Could not locate tile " + blockEntity.getName() + ", it was not implemented");
+            tileEntityName = "none";
+        }
+        return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", tileEntityName));
     }
 
-    public static int getSize(BlockEntity pointer){
-        if(pointer instanceof BlockEntityContainer blockEntity)
-            return blockEntity.getSize();
+    public static int getSize(BlockEntity blockEntity) {
+        if (blockEntity instanceof InventoryHolder holder) {
+            return holder.getInventory().getSize();
+        } else if (blockEntity instanceof BlockEntityContainer container) {
+            return container.getSize();
+        }
         return 0;
     }
 
-    public static Item getSlot(BlockEntity pointer, int slot){
-        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
-            return blockEntity.getInventory().getItem(slot);
-        else if(pointer instanceof InventoryHolder blockEntity)
-            return blockEntity.getInventory().getItem(slot);
-        if(pointer instanceof BlockEntityContainer blockEntity)
-            return blockEntity.getItem(slot);
+    public static Item getSlot(BlockEntity blockEntity, int slot) {
+        if (blockEntity instanceof InventoryHolder holder) {
+            return holder.getInventory().getItem(slot);
+        } else if (blockEntity instanceof BlockEntityContainer container) {
+            return container.getItem(slot);
+        }
         return null;
     }
 
-    public static void setSlot(BlockEntity pointer, int slot, int id, int count, int data, long extra){
+    public static void setSlot(BlockEntity blockEntity, int slot, int id, int count, int data, long extra) {
         Item item = ItemUtils.get(id, count, data, extra);
-        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
-            blockEntity.getInventory().setItem(slot, item);
-        else if(pointer instanceof InventoryHolder blockEntity)
-            blockEntity.getInventory().setItem(slot, item);
-        else if(pointer instanceof BlockEntityContainer blockEntity)
-            blockEntity.setItem(slot, item);
-
+        if (blockEntity instanceof InventoryHolder holder) {
+            holder.getInventory().setItem(slot, item);
+        } else if (blockEntity instanceof BlockEntityContainer container) {
+            container.setItem(slot, item);
+        }
     }
 
-    public static void setSlot2(BlockEntity pointer, int slot, Item itemInstance){
-        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
-            blockEntity.getInventory().setItem(slot, itemInstance);
-        else if(pointer instanceof InventoryHolder blockEntity)
-            blockEntity.getInventory().setItem(slot, itemInstance);
-        else if(pointer instanceof BlockEntityContainer blockEntity)
-            blockEntity.setItem(slot, itemInstance);
+    public static void setSlot2(BlockEntity blockEntity, int slot, Item itemInstance) {
+        if (blockEntity instanceof InventoryHolder holder) {
+            holder.getInventory().setItem(slot, itemInstance);
+        } else if (blockEntity instanceof BlockEntityContainer container) {
+            container.setItem(slot, itemInstance);
+        }
     }
 
-    public static CompoundTag getCompoundTag(BlockEntity pointer){
-        return pointer.namedTag;
+    public static CompoundTag getCompoundTag(BlockEntity blockEntity) {
+        return blockEntity != null ? blockEntity.namedTag : null;
     }
 
-    public static void setCompoundTag(BlockEntity pointer, CompoundTag tag){
-        pointer.namedTag = tag;
+    public static void setCompoundTag(BlockEntity blockEntity, CompoundTag tag) {
+        if (blockEntity == null) {
+            return;
+        }
+        blockEntity.x = (double) tag.getInt("x");
+        blockEntity.y = (double) tag.getInt("y");
+        blockEntity.z = (double) tag.getInt("z");
+        blockEntity.movable = tag.getBoolean("isMovable", true);
+        blockEntity.namedTag = tag;
+    }
+
+    public static long getInWorld(int x, int y, int z) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.getInWorld(x, y, z)");
+        return 0;
+    }
+
+    public static void nativeFinalize(long pointer) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.nativeFinalize(pointer)");
+    }
+
+    public static int getType(long pointer) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.getType(pointer)");
+        return 0;
+    }
+
+    public static int getSize(long pointer) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.getSize(pointer)");
+        return 0;
+    }
+
+    public static long getSlot(long pointer, int slot) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.getSlot(pointer, slot)");
+        return 0;
+    }
+
+    public static void setSlot(long pointer, int slot, int id, int count, int data, long extra) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.setSlot(pointer, slot, id, count, data, extra)");
+    }
+
+    public static void setSlot2(long pointer, int slot, long itemInstance) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.setSlot2(pointer, slot, itemInstance)");
+    }
+
+    public static long getCompoundTag(long pointer) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.getCompoundTag(pointer)");
+        return 0;
+    }
+
+    public static void setCompoundTag(long pointer, long tag) {
+        InnerCoreServer.useNotSupport("NativeTileEntity.setCompoundTag(pointer, tag)");
     }
 }

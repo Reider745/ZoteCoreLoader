@@ -4,19 +4,26 @@ import com.zhekasmirnov.apparatus.Apparatus;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.mod.build.Config;
 import com.zhekasmirnov.innercore.utils.FileTools;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Created by zheka on 17.08.2017.
+ */
+
 public class InnerCoreConfig {
     public static Config config;
 
+    // TODO: FileTools.DIR_PACK + "assets/innercore/innercore_default_config.json"
     static {
         config = new Config(getConfigFile());
         try {
-            String contents = FileTools.readFileText(FileTools.DIR_PACK + "innercore_default_config.json");
+            String contents = FileTools
+                    .readFileText(FileTools.DIR_PACK + "innercore_default_config.json");
             config.checkAndRestore(contents);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             ICLog.e("CONFIG", "cannot load and validate default config.", e);
         }
     }
@@ -35,7 +42,7 @@ public class InnerCoreConfig {
     }
 
     public static boolean getBool(String name) {
-        if(name.equals("developer_mode"))
+        if (name.equals("developer_mode"))
             return isDevelop();
         Object b = get(name);
         return b instanceof Boolean && (boolean) b;
@@ -48,7 +55,7 @@ public class InnerCoreConfig {
     public static int getInt(String name, int fallback) {
         try {
             return getInt(name);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return fallback;
         }
     }

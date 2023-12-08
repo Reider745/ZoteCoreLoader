@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.entity;
 
+import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 
@@ -31,15 +32,15 @@ public class EntityActor {
     // inventory
 
     public ItemStack getCarriedItem() {
-        return ItemStack.fromPtr(NativeAPI.getEntityCarriedItem(uid));
+        return ItemStack.fromPtr(EntityMethod.getEntityCarriedItem(uid));
     }
 
     public ItemStack getOffhandItem() {
-        return ItemStack.fromPtr(NativeAPI.getEntityOffhandItem(uid));
+        return ItemStack.fromPtr(EntityMethod.getEntityOffhandItem(uid));
     }
 
     public ItemStack getArmorSlot(int slot) {
-        return ItemStack.fromPtr(NativeAPI.getEntityArmor(uid, slot));
+        return ItemStack.fromPtr(EntityMethod.getEntityArmor(uid, slot));
     }
 
     public void setArmorSlot(int slot, ItemStack stack) {

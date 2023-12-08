@@ -1,38 +1,47 @@
 package com.zhekasmirnov.innercore.api;
 
+import com.reider745.InnerCoreServer;
+import com.zhekasmirnov.innercore.api.mod.ui.GuiBlockModel;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
-
 
 /**
  * Created by zheka on 22.09.2017.
  */
 
 public class NativeICRender {
-    public static long constructICRender(){
+    public static long constructICRender() {
+        InnerCoreServer.useClientMethod("NativeICRender.constructICRender()");
         return 0;
     }
-    public static long constructICRenderGroup(){
-        return 0;
-    }
-    public static void icRenderGroupAddBlock(long group, int id, int data){
 
-    }
-    public static long icRenderClear(long model){
+    public static long constructICRenderGroup() {
+        InnerCoreServer.useClientMethod("NativeICRender.constructICRenderGroup()");
         return 0;
     }
-    public static long icRenderAddEntry(long model){
+
+    public static void icRenderGroupAddBlock(long group, int id, int data) {
+        InnerCoreServer.useClientMethod("NativeICRender.icRenderGroupAddBlock(group, id, data)");
+    }
+
+    public static long icRenderClear(long model) {
+        InnerCoreServer.useClientMethod("NativeICRender.icRenderClear(model)");
         return 0;
     }
-    public static void icRenderEntrySetModel(long entry, int x, int y, int z, long model){
 
+    public static long icRenderAddEntry(long model) {
+        InnerCoreServer.useClientMethod("NativeICRender.icRenderAddEntry(model)");
+        return 0;
     }
-    public static void icRenderEntrySetupCondition(long entry, long condition){}
 
+    public static void icRenderEntrySetModel(long entry, int x, int y, int z, long model) {
+        InnerCoreServer.useClientMethod("NativeICRender.icRenderEntrySetModel(entry, x, y, z, model)");
+    }
+
+    public static void icRenderEntrySetupCondition(long entry, long condition) {
+        InnerCoreServer.useClientMethod("NativeICRender.icRenderEntrySetupCondition(entry, condition)");
+    }
 
     /* GROUPS */
 
@@ -43,8 +52,7 @@ public class NativeICRender {
     public static Group getGroup(String name) {
         if (activeGroups.containsKey(name)) {
             return activeGroups.get(name);
-        }
-        else {
+        } else {
             Group group = new Group(name);
             activeGroups.put(name, group);
             return group;
@@ -57,11 +65,9 @@ public class NativeICRender {
     }
 
     public static class Group implements NativeIdMapping.IIdIterator {
-        private long ptr;
         private String name;
 
         private Group(String name) {
-            ptr = constructICRenderGroup();
             this.name = name;
         }
 
@@ -70,54 +76,44 @@ public class NativeICRender {
         }
 
         public void add(int id, int data) {
-            NativeIdMapping.iterateMetadata(id, data, this);
         }
 
         @Override
         public void onIdDataIterated(int id, int data) {
-            icRenderGroupAddBlock(ptr, id, data);
         }
     }
 
     /* RENDER MODEL */
 
     public static class Model {
-        private long ptr;
-        private List<RenderEntry> entries = new ArrayList<>();
-
         public long getPtr() {
-            return ptr;
+            return 0;
         }
 
         public Model() {
-            ptr = constructICRender();
         }
 
         public Model(NativeBlockModel model) {
-            this();
-            addEntry().setModel(model);
+            addEntry();
         }
 
         public RenderEntry addEntry() {
-            RenderEntry entry = new RenderEntry(this);
-            entries.add(entry);
-            return entry;
+            return new RenderEntry(this);
         }
 
         public void clear() {
-            icRenderClear(ptr);
         }
 
         public RenderEntry addEntry(NativeBlockModel model) {
-            return addEntry().setModel(model);
+            return addEntry();
         }
 
         public RenderEntry addEntry(NativeRenderMesh mesh) {
-            return addEntry().setMesh(mesh);
+            return addEntry();
         }
 
-        public Object buildGuiModel(boolean resolve) {
-           return null;
+        public GuiBlockModel buildGuiModel(boolean resolve) {
+            return new GuiBlockModel.Builder().build(resolve);
         }
 
     }
@@ -126,13 +122,9 @@ public class NativeICRender {
     public static final int MODE_EXCLUDE = 1;
 
     public static class RenderEntry {
-        private long ptr;
         private Model icRender;
-        private NativeBlockModel blockModel = null;
-        private CONDITION condition = null;
 
         private RenderEntry(Model model) {
-            ptr = icRenderAddEntry(model.ptr);
             icRender = model;
         }
 
@@ -141,7 +133,6 @@ public class NativeICRender {
         }
 
         public RenderEntry asCondition(int x, int y, int z, Group group, int mode) {
-            setCondition(new BLOCK(x, y, z, group, mode != 0));
             return this;
         }
 
@@ -150,125 +141,128 @@ public class NativeICRender {
         }
 
         public RenderEntry asCondition(int x, int y, int z, int id, int data, int mode) {
-            Group group = getUnnamedGroup();
-            group.add(id, data);
-            return asCondition(x, y, z, group, mode);
+            return asCondition(x, y, z, getUnnamedGroup(), mode);
         }
 
         public RenderEntry setCondition(CONDITION condition) {
-            icRenderEntrySetupCondition(ptr, condition.ptr);
-            this.condition = condition;
             return this;
         }
 
         public RenderEntry setModel(int x, int y, int z, NativeBlockModel model) {
-            icRenderEntrySetModel(ptr, x, y, z, model.pointer);
-            this.blockModel = model;
             return this;
         }
 
         public RenderEntry setModel(NativeBlockModel model) {
-            return setModel(0, 0, 0, model);
+            return this;
         }
 
         public RenderEntry setMesh(NativeRenderMesh mesh) {
-            return setModel(new NativeBlockModel(mesh));
+            return this;
         }
     }
 
     /* COLLISION SHAPE */
 
-    public static long constructCollisionShape(){
+    public static long constructCollisionShape() {
+        InnerCoreServer.useClientMethod("NativeICRender.constructCollisionShape()");
         return 0;
     }
-    public static void collisionShapeClear(long shape){
 
+    public static void collisionShapeClear(long shape) {
+        InnerCoreServer.useClientMethod("NativeICRender.collisionShapeClear(shape)");
     }
-    public static void collisionShapeAddEntry(long shape, long entry){
 
+    public static void collisionShapeAddEntry(long shape, long entry) {
+        InnerCoreServer.useClientMethod("NativeICRender.collisionShapeAddEntry(shape, entry)");
     }
-    public static long constructCollisionShapeEntry(){
+
+    public static long constructCollisionShapeEntry() {
+        InnerCoreServer.useClientMethod("NativeICRender.constructCollisionShapeEntry()");
         return 0;
     }
-    public static void collisionShapeEntryAddBox(long entry, float x1, float y1, float z1, float x2, float y2, float z2){
 
+    public static void collisionShapeEntryAddBox(long entry, float x1, float y1, float z1, float x2, float y2,
+            float z2) {
+        InnerCoreServer.useClientMethod("NativeICRender.collisionShapeEntryAddBox(entry, x1, y1, z1, x2, y2, z2)");
     }
-    public static void collisionShapeEntrySetCondition(long entry, long condition){
 
+    public static void collisionShapeEntrySetCondition(long entry, long condition) {
+        InnerCoreServer.useClientMethod("NativeICRender.collisionShapeEntrySetCondition(entry, condition)");
     }
 
     public static class CollisionShape {
-        private long ptr;
-
         public long getPtr() {
-            return ptr;
+            return 0;
         }
 
         public CollisionShape() {
-            ptr = constructCollisionShape();
         }
 
         public CollisionEntry addEntry() {
-            CollisionEntry entry = new CollisionEntry();
-            collisionShapeAddEntry(ptr, entry.ptr);
-            return entry;
+            return new CollisionEntry();
         }
 
         public void clear() {
-            collisionShapeClear(ptr);
         }
     }
 
     public static class CollisionEntry {
-        private long ptr;
-
         private CollisionEntry() {
-            ptr = constructCollisionShapeEntry();
         }
 
         public CollisionEntry addBox(float x1, float y1, float z1, float x2, float y2, float z2) {
-            collisionShapeEntryAddBox(ptr, x1, y1, z1, x2, y2, z2);
             return this;
         }
 
         public CollisionEntry setCondition(CONDITION condition) {
-            collisionShapeEntrySetCondition(ptr, condition.ptr);
             return this;
         }
     }
 
     /* CONDITIONS */
 
-    public static long newConditionBlock(int x, int y, int z, long group, boolean mode){
+    public static long newConditionBlock(int x, int y, int z, long group, boolean mode) {
+        InnerCoreServer.useClientMethod("NativeICRender.newConditionBlock(x, y, z, group, mode)");
         return 0;
-    }
-    public static long newConditionRandom(int value, int max, int seed){
-        return 0;
-    }
-    public static long conditionRandomSetAxisEnabled(long condition, int axis, boolean enabled){
-        return 0;
-    }
-    public static long newConditionOperatorNot(long condition){
-        return 0;
-    }
-    public static long newConditionOperatorAnd(){
-        return 0;
-    }
-    public static void addToConditionOperatorAnd(long opAnd, long condition){
-
-    }
-    public static long newConditionOperatorOr(){
-        return 0;
-    }
-    public static void addToConditionOperatorOr(long opOr, long condition){
-
     }
 
+    public static long newConditionRandom(int value, int max, int seed) {
+        InnerCoreServer.useClientMethod("NativeICRender.newConditionRandom(value, max, seed)");
+        return 0;
+    }
 
-    private static class CONDITION {
+    public static long conditionRandomSetAxisEnabled(long condition, int axis, boolean enabled) {
+        InnerCoreServer.useClientMethod("NativeICRender.conditionRandomSetAxisEnabled(condition, axis, enabled)");
+        return 0;
+    }
+
+    public static long newConditionOperatorNot(long condition) {
+        InnerCoreServer.useClientMethod("NativeICRender.newConditionOperatorNot(condition)");
+        return 0;
+    }
+
+    public static long newConditionOperatorAnd() {
+        InnerCoreServer.useClientMethod("NativeICRender.newConditionOperatorAnd()");
+        return 0;
+    }
+
+    public static void addToConditionOperatorAnd(long opAnd, long condition) {
+        InnerCoreServer.useClientMethod("NativeICRender.addToConditionOperatorAnd(opAnd, condition)");
+    }
+
+    public static long newConditionOperatorOr() {
+        InnerCoreServer.useClientMethod("NativeICRender.newConditionOperatorOr()");
+        return 0;
+    }
+
+    public static void addToConditionOperatorOr(long opOr, long condition) {
+        InnerCoreServer.useClientMethod("NativeICRender.addToConditionOperatorOr(opOr, condition)");
+    }
+
+    public static class CONDITION {
         protected final long ptr;
 
-        private CONDITION(long ptr) {
+        public CONDITION(long ptr) {
             this.ptr = ptr;
         }
     }
@@ -279,7 +273,7 @@ public class NativeICRender {
         private boolean mode;
 
         public BLOCK(int x, int y, int z, Group group, boolean mode) {
-            super(newConditionBlock(x, y, z, group.ptr, mode));
+            super(0);
             this.x = x;
             this.y = y;
             this.z = z;
@@ -314,7 +308,6 @@ public class NativeICRender {
         }
 
         public RANDOM setAxisEnabled(int axis, boolean enabled) {
-            conditionRandomSetAxisEnabled(ptr, axis, enabled);
             return this;
         }
 
@@ -328,7 +321,7 @@ public class NativeICRender {
         private CONDITION condition;
 
         public NOT(CONDITION condition) {
-            super(newConditionOperatorNot(condition.ptr));
+            super(0);
             this.condition = condition;
         }
 
@@ -344,8 +337,7 @@ public class NativeICRender {
                 }
                 str.append("]");
                 return str.toString();
-            }
-            else {
+            } else {
                 return "NOT [" + condition + "]";
             }
         }
@@ -354,15 +346,12 @@ public class NativeICRender {
     public static class AND extends CONDITION {
         private CONDITION[] conditions;
 
-        public AND(CONDITION ... conditions) {
-            super(newConditionOperatorAnd());
+        public AND(CONDITION... conditions) {
+            super(0);
             this.conditions = conditions;
 
             if (conditions.length < 2) {
                 throw new IllegalArgumentException("ICRender AND condition got less than 2 parameters, it is useless");
-            }
-            for (CONDITION condition : conditions) {
-                addToConditionOperatorAnd(ptr, condition.ptr);
             }
         }
 
@@ -386,15 +375,12 @@ public class NativeICRender {
     public static class OR extends CONDITION {
         private CONDITION[] conditions;
 
-        public OR(CONDITION ... conditions) {
-            super(newConditionOperatorOr());
+        public OR(CONDITION... conditions) {
+            super(0);
             this.conditions = conditions;
 
             if (conditions.length < 2) {
                 throw new IllegalArgumentException("ICRender OR condition got less than 2 parameters, it is useless");
-            }
-            for (CONDITION condition : conditions) {
-                addToConditionOperatorOr(ptr, condition.ptr);
             }
         }
 

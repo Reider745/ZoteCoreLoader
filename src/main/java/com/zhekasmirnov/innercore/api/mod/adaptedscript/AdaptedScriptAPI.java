@@ -2,6 +2,8 @@ package com.zhekasmirnov.innercore.api.mod.adaptedscript;
 
 import android.util.Pair;
 import cn.nukkit.nbt.tag.CompoundTag;
+
+import com.reider745.entity.EntityMethod;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
@@ -846,12 +848,12 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ItemInstance getDroppedItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getItemFromDrop(unwrapEntity(entity))));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getItemFromDrop(unwrapEntity(entity))));
         }
 
         @JSStaticFunction
         public static ItemInstance getProjectileItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getItemFromProjectile(unwrapEntity(entity))));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getItemFromProjectile(unwrapEntity(entity))));
         }
 
         @JSStaticFunction
@@ -862,12 +864,12 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ItemInstance getCarriedItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getEntityCarriedItem(unwrapEntity(entity))));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityCarriedItem(unwrapEntity(entity))));
         }
 
         @JSStaticFunction
         public static ItemInstance getOffhandItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getEntityOffhandItem(unwrapEntity(entity))));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityOffhandItem(unwrapEntity(entity))));
         }
 
         @JSStaticFunction
@@ -882,7 +884,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ItemInstance getArmor(Object entity, int slot) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getEntityArmor(unwrapEntity(entity), slot)));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityArmor(unwrapEntity(entity), slot)));
         }
 
         @JSStaticFunction
@@ -892,7 +894,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ItemInstance getArmorSlot(Object entity, int slot) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getEntityArmor(unwrapEntity(entity), slot)));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityArmor(unwrapEntity(entity), slot)));
         }
 
         @JSStaticFunction
@@ -985,15 +987,15 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static NativeCompoundTag getCompoundTag(Object entity) {
-            CompoundTag ptr = NativeAPI.getEntityCompoundTag(unwrapEntity(entity));
-            return ptr != null ? new NativeCompoundTag(ptr) : null;
+            CompoundTag tag = EntityMethod.getEntityCompoundTag(unwrapEntity(entity));
+            return tag != null ? new NativeCompoundTag(tag) : null;
         }
 
         @JSStaticFunction
         public static void setCompoundTag(Object entity, Object _tag) {
             NativeCompoundTag tag = (NativeCompoundTag) Context.jsToJava(_tag, NativeCompoundTag.class);
             if (tag != null) {
-                NativeAPI.setEntityCompoundTag(unwrapEntity(entity), tag.pointer);
+                EntityMethod.setEntityCompoundTag(unwrapEntity(entity), tag.pointer);
             }
         }
 
@@ -1116,12 +1118,12 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ItemInstance getCarriedItem() {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getEntityCarriedItem(get())));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityCarriedItem(get())));
         }
 
         @JSStaticFunction
         public static ItemInstance getOffhandItem() {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getEntityOffhandItem(get())));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityOffhandItem(get())));
         }
 
         @JSStaticFunction
@@ -1335,7 +1337,7 @@ public class AdaptedScriptAPI extends API {
             item.setUseAnimation(1);
             item.setMaxUseDuration(32);
             return item;*/
-            NativeItem item = createFoodItem(id, nameId, name, food);
+            NativeItem item = createFoodItem(id, nameId, name, iconName, iconIndex, food);
             //item.setProperties(null);
             item.setUseAnimation(1);
             item.setMaxUseDuration(32);
@@ -2432,7 +2434,7 @@ public class AdaptedScriptAPI extends API {
             try {
                 blockSource = (NativeBlockSource) Context.jsToJava(blockSource0, NativeBlockSource.class);
             } catch (Exception ignore) { }
-            return NativeAPI.executeCommand(command, 0, 0, 0, blockSource != null ? blockSource.getPointer() : null);
+            return NativeAPI.executeCommand(command, 0, 0, 0, /* blockSource != null ? blockSource.getPointer() : null*/ 0);
         }
 
         @JSStaticFunction
@@ -2441,7 +2443,7 @@ public class AdaptedScriptAPI extends API {
             try {
                 blockSource = (NativeBlockSource) Context.jsToJava(blockSource0, NativeBlockSource.class);
             } catch (Exception ignore) { }
-            return NativeAPI.executeCommand(command, x, y, z, blockSource != null ? blockSource.getPointer() : null);
+            return NativeAPI.executeCommand(command, x, y, z, /* blockSource != null ? blockSource.getPointer() : null*/ 0);
         }
     }
 
