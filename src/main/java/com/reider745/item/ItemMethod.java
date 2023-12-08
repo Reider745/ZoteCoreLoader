@@ -31,7 +31,9 @@ public class ItemMethod {
         }
     }
     private static CustomManager getCustomManager(int id){
-        return CustomItem.getItemManager(id);
+        CustomManager manager = CustomItem.getItemManager(id);
+        if(manager == null) manager = CustomBlock.getBlockManager(id);
+        return manager;
     }
 
     public static int getMaxDamageForId(int id, int data){
@@ -54,17 +56,13 @@ public class ItemMethod {
     }
 
     public static int getCreativeCategory(int id) {
-        if(id > 8000)
-            return 1;
         CustomManager ptr = getCustomManager(id);
         if(ptr != null)
-            return ptr.get(PropertiesNames.CREATIVE_CATEGORY, 3);
+            return ptr.get(PropertiesNames.CREATIVE_CATEGORY, 1);
         throw new RuntimeException("not get CreativeCategory "+id);
     }
 
     public static int getMaxStackForId(int id, int data){
-        if(id >= 8000)
-            return 64;
         CustomManager manager = getCustomManager(id);
         if(manager != null)
             return manager.get(PropertiesNames.MAX_STACK);

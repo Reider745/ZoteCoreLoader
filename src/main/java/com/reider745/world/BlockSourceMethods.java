@@ -26,16 +26,12 @@ import java.util.Map;
 
 public class BlockSourceMethods {
     private static void defDestroy(Level level, Block target) {
-        level.scheduleUpdate(target, target.tickRate());
-        /*
-         * BlockEntity blockEntity = level.getBlockEntity(target);
-         * if (blockEntity != null) {
-         * blockEntity.onBreak();
-         * blockEntity.close();
-         * 
-         * level.updateComparatorOutputLevel(target);
-         * }
-         */
+        BlockEntity blockEntity = level.getBlockEntity(target);
+        if (blockEntity != null) {
+            blockEntity.onBreak();
+            blockEntity.close();
+            level.updateComparatorOutputLevel(target);
+        }
     }
 
     public static Level getLevelForDimension(int dimension) {
@@ -54,7 +50,6 @@ public class BlockSourceMethods {
             boolean destroyParticles) {
         boolean update = updateType == 3;
         Block block = pointer.getBlock(x, y, z);
-        pointer.setBlock(x, y, z, Block.get(0), update, update);
         if (destroyParticles) {
             Map<Integer, Player> players = pointer.getChunkPlayers( x >> 4,  z >> 4);
             pointer.addParticle(new DestroyBlockParticle(block.add(0.5), block), players.values());
@@ -66,6 +61,7 @@ public class BlockSourceMethods {
                 pointer.dropItem(pos, item);
         }
         defDestroy(pointer, block);
+        pointer.setBlock(x, y, z, Block.get(0), false, update);
     }
 
     public static int getBlockId(Level pointer, int x, int y, int z) {
@@ -131,8 +127,8 @@ public class BlockSourceMethods {
     public static void setBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate,
             int updateType) {
         Block block = pointer.getBlock(x, y, z);
-        pointer.setBlock(x, y, z, Block.get(id, data).clone(), allowUpdate, allowUpdate);
         defDestroy(pointer, block);
+        pointer.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
     }
 
     public static void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate,
@@ -140,7 +136,6 @@ public class BlockSourceMethods {
         Block block = pointer.getBlock(x, y, z);
         int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
         setBlock(pointer, x, y, z, legacyId >> 6, legacyId & 0x3F, allowUpdate, updateType);
-        defDestroy(pointer, block);
     }
 
     public static void setExtraBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate,

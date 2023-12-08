@@ -52,6 +52,10 @@ public class NativeItem {
         em.extend(entity, initCC.setValues(new ItemComponent(id, nameId, nameToDisplay)));
     }
 
+    public static NativeItem newNativeItem(int id, CustomManager ptr, String nameId, String name){
+        return new NativeItem(id, ptr, nameId, name);
+    }
+
     public void setGlint(boolean val) {
         setGlint(pointer, val);
     }

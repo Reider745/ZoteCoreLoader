@@ -11,6 +11,7 @@ import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class CustomItem {
 
@@ -32,8 +33,8 @@ public class CustomItem {
 
     public static class ItemCreative {
         public int id, count, data;
-        public NativeItemInstanceExtra extra;
-        public ItemCreative(int id, int count, int data, NativeItemInstanceExtra extra){
+        public long extra;
+        public ItemCreative(int id, int count, int data, long extra){
             this.id = id;
             this.count = count;
             this.data = data;
@@ -46,7 +47,7 @@ public class CustomItem {
 
     public static boolean isCreativeItem(int id, int damage){
         for(ItemCreative item : creative)
-            if(item.id == id && item.data == damage && item.extra == null)
+            if(item.id == id && item.data == damage)
                 return true;
         return false;
     }
@@ -65,7 +66,7 @@ public class CustomItem {
     public static void checkAddedItem(int id, int count, int damage, NativeItemInstanceExtra extra){
         if(!CustomItem.isCreativeItem(id, damage) && id > 2000) {
             CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, id);
-            addFirst(CustomItem.creative, new ItemCreative(id, count, damage, extra));
+            addFirst(CustomItem.creative, new ItemCreative(id, count, damage, extra != null ? extra.getPtr() : 0));
         }
     }
 
@@ -122,7 +123,7 @@ public class CustomItem {
     }
 
     public static void addCreative(int id, int count, int data, long extra) {
-        creative.add(new ItemCreative(id, count, data, null));// TODO: потом добавть поддержку extra
+        creative.add(new ItemCreative(id, count, data, extra));
     }
 
     public static CustomManager registerThrowableItem(String nameId, int id, String name) {
@@ -195,23 +196,27 @@ public class CustomItem {
             if(index != -1)
                 result.add(items_clone.remove(index));
         }
+        if(result.size() != items.size())
+            throw new RuntimeException("Error sort items");
         return result;
     }
 
+    private static final Consumer<ItemCreative> func = item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra));
+
     public static void addCreativeItemsBuild() {
         sortCategory();
-        sortCreativeItems(1).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
-    }
-
-    public static void addCreativeItemsWeapons() {
-        sortCreativeItems(3).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
-    }
-
-    public static void addCreativeItems() {
-        sortCreativeItems(4).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
+        sortCreativeItems(1).forEach(func);
     }
 
     public static void addCreativeItemsNature() {
-        sortCreativeItems(2).forEach(item -> Item.addCreativeItem(407, ItemUtils.get(item.id, item.count, item.data, item.extra)));
+        sortCreativeItems(2).forEach(func);
+    }
+
+    public static void addCreativeItemsWeapons() {
+        sortCreativeItems(3).forEach(func);
+    }
+
+    public static void addCreativeItems() {
+        sortCreativeItems(4).forEach(func);
     }
 }

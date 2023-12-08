@@ -10,6 +10,7 @@ import cn.nukkit.math.BlockFace;
 import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
 import com.zhekasmirnov.innercore.api.NativeCallback;
+import com.zhekasmirnov.innercore.api.NativeItem;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         blocks.put(id, manager);
         customBlocks.put("block_"+textId, id);;
         CustomManager.put(id, manager);
-
+        NativeItem.newNativeItem(id, manager, textId, name);
         return manager;
     }
 

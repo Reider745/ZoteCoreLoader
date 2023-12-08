@@ -4,6 +4,7 @@ import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntityContainer;
 import cn.nukkit.blockentity.BlockEntitySpawnable;
 import cn.nukkit.blockentity.BlockEntitySpawnableContainer;
+import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.math.BlockVector3;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -61,6 +62,7 @@ public class NativeTileEntity {
     }
 
     public void setSlot(int slot, NativeItemInstance item) {
+        System.out.println("setSlot2 "+slot);
         if (slot < 0 || slot >= size)
             return;
         setSlot2(pointer, slot, item.item);
@@ -190,6 +192,10 @@ public class NativeTileEntity {
     }
 
     public static Item getSlot(BlockEntity pointer, int slot){
+        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
+            return blockEntity.getInventory().getItem(slot);
+        else if(pointer instanceof InventoryHolder blockEntity)
+            return blockEntity.getInventory().getItem(slot);
         if(pointer instanceof BlockEntityContainer blockEntity)
             return blockEntity.getItem(slot);
         return null;
@@ -197,12 +203,21 @@ public class NativeTileEntity {
 
     public static void setSlot(BlockEntity pointer, int slot, int id, int count, int data, long extra){
         Item item = ItemUtils.get(id, count, data, extra);
-        if(pointer instanceof BlockEntityContainer blockEntity)
+        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
+            blockEntity.getInventory().setItem(slot, item);
+        else if(pointer instanceof InventoryHolder blockEntity)
+            blockEntity.getInventory().setItem(slot, item);
+        else if(pointer instanceof BlockEntityContainer blockEntity)
             blockEntity.setItem(slot, item);
+
     }
 
     public static void setSlot2(BlockEntity pointer, int slot, Item itemInstance){
-        if(pointer instanceof BlockEntityContainer blockEntity)
+        if(pointer instanceof BlockEntitySpawnableContainer blockEntity)
+            blockEntity.getInventory().setItem(slot, itemInstance);
+        else if(pointer instanceof InventoryHolder blockEntity)
+            blockEntity.getInventory().setItem(slot, itemInstance);
+        else if(pointer instanceof BlockEntityContainer blockEntity)
             blockEntity.setItem(slot, itemInstance);
     }
 

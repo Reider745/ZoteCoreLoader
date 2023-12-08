@@ -50,9 +50,6 @@ public class PlayerHooks implements HookClass {
         try{
             if(client != null)
                 client.getChannelInterface().close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
+        }catch (Exception ignore){}
     }
 }
