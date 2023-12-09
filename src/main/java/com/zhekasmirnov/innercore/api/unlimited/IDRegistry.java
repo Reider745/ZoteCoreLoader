@@ -1,5 +1,7 @@
 package com.zhekasmirnov.innercore.api.unlimited;
 
+import com.reider745.block.CustomBlock;
+import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.minecraft.version.VanillaIdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.innercore.api.NativeAPI;
@@ -116,8 +118,10 @@ public class IDRegistry {
 
     public static int getIdByStrId(String id){
         if(id.startsWith("item_"))
-            return (Integer) itemIds.get(id.replace("item_", ""));
-        return (Integer) blockIds.get(id.replace("block_", ""));
+            return CustomItem.getIdForText(id.replace("block_", ""));
+        Object obj = CustomBlock.getIdForText(id.replace("block_", ""));
+        if(obj == null) return 0;
+        return (Integer) obj;
     }
 
     static boolean isOccupied(int id) {

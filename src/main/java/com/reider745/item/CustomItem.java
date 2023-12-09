@@ -31,6 +31,10 @@ public class CustomItem {
 
     public static HashMap<String, Integer> customItems = new HashMap<>();
 
+    public static int getIdForText(String id) {
+        return customItems.get(id);
+    }
+
     public static class ItemCreative {
         public int id, count, data;
         public long extra;

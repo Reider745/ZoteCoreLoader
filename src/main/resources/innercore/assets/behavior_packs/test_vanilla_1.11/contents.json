@@ -1,0 +1,10 @@
+{
+    "content": [
+        {
+            "path": "manifest.json"
+        },
+        {
+            "path": "entities/villager_v2.json"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "content": [
+        {
+            "path": "manifest.json"
+        },
+        {
+            "path": "entities/bee.json"
+        },
+        {
+            "path": "entities/boat.json"
+        }
+    ]
+}

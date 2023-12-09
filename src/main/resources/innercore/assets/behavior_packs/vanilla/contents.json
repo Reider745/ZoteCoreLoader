@@ -1,0 +1,3505 @@
+{
+    "content": [
+        {
+            "path": "manifest.json"
+        },
+        {
+            "path": "manifest_publish.json"
+        },
+        {
+            "path": "pack_icon.png"
+        },
+        {
+            "path": "behavior_trees/attack.json"
+        },
+        {
+            "path": "behavior_trees/attack_mob_test.json"
+        },
+        {
+            "path": "behavior_trees/attack_mob_test2.json"
+        },
+        {
+            "path": "behavior_trees/break_nearby_block.json"
+        },
+        {
+            "path": "behavior_trees/chop_wood.json"
+        },
+        {
+            "path": "behavior_trees/collect_items.json"
+        },
+        {
+            "path": "behavior_trees/consume_item.json"
+        },
+        {
+            "path": "behavior_trees/cooked_chicken_test.json"
+        },
+        {
+            "path": "behavior_trees/interact.json"
+        },
+        {
+            "path": "behavior_trees/interact_with_at.json"
+        },
+        {
+            "path": "behavior_trees/look_at_entity.json"
+        },
+        {
+            "path": "behavior_trees/mine_block_at_origin.json"
+        },
+        {
+            "path": "behavior_trees/pickup_nearby_item.json"
+        },
+        {
+            "path": "behavior_trees/place_block_at.json"
+        },
+        {
+            "path": "behavior_trees/silk_touch_test.json"
+        },
+        {
+            "path": "behavior_trees/test_nether_portal.json"
+        },
+        {
+            "path": "behavior_trees/use_entity.json"
+        },
+        {
+            "path": "behavior_trees/wait_one_second.json"
+        },
+        {
+            "path": "behavior_trees/wait_seconds.json"
+        },
+        {
+            "path": "behavior_trees/wait_ticks.json"
+        },
+        {
+            "path": "behavior_trees/wait_two_seconds.json"
+        },
+        {
+            "path": "behavior_trees/walk_forward.json"
+        },
+        {
+            "path": "entities/agent.json"
+        },
+        {
+            "path": "entities/area_effect_cloud.json"
+        },
+        {
+            "path": "entities/armor_stand.json"
+        },
+        {
+            "path": "entities/arrow.json"
+        },
+        {
+            "path": "entities/bat.json"
+        },
+        {
+            "path": "entities/blaze.json"
+        },
+        {
+            "path": "entities/boat.json"
+        },
+        {
+            "path": "entities/cat.json"
+        },
+        {
+            "path": "entities/cave_spider.json"
+        },
+        {
+            "path": "entities/chest_minecart.json"
+        },
+        {
+            "path": "entities/chicken.json"
+        },
+        {
+            "path": "entities/command_block_minecart.json"
+        },
+        {
+            "path": "entities/cow.json"
+        },
+        {
+            "path": "entities/creeper.json"
+        },
+        {
+            "path": "entities/dolphin.json"
+        },
+        {
+            "path": "entities/donkey.json"
+        },
+        {
+            "path": "entities/dragon_fireball.json"
+        },
+        {
+            "path": "entities/drowned.json"
+        },
+        {
+            "path": "entities/egg.json"
+        },
+        {
+            "path": "entities/elder_guardian.json"
+        },
+        {
+            "path": "entities/enderman.json"
+        },
+        {
+            "path": "entities/endermite.json"
+        },
+        {
+            "path": "entities/ender_crystal.json"
+        },
+        {
+            "path": "entities/ender_dragon.json"
+        },
+        {
+            "path": "entities/ender_pearl.json"
+        },
+        {
+            "path": "entities/evocation_illager.json"
+        },
+        {
+            "path": "entities/eye_of_ender_signal.json"
+        },
+        {
+            "path": "entities/fireball.json"
+        },
+        {
+            "path": "entities/fireworks_rocket.json"
+        },
+        {
+            "path": "entities/fish.json"
+        },
+        {
+            "path": "entities/fishing_hook.json"
+        },
+        {
+            "path": "entities/fox.json"
+        },
+        {
+            "path": "entities/ghast.json"
+        },
+        {
+            "path": "entities/guardian.json"
+        },
+        {
+            "path": "entities/hopper_minecart.json"
+        },
+        {
+            "path": "entities/horse.json"
+        },
+        {
+            "path": "entities/husk.json"
+        },
+        {
+            "path": "entities/iron_golem.json"
+        },
+        {
+            "path": "entities/lightning_bolt.json"
+        },
+        {
+            "path": "entities/lingering_potion.json"
+        },
+        {
+            "path": "entities/llama.json"
+        },
+        {
+            "path": "entities/llama_spit.json"
+        },
+        {
+            "path": "entities/magma_cube.json"
+        },
+        {
+            "path": "entities/minecart.json"
+        },
+        {
+            "path": "entities/mooshroom.json"
+        },
+        {
+            "path": "entities/mule.json"
+        },
+        {
+            "path": "entities/npc.json"
+        },
+        {
+            "path": "entities/ocelot.json"
+        },
+        {
+            "path": "entities/panda.json"
+        },
+        {
+            "path": "entities/parrot.json"
+        },
+        {
+            "path": "entities/phantom.json"
+        },
+        {
+            "path": "entities/pig.json"
+        },
+        {
+            "path": "entities/pillager.json"
+        },
+        {
+            "path": "entities/player.json"
+        },
+        {
+            "path": "entities/polar_bear.json"
+        },
+        {
+            "path": "entities/pufferfish.json"
+        },
+        {
+            "path": "entities/rabbit.json"
+        },
+        {
+            "path": "entities/ravager.json"
+        },
+        {
+            "path": "entities/salmon.json"
+        },
+        {
+            "path": "entities/sheep.json"
+        },
+        {
+            "path": "entities/shulker.json"
+        },
+        {
+            "path": "entities/shulker_bullet.json"
+        },
+        {
+            "path": "entities/silverfish.json"
+        },
+        {
+            "path": "entities/skeleton.json"
+        },
+        {
+            "path": "entities/skeleton_horse.json"
+        },
+        {
+            "path": "entities/slime.json"
+        },
+        {
+            "path": "entities/small_fireball.json"
+        },
+        {
+            "path": "entities/snowball.json"
+        },
+        {
+            "path": "entities/snow_golem.json"
+        },
+        {
+            "path": "entities/spider.json"
+        },
+        {
+            "path": "entities/splash_potion.json"
+        },
+        {
+            "path": "entities/squid.json"
+        },
+        {
+            "path": "entities/stray.json"
+        },
+        {
+            "path": "entities/thrown_trident.json"
+        },
+        {
+            "path": "entities/tnt.json"
+        },
+        {
+            "path": "entities/tnt_minecart.json"
+        },
+        {
+            "path": "entities/tripod_camera.json"
+        },
+        {
+            "path": "entities/tropicalfish.json"
+        },
+        {
+            "path": "entities/turtle.json"
+        },
+        {
+            "path": "entities/vex.json"
+        },
+        {
+            "path": "entities/villager.json"
+        },
+        {
+            "path": "entities/villager_v2.json"
+        },
+        {
+            "path": "entities/vindicator.json"
+        },
+        {
+            "path": "entities/wandering_trader.json"
+        },
+        {
+            "path": "entities/witch.json"
+        },
+        {
+            "path": "entities/wither.json"
+        },
+        {
+            "path": "entities/wither_skeleton.json"
+        },
+        {
+            "path": "entities/wither_skull.json"
+        },
+        {
+            "path": "entities/wither_skull_dangerous.json"
+        },
+        {
+            "path": "entities/wolf.json"
+        },
+        {
+            "path": "entities/xp_bottle.json"
+        },
+        {
+            "path": "entities/zombie.json"
+        },
+        {
+            "path": "entities/zombie_horse.json"
+        },
+        {
+            "path": "entities/zombie_pigman.json"
+        },
+        {
+            "path": "entities/zombie_villager.json"
+        },
+        {
+            "path": "entities/zombie_villager_v2.json"
+        },
+        {
+            "path": "items/apple.json"
+        },
+        {
+            "path": "items/appleEnchanted.json"
+        },
+        {
+            "path": "items/baked_potato.json"
+        },
+        {
+            "path": "items/beef.json"
+        },
+        {
+            "path": "items/beetroot.json"
+        },
+        {
+            "path": "items/beetroot_seeds.json"
+        },
+        {
+            "path": "items/beetroot_soup.json"
+        },
+        {
+            "path": "items/bread.json"
+        },
+        {
+            "path": "items/camera.json"
+        },
+        {
+            "path": "items/carrot.json"
+        },
+        {
+            "path": "items/chicken.json"
+        },
+        {
+            "path": "items/chorus_fruit.json"
+        },
+        {
+            "path": "items/clownfish.json"
+        },
+        {
+            "path": "items/cooked_beef.json"
+        },
+        {
+            "path": "items/cooked_chicken.json"
+        },
+        {
+            "path": "items/cooked_fish.json"
+        },
+        {
+            "path": "items/cooked_porkchop.json"
+        },
+        {
+            "path": "items/cooked_rabbit.json"
+        },
+        {
+            "path": "items/cooked_salmon.json"
+        },
+        {
+            "path": "items/cookie.json"
+        },
+        {
+            "path": "items/dried_kelp.json"
+        },
+        {
+            "path": "items/fish.json"
+        },
+        {
+            "path": "items/golden_apple.json"
+        },
+        {
+            "path": "items/golden_carrot.json"
+        },
+        {
+            "path": "items/melon.json"
+        },
+        {
+            "path": "items/melon_seeds.json"
+        },
+        {
+            "path": "items/mushroom_stew.json"
+        },
+        {
+            "path": "items/muttonCooked.json"
+        },
+        {
+            "path": "items/muttonRaw.json"
+        },
+        {
+            "path": "items/nether_wart.json"
+        },
+        {
+            "path": "items/poisonous_potato.json"
+        },
+        {
+            "path": "items/porkchop.json"
+        },
+        {
+            "path": "items/potato.json"
+        },
+        {
+            "path": "items/pufferfish.json"
+        },
+        {
+            "path": "items/pumpkin_pie.json"
+        },
+        {
+            "path": "items/pumpkin_seeds.json"
+        },
+        {
+            "path": "items/rabbit.json"
+        },
+        {
+            "path": "items/rabbit_stew.json"
+        },
+        {
+            "path": "items/rotten_flesh.json"
+        },
+        {
+            "path": "items/salmon.json"
+        },
+        {
+            "path": "items/spider_eye.json"
+        },
+        {
+            "path": "items/suspicious_stew.json"
+        },
+        {
+            "path": "items/sweet_berries.json"
+        },
+        {
+            "path": "items/wheat_seeds.json"
+        },
+        {
+            "path": "loot_tables/empty.json"
+        },
+        {
+            "path": "loot_tables/chests/abandoned_mineshaft.json"
+        },
+        {
+            "path": "loot_tables/chests/buriedtreasure.json"
+        },
+        {
+            "path": "loot_tables/chests/desert_pyramid.json"
+        },
+        {
+            "path": "loot_tables/chests/dispenser_trap.json"
+        },
+        {
+            "path": "loot_tables/chests/end_city_treasure.json"
+        },
+        {
+            "path": "loot_tables/chests/igloo_chest.json"
+        },
+        {
+            "path": "loot_tables/chests/jungle_temple.json"
+        },
+        {
+            "path": "loot_tables/chests/monster_room.json"
+        },
+        {
+            "path": "loot_tables/chests/nether_bridge.json"
+        },
+        {
+            "path": "loot_tables/chests/pillager_outpost.json"
+        },
+        {
+            "path": "loot_tables/chests/shipwreck.json"
+        },
+        {
+            "path": "loot_tables/chests/shipwrecksupply.json"
+        },
+        {
+            "path": "loot_tables/chests/shipwrecktreasure.json"
+        },
+        {
+            "path": "loot_tables/chests/simple_dungeon.json"
+        },
+        {
+            "path": "loot_tables/chests/spawn_bonus_chest.json"
+        },
+        {
+            "path": "loot_tables/chests/stronghold_corridor.json"
+        },
+        {
+            "path": "loot_tables/chests/stronghold_crossing.json"
+        },
+        {
+            "path": "loot_tables/chests/stronghold_library.json"
+        },
+        {
+            "path": "loot_tables/chests/underwater_ruin_big.json"
+        },
+        {
+            "path": "loot_tables/chests/underwater_ruin_small.json"
+        },
+        {
+            "path": "loot_tables/chests/village_blacksmith.json"
+        },
+        {
+            "path": "loot_tables/chests/village_two_room_house.json"
+        },
+        {
+            "path": "loot_tables/chests/woodland_mansion.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_armorer.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_butcher.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_cartographer.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_desert_house.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_fletcher.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_mason.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_plains_house.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_savanna_house.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_shepherd.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_snowy_house.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_taiga_house.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_tannery.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_temple.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_toolsmith.json"
+        },
+        {
+            "path": "loot_tables/chests/village/village_weaponsmith.json"
+        },
+        {
+            "path": "loot_tables/entities/armor_set_chain.json"
+        },
+        {
+            "path": "loot_tables/entities/armor_set_diamond.json"
+        },
+        {
+            "path": "loot_tables/entities/armor_set_gold.json"
+        },
+        {
+            "path": "loot_tables/entities/armor_set_iron.json"
+        },
+        {
+            "path": "loot_tables/entities/armor_set_leather.json"
+        },
+        {
+            "path": "loot_tables/entities/armor_stand.json"
+        },
+        {
+            "path": "loot_tables/entities/bat.json"
+        },
+        {
+            "path": "loot_tables/entities/blaze.json"
+        },
+        {
+            "path": "loot_tables/entities/boat.json"
+        },
+        {
+            "path": "loot_tables/entities/brown_mooshroom_shear.json"
+        },
+        {
+            "path": "loot_tables/entities/cat.json"
+        },
+        {
+            "path": "loot_tables/entities/cat_gift.json"
+        },
+        {
+            "path": "loot_tables/entities/cave_spider.json"
+        },
+        {
+            "path": "loot_tables/entities/chicken.json"
+        },
+        {
+            "path": "loot_tables/entities/clownfish.json"
+        },
+        {
+            "path": "loot_tables/entities/cow.json"
+        },
+        {
+            "path": "loot_tables/entities/creeper.json"
+        },
+        {
+            "path": "loot_tables/entities/dolphin.json"
+        },
+        {
+            "path": "loot_tables/entities/drowned.json"
+        },
+        {
+            "path": "loot_tables/entities/drowned_equipment.json"
+        },
+        {
+            "path": "loot_tables/entities/drowned_ranged_equipment.json"
+        },
+        {
+            "path": "loot_tables/entities/elder_guardian.json"
+        },
+        {
+            "path": "loot_tables/entities/enderman.json"
+        },
+        {
+            "path": "loot_tables/entities/endermite.json"
+        },
+        {
+            "path": "loot_tables/entities/evocation_illager.json"
+        },
+        {
+            "path": "loot_tables/entities/fish.json"
+        },
+        {
+            "path": "loot_tables/entities/fox_equipment.json"
+        },
+        {
+            "path": "loot_tables/entities/ghast.json"
+        },
+        {
+            "path": "loot_tables/entities/giant.json"
+        },
+        {
+            "path": "loot_tables/entities/guardian.json"
+        },
+        {
+            "path": "loot_tables/entities/horse.json"
+        },
+        {
+            "path": "loot_tables/entities/iron_golem.json"
+        },
+        {
+            "path": "loot_tables/entities/llama.json"
+        },
+        {
+            "path": "loot_tables/entities/magma_cube.json"
+        },
+        {
+            "path": "loot_tables/entities/mooshroom.json"
+        },
+        {
+            "path": "loot_tables/entities/mooshroom_shear.json"
+        },
+        {
+            "path": "loot_tables/entities/ocelot.json"
+        },
+        {
+            "path": "loot_tables/entities/panda.json"
+        },
+        {
+            "path": "loot_tables/entities/panda_sneeze.json"
+        },
+        {
+            "path": "loot_tables/entities/parrot.json"
+        },
+        {
+            "path": "loot_tables/entities/phantom.json"
+        },
+        {
+            "path": "loot_tables/entities/pig.json"
+        },
+        {
+            "path": "loot_tables/entities/pig_saddled.json"
+        },
+        {
+            "path": "loot_tables/entities/pillager.json"
+        },
+        {
+            "path": "loot_tables/entities/pillager_captain_equipment.json"
+        },
+        {
+            "path": "loot_tables/entities/pillager_gear.json"
+        },
+        {
+            "path": "loot_tables/entities/pillager_raid.json"
+        },
+        {
+            "path": "loot_tables/entities/polar_bear.json"
+        },
+        {
+            "path": "loot_tables/entities/pufferfish.json"
+        },
+        {
+            "path": "loot_tables/entities/rabbit.json"
+        },
+        {
+            "path": "loot_tables/entities/raider_drops.json"
+        },
+        {
+            "path": "loot_tables/entities/ravager.json"
+        },
+        {
+            "path": "loot_tables/entities/salmon_large.json"
+        },
+        {
+            "path": "loot_tables/entities/salmon_normal.json"
+        },
+        {
+            "path": "loot_tables/entities/sea_turtle.json"
+        },
+        {
+            "path": "loot_tables/entities/sheep.json"
+        },
+        {
+            "path": "loot_tables/entities/sheep_shear.json"
+        },
+        {
+            "path": "loot_tables/entities/sheep_sheared.json"
+        },
+        {
+            "path": "loot_tables/entities/shulker.json"
+        },
+        {
+            "path": "loot_tables/entities/silverfish.json"
+        },
+        {
+            "path": "loot_tables/entities/skeleton.json"
+        },
+        {
+            "path": "loot_tables/entities/skeleton_gear.json"
+        },
+        {
+            "path": "loot_tables/entities/skeleton_horse.json"
+        },
+        {
+            "path": "loot_tables/entities/slime.json"
+        },
+        {
+            "path": "loot_tables/entities/snowman.json"
+        },
+        {
+            "path": "loot_tables/entities/spider.json"
+        },
+        {
+            "path": "loot_tables/entities/squid.json"
+        },
+        {
+            "path": "loot_tables/entities/stray.json"
+        },
+        {
+            "path": "loot_tables/entities/tropicalfish.json"
+        },
+        {
+            "path": "loot_tables/entities/vex_gear.json"
+        },
+        {
+            "path": "loot_tables/entities/vindication_illager.json"
+        },
+        {
+            "path": "loot_tables/entities/vindicator_captain_equipment.json"
+        },
+        {
+            "path": "loot_tables/entities/vindicator_gear.json"
+        },
+        {
+            "path": "loot_tables/entities/vindicator_raid.json"
+        },
+        {
+            "path": "loot_tables/entities/witch.json"
+        },
+        {
+            "path": "loot_tables/entities/wither_boss.json"
+        },
+        {
+            "path": "loot_tables/entities/wither_skeleton.json"
+        },
+        {
+            "path": "loot_tables/entities/wither_skeleton_gear.json"
+        },
+        {
+            "path": "loot_tables/entities/wolf.json"
+        },
+        {
+            "path": "loot_tables/entities/zombie.json"
+        },
+        {
+            "path": "loot_tables/entities/zombie_equipment.json"
+        },
+        {
+            "path": "loot_tables/entities/zombie_horse.json"
+        },
+        {
+            "path": "loot_tables/entities/zombie_pigman.json"
+        },
+        {
+            "path": "loot_tables/entities/zombie_pigman_gear.json"
+        },
+        {
+            "path": "loot_tables/equipment/low_tier_items.json"
+        },
+        {
+            "path": "loot_tables/gameplay/fishing.json"
+        },
+        {
+            "path": "loot_tables/gameplay/jungle_fishing.json"
+        },
+        {
+            "path": "loot_tables/gameplay/entities/mooshroom_milking.json"
+        },
+        {
+            "path": "loot_tables/gameplay/fishing/fish.json"
+        },
+        {
+            "path": "loot_tables/gameplay/fishing/jungle_fish.json"
+        },
+        {
+            "path": "loot_tables/gameplay/fishing/jungle_junk.json"
+        },
+        {
+            "path": "loot_tables/gameplay/fishing/junk.json"
+        },
+        {
+            "path": "loot_tables/gameplay/fishing/treasure.json"
+        },
+        {
+            "path": "recipes/acacia_boat.json"
+        },
+        {
+            "path": "recipes/acacia_door.json"
+        },
+        {
+            "path": "recipes/acacia_fence.json"
+        },
+        {
+            "path": "recipes/acacia_fence_gate.json"
+        },
+        {
+            "path": "recipes/acacia_planks.json"
+        },
+        {
+            "path": "recipes/acacia_planks_from_stripped.json"
+        },
+        {
+            "path": "recipes/acacia_planks_from_stripped_wood.json"
+        },
+        {
+            "path": "recipes/acacia_planks_from_wood.json"
+        },
+        {
+            "path": "recipes/acacia_stairs.json"
+        },
+        {
+            "path": "recipes/acacia_wood.json"
+        },
+        {
+            "path": "recipes/acacia_wooden_slab.json"
+        },
+        {
+            "path": "recipes/acacia_wood_stripped.json"
+        },
+        {
+            "path": "recipes/activator_rail.json"
+        },
+        {
+            "path": "recipes/andesite.json"
+        },
+        {
+            "path": "recipes/andesite_stairs.json"
+        },
+        {
+            "path": "recipes/andesite_wall.json"
+        },
+        {
+            "path": "recipes/anvil.json"
+        },
+        {
+            "path": "recipes/armor_stand.json"
+        },
+        {
+            "path": "recipes/arrow.json"
+        },
+        {
+            "path": "recipes/banner_pattern_bricks.json"
+        },
+        {
+            "path": "recipes/banner_pattern_creeper.json"
+        },
+        {
+            "path": "recipes/banner_pattern_flower.json"
+        },
+        {
+            "path": "recipes/banner_pattern_skull.json"
+        },
+        {
+            "path": "recipes/banner_pattern_thing.json"
+        },
+        {
+            "path": "recipes/banner_pattern_vines.json"
+        },
+        {
+            "path": "recipes/barrel.json"
+        },
+        {
+            "path": "recipes/basic_map_to_enhanced.json"
+        },
+        {
+            "path": "recipes/beacon.json"
+        },
+        {
+            "path": "recipes/beetroot_soup.json"
+        },
+        {
+            "path": "recipes/birch_boat.json"
+        },
+        {
+            "path": "recipes/birch_door.json"
+        },
+        {
+            "path": "recipes/birch_fence.json"
+        },
+        {
+            "path": "recipes/birch_fence_gate.json"
+        },
+        {
+            "path": "recipes/birch_planks.json"
+        },
+        {
+            "path": "recipes/birch_planks_from_stripped.json"
+        },
+        {
+            "path": "recipes/birch_planks_from_stripped_wood.json"
+        },
+        {
+            "path": "recipes/birch_planks_from_wood.json"
+        },
+        {
+            "path": "recipes/birch_stairs.json"
+        },
+        {
+            "path": "recipes/birch_wood.json"
+        },
+        {
+            "path": "recipes/birch_wooden_slab.json"
+        },
+        {
+            "path": "recipes/birch_wood_stripped.json"
+        },
+        {
+            "path": "recipes/black_banner.json"
+        },
+        {
+            "path": "recipes/black_carpet.json"
+        },
+        {
+            "path": "recipes/black_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/black_concrete_powder.json"
+        },
+        {
+            "path": "recipes/black_concrete_powder_from_ink_sac.json"
+        },
+        {
+            "path": "recipes/black_dye_from_ink_sac.json"
+        },
+        {
+            "path": "recipes/black_dye_from_wither_rose.json"
+        },
+        {
+            "path": "recipes/black_stained_glass.json"
+        },
+        {
+            "path": "recipes/black_stained_glass_from_ink_sac.json"
+        },
+        {
+            "path": "recipes/black_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/black_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/black_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/black_stained_hardened_clay_from_ink_sac.json"
+        },
+        {
+            "path": "recipes/blast_furnace.json"
+        },
+        {
+            "path": "recipes/blaze_powder.json"
+        },
+        {
+            "path": "recipes/blue_banner.json"
+        },
+        {
+            "path": "recipes/blue_carpet.json"
+        },
+        {
+            "path": "recipes/blue_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/blue_concrete_powder.json"
+        },
+        {
+            "path": "recipes/blue_concrete_powder_from_lapis_lazuli.json"
+        },
+        {
+            "path": "recipes/blue_dye_from_cornflower.json"
+        },
+        {
+            "path": "recipes/blue_dye_from_lapis_lazuli.json"
+        },
+        {
+            "path": "recipes/blue_ice.json"
+        },
+        {
+            "path": "recipes/blue_stained_glass.json"
+        },
+        {
+            "path": "recipes/blue_stained_glass_from_lapis_lazuli.json"
+        },
+        {
+            "path": "recipes/blue_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/blue_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/blue_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/blue_stained_hardened_clay_from_lapis_lazuli.json"
+        },
+        {
+            "path": "recipes/boat.json"
+        },
+        {
+            "path": "recipes/bone_block.json"
+        },
+        {
+            "path": "recipes/bone_meal_from_block.json"
+        },
+        {
+            "path": "recipes/bone_meal_from_bone.json"
+        },
+        {
+            "path": "recipes/book.json"
+        },
+        {
+            "path": "recipes/bow.json"
+        },
+        {
+            "path": "recipes/bread.json"
+        },
+        {
+            "path": "recipes/brewing_stand.json"
+        },
+        {
+            "path": "recipes/brew_awkward_blaze_powder.json"
+        },
+        {
+            "path": "recipes/brew_awkward_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_awkward_ghast_tear.json"
+        },
+        {
+            "path": "recipes/brew_awkward_golden_carrot.json"
+        },
+        {
+            "path": "recipes/brew_awkward_magma_cream.json"
+        },
+        {
+            "path": "recipes/brew_awkward_phantom_membrane.json"
+        },
+        {
+            "path": "recipes/brew_awkward_puffer_fish.json"
+        },
+        {
+            "path": "recipes/brew_awkward_rabbit_foot.json"
+        },
+        {
+            "path": "recipes/brew_awkward_speckled_melon.json"
+        },
+        {
+            "path": "recipes/brew_awkward_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_awkward_sugar.json"
+        },
+        {
+            "path": "recipes/brew_awkward_turtle_helmet.json"
+        },
+        {
+            "path": "recipes/brew_fireresistance_redstone.json"
+        },
+        {
+            "path": "recipes/brew_harming_glowstone_dust.json"
+        },
+        {
+            "path": "recipes/brew_healing_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_healing_glowstone_dust.json"
+        },
+        {
+            "path": "recipes/brew_invisibility_red_stone.json"
+        },
+        {
+            "path": "recipes/brew_leaping_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_leaping_glow_stone.json"
+        },
+        {
+            "path": "recipes/brew_leaping_red_stone.json"
+        },
+        {
+            "path": "recipes/brew_longnightvision_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_longswiftness_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_long_leaping_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_long_mundane_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_long_poison_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_long_strength_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_mundane_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_nightvision_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_nightvision_redstone.json"
+        },
+        {
+            "path": "recipes/brew_poison_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_poison_glowstone_dust.json"
+        },
+        {
+            "path": "recipes/brew_poison_redstone.json"
+        },
+        {
+            "path": "recipes/brew_potion_sulphur.json"
+        },
+        {
+            "path": "recipes/brew_regeneration_glowstone_dust.json"
+        },
+        {
+            "path": "recipes/brew_regeneration_redstone.json"
+        },
+        {
+            "path": "recipes/brew_slowness_redstone.json"
+        },
+        {
+            "path": "recipes/brew_slow_falling_redstone.json"
+        },
+        {
+            "path": "recipes/brew_splash_potion_dragon_breath.json"
+        },
+        {
+            "path": "recipes/brew_strength_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_strength_glowstone_dust.json"
+        },
+        {
+            "path": "recipes/brew_strength_redstone.json"
+        },
+        {
+            "path": "recipes/brew_strong_healing_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_strong_poison_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_strong_strength_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_swiftness_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_swiftness_glowstone_dust.json"
+        },
+        {
+            "path": "recipes/brew_swiftness_redstone.json"
+        },
+        {
+            "path": "recipes/brew_thick_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_turtle_master_glowstone_dust.json"
+        },
+        {
+            "path": "recipes/brew_turtle_master_redstone.json"
+        },
+        {
+            "path": "recipes/brew_water_blaze_powder.json"
+        },
+        {
+            "path": "recipes/brew_water_breathing_redstone.json"
+        },
+        {
+            "path": "recipes/brew_water_fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_water_ghast_tear.json"
+        },
+        {
+            "path": "recipes/brew_water_glow_stone.json"
+        },
+        {
+            "path": "recipes/brew_water_magma_cream.json"
+        },
+        {
+            "path": "recipes/brew_water_nether_wart.json"
+        },
+        {
+            "path": "recipes/brew_water_rabbit_foot.json"
+        },
+        {
+            "path": "recipes/brew_water_red_stone.json"
+        },
+        {
+            "path": "recipes/brew_water_speckled_melon.json"
+        },
+        {
+            "path": "recipes/brew_water_spider_eye.json"
+        },
+        {
+            "path": "recipes/brew_water_sugar.json"
+        },
+        {
+            "path": "recipes/brew_weakness_redstone.json"
+        },
+        {
+            "path": "recipes/brick_block.json"
+        },
+        {
+            "path": "recipes/brick_stairs.json"
+        },
+        {
+            "path": "recipes/brick_wall.json"
+        },
+        {
+            "path": "recipes/brown_banner.json"
+        },
+        {
+            "path": "recipes/brown_carpet.json"
+        },
+        {
+            "path": "recipes/brown_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/brown_concrete_powder.json"
+        },
+        {
+            "path": "recipes/brown_concrete_powder_from_cocoa_beans.json"
+        },
+        {
+            "path": "recipes/brown_dye_from_cocoa_beans.json"
+        },
+        {
+            "path": "recipes/brown_stained_glass.json"
+        },
+        {
+            "path": "recipes/brown_stained_glass_from_cocoa_beans.json"
+        },
+        {
+            "path": "recipes/brown_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/brown_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/brown_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/brown_stained_hardened_clay_from_cocoa_beans.json"
+        },
+        {
+            "path": "recipes/bucket.json"
+        },
+        {
+            "path": "recipes/cake.json"
+        },
+        {
+            "path": "recipes/campfire.json"
+        },
+        {
+            "path": "recipes/campfire_charcoal.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_log2.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_stripped_acacia_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_stripped_birch_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_stripped_dark_oak_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_stripped_jungle_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_stripped_oak_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_stripped_spruce_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_charcoal_wood.json"
+        },
+        {
+            "path": "recipes/campfire_from_log2.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_acacia_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_birch_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_dark_oak_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_jungle_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_oak_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_spruce_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_wood.json"
+        },
+        {
+            "path": "recipes/carrot_on_a_stick.json"
+        },
+        {
+            "path": "recipes/cartography_table.json"
+        },
+        {
+            "path": "recipes/cartography_table_locator_map.json"
+        },
+        {
+            "path": "recipes/cartography_table_map.json"
+        },
+        {
+            "path": "recipes/cauldron.json"
+        },
+        {
+            "path": "recipes/chest_minecart.json"
+        },
+        {
+            "path": "recipes/clay.json"
+        },
+        {
+            "path": "recipes/clock.json"
+        },
+        {
+            "path": "recipes/coal.json"
+        },
+        {
+            "path": "recipes/coal_block.json"
+        },
+        {
+            "path": "recipes/coarse_dirt.json"
+        },
+        {
+            "path": "recipes/cobblestone_stairs.json"
+        },
+        {
+            "path": "recipes/cobblestone_wall.json"
+        },
+        {
+            "path": "recipes/cobweb_to_string.json"
+        },
+        {
+            "path": "recipes/comparator.json"
+        },
+        {
+            "path": "recipes/compass.json"
+        },
+        {
+            "path": "recipes/composter.json"
+        },
+        {
+            "path": "recipes/conduit.json"
+        },
+        {
+            "path": "recipes/cookie.json"
+        },
+        {
+            "path": "recipes/crossbow.json"
+        },
+        {
+            "path": "recipes/cyan_banner.json"
+        },
+        {
+            "path": "recipes/cyan_carpet.json"
+        },
+        {
+            "path": "recipes/cyan_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/cyan_concrete_powder.json"
+        },
+        {
+            "path": "recipes/cyan_dye.json"
+        },
+        {
+            "path": "recipes/cyan_dye_from_lapis_lazuli.json"
+        },
+        {
+            "path": "recipes/cyan_stained_glass.json"
+        },
+        {
+            "path": "recipes/cyan_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/cyan_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/cyan_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/dark_oak_boat.json"
+        },
+        {
+            "path": "recipes/dark_oak_door.json"
+        },
+        {
+            "path": "recipes/dark_oak_fence.json"
+        },
+        {
+            "path": "recipes/dark_oak_fence_gate.json"
+        },
+        {
+            "path": "recipes/dark_oak_planks.json"
+        },
+        {
+            "path": "recipes/dark_oak_planks_from_stripped.json"
+        },
+        {
+            "path": "recipes/dark_oak_planks_from_stripped_wood.json"
+        },
+        {
+            "path": "recipes/dark_oak_planks_from_wood.json"
+        },
+        {
+            "path": "recipes/dark_oak_stairs.json"
+        },
+        {
+            "path": "recipes/dark_oak_wood.json"
+        },
+        {
+            "path": "recipes/dark_oak_wooden_slab.json"
+        },
+        {
+            "path": "recipes/dark_oak_wood_stripped.json"
+        },
+        {
+            "path": "recipes/dark_prismarine.json"
+        },
+        {
+            "path": "recipes/dark_prismarine_from_ink_sac.json"
+        },
+        {
+            "path": "recipes/detector_rail.json"
+        },
+        {
+            "path": "recipes/diamond.json"
+        },
+        {
+            "path": "recipes/diamond_axe.json"
+        },
+        {
+            "path": "recipes/diamond_block.json"
+        },
+        {
+            "path": "recipes/diamond_boots.json"
+        },
+        {
+            "path": "recipes/diamond_chestplate.json"
+        },
+        {
+            "path": "recipes/diamond_helmet.json"
+        },
+        {
+            "path": "recipes/diamond_hoe.json"
+        },
+        {
+            "path": "recipes/diamond_leggings.json"
+        },
+        {
+            "path": "recipes/diamond_pickaxe.json"
+        },
+        {
+            "path": "recipes/diamond_shovel.json"
+        },
+        {
+            "path": "recipes/diamond_sword.json"
+        },
+        {
+            "path": "recipes/diorite.json"
+        },
+        {
+            "path": "recipes/diorite_stairs.json"
+        },
+        {
+            "path": "recipes/diorite_wall.json"
+        },
+        {
+            "path": "recipes/dispenser.json"
+        },
+        {
+            "path": "recipes/dried_kelp.json"
+        },
+        {
+            "path": "recipes/dried_kelp_block.json"
+        },
+        {
+            "path": "recipes/dropper.json"
+        },
+        {
+            "path": "recipes/emerald.json"
+        },
+        {
+            "path": "recipes/emerald_block.json"
+        },
+        {
+            "path": "recipes/empty_map_to_enhanced.json"
+        },
+        {
+            "path": "recipes/enchanting_table.json"
+        },
+        {
+            "path": "recipes/ender_chest.json"
+        },
+        {
+            "path": "recipes/ender_eye.json"
+        },
+        {
+            "path": "recipes/end_bricks.json"
+        },
+        {
+            "path": "recipes/end_brick_stairs.json"
+        },
+        {
+            "path": "recipes/end_brick_wall.json"
+        },
+        {
+            "path": "recipes/end_crystal.json"
+        },
+        {
+            "path": "recipes/end_rod.json"
+        },
+        {
+            "path": "recipes/fence.json"
+        },
+        {
+            "path": "recipes/fence_gate.json"
+        },
+        {
+            "path": "recipes/fermented_spider_eye.json"
+        },
+        {
+            "path": "recipes/fishing_rod.json"
+        },
+        {
+            "path": "recipes/fletching_table.json"
+        },
+        {
+            "path": "recipes/flint_and_steel.json"
+        },
+        {
+            "path": "recipes/flower_pot.json"
+        },
+        {
+            "path": "recipes/furnace.json"
+        },
+        {
+            "path": "recipes/furnace_acacia_wood.json"
+        },
+        {
+            "path": "recipes/furnace_beef.json"
+        },
+        {
+            "path": "recipes/furnace_birch_wood.json"
+        },
+        {
+            "path": "recipes/furnace_cactus.json"
+        },
+        {
+            "path": "recipes/furnace_chainmail_boots.json"
+        },
+        {
+            "path": "recipes/furnace_chainmail_chestplate.json"
+        },
+        {
+            "path": "recipes/furnace_chainmail_helmet.json"
+        },
+        {
+            "path": "recipes/furnace_chainmail_leggings.json"
+        },
+        {
+            "path": "recipes/furnace_chicken.json"
+        },
+        {
+            "path": "recipes/furnace_chorus_fruit.json"
+        },
+        {
+            "path": "recipes/furnace_clay.json"
+        },
+        {
+            "path": "recipes/furnace_clay_ball.json"
+        },
+        {
+            "path": "recipes/furnace_coal_ore.json"
+        },
+        {
+            "path": "recipes/furnace_cobblestone.json"
+        },
+        {
+            "path": "recipes/furnace_dark_oak_wood.json"
+        },
+        {
+            "path": "recipes/furnace_diamond_ore.json"
+        },
+        {
+            "path": "recipes/furnace_emerald_ore.json"
+        },
+        {
+            "path": "recipes/furnace_fish.json"
+        },
+        {
+            "path": "recipes/furnace_golden_axe.json"
+        },
+        {
+            "path": "recipes/furnace_golden_boots.json"
+        },
+        {
+            "path": "recipes/furnace_golden_chestplate.json"
+        },
+        {
+            "path": "recipes/furnace_golden_helmet.json"
+        },
+        {
+            "path": "recipes/furnace_golden_hoe.json"
+        },
+        {
+            "path": "recipes/furnace_golden_leggings.json"
+        },
+        {
+            "path": "recipes/furnace_golden_pickaxe.json"
+        },
+        {
+            "path": "recipes/furnace_golden_shovel.json"
+        },
+        {
+            "path": "recipes/furnace_golden_sword.json"
+        },
+        {
+            "path": "recipes/furnace_gold_ore.json"
+        },
+        {
+            "path": "recipes/furnace_horse_armor_gold.json"
+        },
+        {
+            "path": "recipes/furnace_horse_armor_iron.json"
+        },
+        {
+            "path": "recipes/furnace_iron_axe.json"
+        },
+        {
+            "path": "recipes/furnace_iron_boots.json"
+        },
+        {
+            "path": "recipes/furnace_iron_chestplate.json"
+        },
+        {
+            "path": "recipes/furnace_iron_helmet.json"
+        },
+        {
+            "path": "recipes/furnace_iron_hoe.json"
+        },
+        {
+            "path": "recipes/furnace_iron_leggings.json"
+        },
+        {
+            "path": "recipes/furnace_iron_ore.json"
+        },
+        {
+            "path": "recipes/furnace_iron_pickaxe.json"
+        },
+        {
+            "path": "recipes/furnace_iron_shovel.json"
+        },
+        {
+            "path": "recipes/furnace_iron_sword.json"
+        },
+        {
+            "path": "recipes/furnace_jungle_wood.json"
+        },
+        {
+            "path": "recipes/furnace_kelp.json"
+        },
+        {
+            "path": "recipes/furnace_lapis_ore.json"
+        },
+        {
+            "path": "recipes/furnace_log2_acacia.json"
+        },
+        {
+            "path": "recipes/furnace_log2_dark_oak.json"
+        },
+        {
+            "path": "recipes/furnace_log_birch.json"
+        },
+        {
+            "path": "recipes/furnace_log_jungle.json"
+        },
+        {
+            "path": "recipes/furnace_log_oak.json"
+        },
+        {
+            "path": "recipes/furnace_log_spruce.json"
+        },
+        {
+            "path": "recipes/furnace_mutton_raw.json"
+        },
+        {
+            "path": "recipes/furnace_netherrack.json"
+        },
+        {
+            "path": "recipes/furnace_oak_wood.json"
+        },
+        {
+            "path": "recipes/furnace_porkchop.json"
+        },
+        {
+            "path": "recipes/furnace_potato.json"
+        },
+        {
+            "path": "recipes/furnace_quartz_block.json"
+        },
+        {
+            "path": "recipes/furnace_quartz_ore.json"
+        },
+        {
+            "path": "recipes/furnace_rabbit.json"
+        },
+        {
+            "path": "recipes/furnace_redstone_ore.json"
+        },
+        {
+            "path": "recipes/furnace_red_sandstone.json"
+        },
+        {
+            "path": "recipes/furnace_salmon.json"
+        },
+        {
+            "path": "recipes/furnace_sand.json"
+        },
+        {
+            "path": "recipes/furnace_sandstone.json"
+        },
+        {
+            "path": "recipes/furnace_sea_pickle.json"
+        },
+        {
+            "path": "recipes/furnace_sponge.json"
+        },
+        {
+            "path": "recipes/furnace_spruce_wood.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay0.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay1.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay10.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay11.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay12.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay13.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay14.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay15.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay2.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay3.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay4.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay5.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay6.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay7.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay8.json"
+        },
+        {
+            "path": "recipes/furnace_stained_hardened_clay9.json"
+        },
+        {
+            "path": "recipes/furnace_stone.json"
+        },
+        {
+            "path": "recipes/furnace_stone_brick.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_acacia_log.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_acacia_wood.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_birch_log.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_birch_wood.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_dark_oak_log.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_dark_oak_wood.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_jungle_log.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_jungle_wood.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_oak_log.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_oak_wood.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_spruce_log.json"
+        },
+        {
+            "path": "recipes/furnace_stripped_spruce_wood.json"
+        },
+        {
+            "path": "recipes/glass_bottle.json"
+        },
+        {
+            "path": "recipes/glass_pane.json"
+        },
+        {
+            "path": "recipes/glowstone.json"
+        },
+        {
+            "path": "recipes/golden_apple.json"
+        },
+        {
+            "path": "recipes/golden_axe.json"
+        },
+        {
+            "path": "recipes/golden_boots.json"
+        },
+        {
+            "path": "recipes/golden_carrot.json"
+        },
+        {
+            "path": "recipes/golden_chestplate.json"
+        },
+        {
+            "path": "recipes/golden_helmet.json"
+        },
+        {
+            "path": "recipes/golden_hoe.json"
+        },
+        {
+            "path": "recipes/golden_leggings.json"
+        },
+        {
+            "path": "recipes/golden_pickaxe.json"
+        },
+        {
+            "path": "recipes/golden_rail.json"
+        },
+        {
+            "path": "recipes/golden_shovel.json"
+        },
+        {
+            "path": "recipes/golden_sword.json"
+        },
+        {
+            "path": "recipes/gold_block.json"
+        },
+        {
+            "path": "recipes/gold_ingot_from_block.json"
+        },
+        {
+            "path": "recipes/gold_ingot_from_nuggets.json"
+        },
+        {
+            "path": "recipes/gold_nugget.json"
+        },
+        {
+            "path": "recipes/granite.json"
+        },
+        {
+            "path": "recipes/granite_stairs.json"
+        },
+        {
+            "path": "recipes/granite_wall.json"
+        },
+        {
+            "path": "recipes/gray_banner.json"
+        },
+        {
+            "path": "recipes/gray_carpet.json"
+        },
+        {
+            "path": "recipes/gray_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/gray_concrete_powder.json"
+        },
+        {
+            "path": "recipes/gray_dye.json"
+        },
+        {
+            "path": "recipes/gray_dye_from_black_bonemeal.json"
+        },
+        {
+            "path": "recipes/gray_dye_from_ink_bonemeal.json"
+        },
+        {
+            "path": "recipes/gray_dye_from_ink_white.json"
+        },
+        {
+            "path": "recipes/gray_stained_glass.json"
+        },
+        {
+            "path": "recipes/gray_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/gray_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/gray_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/green_banner.json"
+        },
+        {
+            "path": "recipes/green_carpet.json"
+        },
+        {
+            "path": "recipes/green_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/green_concrete_powder.json"
+        },
+        {
+            "path": "recipes/green_stained_glass.json"
+        },
+        {
+            "path": "recipes/green_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/green_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/green_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/grindstone.json"
+        },
+        {
+            "path": "recipes/hay_block.json"
+        },
+        {
+            "path": "recipes/heavy_weighted_pressure_plate.json"
+        },
+        {
+            "path": "recipes/hopper.json"
+        },
+        {
+            "path": "recipes/hopper_minecart.json"
+        },
+        {
+            "path": "recipes/iron_axe.json"
+        },
+        {
+            "path": "recipes/iron_bars.json"
+        },
+        {
+            "path": "recipes/iron_block.json"
+        },
+        {
+            "path": "recipes/iron_boots.json"
+        },
+        {
+            "path": "recipes/iron_chestplate.json"
+        },
+        {
+            "path": "recipes/iron_door.json"
+        },
+        {
+            "path": "recipes/iron_helmet.json"
+        },
+        {
+            "path": "recipes/iron_hoe.json"
+        },
+        {
+            "path": "recipes/iron_ingot_from_block.json"
+        },
+        {
+            "path": "recipes/iron_ingot_from_nuggets.json"
+        },
+        {
+            "path": "recipes/iron_leggings.json"
+        },
+        {
+            "path": "recipes/iron_nugget.json"
+        },
+        {
+            "path": "recipes/iron_pickaxe.json"
+        },
+        {
+            "path": "recipes/iron_shovel.json"
+        },
+        {
+            "path": "recipes/iron_sword.json"
+        },
+        {
+            "path": "recipes/iron_trapdoor.json"
+        },
+        {
+            "path": "recipes/item_frame.json"
+        },
+        {
+            "path": "recipes/jungle_boat.json"
+        },
+        {
+            "path": "recipes/jungle_door.json"
+        },
+        {
+            "path": "recipes/jungle_fence.json"
+        },
+        {
+            "path": "recipes/jungle_fence_gate.json"
+        },
+        {
+            "path": "recipes/jungle_planks.json"
+        },
+        {
+            "path": "recipes/jungle_planks_from_stripped.json"
+        },
+        {
+            "path": "recipes/jungle_planks_from_stripped_wood.json"
+        },
+        {
+            "path": "recipes/jungle_planks_from_wood.json"
+        },
+        {
+            "path": "recipes/jungle_stairs.json"
+        },
+        {
+            "path": "recipes/jungle_wood.json"
+        },
+        {
+            "path": "recipes/jungle_wooden_slab.json"
+        },
+        {
+            "path": "recipes/jungle_wood_stripped.json"
+        },
+        {
+            "path": "recipes/ladder.json"
+        },
+        {
+            "path": "recipes/lantern.json"
+        },
+        {
+            "path": "recipes/lapis_block.json"
+        },
+        {
+            "path": "recipes/lapis_lazuli.json"
+        },
+        {
+            "path": "recipes/lead.json"
+        },
+        {
+            "path": "recipes/leather.json"
+        },
+        {
+            "path": "recipes/leather_boots.json"
+        },
+        {
+            "path": "recipes/leather_chestplate.json"
+        },
+        {
+            "path": "recipes/leather_helmet.json"
+        },
+        {
+            "path": "recipes/leather_horse_armor.json"
+        },
+        {
+            "path": "recipes/leather_leggings.json"
+        },
+        {
+            "path": "recipes/lectern.json"
+        },
+        {
+            "path": "recipes/lever.json"
+        },
+        {
+            "path": "recipes/light_blue_banner.json"
+        },
+        {
+            "path": "recipes/light_blue_carpet.json"
+        },
+        {
+            "path": "recipes/light_blue_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/light_blue_concrete_powder.json"
+        },
+        {
+            "path": "recipes/light_blue_dye.json"
+        },
+        {
+            "path": "recipes/light_blue_dye_from_blue_bonemeal.json"
+        },
+        {
+            "path": "recipes/light_blue_dye_from_blue_orchid.json"
+        },
+        {
+            "path": "recipes/light_blue_dye_from_lapis_bonemeal.json"
+        },
+        {
+            "path": "recipes/light_blue_dye_from_lapis_white.json"
+        },
+        {
+            "path": "recipes/light_blue_stained_glass.json"
+        },
+        {
+            "path": "recipes/light_blue_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/light_blue_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/light_blue_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/light_gray_banner.json"
+        },
+        {
+            "path": "recipes/light_gray_carpet.json"
+        },
+        {
+            "path": "recipes/light_gray_concrete_powder.json"
+        },
+        {
+            "path": "recipes/light_gray_dye.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_azure_bluet.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_black_bonemeal.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_gray_bonemeal.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_gray_white.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_ink_bonemeal.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_ink_white.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_oxeye_daisy.json"
+        },
+        {
+            "path": "recipes/light_gray_dye_from_white_tulip.json"
+        },
+        {
+            "path": "recipes/light_gray_stained_glass.json"
+        },
+        {
+            "path": "recipes/light_gray_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/light_gray_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/light_gray_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/light_gray__carpet_from_white.json"
+        },
+        {
+            "path": "recipes/light_weighted_pressure_plate.json"
+        },
+        {
+            "path": "recipes/lime_banner.json"
+        },
+        {
+            "path": "recipes/lime_carpet.json"
+        },
+        {
+            "path": "recipes/lime_concrete_powder.json"
+        },
+        {
+            "path": "recipes/lime_dye.json"
+        },
+        {
+            "path": "recipes/lime_dye_from_bonemeal.json"
+        },
+        {
+            "path": "recipes/lime_stained_glass.json"
+        },
+        {
+            "path": "recipes/lime_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/lime_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/lime_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/lime__carpet_from_white.json"
+        },
+        {
+            "path": "recipes/lit_pumpkin.json"
+        },
+        {
+            "path": "recipes/locator_map.json"
+        },
+        {
+            "path": "recipes/magenta_banner.json"
+        },
+        {
+            "path": "recipes/magenta_carpet.json"
+        },
+        {
+            "path": "recipes/magenta_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/magenta_concrete_powder.json"
+        },
+        {
+            "path": "recipes/magenta_dye.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_allium.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_blue_ink_bonemeal.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_blue_ink_white.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_lapis_ink_bonemeal.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_lapis_ink_white.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_lapis_red_pink.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_lilac.json"
+        },
+        {
+            "path": "recipes/magenta_dye_from_purple_and_pink.json"
+        },
+        {
+            "path": "recipes/magenta_stained_glass.json"
+        },
+        {
+            "path": "recipes/magenta_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/magenta_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/magenta_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/magma.json"
+        },
+        {
+            "path": "recipes/magma_cream.json"
+        },
+        {
+            "path": "recipes/map.json"
+        },
+        {
+            "path": "recipes/melon_block.json"
+        },
+        {
+            "path": "recipes/melon_seeds.json"
+        },
+        {
+            "path": "recipes/minecart.json"
+        },
+        {
+            "path": "recipes/mossy_cobblestone.json"
+        },
+        {
+            "path": "recipes/mossy_cobblestone_stairs.json"
+        },
+        {
+            "path": "recipes/mossy_cobblestone_wall.json"
+        },
+        {
+            "path": "recipes/mossy_stonebrick.json"
+        },
+        {
+            "path": "recipes/mossy_stone_brick_stairs.json"
+        },
+        {
+            "path": "recipes/mossy_stone_brick_wall.json"
+        },
+        {
+            "path": "recipes/mushroom_stew.json"
+        },
+        {
+            "path": "recipes/nether_brick.json"
+        },
+        {
+            "path": "recipes/nether_brick_fence.json"
+        },
+        {
+            "path": "recipes/nether_brick_stairs.json"
+        },
+        {
+            "path": "recipes/nether_brick_wall.json"
+        },
+        {
+            "path": "recipes/nether_wart_block.json"
+        },
+        {
+            "path": "recipes/oak_planks.json"
+        },
+        {
+            "path": "recipes/oak_planks_from_stripped.json"
+        },
+        {
+            "path": "recipes/oak_planks_from_stripped_wood.json"
+        },
+        {
+            "path": "recipes/oak_planks_from_wood.json"
+        },
+        {
+            "path": "recipes/oak_stairs.json"
+        },
+        {
+            "path": "recipes/oak_wood.json"
+        },
+        {
+            "path": "recipes/oak_wooden_slab.json"
+        },
+        {
+            "path": "recipes/oak_wood_stripped.json"
+        },
+        {
+            "path": "recipes/observer.json"
+        },
+        {
+            "path": "recipes/orange_banner.json"
+        },
+        {
+            "path": "recipes/orange_carpet.json"
+        },
+        {
+            "path": "recipes/orange_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/orange_concrete_powder.json"
+        },
+        {
+            "path": "recipes/orange_dye_from_orange_tulip.json"
+        },
+        {
+            "path": "recipes/orange_dye_from_red_yellow.json"
+        },
+        {
+            "path": "recipes/orange_stained_glass.json"
+        },
+        {
+            "path": "recipes/orange_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/orange_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/orange_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/packed_ice.json"
+        },
+        {
+            "path": "recipes/paper.json"
+        },
+        {
+            "path": "recipes/pillar_quartz_block.json"
+        },
+        {
+            "path": "recipes/pink_banner.json"
+        },
+        {
+            "path": "recipes/pink_carpet.json"
+        },
+        {
+            "path": "recipes/pink_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/pink_concrete_powder.json"
+        },
+        {
+            "path": "recipes/pink_dye.json"
+        },
+        {
+            "path": "recipes/pink_dye_from_peony.json"
+        },
+        {
+            "path": "recipes/pink_dye_from_pink_tulip.json"
+        },
+        {
+            "path": "recipes/pink_dye_from_red_bonemeal.json"
+        },
+        {
+            "path": "recipes/pink_stained_glass.json"
+        },
+        {
+            "path": "recipes/pink_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/pink_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/pink_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/polished_andesite.json"
+        },
+        {
+            "path": "recipes/polished_andesite_stairs.json"
+        },
+        {
+            "path": "recipes/polished_diorite.json"
+        },
+        {
+            "path": "recipes/polished_diorite_stairs.json"
+        },
+        {
+            "path": "recipes/polished_granite.json"
+        },
+        {
+            "path": "recipes/polished_granite_stairs.json"
+        },
+        {
+            "path": "recipes/prismarine.json"
+        },
+        {
+            "path": "recipes/prismarine_bricks.json"
+        },
+        {
+            "path": "recipes/prismarine_stairs.json"
+        },
+        {
+            "path": "recipes/prismarine_stairs_bricks.json"
+        },
+        {
+            "path": "recipes/prismarine_stairs_dark.json"
+        },
+        {
+            "path": "recipes/prismarine_wall.json"
+        },
+        {
+            "path": "recipes/pumpkin_pie.json"
+        },
+        {
+            "path": "recipes/pumpkin_seeds.json"
+        },
+        {
+            "path": "recipes/purple_banner.json"
+        },
+        {
+            "path": "recipes/purple_carpet.json"
+        },
+        {
+            "path": "recipes/purple_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/purple_concrete_powder.json"
+        },
+        {
+            "path": "recipes/purple_dye.json"
+        },
+        {
+            "path": "recipes/purple_dye_from_lapis_lazuli.json"
+        },
+        {
+            "path": "recipes/purple_stained_glass.json"
+        },
+        {
+            "path": "recipes/purple_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/purple_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/purple_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/purpur_block.json"
+        },
+        {
+            "path": "recipes/purpur_stairs.json"
+        },
+        {
+            "path": "recipes/quartz_block.json"
+        },
+        {
+            "path": "recipes/quartz_stairs.json"
+        },
+        {
+            "path": "recipes/rabbit_stew_from_brown_mushroom.json"
+        },
+        {
+            "path": "recipes/rabbit_stew_from_red_mushroom.json"
+        },
+        {
+            "path": "recipes/rail.json"
+        },
+        {
+            "path": "recipes/redstone.json"
+        },
+        {
+            "path": "recipes/redstone_block.json"
+        },
+        {
+            "path": "recipes/redstone_lamp.json"
+        },
+        {
+            "path": "recipes/redstone_torch.json"
+        },
+        {
+            "path": "recipes/red_banner.json"
+        },
+        {
+            "path": "recipes/red_carpet.json"
+        },
+        {
+            "path": "recipes/red_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/red_concrete_powder.json"
+        },
+        {
+            "path": "recipes/red_dye_from_beetroot.json"
+        },
+        {
+            "path": "recipes/red_dye_from_poppy.json"
+        },
+        {
+            "path": "recipes/red_dye_from_rose_bush.json"
+        },
+        {
+            "path": "recipes/red_dye_from_tulip.json"
+        },
+        {
+            "path": "recipes/red_nether_brick.json"
+        },
+        {
+            "path": "recipes/red_nether_brick_stairs.json"
+        },
+        {
+            "path": "recipes/red_nether_brick_wall.json"
+        },
+        {
+            "path": "recipes/red_sandstone.json"
+        },
+        {
+            "path": "recipes/red_sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/red_sandstone_wall.json"
+        },
+        {
+            "path": "recipes/red_stained_glass.json"
+        },
+        {
+            "path": "recipes/red_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/red_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/red_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/repeater.json"
+        },
+        {
+            "path": "recipes/sandstone.json"
+        },
+        {
+            "path": "recipes/sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/sandstone_wall.json"
+        },
+        {
+            "path": "recipes/scaffolding.json"
+        },
+        {
+            "path": "recipes/sealantern.json"
+        },
+        {
+            "path": "recipes/shears.json"
+        },
+        {
+            "path": "recipes/shield.json"
+        },
+        {
+            "path": "recipes/shulker_box.json"
+        },
+        {
+            "path": "recipes/sign_acacia.json"
+        },
+        {
+            "path": "recipes/sign_birch.json"
+        },
+        {
+            "path": "recipes/sign_darkoak.json"
+        },
+        {
+            "path": "recipes/sign_jungle.json"
+        },
+        {
+            "path": "recipes/sign_oak.json"
+        },
+        {
+            "path": "recipes/sign_spruce.json"
+        },
+        {
+            "path": "recipes/slime.json"
+        },
+        {
+            "path": "recipes/slime_ball.json"
+        },
+        {
+            "path": "recipes/smithing_table.json"
+        },
+        {
+            "path": "recipes/smoker.json"
+        },
+        {
+            "path": "recipes/smoker_from_log2.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_acacia.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_birch.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_dark_oak.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_jungle.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_oak.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_spruce.json"
+        },
+        {
+            "path": "recipes/smooth_quartz_stairs.json"
+        },
+        {
+            "path": "recipes/smooth_red_sandstone.json"
+        },
+        {
+            "path": "recipes/smooth_red_sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/smooth_sandstone.json"
+        },
+        {
+            "path": "recipes/smooth_sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/snow.json"
+        },
+        {
+            "path": "recipes/snow_layer.json"
+        },
+        {
+            "path": "recipes/speckled_melon.json"
+        },
+        {
+            "path": "recipes/spruce_boat.json"
+        },
+        {
+            "path": "recipes/spruce_door.json"
+        },
+        {
+            "path": "recipes/spruce_fence.json"
+        },
+        {
+            "path": "recipes/spruce_fence_gate.json"
+        },
+        {
+            "path": "recipes/spruce_planks.json"
+        },
+        {
+            "path": "recipes/spruce_planks_from_stripped.json"
+        },
+        {
+            "path": "recipes/spruce_planks_from_stripped_wood.json"
+        },
+        {
+            "path": "recipes/spruce_planks_from_wood.json"
+        },
+        {
+            "path": "recipes/spruce_stairs.json"
+        },
+        {
+            "path": "recipes/spruce_wood.json"
+        },
+        {
+            "path": "recipes/spruce_wooden_slab.json"
+        },
+        {
+            "path": "recipes/spruce_wood_stripped.json"
+        },
+        {
+            "path": "recipes/sticky_piston.json"
+        },
+        {
+            "path": "recipes/stonebrick.json"
+        },
+        {
+            "path": "recipes/stonecutter.json"
+        },
+        {
+            "path": "recipes/stonecutter_andesite_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_andesite_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_andesite_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_brick_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_brick_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_brick_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_cobblestone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_cobblestone_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_cobblestone_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_dark_prismarine_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_dark_prismarine_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_diorite_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_diorite_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_diorite_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_endbricks.json"
+        },
+        {
+            "path": "recipes/stonecutter_endbrick_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_endbrick_slab2.json"
+        },
+        {
+            "path": "recipes/stonecutter_endbrick_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_endbrick_stairs2.json"
+        },
+        {
+            "path": "recipes/stonecutter_endbrick_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_endbrick_wall2.json"
+        },
+        {
+            "path": "recipes/stonecutter_granite_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_granite_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_granite_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_mossy_cobblestone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_mossy_cobblestone_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_mossy_cobblestone_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_mossy_stonebrick_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_mossy_stonebrick_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_mossy_stonebrick_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_nether_brick_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_nether_brick_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_nether_brick_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_andesite.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_andesite_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_andesite_slab2.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_andesite_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_andesite_stairs2.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_diorite.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_diorite_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_diorite_slab2.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_diorite_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_diorite_stairs2.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_granite.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_granite_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_granite_slab2.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_granite_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_granite_stairs2.json"
+        },
+        {
+            "path": "recipes/stonecutter_prismarine_brick_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_prismarine_brick_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_prismarine_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_prismarine_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_prismarine_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_purpur_lines.json"
+        },
+        {
+            "path": "recipes/stonecutter_purpur_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_purpur_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_quartz_chiseled.json"
+        },
+        {
+            "path": "recipes/stonecutter_quartz_lines.json"
+        },
+        {
+            "path": "recipes/stonecutter_quartz_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_quartz_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_nether_brick_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_nether_brick_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_nether_brick_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_sandstone_cut.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_sandstone_heiroglyphs.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_sandstone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_red_sandstone_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_sandstone_cut.json"
+        },
+        {
+            "path": "recipes/stonecutter_sandstone_heiroglyphs.json"
+        },
+        {
+            "path": "recipes/stonecutter_sandstone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_sandstone_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_smooth_quartz_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_smooth_quartz_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_smooth_red_sandstone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_smooth_red_sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_smooth_sandstone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_smooth_sandstone_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_smooth_stone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick_chiseled.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick_slab2.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick_stairs.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick_stairs2.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick_wall.json"
+        },
+        {
+            "path": "recipes/stonecutter_stonebrick_wall2.json"
+        },
+        {
+            "path": "recipes/stonecutter_stone_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_stone_stairs.json"
+        },
+        {
+            "path": "recipes/stone_axe.json"
+        },
+        {
+            "path": "recipes/stone_brick_stairs.json"
+        },
+        {
+            "path": "recipes/stone_brick_wall.json"
+        },
+        {
+            "path": "recipes/stone_button.json"
+        },
+        {
+            "path": "recipes/stone_hoe.json"
+        },
+        {
+            "path": "recipes/stone_pickaxe.json"
+        },
+        {
+            "path": "recipes/stone_pressure_plate.json"
+        },
+        {
+            "path": "recipes/stone_shovel.json"
+        },
+        {
+            "path": "recipes/stone_stairs.json"
+        },
+        {
+            "path": "recipes/stone_sword.json"
+        },
+        {
+            "path": "recipes/string_to_wool.json"
+        },
+        {
+            "path": "recipes/sugar.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_allium.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_azure_bluet.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_blue_orchid.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_cornflower.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_dandelion.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_lily_of_the_valley.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_oxeye_daisy.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_poppy.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_tulip_orange.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_tulip_pink.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_tulip_red.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_tulip_white.json"
+        },
+        {
+            "path": "recipes/suspicious_stew_from_wither_rose.json"
+        },
+        {
+            "path": "recipes/tnt.json"
+        },
+        {
+            "path": "recipes/tnt_minecart.json"
+        },
+        {
+            "path": "recipes/trapped_chest.json"
+        },
+        {
+            "path": "recipes/turtle_helmet.json"
+        },
+        {
+            "path": "recipes/wheat.json"
+        },
+        {
+            "path": "recipes/white_banner.json"
+        },
+        {
+            "path": "recipes/white_carpet.json"
+        },
+        {
+            "path": "recipes/white_concrete_powder.json"
+        },
+        {
+            "path": "recipes/white_concrete_powder_from_bonemeal.json"
+        },
+        {
+            "path": "recipes/white_dye_from_bone_meal.json"
+        },
+        {
+            "path": "recipes/white_dye_from_lily_of_the_valley.json"
+        },
+        {
+            "path": "recipes/white_stained_glass.json"
+        },
+        {
+            "path": "recipes/white_stained_glass_from_bonemeal.json"
+        },
+        {
+            "path": "recipes/white_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/white_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/white_stained_hardened_clay.json"
+        },
+        {
+            "path": "recipes/white_stained_hardened_clay_from_bonemeal.json"
+        },
+        {
+            "path": "recipes/wooden_door.json"
+        },
+        {
+            "path": "recipes/writable_book.json"
+        },
+        {
+            "path": "recipes/yellow_banner.json"
+        },
+        {
+            "path": "recipes/yellow_carpet.json"
+        },
+        {
+            "path": "recipes/yellow_carpet_from_white.json"
+        },
+        {
+            "path": "recipes/yellow_concrete_powder.json"
+        },
+        {
+            "path": "recipes/yellow_dye_from_dandelion.json"
+        },
+        {
+            "path": "recipes/yellow_dye_from_sunflower.json"
+        },
+        {
+            "path": "recipes/yellow_stained_glass.json"
+        },
+        {
+            "path": "recipes/yellow_stained_glass_pane.json"
+        },
+        {
+            "path": "recipes/yellow_stained_glass_pane_from_pane.json"
+        },
+        {
+            "path": "recipes/yellow_stained_hardened_clay.json"
+        },
+        {
+            "path": "spawn_rules/bat.json"
+        },
+        {
+            "path": "spawn_rules/blaze.json"
+        },
+        {
+            "path": "spawn_rules/cat.json"
+        },
+        {
+            "path": "spawn_rules/chicken.json"
+        },
+        {
+            "path": "spawn_rules/cod.json"
+        },
+        {
+            "path": "spawn_rules/cow.json"
+        },
+        {
+            "path": "spawn_rules/creeper.json"
+        },
+        {
+            "path": "spawn_rules/dolphin.json"
+        },
+        {
+            "path": "spawn_rules/donkey.json"
+        },
+        {
+            "path": "spawn_rules/drowned.json"
+        },
+        {
+            "path": "spawn_rules/enderman.json"
+        },
+        {
+            "path": "spawn_rules/fox.json"
+        },
+        {
+            "path": "spawn_rules/ghast.json"
+        },
+        {
+            "path": "spawn_rules/guardian.json"
+        },
+        {
+            "path": "spawn_rules/horse.json"
+        },
+        {
+            "path": "spawn_rules/husk.json"
+        },
+        {
+            "path": "spawn_rules/llama.json"
+        },
+        {
+            "path": "spawn_rules/magma_cube.json"
+        },
+        {
+            "path": "spawn_rules/mooshroom.json"
+        },
+        {
+            "path": "spawn_rules/ocelot.json"
+        },
+        {
+            "path": "spawn_rules/panda.json"
+        },
+        {
+            "path": "spawn_rules/parrot.json"
+        },
+        {
+            "path": "spawn_rules/phantom.json"
+        },
+        {
+            "path": "spawn_rules/pig.json"
+        },
+        {
+            "path": "spawn_rules/pillager.json"
+        },
+        {
+            "path": "spawn_rules/pillager_patrol.json"
+        },
+        {
+            "path": "spawn_rules/polar_bear.json"
+        },
+        {
+            "path": "spawn_rules/pufferfish.json"
+        },
+        {
+            "path": "spawn_rules/rabbit.json"
+        },
+        {
+            "path": "spawn_rules/salmon.json"
+        },
+        {
+            "path": "spawn_rules/sheep.json"
+        },
+        {
+            "path": "spawn_rules/skeleton.json"
+        },
+        {
+            "path": "spawn_rules/slime.json"
+        },
+        {
+            "path": "spawn_rules/spider.json"
+        },
+        {
+            "path": "spawn_rules/squid.json"
+        },
+        {
+            "path": "spawn_rules/stray.json"
+        },
+        {
+            "path": "spawn_rules/tropicalfish.json"
+        },
+        {
+            "path": "spawn_rules/turtle.json"
+        },
+        {
+            "path": "spawn_rules/witch.json"
+        },
+        {
+            "path": "spawn_rules/wither_skeleton.json"
+        },
+        {
+            "path": "spawn_rules/wolf.json"
+        },
+        {
+            "path": "spawn_rules/zombie.json"
+        },
+        {
+            "path": "spawn_rules/zombie_pigman.json"
+        },
+        {
+            "path": "trading/armorer_trades.json"
+        },
+        {
+            "path": "trading/butcher_trades.json"
+        },
+        {
+            "path": "trading/cartographer_trades.json"
+        },
+        {
+            "path": "trading/cleric_trades.json"
+        },
+        {
+            "path": "trading/farmer_trades.json"
+        },
+        {
+            "path": "trading/fisherman_trades.json"
+        },
+        {
+            "path": "trading/fletcher_trades.json"
+        },
+        {
+            "path": "trading/leather_worker_trades.json"
+        },
+        {
+            "path": "trading/librarian_trades.json"
+        },
+        {
+            "path": "trading/shepherd_trades.json"
+        },
+        {
+            "path": "trading/stone_mason_trades.json"
+        },
+        {
+            "path": "trading/tool_smith_trades.json"
+        },
+        {
+            "path": "trading/weapon_smith_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/armorer_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/butcher_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/cartographer_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/cleric_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/farmer_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/fisherman_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/fletcher_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/leather_worker_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/librarian_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/shepherd_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/stone_mason_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/tool_smith_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/wandering_trader_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/weapon_smith_trades.json"
+        }
+    ]
+}

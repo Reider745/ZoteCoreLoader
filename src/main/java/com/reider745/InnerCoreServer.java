@@ -10,6 +10,7 @@ import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
 import com.reider745.item.CustomItem;
 
+import com.reider745.item.ItemMethod;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
@@ -83,7 +84,15 @@ public class InnerCoreServer {
     }
 
     public boolean isLegacyWorkbench() {
-        return true;
+        return server.getPropertyBoolean("legacy.workbench");
+    }
+
+    public static boolean canEvalEnable(){
+        return server.getPropertyBoolean("eval-enable", true);
+    }
+
+    public static boolean isRuntimeException(){
+        return server.getPropertyBoolean("inner_core.runtime_exception", false);
     }
 
     private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {
@@ -306,6 +315,8 @@ public class InnerCoreServer {
         NativeFurnaceRegistry.init();
         CommandsHelper.init();
 
+        ItemMethod.isPostLoad = true;
+
         NativeCallback.onLevelCreated();
     }
 
@@ -322,10 +333,6 @@ public class InnerCoreServer {
 
     public static String getName() {
         return server.getPropertyString("inner-core-pack-name", "Inner Core Test");
-    }
-
-    public static boolean isRuntimeException(){
-        return server.getPropertyBoolean("inner_core.runtime_exception", false);
     }
 
     public static void useNotSupport(String name) {

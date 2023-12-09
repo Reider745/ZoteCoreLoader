@@ -8,6 +8,7 @@ import com.reider745.block.CustomBlock;
 import java.util.ArrayList;
 
 public class ItemMethod {
+    public static boolean isPostLoad = false;
     public static class PropertiesNames {
         public static final String ID = "id";
         public static final String MAX_DAMAGE = "max_damage";
@@ -37,10 +38,12 @@ public class ItemMethod {
     }
 
     public static int getMaxDamageForId(int id, int data){
+        if(isPostLoad)
+            return Item.get(id, data).getMaxDurability();
         CustomManager manager = getCustomManager(id);
         if(manager != null)
             return manager.get(PropertiesNames.MAX_DAMAGE);
-        return Item.get(id, data).getMaxDurability();
+        return 64;
     }
 
     public static void setMaxDamage(CustomManager manager, int id){
@@ -63,10 +66,12 @@ public class ItemMethod {
     }
 
     public static int getMaxStackForId(int id, int data){
+        if(isPostLoad)
+            return Item.get(id, data).getMaxStackSize();
         CustomManager manager = getCustomManager(id);
         if(manager != null)
-            return manager.get(PropertiesNames.MAX_STACK);
-        return Item.get(id, data).getMaxStackSize();
+            return manager.get(PropertiesNames.MAX_STACK, 64);
+        return 64;
     }
 
     public static String getNameForId(int id, int data, long extra){
@@ -81,10 +86,12 @@ public class ItemMethod {
     }
 
     public static String getStringIdAndTypeForIntegerId(int id){
+        if(id > 8000) return "block";
+        else if(id > 2000) return "item";
         Item item = Item.get(id);
         if(item != null)
             return (item instanceof ItemBlock ? "block" : "item") + " :" + id;
-        return null;
+        throw new RuntimeException("Not get type for "+id);
     }
 
     public static void setHandEquipped(CustomManager ptr, boolean val) {

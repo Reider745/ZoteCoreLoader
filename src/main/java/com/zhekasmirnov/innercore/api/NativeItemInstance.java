@@ -27,10 +27,18 @@ public class NativeItemInstance {
             if(id == 351 && data == 15){//bone_meal fix
                 id = 858;
                 data = 0;
+            }else if(id == 325 && data == 10){//lava bucket fix
+                id = 843;
+                data = 0;
+            }else if(id == 325 && data == 8){//water bucket fix
+                id = 850;
+                data = 0;
+            }else if(id == 325 && data == 1){//milk bucket fix
+                id = 876;
+                data = 0;
             }
 
             this.extra = ItemUtils.getItemInstanceExtra(ptr);
-           // this.extra = extra != 0 ? new NativeItemInstanceExtra(extra) : null;
         }
 
         isValid = true;

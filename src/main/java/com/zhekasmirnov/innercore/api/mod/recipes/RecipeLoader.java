@@ -17,11 +17,11 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class RecipeLoader {
-    /* private enum RecipeType {
+     private enum RecipeType {
         FURNACE_RECIPE, // minecraft:recipe_furnace
         CRAFTING_SHAPED, // minecraft:recipe_shaped
         CRAFTING_SHAPELESS // minecraft:recipe_shapeless
-    } */
+    }
 
     public List<String> listRecipeDirectories() {
         List<String> result = new ArrayList<>();

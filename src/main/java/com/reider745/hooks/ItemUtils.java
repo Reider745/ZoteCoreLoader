@@ -145,10 +145,7 @@ public class ItemUtils implements HookClass {
             try {
                 id = ItemID.class.getField(name.toUpperCase()).getInt(null);
             } catch (Exception ignore1) {
-                try {
-                    id = IDRegistry.getIdByStrId(name);
-                } catch (Exception e) {
-                }
+                id = IDRegistry.getIdByStrId(name);
             }
         }
         return Item.get(id, meta.orElse(0));

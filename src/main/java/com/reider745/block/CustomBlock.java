@@ -147,6 +147,10 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         NeighbourChange = manager.get("NeighbourChange", false);
     }
 
+    public static Object getIdForText(String block) {
+        return customBlocks.get(block);
+    }
+
 
     @Override
     public boolean canRandomTickBlocks() {

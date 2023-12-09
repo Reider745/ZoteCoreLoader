@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.mod.executable;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.NativeJavaScript;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
@@ -174,6 +175,14 @@ public class Executable implements Runnable {
 
         scriptScope.put("__packdir__", scriptScope, FileTools.DIR_PACK);
         scriptScope.put("__modpack__", scriptScope, Context.javaToJS(ModPackContext.getInstance().assureJsAdapter(), scriptScope));
+
+        if(!InnerCoreServer.canEvalEnable())
+            scriptScope.put("eval", scriptScope, new ScriptableFunctionImpl() {
+                @Override
+                public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                    return null;
+                }
+            });
     }
 
     private boolean isApiAdded = false;

@@ -1,0 +1,940 @@
+{
+    "content": [
+        {
+            "path": "manifest.json"
+        },
+        {
+            "path": "entities/bat.json"
+        },
+        {
+            "path": "entities/bee.json"
+        },
+        {
+            "path": "entities/blaze.json"
+        },
+        {
+            "path": "entities/boat.json"
+        },
+        {
+            "path": "entities/cat.json"
+        },
+        {
+            "path": "entities/cave_spider.json"
+        },
+        {
+            "path": "entities/chicken.json"
+        },
+        {
+            "path": "entities/cow.json"
+        },
+        {
+            "path": "entities/creeper.json"
+        },
+        {
+            "path": "entities/dolphin.json"
+        },
+        {
+            "path": "entities/donkey.json"
+        },
+        {
+            "path": "entities/drowned.json"
+        },
+        {
+            "path": "entities/elder_guardian.json"
+        },
+        {
+            "path": "entities/enderman.json"
+        },
+        {
+            "path": "entities/endermite.json"
+        },
+        {
+            "path": "entities/evocation_illager.json"
+        },
+        {
+            "path": "entities/fish.json"
+        },
+        {
+            "path": "entities/fox.json"
+        },
+        {
+            "path": "entities/ghast.json"
+        },
+        {
+            "path": "entities/guardian.json"
+        },
+        {
+            "path": "entities/hoglin.json"
+        },
+        {
+            "path": "entities/horse.json"
+        },
+        {
+            "path": "entities/husk.json"
+        },
+        {
+            "path": "entities/llama.json"
+        },
+        {
+            "path": "entities/magma_cube.json"
+        },
+        {
+            "path": "entities/mooshroom.json"
+        },
+        {
+            "path": "entities/mule.json"
+        },
+        {
+            "path": "entities/ocelot.json"
+        },
+        {
+            "path": "entities/panda.json"
+        },
+        {
+            "path": "entities/parrot.json"
+        },
+        {
+            "path": "entities/phantom.json"
+        },
+        {
+            "path": "entities/pig.json"
+        },
+        {
+            "path": "entities/piglin.json"
+        },
+        {
+            "path": "entities/piglin_brute.json"
+        },
+        {
+            "path": "entities/pillager.json"
+        },
+        {
+            "path": "entities/player.json"
+        },
+        {
+            "path": "entities/polar_bear.json"
+        },
+        {
+            "path": "entities/pufferfish.json"
+        },
+        {
+            "path": "entities/rabbit.json"
+        },
+        {
+            "path": "entities/ravager.json"
+        },
+        {
+            "path": "entities/salmon.json"
+        },
+        {
+            "path": "entities/sheep.json"
+        },
+        {
+            "path": "entities/shulker.json"
+        },
+        {
+            "path": "entities/silverfish.json"
+        },
+        {
+            "path": "entities/skeleton.json"
+        },
+        {
+            "path": "entities/skeleton_horse.json"
+        },
+        {
+            "path": "entities/slime.json"
+        },
+        {
+            "path": "entities/snowball.json"
+        },
+        {
+            "path": "entities/snow_golem.json"
+        },
+        {
+            "path": "entities/spider.json"
+        },
+        {
+            "path": "entities/squid.json"
+        },
+        {
+            "path": "entities/stray.json"
+        },
+        {
+            "path": "entities/strider.json"
+        },
+        {
+            "path": "entities/tropicalfish.json"
+        },
+        {
+            "path": "entities/turtle.json"
+        },
+        {
+            "path": "entities/vex.json"
+        },
+        {
+            "path": "entities/villager.json"
+        },
+        {
+            "path": "entities/villager_v2.json"
+        },
+        {
+            "path": "entities/vindicator.json"
+        },
+        {
+            "path": "entities/wandering_trader.json"
+        },
+        {
+            "path": "entities/witch.json"
+        },
+        {
+            "path": "entities/wither.json"
+        },
+        {
+            "path": "entities/wither_skeleton.json"
+        },
+        {
+            "path": "entities/wolf.json"
+        },
+        {
+            "path": "entities/xp_orb.json"
+        },
+        {
+            "path": "entities/zoglin.json"
+        },
+        {
+            "path": "entities/zombie.json"
+        },
+        {
+            "path": "entities/zombie_horse.json"
+        },
+        {
+            "path": "entities/zombie_pigman.json"
+        },
+        {
+            "path": "entities/zombie_villager.json"
+        },
+        {
+            "path": "entities/zombie_villager_v2.json"
+        },
+        {
+            "path": "loot_tables/chests/bastion_bridge.json"
+        },
+        {
+            "path": "loot_tables/chests/bastion_hoglin_stable.json"
+        },
+        {
+            "path": "loot_tables/chests/bastion_other.json"
+        },
+        {
+            "path": "loot_tables/chests/bastion_treasure.json"
+        },
+        {
+            "path": "loot_tables/chests/ruined_portal.json"
+        },
+        {
+            "path": "loot_tables/entities/hoglin.json"
+        },
+        {
+            "path": "loot_tables/entities/piglin_barter.json"
+        },
+        {
+            "path": "loot_tables/entities/piglin_brute_gear.json"
+        },
+        {
+            "path": "loot_tables/entities/piglin_gear_melee.json"
+        },
+        {
+            "path": "loot_tables/entities/piglin_gear_ranged.json"
+        },
+        {
+            "path": "loot_tables/entities/strider.json"
+        },
+        {
+            "path": "loot_tables/entities/strider_saddled.json"
+        },
+        {
+            "path": "loot_tables/entities/zoglin.json"
+        },
+        {
+            "path": "loot_tables/entities/zombified_piglin_rider_gear.json"
+        },
+        {
+            "path": "recipes/barrel_from_crimson_slab.json"
+        },
+        {
+            "path": "recipes/barrel_from_warped_slab.json"
+        },
+        {
+            "path": "recipes/beehive_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/beehive_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/blackstone_slab.json"
+        },
+        {
+            "path": "recipes/blackstone_stairs.json"
+        },
+        {
+            "path": "recipes/blackstone_wall.json"
+        },
+        {
+            "path": "recipes/bookshelf_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/bookshelf_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/bowl_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/bowl_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/campfire.json"
+        },
+        {
+            "path": "recipes/campfire_from_crimson_stem.json"
+        },
+        {
+            "path": "recipes/campfire_from_log2.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_acacia_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_birch_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_crimson_stem.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_dark_oak_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_jungle_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_oak_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_spruce_log.json"
+        },
+        {
+            "path": "recipes/campfire_from_stripped_warped_stem.json"
+        },
+        {
+            "path": "recipes/campfire_from_warped_stem.json"
+        },
+        {
+            "path": "recipes/campfire_from_wood.json"
+        },
+        {
+            "path": "recipes/cartography_table_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/cartography_table_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/chain.json"
+        },
+        {
+            "path": "recipes/chest_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/chest_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/chiseled_nether_bricks.json"
+        },
+        {
+            "path": "recipes/chiseled_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/composter_from_crimson_slab.json"
+        },
+        {
+            "path": "recipes/composter_from_warped_slab.json"
+        },
+        {
+            "path": "recipes/crafting_table_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/crafting_table_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/crimson_button.json"
+        },
+        {
+            "path": "recipes/crimson_door.json"
+        },
+        {
+            "path": "recipes/crimson_fence.json"
+        },
+        {
+            "path": "recipes/crimson_fence_gate.json"
+        },
+        {
+            "path": "recipes/crimson_hyphae.json"
+        },
+        {
+            "path": "recipes/crimson_hyphae_stripped.json"
+        },
+        {
+            "path": "recipes/crimson_planks.json"
+        },
+        {
+            "path": "recipes/crimson_planks_from_crimson_hyphae.json"
+        },
+        {
+            "path": "recipes/crimson_planks_from_stripped_crimson_hyphae.json"
+        },
+        {
+            "path": "recipes/crimson_planks_from_stripped_log.json"
+        },
+        {
+            "path": "recipes/crimson_pressure_plate.json"
+        },
+        {
+            "path": "recipes/crimson_sign.json"
+        },
+        {
+            "path": "recipes/crimson_slab.json"
+        },
+        {
+            "path": "recipes/crimson_stairs.json"
+        },
+        {
+            "path": "recipes/crimson_trapdoor.json"
+        },
+        {
+            "path": "recipes/daylight_detector_from_crimson_slab.json"
+        },
+        {
+            "path": "recipes/daylight_detector_from_warped_slab.json"
+        },
+        {
+            "path": "recipes/fletching_table_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/fletching_table_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/furnace_ancient_debris.json"
+        },
+        {
+            "path": "recipes/furnace_beef.json"
+        },
+        {
+            "path": "recipes/furnace_chicken.json"
+        },
+        {
+            "path": "recipes/furnace_cracked_nether_bricks.json"
+        },
+        {
+            "path": "recipes/furnace_cracked_polished_blackstone_bricks.json"
+        },
+        {
+            "path": "recipes/furnace_fish.json"
+        },
+        {
+            "path": "recipes/furnace_from_blackstone.json"
+        },
+        {
+            "path": "recipes/furnace_kelp.json"
+        },
+        {
+            "path": "recipes/furnace_mutton_raw.json"
+        },
+        {
+            "path": "recipes/furnace_nether_gold_ore.json"
+        },
+        {
+            "path": "recipes/furnace_porkchop.json"
+        },
+        {
+            "path": "recipes/furnace_potato.json"
+        },
+        {
+            "path": "recipes/furnace_quartz_block.json"
+        },
+        {
+            "path": "recipes/furnace_rabbit.json"
+        },
+        {
+            "path": "recipes/furnace_salmon.json"
+        },
+        {
+            "path": "recipes/grindstone_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/grindstone_from_crimson_planks2.json"
+        },
+        {
+            "path": "recipes/grindstone_from_crimson_planks3.json"
+        },
+        {
+            "path": "recipes/grindstone_from_crimson_planks4.json"
+        },
+        {
+            "path": "recipes/grindstone_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/grindstone_from_warped_planks2.json"
+        },
+        {
+            "path": "recipes/grindstone_from_warped_planks3.json"
+        },
+        {
+            "path": "recipes/grindstone_from_warped_planks4.json"
+        },
+        {
+            "path": "recipes/jukebox_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/jukebox_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/lectern_from_crimson_slab.json"
+        },
+        {
+            "path": "recipes/lectern_from_warped_slab.json"
+        },
+        {
+            "path": "recipes/lodestone.json"
+        },
+        {
+            "path": "recipes/loom_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/loom_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/netherite_block.json"
+        },
+        {
+            "path": "recipes/netherite_ingot.json"
+        },
+        {
+            "path": "recipes/netherite_ingot_from_block.json"
+        },
+        {
+            "path": "recipes/noteblock_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/noteblock_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/piston_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/piston_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/polished_basalt.json"
+        },
+        {
+            "path": "recipes/polished_blackstone.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_bricks.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_brick_slab.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_brick_stairs.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_brick_wall.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_button.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_pressure_plate.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_slab.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_stairs.json"
+        },
+        {
+            "path": "recipes/polished_blackstone_wall.json"
+        },
+        {
+            "path": "recipes/quartz_bricks.json"
+        },
+        {
+            "path": "recipes/respawn_anchor.json"
+        },
+        {
+            "path": "recipes/shield_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/shield_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/smithing_table_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/smithing_table_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/smoker_from_crimson_stem.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_crimson_stem.json"
+        },
+        {
+            "path": "recipes/smoker_from_stripped_warped_stem.json"
+        },
+        {
+            "path": "recipes/smoker_from_warped_stem.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_crimson_stem.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_crimson_stem2.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_log2.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_stripped_acacia_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_stripped_birch_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_stripped_dark_oak_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_stripped_jungle_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_stripped_oak_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_stripped_spruce_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_sand_and_wood.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_log2.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_stripped_acacia_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_stripped_birch_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_stripped_dark_oak_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_stripped_jungle_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_stripped_oak_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_stripped_spruce_log.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_soul_soil_and_wood.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_stripped_crimson_stem.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_stripped_crimson_stem2.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_stripped_warped_stem.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_stripped_warped_stem2.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_warped_stem.json"
+        },
+        {
+            "path": "recipes/soul_campfire_from_warped_stem2.json"
+        },
+        {
+            "path": "recipes/soul_lantern.json"
+        },
+        {
+            "path": "recipes/soul_torch_from_soul_sand.json"
+        },
+        {
+            "path": "recipes/soul_torch_from_soul_soil.json"
+        },
+        {
+            "path": "recipes/stick_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/stick_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/stonecutter_blackstone_slab_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_blackstone_stairs_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_blackstone_wall_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_bricks_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_brick_slab_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_brick_stairs_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_brick_wall_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_chiseled_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_chiseled_nether_bricks_from_nether_brick.json"
+        },
+        {
+            "path": "recipes/stonecutter_chiseled_polished_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_basalt_from_basalt.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_bricks_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_brick_slab_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_brick_stairs_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_brick_wall_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_slab_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_stairs_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_polished_wall_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_quartz_bricks_from_quartz_block.json"
+        },
+        {
+            "path": "recipes/stonecutter_quartz_slab.json"
+        },
+        {
+            "path": "recipes/stonecutter_slab_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_slab_from_polished_blackstone_bricks.json"
+        },
+        {
+            "path": "recipes/stonecutter_stairs_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_stairs_from_polished_blackstone_bricks.json"
+        },
+        {
+            "path": "recipes/stonecutter_wall_from_polished_blackstone.json"
+        },
+        {
+            "path": "recipes/stonecutter_wall_from_polished_blackstone_bricks.json"
+        },
+        {
+            "path": "recipes/stone_axe_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stone_hoe_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stone_pickaxe_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stone_shovel_from_blackstone.json"
+        },
+        {
+            "path": "recipes/stone_sword_from_blackstone.json"
+        },
+        {
+            "path": "recipes/target_block.json"
+        },
+        {
+            "path": "recipes/tripwire_hook_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/tripwire_hook_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/warped_button.json"
+        },
+        {
+            "path": "recipes/warped_door.json"
+        },
+        {
+            "path": "recipes/warped_fence.json"
+        },
+        {
+            "path": "recipes/warped_fence_gate.json"
+        },
+        {
+            "path": "recipes/warped_fungus_on_a_stick.json"
+        },
+        {
+            "path": "recipes/warped_hyphae.json"
+        },
+        {
+            "path": "recipes/warped_hyphae_stripped.json"
+        },
+        {
+            "path": "recipes/warped_planks.json"
+        },
+        {
+            "path": "recipes/warped_planks_from_stripped_log.json"
+        },
+        {
+            "path": "recipes/warped_planks_from_stripped_warped_hyphae.json"
+        },
+        {
+            "path": "recipes/warped_planks_from_warped_hyphae.json"
+        },
+        {
+            "path": "recipes/warped_pressure_plate.json"
+        },
+        {
+            "path": "recipes/warped_sign.json"
+        },
+        {
+            "path": "recipes/warped_slab.json"
+        },
+        {
+            "path": "recipes/warped_stairs.json"
+        },
+        {
+            "path": "recipes/warped_trapdoor.json"
+        },
+        {
+            "path": "recipes/wooden_axe_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/wooden_axe_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/wooden_hoe_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/wooden_hoe_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/wooden_pickaxe_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/wooden_pickaxe_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/wooden_shovel_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/wooden_shovel_from_warped_planks.json"
+        },
+        {
+            "path": "recipes/wooden_sword_from_crimson_planks.json"
+        },
+        {
+            "path": "recipes/wooden_sword_from_warped_planks.json"
+        },
+        {
+            "path": "spawn_rules/enderman.json"
+        },
+        {
+            "path": "spawn_rules/ghast.json"
+        },
+        {
+            "path": "spawn_rules/hoglin.json"
+        },
+        {
+            "path": "spawn_rules/magma_cube.json"
+        },
+        {
+            "path": "spawn_rules/piglin.json"
+        },
+        {
+            "path": "spawn_rules/skeleton.json"
+        },
+        {
+            "path": "spawn_rules/strider.json"
+        },
+        {
+            "path": "spawn_rules/zombie_pigman.json"
+        },
+        {
+            "path": "trading/economy_trades/armorer_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/butcher_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/cartographer_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/cleric_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/farmer_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/fisherman_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/fletcher_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/leather_worker_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/librarian_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/shepherd_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/stone_mason_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/tool_smith_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/wandering_trader_trades.json"
+        },
+        {
+            "path": "trading/economy_trades/weapon_smith_trades.json"
+        }
+    ]
+}

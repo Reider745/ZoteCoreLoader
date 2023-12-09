@@ -107,7 +107,7 @@ public class FileTools {
     }
 
     public static String[] listAssets(String dir) {
-        return new String[0];
+        return listDirectory(DIR_WORK + "assets/" + dir);
     }
 
     public static String getAssetAsString(String name) {
