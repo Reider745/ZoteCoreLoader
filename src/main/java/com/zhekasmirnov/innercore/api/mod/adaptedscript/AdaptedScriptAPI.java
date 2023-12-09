@@ -1337,7 +1337,7 @@ public class AdaptedScriptAPI extends API {
             item.setUseAnimation(1);
             item.setMaxUseDuration(32);
             return item;*/
-            NativeItem item = createFoodItem(id, nameId, name, iconName, iconIndex, food);
+            NativeItem item = NativeItem.createFoodItem(id, nameId, name, iconName, iconIndex, food);
             //item.setProperties(null);
             item.setUseAnimation(1);
             item.setMaxUseDuration(32);

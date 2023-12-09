@@ -91,8 +91,12 @@ public class InnerCoreServer {
         return server.getPropertyBoolean("eval-enable", true);
     }
 
+    public static boolean isDevelopMode(){
+        return server.getPropertyBoolean("develop-mode", false);
+    }
+
     public static boolean isRuntimeException(){
-        return server.getPropertyBoolean("inner_core.runtime_exception", false);
+        return server.getPropertyBoolean("inner_core.runtime_exception", isDevelopMode());
     }
 
     private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {

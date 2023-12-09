@@ -1,7 +1,9 @@
 package com.zhekasmirnov.apparatus;
 
+import com.reider745.InnerCoreServer;
+
 public class Apparatus {
     public static boolean isDevelop() {
-        return false;
+        return InnerCoreServer.isDevelopMode();
     }
 }

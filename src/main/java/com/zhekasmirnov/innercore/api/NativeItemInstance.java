@@ -27,7 +27,7 @@ public class NativeItemInstance {
             this.id = this.count = this.data = 0;
             this.extra = null;
         } else {
-            item = ptr;
+            this.item = item;
             this.id = item.getId();
             this.count = item.getCount();
             this.data = item.getAttackDamage() == 0 ? item.getAttackDamage() : item.getDamage();

@@ -67,11 +67,11 @@ public class NativeAPI {
     }
 
     public static void sendCachedItemNameOverride(int id, int data, String overrideCache) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.sendCachedItemNameOverride(id, data, overrideCache)");
+        // InnerCoreServer.useNotCurrentSupport("NativeAPI.sendCachedItemNameOverride(id, data, overrideCache)");
     }
 
     public static void setItemNameOverrideCallbackForced(int id, boolean forces) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setItemNameOverrideCallbackForced(id, forces)");
+        //InnerCoreServer.useNotCurrentSupport("NativeAPI.setItemNameOverrideCallbackForced(id, forces)");
     }
 
     public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
@@ -628,7 +628,6 @@ public class NativeAPI {
     }
 
     public static void setItemRequiresIconOverride(int id, boolean enabled) {
-        InnerCoreServer.useClientMethod("NativeAPI.setItemRequiresIconOverride(id, enabled)");
     }
 
     public static void setItemToDrop(long entity, int id, int count, int data, long extra) {

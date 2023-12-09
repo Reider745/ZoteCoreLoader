@@ -61,7 +61,6 @@ public class NativeItem {
     }
 
     public void setGlint(boolean val) {
-        InnerCoreServer.useNotCurrentSupport("NativeItem.setGlint(val)");
     }
 
     public void setHandEquipped(boolean val) {
@@ -73,7 +72,6 @@ public class NativeItem {
     }
 
     public void setUseAnimation(int val) {
-        InnerCoreServer.useNotCurrentSupport("NativeItem.setUseAnimation(val)");
     }
 
     public void setMaxUseDuration(int val) {
@@ -101,7 +99,7 @@ public class NativeItem {
     }
 
     public void setProperties(String val) {
-        InnerCoreServer.useNotCurrentSupport("NativeItem.setProperties(val)");
+        //InnerCoreServer.useNotCurrentSupport("NativeItem.setProperties(val)");
     }
 
     public void setEnchantType(int type, int value) {
@@ -220,7 +218,6 @@ public class NativeItem {
     }
 
     public static void setUseAnimation(long ptr, int val) {
-        InnerCoreServer.useNotSupport("NativeItem.setUseAnimation(ptr, val)");
     }
 
     public static void setMaxUseDuration(long ptr, int val) {
@@ -276,7 +273,7 @@ public class NativeItem {
     }
 
     public static void setCreativeCategoryForId(int id, int category) {
-        InnerCoreServer.useNotCurrentSupport("NativeItem.setCreativeCategoryForId(id, category)");
+        ItemMethod.setCreativeCategory(CustomManager.getFor(id), category);
     }
 
     public static String getNameForId(int id, int data) {
