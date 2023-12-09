@@ -1,13 +1,10 @@
 package com.zhekasmirnov.innercore.api.particles;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.commontypes.Coords;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectWrapper;
-import com.zhekasmirnov.innercore.utils.FileTools;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
 import java.util.HashMap;
@@ -19,141 +16,97 @@ import java.util.HashMap;
 public class ParticleRegistry {
     private static HashMap<Integer, ParticleType> registeredParticleTypes = new HashMap<>();
 
+    public static long nativeRegisterNewParticleType(String textureName, float minU, float minV, float maxU, float maxV,
+            int texCountH, int texCountV, boolean isUsingBlockLight) {
+        InnerCoreServer.useNotSupport(
+                "ParticleRegistry.nativeRegisterNewParticleType(textureName, minU, minV, maxU, maxV, texCountH, texCountV, isUsingBlockLight)");
+        return 0;
+    }
+
+    public static int nativeParticleTypeGetID(long type) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeGetID(type)");
+        return 0;
+    }
+
+    public static void nativeParticleTypeSetRenderType(long type, int renderType) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetRenderType(type, renderType)");
+    }
+
+    public static void nativeParticleTypeSetRebuildDelay(long type, int delay) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetRebuildDelay(type, delay)");
+    }
+
+    public static void nativeParticleTypeSetColor(long type, float r, float g, float b, float a) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetColor(type, r, g, b, a)");
+    }
+
+    public static void nativeParticleTypeSetColorNew(long type, float r, float g, float b, float a, float r2, float g2,
+            float b2, float a2) {
+        InnerCoreServer
+                .useNotSupport("ParticleRegistry.nativeParticleTypeSetColorNew(type, r, g, b, a, r2, g2, b2, a2)");
+    }
+
+    public static void nativeParticleTypeSetSize(long type, float min, float max) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetSize(type, min, max)");
+    }
+
+    public static void nativeParticleTypeSetLifetime(long type, int min, int max) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetLifetime(type, min, max)");
+    }
+
+    public static void nativeParticleTypeSetFriction(long type, float air, float block) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetFriction(type, air, block)");
+    }
+
+    public static void nativeParticleTypeSetCollisionParams(long type, boolean collision, boolean keepVel,
+            int addLifetimeOnCollision) {
+        InnerCoreServer.useNotSupport(
+                "ParticleRegistry.nativeParticleTypeSetCollisionParams(type, collision, keepVel, addLifetimeOnCollision)");
+    }
+
+    public static void nativeParticleTypeSetDefaultVelocity(long type, float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetDefaultVelocity(type, x, y, z)");
+    }
+
+    public static void nativeParticleTypeSetDefaultAcceleration(long type, float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetDefaultAcceleration(type, x, y, z)");
+    }
+
+    public static void nativeParticleTypeSetSubEmitters(long type, long idle, long impact, long death) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetSubEmitters(type, idle, impact, death)");
+    }
+
+    public static void nativeParticleTypeSetAnimators(long type, long size, long alpha, long texture) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleTypeSetAnimators(type, size, alpha, texture)");
+    }
+
+    public static void nativeParticleTypeSetAnimatorsNew(long type, long size, long alpha, long texture, long color) {
+        InnerCoreServer.useNotSupport(
+                "ParticleRegistry.nativeParticleTypeSetAnimatorsNew(type, size, alpha, texture, color)");
+    }
+
     public static class ParticleType {
-        private long ptr;
-        private int id;
-
-        private void initPtr(long ptr) {
-            this.ptr = ptr;
-            this.id = 0;
-            registeredParticleTypes.put(this.id, this);
-        }
-
-        public ParticleType(String textureName, float minU, float minV, float maxU, float maxV, int texCountH, int texCountV, boolean isUsingBlockLight) {
-            initPtr(0);
+        public ParticleType(String textureName, float minU, float minV, float maxU, float maxV, int texCountH,
+                int texCountV, boolean isUsingBlockLight) {
         }
 
         public ParticleType(String locationName, boolean isUsingBlockLight, float[] uv, int texCountH, int texCountV) {
-            String path = null;
-
-            if(FileTools.assetExists("resource_packs/vanilla/particle-atlas/" + locationName + ".png")){
-                path = "particle-atlas/" + locationName;
-            } else if(FileTools.assetExists("resource_packs/vanilla/" + locationName + ".png")) {
-                path = locationName;
-            } 
-
-            if (uv == null) {
-                uv = new float[] {0, 0, 1, 1};
-            }
-            
-            if(path == null) {
-                ICLog.i("ERROR", "invalid particle location name: " + locationName + ", it does not exist and will be replaced with default.");
-                initPtr(0);
-            } else {
-                // legacy support
-                if (texCountH <= 0 || texCountV <= 0) {
-                    texCountH = 1;
-                    texCountV = 1;
-                    Logger.debug("resource_packs/vanilla/" + path + ".png");
-                }
-                initPtr(0);
-            }
         }
 
         public ParticleType(ScriptableObjectWrapper scriptable) {
-            this(scriptable.getString("texture", "undefined"), scriptable.getBoolean("isUsingBlockLight"), scriptable.getUVTemplate("textureUV"), scriptable.getInt("framesX", -1), scriptable.getInt("framesY", -1));
-
-            ScriptableObjectWrapper subEmitters = scriptable.getScriptableWrapper("emitters");
-            if (subEmitters != null) {
-                ScriptableObjectWrapper idle = subEmitters.getScriptableWrapper("idle");
-                if (idle != null) {
-                    setSubEmitter("idle", new ParticleSubEmitter(idle));
-                }
-                ScriptableObjectWrapper impact = subEmitters.getScriptableWrapper("impact");
-                if (impact != null) {
-                    setSubEmitter("impact", new ParticleSubEmitter(impact));
-                }
-                ScriptableObjectWrapper death = subEmitters.getScriptableWrapper("death");
-                if (death != null) {
-                    setSubEmitter("death", new ParticleSubEmitter(death));
-                }
-            }
-
-            ScriptableObjectWrapper animators = scriptable.getScriptableWrapper("animators");
-            if (animators != null) {
-                ScriptableObjectWrapper size = animators.getScriptableWrapper("size");
-                if (size != null) {
-                    setAnimator("size", new ParticleAnimator(size));
-                }
-                ScriptableObjectWrapper alpha = animators.getScriptableWrapper("alpha");
-                if (alpha != null) {
-                    setAnimator("alpha", new ParticleAnimator(alpha));
-                }
-                ScriptableObjectWrapper icon = animators.getScriptableWrapper("icon");
-                if (icon != null) {
-                    setAnimator("icon", new ParticleAnimator(icon));
-                }
-                ScriptableObjectWrapper color = animators.getScriptableWrapper("color");
-                if (color != null) {
-                    setAnimator("color", new ParticleAnimator(color));
-                }
-            }
-
-            ScriptableObjectWrapper friction = scriptable.getScriptableWrapper("friction");
-            if (friction != null) {
-                setFriction(friction.getFloat("air", 1), friction.getFloat("block", 1));
-            }
-
-            if (scriptable.has("color")) {
-                float[] color = scriptable.getColorTemplate("color", 1);
-                if (scriptable.has("color2")) {
-                    float[] color2 = scriptable.getColorTemplate("color2", 1);
-                    setColor(color[0], color[1], color[2], color[3], color2[0], color2[1], color2[2], color2[3]);
-                } else {
-                    setColor(color[0], color[1], color[2], color[3]);
-                }
-            }
-
-
-            if (scriptable.has("lifetime")) {
-                float[] lifetime = scriptable.getMinMaxTemplate("lifetime", 100);
-                setLifetime((int) lifetime[0], (int) lifetime[1]);
-            }
-
-            if (scriptable.has("size")) {
-                float[] size = scriptable.getMinMaxTemplate("size", 1);
-                setSize(size[0], size[1]);
-            }
-
-            if (scriptable.has("velocity")) {
-                float[] velocity = scriptable.getVec3Template("velocity", 0);
-                setDefaultVelocity(velocity[0], velocity[1], velocity[2]);
-            }
-
-            if (scriptable.has("acceleration")) {
-                float[] acceleration = scriptable.getVec3Template("acceleration", 0);
-                setDefaultAcceleration(acceleration[0], acceleration[1], acceleration[2]);
-            }
-
-            setCollisionParams(scriptable.getBoolean("collision"), scriptable.getBoolean("keepVelocityAfterImpact"), scriptable.getInt("addLifetimeAfterImpact"));
-            setRenderType(scriptable.getInt("render", 1));
-            setRebuildDelay(scriptable.getInt("rebuildDelay", 10));
         }
 
         public ParticleType(Scriptable scriptable) {
-            this(new ScriptableObjectWrapper(scriptable));
         }
 
         public int getId() {
-            return id;
+            return 0;
         }
 
         public void setRenderType(int renderType) {
-
         }
 
         public void setRebuildDelay(int delay) {
-
         }
 
         public void setColor(float r, float g, float b, float a) {
@@ -180,69 +133,57 @@ public class ParticleRegistry {
         public void setDefaultAcceleration(float x, float y, float z) {
         }
 
-        private HashMap<String, ParticleSubEmitter> subEmitters = new HashMap<>();
-        private long getSubEmitterPtr(String name) {
-            ParticleSubEmitter emitter = subEmitters.get(name);
-            return emitter != null ? emitter.ptr : 0;
-        }
-
         public void setSubEmitter(String name, ParticleSubEmitter emitter) {
-            subEmitters.put(name, emitter);
-        }
-
-        private HashMap<String, ParticleAnimator> animators = new HashMap<>();
-        private long getAnimatorPtr(String name) {
-            ParticleAnimator animator = animators.get(name);
-            return animator != null ? animator.ptr : 0;
         }
 
         public void setAnimator(String name, ParticleAnimator animator) {
-            animators.put(name, animator);
         }
     }
 
-
-
-    public static native long nativeNewParticleAnimator(float fadeInTime, float fadeInValue, float fadeOutTime, float fadeOutValue, int period);
+    public static long nativeNewParticleAnimator(float fadeInTime, float fadeInValue, float fadeOutTime,
+            float fadeOutValue, int period) {
+        InnerCoreServer.useNotSupport(
+                "ParticleRegistry.nativeNewParticleAnimator(fadeInTime, fadeInValue, fadeOutTime, fadeOutValue, period)");
+        return 0;
+    }
 
     public static class ParticleAnimator {
-        private long ptr;
-
-        public ParticleAnimator(int period, float fadeInTime, float fadeInValue, float fadeOutTime, float fadeOutValue) {
-            ptr = nativeNewParticleAnimator(fadeInTime, fadeInValue, fadeOutTime, fadeOutValue, period);
+        public ParticleAnimator(int period, float fadeInTime, float fadeInValue, float fadeOutTime,
+                float fadeOutValue) {
         }
 
         public ParticleAnimator(ScriptableObjectWrapper scriptable) {
-            this(scriptable.getInt("period", -1), scriptable.getFloat("fadeIn"), scriptable.getFloat("start"), scriptable.getFloat("fadeOut", 0), scriptable.getFloat("end", 0));
         }
 
         public ParticleAnimator(Scriptable scriptable) {
-            this(new ScriptableObjectWrapper(scriptable));
         }
     }
 
+    public static long nativeNewParticleSubEmitter(float chance, int count, int type, int data) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeNewParticleSubEmitter(chance, count, type, data)");
+        return 0;
+    }
 
+    public static void nativeParticleSubEmitterSetRandom(long emitter, float maxRandVel) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleSubEmitterSetRandom(emitter, maxRandVel)");
+    }
+
+    public static void nativeParticleSubEmitterSetKeepVelocity(long emitter, boolean keep) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleSubEmitterSetKeepVelocity(emitter, keep)");
+    }
+
+    public static void nativeParticleSubEmitterSetKeepEmitter(long emitter, boolean keep) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleSubEmitterSetKeepEmitter(emitter, keep)");
+    }
 
     public static class ParticleSubEmitter {
-        private long ptr;
-
         public ParticleSubEmitter(float chance, int count, int type, int data) {
-            ptr = 0;
         }
 
         public ParticleSubEmitter(ScriptableObjectWrapper scriptable) {
-            this(scriptable.getFloat("chance", 1), scriptable.getInt("count", 1), scriptable.getInt("type", 0), scriptable.getInt("data", 0));
-
-            setKeepVelocity(scriptable.getBoolean("keepVelocity"));
-            setKeepEmitter(scriptable.getBoolean("keepEmitter"));
-
-            if (scriptable.getFloat("randomize") > 0.001) {
-                setRandomVelocity(scriptable.getFloat("randomize"));
-            }
         }
 
         public ParticleSubEmitter(Scriptable scriptable) {
-            this(new ScriptableObjectWrapper(scriptable));
         }
 
         public void setRandomVelocity(float maxRandomVelocity) {
@@ -255,16 +196,60 @@ public class ParticleRegistry {
         }
     }
 
-    public static class ParticleEmitter {
-        private long ptr;
-        private boolean isRelativeEmittingEnabled = false;
+    public static long nativeNewParticleEmitter(float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeNewParticleEmitter(x, y, z)");
+        return 0;
+    }
 
+    public static void nativeParticleEmitterMove(long emitter, float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmitterMove(emitter, x, y, z)");
+    }
+
+    public static void nativeParticleEmitterMoveTo(long emitter, float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmitterMoveTo(emitter, x, y, z)");
+    }
+
+    public static void nativeParticleEmitterSetVelocity(long emitter, float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmitterSetVelocity(emitter, x, y, z)");
+    }
+
+    public static void nativeParticleEmitterAttachTo(long emitter, long entity, float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmitterAttachTo(emitter, entity, x, y, z)");
+    }
+
+    public static void nativeParticleEmitterDetach(long emitter) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmitterDetach(emitter)");
+    }
+
+    public static void nativeParticleEmitterRelease(long emitter) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmitterRelease(emitter)");
+    }
+
+    public static void nativeParticleEmitterGetPosition(long emitter, float[] pos) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmitterGetPosition(emitter, pos)");
+    }
+
+    public static void nativeParticleEmit1(long emitter, int type, int data, float x, float y, float z) {
+        InnerCoreServer.useNotSupport("ParticleRegistry.nativeParticleEmit1(emitter, type, data, x, y, z)");
+    }
+
+    public static void nativeParticleEmit2(long emitter, int type, int data, float x, float y, float z, float vx,
+            float vy, float vz) {
+        InnerCoreServer
+                .useNotSupport("ParticleRegistry.nativeParticleEmit2(emitter, type, data, x, y, z, vx, vy, vz)");
+    }
+
+    public static void nativeParticleEmit3(long emitter, int type, int data, float x, float y, float z, float vx,
+            float vy, float vz, float ax, float ay, float az) {
+        InnerCoreServer.useNotSupport(
+                "ParticleRegistry.nativeParticleEmit3(emitter, type, data, x, y, z, vx, vy, vz, ax, ay, az)");
+    }
+
+    public static class ParticleEmitter {
         public ParticleEmitter(float x, float y, float z) {
-            ptr = 0;
         }
 
         public void setEmitRelatively(boolean b) {
-            isRelativeEmittingEnabled = b;
         }
 
         public void move(float x, float y, float z) {
@@ -277,19 +262,15 @@ public class ParticleRegistry {
         }
 
         public void attachTo(Object ent, float x, float y, float z) {
-            long entity = (long) (ent instanceof Wrapper ? ((Wrapper) ent).unwrap() : ((Number) ent).longValue());
         }
 
         public void attachTo(Object ent) {
-            attachTo(ent, 0, 0, 0);
         }
 
         public void detach() {
         }
 
         public void stop() {
-            detach();
-            setVelocity(0, 0, 0);
         }
 
         public void release() {
@@ -300,41 +281,25 @@ public class ParticleRegistry {
         }
 
         public float[] getPositionArray() {
-            return new float[] {0, 0, 0};
-        }
-
-        private float[] pos = new float[3];
-        private void refreshPos() {
+            return new float[3];
         }
 
         public void emit(int type, int data, float x, float y, float z) {
-            if (isRelativeEmittingEnabled) {
-                refreshPos();
-            }
-            else {
-            }
         }
 
         public void emit(int type, int data, float x, float y, float z, float vx, float vy, float vz) {
-            if (isRelativeEmittingEnabled) {
-                refreshPos();
-            } else {
-            }
         }
 
-        public void emit(int type, int data, float x, float y, float z, float vx, float vy, float vz, float ax, float ay, float az) {
-            if (isRelativeEmittingEnabled) {
-                refreshPos();
-            }
-            else {
-            }
+        public void emit(int type, int data, float x, float y, float z, float vx, float vy, float vz, float ax,
+                float ay, float az) {
         }
     }
 
-
-
     @JSStaticFunction
     public static ParticleType getParticleTypeById(int id) {
+        if (!registeredParticleTypes.containsKey(id)) {
+            registeredParticleTypes.put(id, new ParticleType((Scriptable) null));
+        }
         return registeredParticleTypes.get(id);
     }
 
@@ -345,9 +310,11 @@ public class ParticleRegistry {
 
     @JSStaticFunction
     public static void addParticle(int id, double x, double y, double z, double vx, double vy, double vz, int data) {
+        NativeAPI.addParticle(id, x, y, z, vx, vy, vz, data);
     }
 
     @JSStaticFunction
     public static void addFarParticle(int id, double x, double y, double z, double vx, double vy, double vz, int data) {
+        NativeAPI.addFarParticle(id, x, y, z, vx, vy, vz, data);
     }
 }

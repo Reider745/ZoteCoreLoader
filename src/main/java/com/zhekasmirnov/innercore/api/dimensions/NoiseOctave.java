@@ -2,6 +2,8 @@ package com.zhekasmirnov.innercore.api.dimensions;
 
 import java.util.HashMap;
 
+import com.reider745.InnerCoreServer;
+
 public class NoiseOctave {
     private static final HashMap<String, Integer> octaveTypeMap = new HashMap<>();
     static {
@@ -24,14 +26,13 @@ public class NoiseOctave {
                 builder.append(key).append(" ");
             }
             throw new IllegalArgumentException("invalid octave type: " + name + ", valid types: " + builder);
-        } 
+        }
         return octaveTypeMap.get(name);
     }
-    
-    public final long pointer;
-    
+
+    public final long pointer = 0;
+
     public NoiseOctave(int type) {
-        pointer = nativeConstruct(type);
     }
 
     public NoiseOctave(String type) {
@@ -43,34 +44,27 @@ public class NoiseOctave {
     }
 
     public NoiseOctave setTranslate(float x, float y, float z) {
-        nativeSetTranslate(pointer, x, y, z);
+        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setTranslate(x, y, z)");
         return this;
     }
 
     public NoiseOctave setScale(float x, float y, float z) {
-        nativeSetScale(pointer, x, y, z);
+        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setScale(x, y, z)");
         return this;
     }
 
     public NoiseOctave setWeight(float w) {
-        nativeSetWeight(pointer, w);
+        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setWeight(w)");
         return this;
     }
 
     public NoiseOctave setSeed(int seed) {
-        nativeSetSeed(pointer, seed);
+        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setSeed(seed)");
         return this;
     }
 
     public NoiseOctave setConversion(NoiseConversion conversion) {
-        nativeSetConversion(pointer, conversion != null ? conversion.pointer : 0);
+        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setConversion(conversion)");
         return this;
     }
-    
-    private static native long nativeConstruct(int type);
-    private static native void nativeSetTranslate(long ptr, float x, float y, float z);
-    private static native void nativeSetScale(long ptr, float x, float y, float z);
-    private static native void nativeSetWeight(long ptr, float w);
-    private static native void nativeSetSeed(long ptr, int seed);
-    private static native void nativeSetConversion(long ptr, long conversion);
 }

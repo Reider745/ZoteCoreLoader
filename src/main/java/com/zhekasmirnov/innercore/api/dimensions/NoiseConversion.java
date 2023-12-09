@@ -1,17 +1,12 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
-public class NoiseConversion {
-    public final long pointer;
+import com.reider745.InnerCoreServer;
 
-    public NoiseConversion() {
-        pointer = nativeConstruct();
-    }
+public class NoiseConversion {
+    public final long pointer = 0;
 
     public NoiseConversion addNode(float x, float y) {
-        nativeAddNode(pointer, x, y);
+        InnerCoreServer.useNotCurrentSupport("NoiseConversion.addNode(x, y)");
         return this;
     }
-    
-    private static native long nativeConstruct();
-    private static native void nativeAddNode(long ptr, float x, float y);
 }

@@ -28,5 +28,4 @@ public final class ChatColor {
     public static final String UNDERLINE = "\u00A7n";
     public static final String WHITE = "\u00A7f";
     public static final String YELLOW = "\u00A7e";
-
 }

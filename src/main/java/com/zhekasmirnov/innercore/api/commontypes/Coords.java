@@ -18,7 +18,7 @@ public class Coords extends ScriptableObject {
 
         int relX = x, relY = y, relZ = z;
         if (!relativeCoordsAreSame) {
-            switch(side){
+            switch (side) {
                 case 0:
                     relY--;
                     break;

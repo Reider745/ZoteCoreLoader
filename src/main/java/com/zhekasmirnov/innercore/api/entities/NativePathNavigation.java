@@ -2,54 +2,48 @@ package com.zhekasmirnov.innercore.api.entities;
 
 import java.util.HashMap;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.game.common.Vector3;
+import com.reider745.InnerCoreServer;
 
 public class NativePathNavigation {
     private final long entity;
-    private final long pointer;
+    private final long pointer = 0;
     private boolean isValid = true;
 
     private static HashMap<Long, NativePathNavigation> activeNavigationMap = new HashMap<>();
 
-    private static native long nativeConstruct(long entity);
-    private static native void nativeCleanup();
-
-    public static NativePathNavigation getNavigation(long entity){
+    public static NativePathNavigation getNavigation(long entity) {
         NativePathNavigation result = activeNavigationMap.get(entity);
-        if(result != null){
+        if (result != null) {
             return result;
-        } 
+        }
         result = new NativePathNavigation(entity);
         activeNavigationMap.put(entity, result);
         return result;
     }
 
-    public static void onNavigationResult(long entity, int result){
+    public static void onNavigationResult(long entity, int result) {
         NativePathNavigation navigation = getNavigation(entity);
-        if(navigation.resultFunction != null){
+        if (navigation.resultFunction != null) {
             navigation.resultFunction.onNavigationResult(navigation, result);
         }
     }
 
-
-    private NativePathNavigation(long entity){
+    private NativePathNavigation(long entity) {
         this.entity = entity;
-        this.pointer = nativeConstruct(entity);
-        if(pointer == 0){
-            throw new IllegalArgumentException("Invalid mob was passed to NativePathNavigation constructor: " + entity);
-        }
+        // if (pointer == 0) {
+            // throw new IllegalArgumentException("Invalid mob was passed to NativePathNavigation constructor: " + entity);
+        // }
     }
 
-    public long getEntity(){
+    public long getEntity() {
         return entity;
     }
 
-    public static void cleanup(){
-        for(NativePathNavigation navigation: activeNavigationMap.values()){
+    public static void cleanup() {
+        for (NativePathNavigation navigation : activeNavigationMap.values()) {
             navigation.isValid = false;
         }
         activeNavigationMap.clear();
-        nativeCleanup();
     }
 
     interface NavigationResultFunction {
@@ -58,7 +52,7 @@ public class NativePathNavigation {
 
     NavigationResultFunction resultFunction;
 
-    public NativePathNavigation setResultFunction(NavigationResultFunction resultFunction){
+    public NativePathNavigation setResultFunction(NavigationResultFunction resultFunction) {
         if (this.resultFunction != null) {
             this.resultFunction.onNavigationResult(this, 6); // FUNCTION_REPLACED
         }
@@ -66,73 +60,238 @@ public class NativePathNavigation {
         return this;
     }
 
-    public native NativePathNavigation moveToCoords(float x, float y, float z, float velocity);
-    public native NativePathNavigation moveToEntity(long entity, float velocity);
-    public native NativePathNavigation setMaxNavigationDistance(float distance);
-    public native float getMaxNavigationDistance();
+    public NativePathNavigation moveToCoords(float x, float y, float z, float velocity) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.moveToCoords(x, y, z, velocity)");
+        return this;
+    }
 
-    public native NativePathNavigation stop();
-    public native NativePathNavigation setType(int type);
-    public native boolean isDone();
+    public NativePathNavigation moveToEntity(long entity, float velocity) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.moveToEntity(entity, velocity)");
+        return this;
+    }
 
-    public native boolean canPassDoors();
-    public native NativePathNavigation setCanPassDoors(boolean value);
+    public NativePathNavigation setMaxNavigationDistance(float distance) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setMaxNavigationDistance(distance)");
+        return this;
+    }
 
-    public native boolean isRiverFollowing();
-    public native NativePathNavigation setIsRiverFollowing(boolean value);
+    public float getMaxNavigationDistance() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getMaxNavigationDistance()");
+        return 0;
+    }
 
-    public native boolean canOpenDoors();
-    public native NativePathNavigation setCanOpenDoors(boolean value);
+    public NativePathNavigation stop() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.stop()");
+        return this;
+    }
 
-    public native boolean getAvoidSun();
-    public native NativePathNavigation setAvoidSun(boolean value);
+    public NativePathNavigation setType(int type) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setType(type)");
+        return this;
+    }
 
-    public native boolean getAvoidWater();
-    public native NativePathNavigation setAvoidWater(boolean value);
-    
-    public native NativePathNavigation setEndPathRadius(float value);
+    public boolean isDone() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.isDone()");
+        return false;
+    }
 
-    public native boolean getCanSink();
-    public native NativePathNavigation setCanSink(boolean value);
+    public boolean canPassDoors() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.canPassDoors()");
+        return false;
+    }
 
-    public native boolean getAvoidDamageBlocks();
-    public native NativePathNavigation setAvoidDamageBlocks(boolean value);
+    public NativePathNavigation setCanPassDoors(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanPassDoors(value)");
+        return this;
+    }
 
-    public native boolean getCanFloat();
-    public native NativePathNavigation setCanFloat(boolean value);
+    public boolean isRiverFollowing() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.isRiverFollowing()");
+        return false;
+    }
 
-    public native boolean isAmphibious();
-    public native NativePathNavigation setIsAmphibious(boolean value);
+    public NativePathNavigation setIsRiverFollowing(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setIsRiverFollowing(value)");
+        return this;
+    }
 
-    public native boolean getAvoidPortals();
-    public native NativePathNavigation setAvoidPortals(boolean value);
+    public boolean canOpenDoors() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.canOpenDoors()");
+        return false;
+    }
 
-    public native boolean getCanBreach();
-    public native NativePathNavigation setCanBreach(boolean value);
+    public NativePathNavigation setCanOpenDoors(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanOpenDoors(value)");
+        return this;
+    }
 
-    public native boolean getCanJump();
-    public native NativePathNavigation setCanJump(boolean value);
+    public boolean getAvoidSun() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getAvoidSun()");
+        return false;
+    }
 
-    public native float getSpeed();
-    public native NativePathNavigation setSpeed(float value);
+    public NativePathNavigation setAvoidSun(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setAvoidSun(value)");
+        return this;
+    }
 
-    public native boolean getCanPathOverLava();
-    public native NativePathNavigation setCanPathOverLava(boolean value);
+    public boolean getAvoidWater() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getAvoidWater()");
+        return false;
+    }
 
-    public native boolean getCanWalkInLava();
-    public native NativePathNavigation setCanWalkInLava(boolean value);
+    public NativePathNavigation setAvoidWater(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setAvoidWater(value)");
+        return this;
+    }
 
-    public native boolean getCanOpenIronDoors();
-    public native NativePathNavigation setCanOpenIronDoors(boolean value);
+    public NativePathNavigation setEndPathRadius(float value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setEndPathRadius(value)");
+        return this;
+    }
 
-    public native boolean getHasEndPathRadius();
-    public native NativePathNavigation setHasEndPathRadius(boolean value);
+    public boolean getCanSink() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getCanSink()");
+        return false;
+    }
 
-    public native float getTerminationThreshold();
-    public native NativePathNavigation getTerminationThreshold(float value);
+    public NativePathNavigation setCanSink(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanSink(value)");
+        return this;
+    }
 
-    public native int getTickTimeout();
-    public native NativePathNavigation setTickTimeout(int value);
+    public boolean getAvoidDamageBlocks() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getAvoidDamageBlocks()");
+        return false;
+    }
 
-    public native boolean isStuck(int ticks);
+    public NativePathNavigation setAvoidDamageBlocks(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setAvoidDamageBlocks(value)");
+        return this;
+    }
+
+    public boolean getCanFloat() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getCanFloat()");
+        return false;
+    }
+
+    public NativePathNavigation setCanFloat(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanFloat(value)");
+        return this;
+    }
+
+    public boolean isAmphibious() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.isAmphibious()");
+        return false;
+    }
+
+    public NativePathNavigation setIsAmphibious(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setIsAmphibious(value)");
+        return this;
+    }
+
+    public boolean getAvoidPortals() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getAvoidPortals()");
+        return false;
+    }
+
+    public NativePathNavigation setAvoidPortals(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setAvoidPortals(value)");
+        return this;
+    }
+
+    public boolean getCanBreach() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getCanBreach()");
+        return false;
+    }
+
+    public NativePathNavigation setCanBreach(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanBreach(value)");
+        return this;
+    }
+
+    public boolean getCanJump() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getCanJump()");
+        return false;
+    }
+
+    public NativePathNavigation setCanJump(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanJump(value)");
+        return this;
+    }
+
+    public float getSpeed() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getSpeed()");
+        return 0;
+    }
+
+    public NativePathNavigation setSpeed(float value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setSpeed(value)");
+        return this;
+    }
+
+    public boolean getCanPathOverLava() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getCanPathOverLava()");
+        return false;
+    }
+
+    public NativePathNavigation setCanPathOverLava(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanPathOverLava(value)");
+        return this;
+    }
+
+    public boolean getCanWalkInLava() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getCanWalkInLava()");
+        return false;
+    }
+
+    public NativePathNavigation setCanWalkInLava(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanWalkInLava(value)");
+        return this;
+    }
+
+    public boolean getCanOpenIronDoors() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getCanOpenIronDoors()");
+        return false;
+    }
+
+    public NativePathNavigation setCanOpenIronDoors(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setCanOpenIronDoors(value)");
+        return this;
+    }
+
+    public boolean getHasEndPathRadius() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getHasEndPathRadius()");
+        return false;
+    }
+
+    public NativePathNavigation setHasEndPathRadius(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setHasEndPathRadius(value)");
+        return this;
+    }
+
+    public float getTerminationThreshold() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getTerminationThreshold()");
+        return 0;
+    }
+
+    public NativePathNavigation getTerminationThreshold(float value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getTerminationThreshold(value)");
+        return this;
+    }
+
+    public int getTickTimeout() {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.getTickTimeout()");
+        return 0;
+    }
+
+    public NativePathNavigation setTickTimeout(int value) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.setTickTimeout(value)");
+        return this;
+    }
+
+    public boolean isStuck(int ticks) {
+        InnerCoreServer.useNotCurrentSupport("NativePathNavigation.isStuck(ticks)");
+        return false;
+    }
 }

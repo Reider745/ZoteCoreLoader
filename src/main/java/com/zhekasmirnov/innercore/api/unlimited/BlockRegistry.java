@@ -17,18 +17,15 @@ import java.util.HashMap;
  */
 
 public class BlockRegistry {
-
     public static final String LOGGER_TAG = "INNERCORE-BLOCKS";
 
     private static FileLoader loader;
-
-    // private static HashMap<IDDataPair, BlockShape> blockShapeMap = new HashMap<>();
-
     private static HashMap<IDDataPair, BlockVariant> blockVariantMap = new HashMap<>();
 
     public static void onInit() {
         ICLog.d(LOGGER_TAG, "reading saved mappings...");
-        loader = new FileLoader(ModPackContext.getInstance().getCurrentModPack().getRequestHandler(ModPackDirectory.DirectoryType.CONFIG).get("innercore", "ids.json"));
+        loader = new FileLoader(ModPackContext.getInstance().getCurrentModPack()
+                .getRequestHandler(ModPackDirectory.DirectoryType.CONFIG).get("innercore", "ids.json"));
     }
 
     public static void onModsLoaded() {
@@ -40,12 +37,14 @@ public class BlockRegistry {
         ICLog.d(LOGGER_TAG, "complete");
     }
 
-    private static void addBlockVariants(int uid, String inputNameId, NativeBlock block, ScriptableObject variantsScriptable) {
+    private static void addBlockVariants(int uid, String inputNameId, NativeBlock block,
+            ScriptableObject variantsScriptable) {
         int data = 0;
         Object[] keys = variantsScriptable.getAllIds();
 
         if (keys.length == 0) {
-            throw new IllegalArgumentException("no variants found in variant array while creating block " + inputNameId + ", variants must be formatted as [{name: 'name', textures:[['name', index], ...], inCreative: true/false}, ...]");
+            throw new IllegalArgumentException("no variants found in variant array while creating block " + inputNameId
+                    + ", variants must be formatted as [{name: 'name', textures:[['name', index], ...], inCreative: true/false}, ...]");
         }
 
         for (Object key : keys) {
@@ -67,24 +66,17 @@ public class BlockRegistry {
                     NativeItem.addToCreative(uid, 1, data - 1, null);
                 }
                 blockVariantMap.put(new IDDataPair(uid, variant.data), variant);
-
-//                NativeItemModel model = NativeItemModel.getFor(uid, variant.data);
-//                model.updateForBlockVariant(variant);
-//                if (model.getCacheKey() == null) {
-//                   // model.setCacheKey("modded");
-//                }
-//                model.isLazyLoading = variant.isTechnical;
             }
         }
     }
 
     public static void createBlock(int uid, String nameId, ScriptableObject variantsScriptable, SpecialType type) {
-
-        if(!IDRegistry.getNameByID(uid).equals(nameId)){
-            throw new IllegalArgumentException("numeric uid " + uid + IDRegistry.getNameByID(uid) + " doesn't match string id " + nameId);
+        if (!IDRegistry.getNameByID(uid).equals(nameId)) {
+            throw new IllegalArgumentException(
+                    "numeric uid " + uid + IDRegistry.getNameByID(uid) + " doesn't match string id " + nameId);
         }
 
-        if(IDRegistry.isVanilla(uid)){
+        if (IDRegistry.isVanilla(uid)) {
             ICLog.e(LOGGER_TAG, "cannot create block with vanilla id " + uid, new RuntimeException());
             return;
         }
@@ -94,8 +86,10 @@ public class BlockRegistry {
         type.setupBlock(uid);
     }
 
-    public static void createLiquidBlockPair(int id1, String nameId1, int id2, String nameId2, ScriptableObject variantsScriptable, SpecialType type, int tickDelay, boolean isRenewable) {
-        NativeBlock[] blocks = NativeBlock.createLiquidBlock(id1, NativeAPI.convertNameId(nameId1), id2, NativeAPI.convertNameId(nameId2), "blank", 0, tickDelay, isRenewable);
+    public static void createLiquidBlockPair(int id1, String nameId1, int id2, String nameId2,
+            ScriptableObject variantsScriptable, SpecialType type, int tickDelay, boolean isRenewable) {
+        NativeBlock[] blocks = NativeBlock.createLiquidBlock(id1, NativeAPI.convertNameId(nameId1), id2,
+                NativeAPI.convertNameId(nameId2), "blank", 0, tickDelay, isRenewable);
         for (NativeBlock block : blocks) {
             addBlockVariants(block.getId(), "liquid pair: " + nameId1 + ", " + nameId2, block, variantsScriptable);
             type.setupBlock(block.getId());
@@ -114,24 +108,10 @@ public class BlockRegistry {
             variant.shape = shape;
             NativeItemModel.getFor(uid, data).updateForBlockVariant(variant);
         }
-
-        // blockShapeMap.put(new IDDataPair(uid, data), shape);
-
-        // ModelInfo info = ItemModels.getModelInfo(uid, data);
-        // if(info != null){
-        //     info.setShape(shape);
-        // }        
     }
 
-    // public static BlockShape getBlockShape(int uid, int data){
-    //     IDDataPair key = new IDDataPair(uid, data);
-    //     return blockShapeMap.containsKey(key) ? blockShapeMap.get(key) : new BlockShape();
-    // }
-
-    public static BlockVariant getBlockVariant(int uid, int data){
+    public static BlockVariant getBlockVariant(int uid, int data) {
         IDDataPair key = new IDDataPair(uid, data);
         return blockVariantMap.get(key);
     }
-
-    
 }

@@ -1,11 +1,11 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
+import com.reider745.InnerCoreServer;
 
 public class MonoBiomeTerrainGenerator extends AbstractTerrainGenerator {
-    public final long pointer;
+    public final long pointer = 0;
 
     public MonoBiomeTerrainGenerator() {
-        pointer = nativeConstruct();
     }
 
     public long getPointer() {
@@ -13,15 +13,12 @@ public class MonoBiomeTerrainGenerator extends AbstractTerrainGenerator {
     }
 
     public TerrainLayer addTerrainLayer(int minY, int maxY) {
-        return new TerrainLayer(nativeAddLayer(pointer, minY, maxY));
+        InnerCoreServer.useNotCurrentSupport("MonoBiomeTerrainGenerator.addTerrainLayer(minY, maxY)");
+        return new TerrainLayer(0);
     }
 
     public MonoBiomeTerrainGenerator setBaseBiome(int id) {
-        nativeSetBaseBiome(pointer, id);
+        InnerCoreServer.useNotCurrentSupport("MonoBiomeTerrainGenerator.setBaseBiome(id)");
         return this;
     }
-
-    private static native long nativeConstruct();
-    private static native long nativeAddLayer(long pointer, int minY, int maxY);
-    private static native void nativeSetBaseBiome(long pointer, int id);
 }

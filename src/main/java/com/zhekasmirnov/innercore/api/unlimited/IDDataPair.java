@@ -12,16 +12,16 @@ public class IDDataPair {
         this.data = data;
     }
 
-    @Override    
+    @Override
     public boolean equals(Object o) {
-        if(o instanceof IDDataPair){
+        if (o instanceof IDDataPair) {
             IDDataPair other = (IDDataPair) o;
             return id == other.id && data == other.data;
         }
         return false;
     }
 
-    @Override    
+    @Override
     public int hashCode() {
         return (id & 0xFFFF) | ((data & 0xFF) << 16);
     }

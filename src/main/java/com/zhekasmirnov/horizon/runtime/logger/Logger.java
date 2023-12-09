@@ -25,6 +25,10 @@ public class Logger {
         server.getLogger().error("[" + tag + "] ", exc);
     }
 
+    public static void info(String message) {
+        server.getLogger().info(message);
+    }
+
     public static void info(String tag, String message) {
         server.getLogger().info("[" + tag + "] " + message);
     }

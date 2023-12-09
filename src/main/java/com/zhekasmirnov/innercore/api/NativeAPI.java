@@ -620,7 +620,6 @@ public class NativeAPI {
     }
 
     public static void setInnerCoreVersion(String str) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setInnerCoreVersion(str)");
     }
 
     public static void setInventorySlot(int slot, int id, int data, int count, long extra) {

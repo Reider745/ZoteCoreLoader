@@ -3,8 +3,6 @@ package com.zhekasmirnov.innercore.api.commontypes;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import org.mozilla.javascript.ScriptableObject;
 
-
-
 /**
  * Created by zheka on 09.08.2017.
  */
@@ -26,7 +24,7 @@ public class FullBlock extends ScriptableObject {
 
     public FullBlock(int idData) {
         this.id = idData & 0xFFFF;
-        if(idData >> 24 == 1){
+        if (idData >> 24 == 1) {
             this.id = -this.id;
         }
         put("id", this, this.id);

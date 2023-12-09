@@ -13,9 +13,9 @@ import java.util.ArrayList;
  */
 
 public class ConstantRegistry {
-    private static ArrayList<Class> constantClasses = new ArrayList<>();
+    private static ArrayList<Class<?>> constantClasses = new ArrayList<>();
 
-    public static void registerClass(Class clazz) {
+    public static void registerClass(Class<?> clazz) {
         if (!constantClasses.contains(clazz)) {
             constantClasses.add(clazz);
         }
@@ -43,7 +43,7 @@ public class ConstantRegistry {
     }
 
     public static void injectConstants(ScriptableObject scope) {
-        for (Class clazz : constantClasses) {
+        for (Class<?> clazz : constantClasses) {
             Field[] fields = clazz.getFields();
             ScriptableObject constantScope = ScriptableObjectHelper.createEmpty();
             scope.put(clazz.getSimpleName(), scope, constantScope);

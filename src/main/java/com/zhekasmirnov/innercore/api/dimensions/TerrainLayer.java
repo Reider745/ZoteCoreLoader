@@ -1,41 +1,37 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
+import com.reider745.InnerCoreServer;
+
 public class TerrainLayer {
     public final long pointer;
     public final TerrainMaterial material;
 
     TerrainLayer(long pointer) {
         this.pointer = pointer;
-        material = new TerrainMaterial(nativeGetMainMaterial(pointer));
+        this.material = new TerrainMaterial(0);
     }
 
     public TerrainMaterial addNewMaterial(NoiseGenerator generator, int priority) {
-        return new TerrainMaterial(nativeAddNewMaterial(pointer, generator.pointer, priority));
+        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.addNewMaterial(generator, priority)");
+        return new TerrainMaterial(0);
     }
 
     public TerrainLayer setHeightmapNoise(NoiseGenerator noise) {
-        nativeSetHeightmapNoiseGenerator(pointer, noise.pointer);
+        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setHeightmapNoise(noise)");
         return this;
     }
 
     public TerrainLayer setMainNoise(NoiseGenerator noise) {
-        nativeSetMainNoiseGenerator(pointer, noise.pointer);
+        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setMainNoise(noise)");
         return this;
     }
 
     public TerrainLayer setYConversion(NoiseConversion conversion) {
-        nativeSetYConversion(pointer, conversion.pointer);
+        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setYConversion(conversion)");
         return this;
     }
 
     public TerrainMaterial getMainMaterial() {
         return material;
     }
-    
-
-    private static native long nativeGetMainMaterial(long pointer);
-    private static native void nativeSetHeightmapNoiseGenerator(long pointer, long generator);
-    private static native void nativeSetMainNoiseGenerator(long pointer, long generator);
-    private static native void nativeSetYConversion(long pointer, long conversion);
-    private static native long nativeAddNewMaterial(long pointer, long noiseGenerator, int priority);
 }

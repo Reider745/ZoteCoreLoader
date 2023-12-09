@@ -1,9 +1,9 @@
 package com.zhekasmirnov.innercore.api.biomes;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.annotations.JSStaticFunction;
+
+import com.reider745.InnerCoreServer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,80 +15,83 @@ public class CustomBiome {
         return allCustomBiomes;
     }
 
-
     public final long pointer;
     public final int id;
     public final String name;
 
     public CustomBiome(String name) {
         allCustomBiomes.put(name, this);
-        this.pointer = nativeRegister(name);
-        this.id = nativeGetId(pointer);
+        this.pointer = this.id = 0;
         this.name = name;
     }
 
     public boolean isInvalid() {
-        return nativeIsInvalid(pointer);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.isInvalid()");
+        return false;
     }
 
     public CustomBiome setGrassColor(int color) {
-        nativeSetGrassColor(pointer, color);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setGrassColor(color)");
         return this;
     }
 
     public CustomBiome setGrassColor(float r, float g, float b) {
-        return setGrassColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8) | (Math.round(b * 255) & 0xFF));
+        return setGrassColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
+                | (Math.round(b * 255) & 0xFF));
     }
 
     public CustomBiome setSkyColor(int color) {
-        nativeSetSkyColor(pointer, color);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setSkyColor(color)");
         return this;
     }
 
     public CustomBiome setSkyColor(float r, float g, float b) {
-        return setGrassColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8) | (Math.round(b * 255) & 0xFF));
+        return setGrassColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
+                | (Math.round(b * 255) & 0xFF));
     }
 
     public CustomBiome setFoliageColor(int color) {
-        nativeSetFoliageColor(pointer, color);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setFoliageColor(color)");
         return this;
     }
 
     public CustomBiome setFoliageColor(float r, float g, float b) {
-        return setFoliageColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8) | (Math.round(b * 255) & 0xFF));
+        return setFoliageColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
+                | (Math.round(b * 255) & 0xFF));
     }
 
     public CustomBiome setWaterColor(int color) {
-        nativeSetWaterColor(pointer, color);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setWaterColor(color)");
         return this;
     }
 
     public CustomBiome setWaterColor(float r, float g, float b) {
-        return setWaterColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8) | (Math.round(b * 255) & 0xFF));
+        return setWaterColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
+                | (Math.round(b * 255) & 0xFF));
     }
 
     public CustomBiome setTemperatureAndDownfall(float temp, float downfall) {
-        nativeSetTemperatureAndDownfall(pointer, temp, downfall);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setTemperatureAndDownfall(temp, downfall)");
         return this;
     }
 
     public CustomBiome setCoverBlock(int id, int data) {
-        nativeSetCoverBlock(pointer, id, data);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setCoverBlock(id, data)");
         return this;
     }
 
     public CustomBiome setSurfaceBlock(int id, int data) {
-        nativeSetSurfaceBlock(pointer, id, data);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setSurfaceBlock(id, data)");
         return this;
     }
 
     public CustomBiome setFillingBlock(int id, int data) {
-        nativeSetFillingBlock(pointer, id, data);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setFillingBlock(id, data)");
         return this;
     }
 
     public CustomBiome setSeaFloorBlock(int id, int data) {
-        nativeSetSeaFloorBlock(pointer, id, data);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setSeaFloorBlock(id, data)");
         return this;
     }
 
@@ -98,7 +101,7 @@ public class CustomBiome {
     }
 
     public CustomBiome setSeaFloorDepth(int depth) {
-        nativeSetSeaFloorDepth(pointer, depth);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setSeaFloorDepth(depth)");
         return this;
     }
 
@@ -113,7 +116,7 @@ public class CustomBiome {
         } catch (JSONException e) {
             throw new IllegalArgumentException("failed to parse biome server json: " + e.getMessage(), e);
         }
-        nativeSetServerJson(pointer, json);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setServerJson(json)");
         return this;
     }
 
@@ -123,25 +126,7 @@ public class CustomBiome {
         } catch (JSONException e) {
             throw new IllegalArgumentException("failed to parse biome client json: " + e.getMessage(), e);
         }
-        nativeSetClientJson(pointer, json);
+        InnerCoreServer.useNotCurrentSupport("CustomBiome.setClientJson(json)");
         return this;
     }
-
-
-    private static native long nativeRegister(String name);
-    private static native int nativeGetId(long pointer);
-    private static native boolean nativeIsInvalid(long pointer);
-    private static native void nativeSetGrassColor(long pointer, int color);
-    private static native void nativeSetSkyColor(long pointer, int color);
-    private static native void nativeSetFoliageColor(long pointer, int color);
-    private static native void nativeSetWaterColor(long pointer, int color);
-    private static native void nativeSetTemperatureAndDownfall(long pointer, float temp, float downfall);
-    private static native void nativeSetCoverBlock(long pointer, int id, float data);
-    private static native void nativeSetSurfaceBlock(long pointer, int id, float data);
-    private static native void nativeSetFillingBlock(long pointer, int id, float data);
-    private static native void nativeSetSeaFloorBlock(long pointer, int id, float data);
-    private static native void nativeSetSeaFloorDepth(long pointer, int depth);
-    private static native void nativeSetClientJson(long pointer, String json);
-    private static native void nativeSetServerJson(long pointer, String json);
-    
 }

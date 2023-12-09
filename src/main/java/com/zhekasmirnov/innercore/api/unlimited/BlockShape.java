@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api.unlimited;
 
-/*import com.zhekasmirnov.innercore.api.NativeBlock;
-import com.zhekasmirnov.innercore.api.mod.ui.icon.ItemModels;*/
+import com.zhekasmirnov.innercore.api.NativeBlock;
 
 /**
  * Created by zheka on 08.08.2017.
@@ -29,13 +28,6 @@ public class BlockShape {
     }
 
     public void setToBlock(int id, int data) {
-        /*NativeBlock.setShape(id, data, x1, y1, z1, x2, y2, z2);
-        if (data == -1) {
-            for (int i = 0; i < 16; i++) {
-                ItemModels.updateBlockShape(id, i, this);
-            }
-        } else {
-            ItemModels.updateBlockShape(id, data, this);
-        }*/
+        NativeBlock.setShape(id, data, x1, y1, z1, x2, y2, z2);
     }
 }

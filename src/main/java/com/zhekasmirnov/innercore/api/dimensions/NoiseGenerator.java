@@ -1,23 +1,17 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
-public class NoiseGenerator {
-    public final long pointer;
+import com.reider745.InnerCoreServer;
 
-    public NoiseGenerator() {
-        pointer = nativeConstruct();
-    }
+public class NoiseGenerator {
+    public final long pointer = 0;
 
     public NoiseGenerator addLayer(NoiseLayer layer) {
-        nativeAddLayer(pointer, layer.pointer);
+        InnerCoreServer.useNotCurrentSupport("NoiseGenerator.addLayer(layer)");
         return this;
     }
 
     public NoiseGenerator setConversion(NoiseConversion conversion) {
-        nativeSetConversion(pointer, conversion != null ? conversion.pointer : 0);
+        InnerCoreServer.useNotCurrentSupport("NoiseGenerator.setConversion(conversion)");
         return this;
     }
-    
-    private static native long nativeConstruct();
-    private static native void nativeAddLayer(long ptr, long layer);
-    private static native void nativeSetConversion(long ptr, long conversion);
 }

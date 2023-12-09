@@ -59,10 +59,9 @@ public class SpecialType {
         return isApproved;
     }
 
-    public SpecialType (String name) {
+    public SpecialType(String name) {
         this.name = name;
     }
-
 
     public static SpecialType getSpecialType(String name) {
         if (specialTypeByName.containsKey(name)) {
@@ -81,13 +80,11 @@ public class SpecialType {
         return type;
     }
 
-
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof SpecialType) {
             SpecialType type = ((SpecialType) obj);
-            if (name.equals(NONE_NAME) || type.name.equals(NONE_NAME)){
+            if (name.equals(NONE_NAME) || type.name.equals(NONE_NAME)) {
                 return true;
             }
             return type.name.equals(name);
@@ -95,7 +92,7 @@ public class SpecialType {
         return super.equals(obj);
     }
 
-    public String sound = ""; 
+    public String sound = "";
     public int material = 3;
     public int base = 0;
     public int rendertype = 0;
@@ -133,8 +130,10 @@ public class SpecialType {
 
         BlockColorSource colorSource = BlockColorSource.NONE;
         try {
-            colorSource = color_source != null ? BlockColorSource.valueOf(color_source.toUpperCase()) : BlockColorSource.NONE;
-        } catch (IllegalArgumentException ignore) { }
+            colorSource = color_source != null ? BlockColorSource.valueOf(color_source.toUpperCase())
+                    : BlockColorSource.NONE;
+        } catch (IllegalArgumentException ignore) {
+        }
         NativeBlock.setBlockColorSource(id, colorSource.id);
 
         for (int data = 0; data < 16; data++) {
@@ -152,11 +151,15 @@ public class SpecialType {
             material = ScriptableObjectHelper.getIntProperty(properties, "material", material);
             sound = ScriptableObjectHelper.getStringProperty(properties, "sound", sound);
             solid = ScriptableObjectHelper.getBooleanProperty(properties, "solid", solid);
-            can_contain_liquid = ScriptableObjectHelper.getBooleanProperty(properties, "can_contain_liquid", can_contain_liquid);
-            can_be_extra_block = ScriptableObjectHelper.getBooleanProperty(properties, "can_be_extra_block", can_be_extra_block);
+            can_contain_liquid = ScriptableObjectHelper.getBooleanProperty(properties, "can_contain_liquid",
+                    can_contain_liquid);
+            can_be_extra_block = ScriptableObjectHelper.getBooleanProperty(properties, "can_be_extra_block",
+                    can_be_extra_block);
             renderallfaces = ScriptableObjectHelper.getBooleanProperty(properties, "renderallfaces", renderallfaces);
             rendertype = ScriptableObjectHelper.getIntProperty(properties, "rendertype", rendertype);
-            renderlayer = GameEnums.getSingleton().getIntEnumOrConvertFromLegacyVersion("block_render_layer", ScriptableObjectHelper.getProperty(properties, "renderlayer", null), renderlayer, MinecraftVersions.MINECRAFT_1_11_4);
+            renderlayer = GameEnums.getSingleton().getIntEnumOrConvertFromLegacyVersion("block_render_layer",
+                    ScriptableObjectHelper.getProperty(properties, "renderlayer", null), renderlayer,
+                    MinecraftVersions.MINECRAFT_1_11_4);
             lightlevel = ScriptableObjectHelper.getIntProperty(properties, "lightlevel", lightlevel);
             lightopacity = ScriptableObjectHelper.getIntProperty(properties, "lightopacity", lightopacity);
             mapcolor = ScriptableObjectHelper.getIntProperty(properties, "mapcolor", mapcolor);

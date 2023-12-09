@@ -1,9 +1,9 @@
 package com.zhekasmirnov.innercore.api.unlimited;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.GuiBlockModel;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
+import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -22,7 +22,6 @@ public class BlockVariant {
 
     public int renderType = 0;
     public BlockShape shape = new BlockShape();
-
 
     public BlockVariant(int uid, int data, String name, String[] textures, int[] textureIds, boolean inCreative) {
         this.name = name;
@@ -51,7 +50,8 @@ public class BlockVariant {
         this.textureIds = new int[6];
 
         try {
-            NativeArray _texs = ScriptableObjectHelper.getNativeArrayProperty(obj, "texture", ScriptableObjectHelper.getNativeArrayProperty(obj, "textures", null));
+            NativeArray _texs = ScriptableObjectHelper.getNativeArrayProperty(obj, "texture",
+                    ScriptableObjectHelper.getNativeArrayProperty(obj, "textures", null));
             if (_texs != null) {
                 Object[] texs = _texs.toArray();
                 for (int i = 0; i < 6; i++) {
@@ -61,7 +61,6 @@ public class BlockVariant {
                         if (tex[0] instanceof CharSequence && tex[1] instanceof Number) {
                             textures[i] = tex[0].toString();
                             textureIds[i] = ((Number) tex[1]).intValue();
-
                         }
                     }
                 }
@@ -82,15 +81,13 @@ public class BlockVariant {
                 textureIds[i] = 0;
             }
         }
-
-
     }
 
     public GuiBlockModel getGuiBlockModel() {
-        return null;
+        return GuiBlockModel.createModelForBlockVariant(this);
     }
 
     public String getSpriteTexturePath() {
-        return "";
+        return ResourcePackManager.getBlockTextureName(textures[0], textureIds[0]);
     }
 }

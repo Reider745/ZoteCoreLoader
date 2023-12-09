@@ -48,10 +48,10 @@ public class IDRegistry {
     private static final ScriptableObject vanillaBlockIds = ScriptableObjectHelper.createEmpty();
     private static final ScriptableObject vanillaTileIds = ScriptableObjectHelper.createEmpty();
 
-
     static {
         try {
-            Map<String, Map<String, Integer>> scopedIdMap = VanillaIdConversionMap.getSingleton().loadScopedIdMapFromAssets();
+            Map<String, Map<String, Integer>> scopedIdMap = VanillaIdConversionMap.getSingleton()
+                    .loadScopedIdMapFromAssets();
 
             Map<String, Integer> blocksMap = scopedIdMap.get("blocks");
             Map<String, Integer> itemsMap = scopedIdMap.get("items");
@@ -62,7 +62,7 @@ public class IDRegistry {
                     int numericId = nameAndId.getValue();
                     vanillaNameById.put(numericId, stringId);
                     vanillaIdShortcut.put(stringId, numericId);
-                    if(blocksMap != null && blocksMap.containsKey(stringId)) {
+                    if (blocksMap != null && blocksMap.containsKey(stringId)) {
                         vanillaBlockIds.put(stringId, vanillaBlockIds, numericId);
                     } else {
                         vanillaItemIds.put(stringId, vanillaItemIds, numericId);
@@ -77,10 +77,10 @@ public class IDRegistry {
                     vanillaTileIds.put(stringId, vanillaTileIds, numericId);
                     vanillaTileById.put(numericId, stringId);
 
-                    if(numericId > 255) {
+                    if (numericId > 255) {
                         numericId = 255 - numericId;
                     }
-                    if(!vanillaBlockIds.has(stringId, vanillaBlockIds) && !vanillaNameById.containsKey(numericId)) {
+                    if (!vanillaBlockIds.has(stringId, vanillaBlockIds) && !vanillaNameById.containsKey(numericId)) {
                         vanillaBlockIds.put(stringId, vanillaBlockIds, numericId);
                         vanillaNameById.put(numericId, stringId);
                         vanillaIdShortcut.put(stringId, numericId);
@@ -88,12 +88,10 @@ public class IDRegistry {
                 }
             }
 
-        } catch(Exception e){
+        } catch (Exception e) {
             ICLog.e(BlockRegistry.LOGGER_TAG, "Unable to read vanilla numeric IDs", e);
         }
     }
-
-
 
     static void approve(String name, String type) {
         approvedIds.put(type + "$" + name, true);
@@ -107,8 +105,7 @@ public class IDRegistry {
         if (id >= BLOCK_ID_OFFSET) {
             blockIdShortcut.put(name, id);
             blockIds.put(name, blockIds, id);
-        }
-        else if (id >= ITEM_ID_OFFSET) {
+        } else if (id >= ITEM_ID_OFFSET) {
             itemIdShortcut.put(name, id);
             itemIds.put(name, itemIds, id);
         }
@@ -116,18 +113,17 @@ public class IDRegistry {
         nameById.put(id, name);
     }
 
-    public static int getIdByStrId(String id){
-        if(id.startsWith("item_"))
-            return CustomItem.getIdForText(id.replace("block_", ""));
-        Object obj = CustomBlock.getIdForText(id.replace("block_", ""));
-        if(obj == null) return 0;
-        return (Integer) obj;
+    public static int getIdByNameId(String id) {
+        if (id.startsWith("item_")) {
+            return (int) CustomItem.getIdForText(id.replace("block_", ""));
+        }
+        return (int) CustomBlock.getIdForText(id.replace("block_", ""));
     }
 
     static boolean isOccupied(int id) {
-        return nameById.containsKey(id) 
-            || vanillaNameById.containsKey(id) 
-            || vanillaTileById.containsKey(id);
+        return nameById.containsKey(id)
+                || vanillaNameById.containsKey(id)
+                || vanillaTileById.containsKey(id);
     }
 
     private static LinkedList<String> unapprovedBlocks = new LinkedList<>();
@@ -137,15 +133,19 @@ public class IDRegistry {
     @JSStaticFunction
     public static int genBlockID(String name) {
         if (!NameTranslation.isAscii(name)) {
-            ICLog.e(BlockRegistry.LOGGER_TAG, "block string id " + name + " contains unicode characters, it will not be created", new RuntimeException());
+            ICLog.e(BlockRegistry.LOGGER_TAG,
+                    "block string id " + name + " contains unicode characters, it will not be created",
+                    new RuntimeException());
             return 0;
         }
 
-        if(vanillaNameById.values().contains("block_" + name) || vanillaTileById.values().contains(name)){
-            ICLog.e(BlockRegistry.LOGGER_TAG, "block string id " + name + " is a vanilla string ID, so the item won't be created", new RuntimeException());
+        if (vanillaNameById.values().contains("block_" + name) || vanillaTileById.values().contains(name)) {
+            ICLog.e(BlockRegistry.LOGGER_TAG,
+                    "block string id " + name + " is a vanilla string ID, so the item won't be created",
+                    new RuntimeException());
             return 0;
         }
-        
+
         approve(name, TYPE_BLOCK);
         if (blockIdShortcut.containsKey(name)) {
             return blockIdShortcut.get(name);
@@ -153,8 +153,8 @@ public class IDRegistry {
 
         while (isOccupied(blockIdIterator)) {
             blockIdIterator++;
-            if(blockIdIterator > MAX_ID){
-                if(blockIdLooped){
+            if (blockIdIterator > MAX_ID) {
+                if (blockIdLooped) {
                     throw new RuntimeException("ID LIMIT EXCEEDED while registring block string id " + name);
                 } else {
                     blockIdLooped = true;
@@ -167,7 +167,6 @@ public class IDRegistry {
         return blockIdIterator++;
     }
 
-
     private static LinkedList<String> unapprovedItems = new LinkedList<>();
     private static int itemIdIterator = ITEM_ID_OFFSET;
     private static boolean itemIdLooped = false;
@@ -175,12 +174,16 @@ public class IDRegistry {
     @JSStaticFunction
     public static int genItemID(String name) {
         if (!NameTranslation.isAscii(name)) {
-            ICLog.e(BlockRegistry.LOGGER_TAG, "item string id " + name + " contains unicode characters, it will not be created", new RuntimeException());
+            ICLog.e(BlockRegistry.LOGGER_TAG,
+                    "item string id " + name + " contains unicode characters, it will not be created",
+                    new RuntimeException());
             return 0;
         }
 
-        if(vanillaNameById.values().contains("item_" + name) || vanillaTileById.values().contains(name)){
-            ICLog.e(BlockRegistry.LOGGER_TAG, "item string id " + name + " is a vanilla string ID, so the item won't be created", new RuntimeException());
+        if (vanillaNameById.values().contains("item_" + name) || vanillaTileById.values().contains(name)) {
+            ICLog.e(BlockRegistry.LOGGER_TAG,
+                    "item string id " + name + " is a vanilla string ID, so the item won't be created",
+                    new RuntimeException());
             return 0;
         }
 
@@ -191,8 +194,8 @@ public class IDRegistry {
 
         while (isOccupied(itemIdIterator)) {
             itemIdIterator++;
-            if(itemIdIterator > MAX_ID){
-                if(itemIdLooped){
+            if (itemIdIterator > MAX_ID) {
+                if (itemIdLooped) {
                     throw new RuntimeException("ID LIMIT EXCEEDED while registring item string id " + name);
                 } else {
                     itemIdLooped = true;
@@ -239,22 +242,21 @@ public class IDRegistry {
         }
     }
 
-
-    public static int getIDByName(String name){
-        if(vanillaIdShortcut.containsKey(name)){
+    public static int getIDByName(String name) {
+        if (vanillaIdShortcut.containsKey(name)) {
             return vanillaIdShortcut.get(name);
         }
         return 0;
     }
 
     @JSStaticFunction
-    public static boolean isVanilla(int id){
+    public static boolean isVanilla(int id) {
         return id == 0 || vanillaNameById.containsKey(id) || vanillaTileById.containsKey(id);
     }
 
     @JSStaticFunction
-    public static int ensureBlockId(int id){
-        if((vanillaNameById.containsKey(id) || vanillaTileById.containsKey(id + 255)) && id < 0){
+    public static int ensureBlockId(int id) {
+        if ((vanillaNameById.containsKey(id) || vanillaTileById.containsKey(id + 255)) && id < 0) {
             return id + 255;
         } else {
             return id;
@@ -262,8 +264,8 @@ public class IDRegistry {
     }
 
     @JSStaticFunction
-    public static int ensureItemId(int id){
-        if(vanillaTileById.containsKey(id) && id > 255){
+    public static int ensureItemId(int id) {
+        if (vanillaTileById.containsKey(id) && id > 255) {
             return 255 - id;
         } else {
             return id;
@@ -292,16 +294,16 @@ public class IDRegistry {
                 }
             }
 
-            if(unapprovedIds > MAX_UNAPPROVED_IDS){
+            if (unapprovedIds > MAX_UNAPPROVED_IDS) {
                 ICLog.d(BlockRegistry.LOGGER_TAG, "too many unused IDs, clearing...");
-                for(String name: unapprovedItems){
+                for (String name : unapprovedItems) {
                     items.remove(name);
                 }
 
-                for(String name: unapprovedBlocks){
+                for (String name : unapprovedBlocks) {
                     blocks.remove(name);
                 }
-            }            
+            }
 
             obj.put("blocks", blocks);
             obj.put("items", items);

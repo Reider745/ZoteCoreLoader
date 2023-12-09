@@ -3,8 +3,10 @@ package com.zhekasmirnov.innercore.api.runtime;
 import com.zhekasmirnov.apparatus.minecraft.version.VanillaIdConversionMap;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+import com.zhekasmirnov.innercore.api.NativeAPI;
+import com.zhekasmirnov.innercore.api.Version;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-// import com.zhekasmirnov.innercore.api.log.ModLoaderEventHandler;
+import com.zhekasmirnov.innercore.api.log.ModLoaderEventHandler;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.coreengine.CoreEngineAPI;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeLoader;
@@ -55,9 +57,9 @@ public class AsyncModLauncher {
         loadAllMenuScripts();
 
         // switch to final loading stage
-        // TODO: ICLog.setupEventHandlerForCurrentThread(new ModLoaderEventHandler());
+        ICLog.setupEventHandlerForCurrentThread(new ModLoaderEventHandler());
         LoadingStage.setStage(LoadingStage.STAGE_FINAL_LOADING);
-        // TODO: NativeAPI.setInnerCoreVersion(Version.INNER_CORE_VERSION.toString());
+        NativeAPI.setInnerCoreVersion(Version.INNER_CORE_VERSION.toString());
 
         // prepare registries
         VanillaIdConversionMap.getSingleton().reloadFromAssets();

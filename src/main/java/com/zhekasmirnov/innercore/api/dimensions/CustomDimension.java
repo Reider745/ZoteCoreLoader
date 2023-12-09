@@ -1,15 +1,15 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 
 import java.util.HashMap;
 
-
 public class CustomDimension {
     private static final HashMap<String, CustomDimension> dimensionByName = new HashMap<>();
     private static final HashMap<Integer, CustomDimension> dimensionById = new HashMap<>();
-    
-    public final long pointer;
+
+    public final long pointer = 0;
     public final int id;
     public final String name;
 
@@ -20,20 +20,16 @@ public class CustomDimension {
         if (dimensionByName.containsKey(name)) {
             ICLog.i("WARNING", "dimensions have duplicate name: " + name);
         }
-        int id = prefferedId;
-        while (nativeGetCustomDimensionById(id) != 0 && !nativeIsLimboDimensionId(id)) {
-            id++;
-        }
-        this.id = id;
+        this.id = prefferedId;
         this.name = name;
-        pointer = nativeConstruct(id, name);
         dimensionById.put(id, this);
         dimensionByName.put(name, this);
     }
 
     private CustomDimensionGenerator generator;
+
     public CustomDimension setGenerator(CustomDimensionGenerator generator) {
-        nativeSetGenerator(pointer, generator != null ? generator.pointer : 0);
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setGenerator(generator)");
         this.generator = generator;
         return this;
     }
@@ -43,68 +39,68 @@ public class CustomDimension {
     }
 
     private boolean hasSkyLight = true;
+
     public CustomDimension setHasSkyLight(boolean value) {
-        nativeSetHasSkyLight(pointer, value);
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setHasSkyLight(value)");
         return this;
     }
 
     public boolean hasSkyLight() {
         return hasSkyLight;
     }
-    
+
     public CustomDimension setSkyColor(float r, float g, float b) {
-        nativeSetSkyColor(pointer, r, g, b);
-        return this;
-    }
-    
-    public CustomDimension resetSkyColor() {
-        nativeResetSkyColor(pointer);
-        return this;
-    }
-    
-    public CustomDimension setFogColor(float r, float g, float b) {
-        nativeSetFogColor(pointer, r, g, b);
-        return this;
-    }
-    
-    public CustomDimension resetFogColor() {
-        nativeResetFogColor(pointer);
-        return this;
-    }
-    
-    public CustomDimension setCloudColor(float r, float g, float b) {
-        nativeSetCloudColor(pointer, r, g, b);
-        return this;
-    }
-    
-    public CustomDimension resetCloudColor() {
-        nativeResetCloudColor(pointer);
-        return this;
-    }
-    
-    public CustomDimension setSunsetColor(float r, float g, float b) {
-        nativeSetSunsetColor(pointer, r, g, b);
-        return this;
-    }
-    
-    public CustomDimension resetSusetColor() {
-        nativeResetSunsetColor(pointer);
-        return this;
-    }
-    
-    public CustomDimension setFogDistance(float start, float end) {
-        nativeSetFogDistance(pointer, start, end);
-        return this;
-    }
-    
-    public CustomDimension resetFogDistance() {
-        nativeResetFogDistance(pointer);
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setSkyColor(r, g, b)");
         return this;
     }
 
+    public CustomDimension resetSkyColor() {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.resetSkyColor()");
+        return this;
+    }
+
+    public CustomDimension setFogColor(float r, float g, float b) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setFogColor(r, g, b)");
+        return this;
+    }
+
+    public CustomDimension resetFogColor() {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.resetFogColor()");
+        return this;
+    }
+
+    public CustomDimension setCloudColor(float r, float g, float b) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setCloudColor(r, g, b)");
+        return this;
+    }
+
+    public CustomDimension resetCloudColor() {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.resetCloudColor()");
+        return this;
+    }
+
+    public CustomDimension setSunsetColor(float r, float g, float b) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setSunsetColor(r, g, b)");
+        return this;
+    }
+
+    public CustomDimension resetSusetColor() {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.resetSusetColor()");
+        return this;
+    }
+
+    public CustomDimension setFogDistance(float start, float end) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setFogDistance(start, end)");
+        return this;
+    }
+
+    public CustomDimension resetFogDistance() {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.resetFogDistance()");
+        return this;
+    }
 
     public static void setCustomGeneratorForVanillaDimension(int id, CustomDimensionGenerator generator) {
-        nativeOverrideVanillaGenerator(id, generator.pointer);
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setCustomGeneratorForVanillaDimension(id, generator)");
     }
 
     public static CustomDimension getDimensionByName(String name) {
@@ -116,23 +112,7 @@ public class CustomDimension {
     }
 
     public static boolean isLimboId(int id) {
-        return nativeIsLimboDimensionId(id);
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.isLimboId(id)");
+        return false;
     }
-
-    private static native long nativeConstruct(int id, String name);
-    private static native long nativeGetCustomDimensionById(int id);
-    private static native boolean nativeIsLimboDimensionId(int id);
-    private static native void nativeOverrideVanillaGenerator(int id, long generator);
-    private static native void nativeSetGenerator(long ptr, long generator);
-    private static native void nativeSetHasSkyLight(long ptr, boolean value);
-    private static native void nativeSetSkyColor(long ptr, float r, float g, float b);
-    private static native void nativeResetSkyColor(long ptr);
-    private static native void nativeSetFogColor(long ptr, float r, float g, float b);
-    private static native void nativeResetFogColor(long ptr);
-    private static native void nativeSetCloudColor(long ptr, float r, float g, float b);
-    private static native void nativeResetCloudColor(long ptr);
-    private static native void nativeSetSunsetColor(long ptr, float r, float g, float b);
-    private static native void nativeResetSunsetColor(long ptr);
-    private static native void nativeSetFogDistance(long ptr, float start, float end);
-    private static native void nativeResetFogDistance(long ptr);
 }
