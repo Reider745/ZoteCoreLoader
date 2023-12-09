@@ -11,6 +11,7 @@ import com.reider745.event.InnerCorePlugin;
 import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
+import com.reider745.item.NukkitIdConvertor;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
@@ -214,6 +215,7 @@ public class InnerCoreServer {
         com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
 
         CallbackHelper.init();
+        NukkitIdConvertor.init();
 
         plugin = new InnerCorePlugin();
         plugin.setEnabled(true);

@@ -4,6 +4,7 @@ import cn.nukkit.item.Item;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
+import com.reider745.item.NukkitIdConvertor;
 
 /**
  * Created by zheka on 26.07.2017.
@@ -31,19 +32,8 @@ public class NativeItemInstance {
             this.id = item.getId();
             this.count = item.getCount();
             this.data = item.getAttackDamage() == 0 ? item.getAttackDamage() : item.getDamage();
-            if(id == 351 && data == 15){//bone_meal fix
-                id = 858;
-                data = 0;
-            }else if(id == 325 && data == 10){//lava bucket fix
-                id = 843;
-                data = 0;
-            }else if(id == 325 && data == 8){//water bucket fix
-                id = 850;
-                data = 0;
-            }else if(id == 325 && data == 1){//milk bucket fix
-                id = 876;
-                data = 0;
-            }
+
+            NukkitIdConvertor.apply(this);
 
             this.extra = ItemUtils.getItemInstanceExtra(item);
         }

@@ -17,6 +17,7 @@ import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemExtraDataProvider;
+import com.reider745.item.NukkitIdConvertor;
 import com.reider745.item.Repairs;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -163,7 +164,8 @@ public class ItemUtils implements HookClass {
     public static final String INNER_CORE_TAG_NAME = "$mod";
 
     public static Item get(int id, int count, int meta, NativeItemInstanceExtra extra) {
-        Item item = Item.get(id, meta, count, new byte[] {});
+        NukkitIdConvertor.EntryItem entry = NukkitIdConvertor.getNukkitForInnerCore(id, meta);
+        Item item = Item.get(entry.id, entry.data, count, new byte[] {});
         if (extra != null) {
             CompoundTag tag = item.getOrCreateNamedTag();
 
