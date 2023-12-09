@@ -1,6 +1,8 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.entity;
 
 import cn.nukkit.nbt.tag.CompoundTag;
+
+import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.common.Vector3;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
@@ -26,7 +28,7 @@ public class StaticEntity {
     }
 
     public static ItemStack getCarriedItem(long entity) {
-        return new ItemStack(new NativeItemInstance(NativeAPI.getEntityCarriedItem(entity)));
+        return new ItemStack(new NativeItemInstance(EntityMethod.getEntityCarriedItem(entity)));
     }
 
     public static int getType(long entity) {
@@ -41,11 +43,11 @@ public class StaticEntity {
 
 
     public static ItemStack getDroppedItem(long entity) {
-        return new ItemStack(new NativeItemInstance(NativeAPI.getItemFromDrop(entity)));
+        return new ItemStack(new NativeItemInstance(EntityMethod.getItemFromDrop(entity)));
     }
 
     public static int getExperienceOrbValue(long entity) {
-        CompoundTag tag = NativeAPI.getEntityCompoundTag(entity);
+        CompoundTag tag = EntityMethod.getEntityCompoundTag(entity);
         return tag != null ? new NativeCompoundTag(tag).getInt("experience value") : 0;
     }
 

@@ -11,46 +11,49 @@ import java.util.Random;
  */
 
 public class NativeGenerationUtils {
+
     @JSStaticFunction
-    public static boolean isTerrainBlock(int id){
+    public static boolean isTerrainBlock(int id) {
         return GenerationUtilsMethods.isTerrainBlock(id);
     }
 
     @JSStaticFunction
-    public static boolean isTransparentBlock(int id){
-        return GenerationUtilsMethods.isTerrainBlock(id);
+    public static boolean isTransparentBlock(int id) {
+        return GenerationUtilsMethods.isTransparentBlock(id);
     }
 
     @JSStaticFunction
-    public static boolean canSeeSky(int x, int y, int z){
+    public static boolean canSeeSky(int x, int y, int z) {
         return GenerationUtilsMethods.canSeeSky(x, y, z);
     }
 
     @JSStaticFunction
-    public static int findSurface(int x, int y, int z){
+    public static int findSurface(int x, int y, int z) {
         return GenerationUtilsMethods.findSurface(x, y, z);
     }
 
-    public static void generateOreNative(int x, int y, int z, int id, int data, int amount, boolean whitelist, int[] blockIds, int seed){
+    public static void generateOreNative(int x, int y, int z, int id, int data, int amount, boolean whitelist,
+            int[] blockIds, int seed) {
         GenerationUtilsMethods.generateOreNative(x, y, z, id, data, amount, whitelist, blockIds, seed);
     }
 
-    public static float nativeGetPerlinNoise(float x, float y, float z, int seed, float scale, int numOctaves){
+    public static float nativeGetPerlinNoise(float x, float y, float z, int seed, float scale, int numOctaves) {
         return GenerationUtilsMethods.nativeGetPerlinNoise(x, y, z, seed, scale, numOctaves);
     }
 
-
     private static final int[] emptyOreBlacklist = new int[0];
-    private static final int[] defaultOreWhitelist = new int[] {1, 87, 121};
+    private static final int[] defaultOreWhitelist = new int[] { 1, 87, 121 };
     private static final Random defaultRandom = new Random();
 
     @JSStaticFunction
     public static void generateOre(int x, int y, int z, int id, int data, int amount, boolean dontCheck, int seed) {
-        generateOreNative(x, y, z, id, data, amount, !dontCheck, dontCheck ? emptyOreBlacklist : defaultOreWhitelist, seed != 0 ? seed : defaultRandom.nextInt());
+        generateOreNative(x, y, z, id, data, amount, !dontCheck, dontCheck ? emptyOreBlacklist : defaultOreWhitelist,
+                seed != 0 ? seed : defaultRandom.nextInt());
     }
 
     @JSStaticFunction
-    public static void generateOreCustom(int x, int y, int z, int id, int data, int amount, boolean whitelist, NativeArray jsIds, int seed) {
+    public static void generateOreCustom(int x, int y, int z, int id, int data, int amount, boolean whitelist,
+            NativeArray jsIds, int seed) {
         int[] ids = new int[(int) jsIds.getLength()];
         int i = 0;
         for (Object obj : jsIds.toArray()) {
@@ -70,6 +73,6 @@ public class NativeGenerationUtils {
         if (seed == 0) {
             seed = 6700417;
         }
-        return nativeGetPerlinNoise((float) x, (float) y, (float) z, seed, (float)  scale, numOctaves);
+        return nativeGetPerlinNoise((float) x, (float) y, (float) z, seed, (float) scale, numOctaves);
     }
 }

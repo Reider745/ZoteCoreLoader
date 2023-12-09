@@ -70,7 +70,7 @@ public class CustomItem {
     public static void checkAddedItem(int id, int count, int damage, NativeItemInstanceExtra extra){
         if(!CustomItem.isCreativeItem(id, damage) && id > 2000) {
             CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, id);
-            addFirst(CustomItem.creative, new ItemCreative(id, count, damage, extra != null ? extra.getPtr() : 0));
+            addFirst(CustomItem.creative, new ItemCreative(id, count, damage, extra != null ? extra.getValue() : 0));
         }
     }
 

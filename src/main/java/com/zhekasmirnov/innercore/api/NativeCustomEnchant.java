@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
@@ -27,6 +28,7 @@ public class NativeCustomEnchant {
         setDescription("custom_enchant." + nameId);
     }
 
+    @Deprecated
     public NativeCustomEnchant() {
         throw new UnsupportedOperationException();
     }
@@ -57,7 +59,6 @@ public class NativeCustomEnchant {
             enchant.setDescription(enchant.description);
         }
     }
-
 
     public NativeCustomEnchant setDescription(String description) {
         this.description = description;
@@ -111,7 +112,6 @@ public class NativeCustomEnchant {
     public NativeCustomEnchant setMinMaxCost(float cMin, float cMax) {
         return setMinMaxCost(0, 0, cMin, 0, 0, cMax);
     }
-
 
     public interface AttackDamageBonusProvider {
         float getDamageBonus(int damage, long actor);
@@ -177,18 +177,58 @@ public class NativeCustomEnchant {
         return this;
     }
 
-    private static native long constructNew(int id, String nameId);
-    private static native void setDescription(long pointer, String description);
-    private static native void setFrequency(long pointer, int frequency);
-    private static native void setIsLootable(long pointer, boolean isLootable);
-    private static native void setIsDiscoverable(long pointer, boolean isDiscoverable);
-    private static native void setIsTreasure(long pointer, boolean isTreasure);
-    private static native void setIsMeleeDamageEnchant(long pointer, boolean value);
-    private static native void setIsProtectionEnchant(long pointer, boolean value);
-    private static native void setMasks(long pointer, int mask1, int mask2);
-    private static native void setMinMaxLevel(long pointer, int minLevel, int maxLevel);
-    private static native void setMinMaxCostPoly(long pointer, float aMin, float bMin, float cMin, float aMax, float bMax, float cMax);
+    private static long constructNew(int id, String nameId) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.constructNew(id, nameId)");
+        return 0;
+    }
 
-    public static native void passCurrentDamageBonus(float bonus);
-    public static native void passCurrentProtectionBonus(float bonus);
+    private static void setDescription(long pointer, String description) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setDescription(pointer, description)");
+    }
+
+    private static void setFrequency(long pointer, int frequency) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setFrequency(pointer, frequency)");
+    }
+
+    private static void setIsLootable(long pointer, boolean isLootable) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsLootable(pointer, isLootable)");
+    }
+
+    private static void setIsDiscoverable(long pointer, boolean isDiscoverable) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsDiscoverable(pointer, isDiscoverable)");
+    }
+
+    private static void setIsTreasure(long pointer, boolean isTreasure) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsTreasure(pointer, isTreasure)");
+    }
+
+    private static void setIsMeleeDamageEnchant(long pointer, boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsMeleeDamageEnchant(pointer, value)");
+    }
+
+    private static void setIsProtectionEnchant(long pointer, boolean value) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsProtectionEnchant(pointer, value)");
+    }
+
+    private static void setMasks(long pointer, int mask1, int mask2) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setMasks(pointer, mask1, mask2)");
+    }
+
+    private static void setMinMaxLevel(long pointer, int minLevel, int maxLevel) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setMinMaxLevel(pointer, minLevel, maxLevel)");
+    }
+
+    private static void setMinMaxCostPoly(long pointer, float aMin, float bMin, float cMin, float aMax, float bMax,
+            float cMax) {
+        InnerCoreServer.useNotCurrentSupport(
+                "NativeCustomEnchant.setMinMaxCostPoly(pointer, aMin, bMin, cMin, aMax, bMax, cMax)");
+    }
+
+    public static void passCurrentDamageBonus(float bonus) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.passCurrentDamageBonus(bonus)");
+    }
+
+    public static void passCurrentProtectionBonus(float bonus) {
+        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.passCurrentProtectionBonus(bonus)");
+    }
 }

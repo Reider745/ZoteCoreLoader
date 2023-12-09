@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api.unlimited;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import com.zhekasmirnov.innercore.api.mod.ui.GuiBlockModel;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.ScriptableObject;
@@ -85,7 +86,7 @@ public class BlockVariant {
 
     }
 
-    public Object getGuiBlockModel() {
+    public GuiBlockModel getGuiBlockModel() {
         return null;
     }
 

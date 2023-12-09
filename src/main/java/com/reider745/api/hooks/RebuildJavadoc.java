@@ -233,12 +233,14 @@ public class RebuildJavadoc {
             }
             try {
                 CtClass returnClass = method.getReturnType();
-                if (returnClass.isEnum() || returnClass.isInterface() || (returnClass.getModifiers() & AccessFlag.ABSTRACT) != 0) {
+                if (returnClass.isEnum() || returnClass.isInterface()
+                        || (returnClass.getModifiers() & AccessFlag.ABSTRACT) != 0) {
                     continue;
                 }
                 String returnType = returnClass.getName();
                 int modifiers = method.getModifiers();
-                if ((modifiers & AccessFlag.ABSTRACT) != 0 || ((modifiers & AccessFlag.STATIC) == 0 && returnType.equals(ctClass.getName()))) {
+                if ((modifiers & AccessFlag.ABSTRACT) != 0
+                        || ((modifiers & AccessFlag.STATIC) == 0 && returnType.equals(ctClass.getName()))) {
                     continue;
                 }
                 if (rewrittenSingletonClasses.contains(returnType)) {
@@ -400,7 +402,7 @@ public class RebuildJavadoc {
     }
 
     public static void main(String[] args) {
-        File jarFile = Paths.get("android.jar").toAbsolutePath().toFile();
+        File jarFile = Paths.get(".todo", "android.jar").toAbsolutePath().toFile();
         File outputJarFile = Paths.get("iclibs", "android.jar").toAbsolutePath().toFile();
         new RebuildJavadoc().rebuild(jarFile, outputJarFile);
     }

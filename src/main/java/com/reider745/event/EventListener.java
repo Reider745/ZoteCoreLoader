@@ -89,7 +89,7 @@ public class EventListener implements Listener {
 
             NativeCallback.onThrowableHit(event.getEntity().getId(), (float) pos.x, (float) pos.y, (float) pos.z,
                     entity.getId(), (int) block.x, (int) block.y, (int) block.z, block.getDamage(),
-                    item.getId(), item.count, item.getDamage(), extra != null ? extra.getPtr() : 0);
+                    item.getId(), item.count, item.getDamage(), extra != null ? extra.getValue() : 0);
         }
     }
 
