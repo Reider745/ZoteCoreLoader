@@ -1,5 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.ui.background;
 
+import android.graphics.Canvas;
+import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -7,6 +9,7 @@ import org.mozilla.javascript.ScriptableObject;
  */
 
 public interface IDrawing {
-    void onSetup(ScriptableObject description, Object style);
-    void onDraw(Object canvas, float scale);
+    void onSetup(ScriptableObject description, UIStyle style);
+
+    void onDraw(Canvas canvas, float scale);
 }

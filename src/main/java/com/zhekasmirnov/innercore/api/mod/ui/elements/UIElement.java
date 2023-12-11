@@ -1,10 +1,14 @@
 package com.zhekasmirnov.innercore.api.mod.ui.elements;
 
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiAbstractContainer;
+import com.zhekasmirnov.innercore.api.mod.ui.types.Texture;
+import com.zhekasmirnov.innercore.api.mod.ui.types.TouchEvent;
+import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
 import com.zhekasmirnov.innercore.api.mod.ui.window.UIWindow;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableWatcher;
-import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -21,6 +25,10 @@ public abstract class UIElement {
 
     public String elementName;
 
+    public UIElementCleaner cleaner;
+    public Rect elementRect;
+    protected UiAbstractContainer container;
+    protected UIStyle style = UIStyle.DEFAULT;
 
     public float x, y, z;
     public boolean isDirty = false;
@@ -42,30 +50,55 @@ public abstract class UIElement {
     }
 
     protected void setupDefaultValues() {
+        x = optFloatFromDesctiption("x", 0);
+        y = optFloatFromDesctiption("y", 0);
+        z = optFloatFromDesctiption("z", 0);
+        setSize(1, 1);
 
+        if (description.has("clicker", description)) {
+            ScriptableObject clicker = ScriptableObjectHelper.getScriptableObjectProperty(description, "clicker", null);
+            if (clicker != null) {
+                Object onClick = ScriptableObjectHelper.getScriptableObjectProperty(clicker, "onClick", null);
+                Object onLongClick = ScriptableObjectHelper.getScriptableObjectProperty(clicker, "onLongClick", null);
+                description.put("onClick", description, onClick);
+                description.put("onLongClick", description, onLongClick);
+            }
+        }
     }
 
-    public Object createTexture(Object description) {
-        return null;
+    public Texture createTexture(Object description) {
+        return new Texture(description, style);
     }
 
     public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+        refreshRect();
     }
 
     public void setSize(float w, float h) {
+        refreshRect();
     }
 
     private void refreshRect() {
+        if (cleaner != null) {
+            cleaner.set(elementRect);
+        }
     }
 
     public UIElement(UIWindow window, ScriptableObject description) {
+        this.elementRect = new Rect(0, 0, 1, 1);
+        this.window = window;
+        this.description = description;
+        this.cleaner = new UIElementCleaner(this);
+        this.container = window.getContainer();
+        this.style = window.getElementProvider().getStyleFor(this);
     }
 
     public void onSetup() {
         if (this.descriptionWatcher == null) {
             this.descriptionWatcher = new ScriptableWatcher(description);
-        }
-        else {
+        } else {
             this.descriptionWatcher.setTarget(description);
         }
 
@@ -73,25 +106,26 @@ public abstract class UIElement {
         onSetup(description);
     }
 
-    public Object getCleanerCopy() {
-        return null;
+    public UIElementCleaner getCleanerCopy() {
+        return cleaner.clone();
     }
 
     public abstract void onSetup(ScriptableObject description);
-    public abstract void onDraw(Object canvas, float scale);
+
+    public abstract void onDraw(Canvas canvas, float scale);
+
     public abstract void onBindingUpdated(String name, Object val);
 
     private HashMap<String, Object> bindingMap = new HashMap<>();
 
     public void setBinding(String name, Object val) {
         Object binding = bindingMap.get(name);
-        if (binding != null){
+        if (binding != null) {
             if (!binding.equals(val)) {
                 bindingMap.put(name, val);
                 onBindingUpdated(name, val);
             }
-        }
-        else if (val != null) {
+        } else if (val != null) {
             bindingMap.put(name, val);
             onBindingUpdated(name, val);
         }
@@ -102,26 +136,23 @@ public abstract class UIElement {
             return this;
         }
         if (name.equals("element_rect")) {
-            return null;
+            return elementRect;
         }
         return bindingMap.get(name);
     }
 
     public void setupInitialBindings(UiAbstractContainer container, String elementName) {
+        this.container = container;
         this.elementName = elementName;
     }
 
-
     public boolean isTouched = false;
 
-    public void onTouchEvent(Object event) {
-
+    public void onTouchEvent(TouchEvent event) {
     }
 
-    public void onTouchReleased(Object event) {
-
+    public void onTouchReleased(TouchEvent event) {
     }
-
 
     private boolean isReleased = false;
 
@@ -130,7 +161,7 @@ public abstract class UIElement {
     }
 
     public void onRelease() {
-
+        isReleased = true;
     }
 
     public void onReset() {
@@ -141,19 +172,17 @@ public abstract class UIElement {
         descriptionWatcher.invalidate();
     }
 
-
-    protected Object getCacheCanvas(float w, float h, float scale) {
-        return null;
+    protected Canvas getCacheCanvas(float w, float h, float scale) {
+        return Canvas.getSingletonInternalProxy();
     }
 
-    protected void drawCache(Object canvas, float x, float y) {
-
+    protected void drawCache(Canvas canvas, float x, float y) {
     }
 
-    protected void drawCache(Object canvas, float scale) {
+    protected void drawCache(Canvas canvas, float scale) {
     }
 
-    public void debug(Object canvas, float scale) {
+    public void debug(Canvas canvas, float scale) {
     }
 
     protected Object callDescriptionMethod(String name, Object... args) {
@@ -166,11 +195,9 @@ public abstract class UIElement {
 
     protected boolean hasDescriptionMethod(String name) {
         Object _func = ScriptableObjectHelper.getProperty(description, name, null);
-        return  (_func != null && _func instanceof Function);
+        return (_func != null && _func instanceof Function);
     }
 
     protected void callFixedOnClick(String name, UiAbstractContainer con, ScriptableObject localPos) {
-
     }
 }
-

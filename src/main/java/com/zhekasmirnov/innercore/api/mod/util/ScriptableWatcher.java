@@ -59,14 +59,14 @@ public class ScriptableWatcher {
                 updateSymbol("{");
                 updateCached((ScriptableObject) val);
                 updateSymbol("}");
-            }
-            else {
+            } else {
                 updateSymbol(val);
             }
         }
     }
 
     private int checkPosition;
+
     private void updateSymbol(Object value) {
         if (value == null) {
             value = "null";
@@ -74,8 +74,7 @@ public class ScriptableWatcher {
         if (cached.size() <= checkPosition) {
             cached.add(value);
             isDirty = true;
-        }
-        else {
+        } else {
             if (!cached.get(checkPosition).equals(value)) {
                 cached.set(checkPosition, value);
                 isDirty = true;

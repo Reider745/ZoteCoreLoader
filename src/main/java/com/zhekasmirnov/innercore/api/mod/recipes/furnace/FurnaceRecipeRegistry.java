@@ -1,7 +1,5 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.furnace;
 
-import cn.nukkit.Server;
-import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;
@@ -137,7 +135,7 @@ public class FurnaceRecipeRegistry {
         } try {
             FileTools.unpackAsset("innercore/recipes/furnace_fuel.json", FileTools.DIR_WORK + "furnace.json");
         } catch (IOException e) {
-            //ICLog.e("RECIPES", "failed to unpack recipes", e);
+            ICLog.e("RECIPES", "failed to unpack recipes", e);
             return;
         }
 

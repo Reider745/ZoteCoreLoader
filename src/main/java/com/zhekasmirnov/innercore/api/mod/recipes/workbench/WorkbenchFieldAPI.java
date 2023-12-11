@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
-import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 
 /**

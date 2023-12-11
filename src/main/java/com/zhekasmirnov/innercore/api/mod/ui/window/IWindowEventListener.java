@@ -6,5 +6,6 @@ package com.zhekasmirnov.innercore.api.mod.ui.window;
 
 public interface IWindowEventListener {
     void onOpen(UIWindow window);
+
     void onClose(UIWindow window);
 }

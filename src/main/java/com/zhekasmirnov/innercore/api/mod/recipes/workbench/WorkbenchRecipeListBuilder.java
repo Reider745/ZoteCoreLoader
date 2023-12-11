@@ -3,21 +3,11 @@ package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 import android.util.Pair;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.api.container.ItemContainer;
-import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
-import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
-import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class WorkbenchRecipeListBuilder {
@@ -40,7 +30,7 @@ public class WorkbenchRecipeListBuilder {
     }
 
     public JSONObject buildAvailableRecipesPacket(RecipeComparator comparator) {
-        WorkbenchRecipeRegistry.UIRecipeLists list = WorkbenchRecipeRegistry.getAvailableRecipesForPlayerInventory(player, (WorkbenchField) container, craftPrefix);
+        WorkbenchRecipeRegistry.UIRecipeLists list = WorkbenchRecipeRegistry.getAvailableRecipesForPlayerInventory(player, container, craftPrefix);
 
         int index = 0;
         List<Pair<WorkbenchRecipe, Boolean>> recipeVisibility = new ArrayList<>();
@@ -70,7 +60,7 @@ public class WorkbenchRecipeListBuilder {
                 recipeJson.put("d", !pair.second);
                 jsonList.put(recipeJson);
             }
-        } catch (JSONException ignore) {}
+        } catch (JSONException ignore) { }
         return packet;
     }
 

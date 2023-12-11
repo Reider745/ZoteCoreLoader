@@ -1,7 +1,9 @@
 package com.zhekasmirnov.innercore.api.mod.ui.types;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
-import com.zhekasmirnov.innercore.utils.FileTools;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -23,54 +25,41 @@ public class Font {
         this.color = color;
         this.size = size;
         this.shadow = shadow;
-
     }
 
     public Font(ScriptableObject obj) {
-        this.color = ScriptableObjectHelper.getIntProperty(obj, "color", 0);
+        this.color = ScriptableObjectHelper.getIntProperty(obj, "color", Color.BLACK);
         this.size = ScriptableObjectHelper.getFloatProperty(obj, "size", 20);
         this.shadow = ScriptableObjectHelper.getFloatProperty(obj, "shadow", 0);
-        this.alignment = ScriptableObjectHelper.getIntProperty(obj, "alignment", ScriptableObjectHelper.getIntProperty(obj, "align", ALIGN_DEFAULT));
+        this.alignment = ScriptableObjectHelper.getIntProperty(obj, "alignment",
+                ScriptableObjectHelper.getIntProperty(obj, "align", ALIGN_DEFAULT));
         if (this.alignment != ALIGN_CENTER && this.alignment != ALIGN_END) {
             this.alignment = ALIGN_DEFAULT;
         }
 
         if (!obj.has("color", obj) && !obj.has("size", obj) && !obj.has("shadow", obj)) {
-            this.color = 0;
+            this.color = Color.WHITE;
             this.shadow = .45f;
         }
 
         isBold = ScriptableObjectHelper.getBooleanProperty(obj, "bold", false);
         isCursive = ScriptableObjectHelper.getBooleanProperty(obj, "cursive", false);
         isUnderlined = ScriptableObjectHelper.getBooleanProperty(obj, "underline", false);
-
     }
 
-    private float[] getAlignOffset(String text) {
-        if (alignment == ALIGN_DEFAULT) {
-            return new float[]{0, 0};
-        }
-        return new float[]{0, 0};
+    public void drawText(Canvas canvas, float x, float y, String text, float scale) {
     }
 
-    public void drawText(Object canvas, float x, float y, String text, float scale) {
-        float size = this.size * scale;
-
-        float[] offset = getAlignOffset(text);
-        x += offset[0];
-        y += offset[1];
-    }
-
-    public Object getBounds(String text, float x, float y, float scale) {
-        return null;
+    public Rect getBounds(String text, float x, float y, float scale) {
+        return Rect.getSingletonInternalProxy();
     }
 
     public float getTextWidth(String text, float scale) {
-        return 1;
+        return 22;
     }
 
     public float getTextHeight(String text, float x, float y, float scale) {
-        return 1;
+        return 44;
     }
 
     public ScriptableObject asScriptable() {

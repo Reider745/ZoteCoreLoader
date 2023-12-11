@@ -1,38 +1,79 @@
 package com.zhekasmirnov.innercore.api.mod.ui;
 
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-
+import android.graphics.Bitmap;
 
 public class GuiRenderMesh {
-    public void draw(Object gl) {
+    // Translate params.
+    public float x = 0;
 
+    public float y = 0;
+
+    public float z = 0;
+
+    // Rotate params.
+    public float rx = 0;
+
+    public float ry = 0;
+
+    public float rz = 0;
+
+    /**
+     * Render the mesh.
+     *
+     * @param gl
+     *           the OpenGL context to render to.
+     */
+    public void draw(/* GL10 */ Object gl) {
     }
 
+    /**
+     * Set the vertices.
+     *
+     * @param vertices
+     */
     public void setVertices(float[] vertices) {
-
     }
 
+    /**
+     * Set the indices.
+     *
+     * @param indices
+     */
     public void setIndices(short[] indices) {
     }
 
-    public void setTextureCoordinates(float[] textureCoords) { // New
-
+    /**
+     * Set the texture coordinates.
+     *
+     * @param textureCoords
+     */
+    public void setTextureCoordinates(float[] textureCoords) {
     }
 
+    /**
+     * Set one flat color on the mesh.
+     *
+     * @param red
+     * @param green
+     * @param blue
+     * @param alpha
+     */
     protected void setColor(float red, float green, float blue, float alpha) {
-
     }
 
+    /**
+     * Set the colors
+     *
+     * @param colors
+     */
     public void setColors(float[] colors) {
-
     }
 
-    public void loadBitmap(Object bitmap) { // New function.
-
-    }
-
-    private void loadGLTexture(Object gl) { // New function
-
+    /**
+     * Set the bitmap to load into a texture.
+     *
+     * @param bitmap
+     */
+    public void loadBitmap(Bitmap bitmap) {
     }
 }

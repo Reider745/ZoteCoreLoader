@@ -1,34 +1,21 @@
 package com.zhekasmirnov.innercore.api.mod.ui.window;
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Process;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.ContentProvider;
 import com.zhekasmirnov.innercore.api.mod.ui.IBackgroundProvider;
 import com.zhekasmirnov.innercore.api.mod.ui.IElementProvider;
-import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiAbstractContainer;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
 import com.zhekasmirnov.innercore.api.mod.ui.memory.BitmapCache;
-import com.zhekasmirnov.innercore.api.mod.ui.types.ITouchEventListener;
-import com.zhekasmirnov.innercore.api.mod.ui.types.TouchEvent;
 import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+import com.zhekasmirnov.innercore.utils.UIUtils;
 import org.mozilla.javascript.ScriptableObject;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -42,10 +29,8 @@ public class UIWindow implements IWindow {
     private UIWindowLocation location;
     private IWindow parentWindow;
 
-    private ImageView elementView;
     public ViewGroup layout;
 
-    private TouchEvent touchEvent;
     private IElementProvider elementProvider;
     private IBackgroundProvider backgroundProvider;
     private ContentProvider contentProvider;
@@ -54,103 +39,6 @@ public class UIWindow implements IWindow {
     private boolean isOpened = false;
     private boolean isDynamic = true;
     private boolean isInventoryNeeded = false;
-
-
-    private boolean isApplyingInsets = false;
-    private synchronized void applyWindowInsets(WindowInsets insets) {
-        if (!isApplyingInsets) {
-            isApplyingInsets = true;
-            try {
-                WindowParent.applyWindowInsets(this, insets);
-            } catch (Throwable err) {
-                err.printStackTrace();
-            }
-            isApplyingInsets = false;
-        }
-    }
-
-    private void resizeView(int newWidth, int newHeight) {
-        try {
-            Constructor<? extends ViewGroup.LayoutParams> ctor = elementView.getLayoutParams().getClass().getDeclaredConstructor(int.class, int.class);
-            elementView.setLayoutParams(ctor.newInstance(newWidth, newHeight));
-            elementView.setMinimumWidth((int) newWidth);
-            elementView.setMinimumHeight((int) newHeight);
-        } catch (Exception e) {
-            ICLog.e("ERROR", "resizeView error", e);
-        }
-    }
-
-    private void initializeLayout(Context ctx) {
-        return;
-        /*if (layout != null) {
-            WindowParent.releaseWindowLayout(layout);
-            try {
-                layout.removeView(elementView);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            layout = null;
-        }
-
-        ViewGroup.LayoutParams params = new RelativeLayout.LayoutParams((int) (location.scrollX * location.getScale()), (int) (location.scrollY * location.getScale()));
-        ViewGroup viewParent = null;
-        if (location.scrollY > location.height || location.forceScrollY) {
-            ScrollView scrollView = new ScrollView(ctx) {
-                @Override
-                public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-                    applyWindowInsets(insets);
-                    return super.onApplyWindowInsets(insets);
-                }
-            };;
-            viewParent = layout = scrollView;
-            scrollView.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
-            scrollView.setVerticalScrollBarEnabled(false);
-            scrollView.setHorizontalScrollBarEnabled(false);
-        }
-        if (location.scrollX > location.width || location.forceScrollX) {
-            HorizontalScrollView scrollView = new HorizontalScrollView(ctx) {
-                @Override
-                public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-                    applyWindowInsets(insets);
-                    return super.onApplyWindowInsets(insets);
-                }
-            };
-            scrollView.setOverScrollMode(ScrollView.OVER_SCROLL_NEVER);
-            scrollView.setVerticalScrollBarEnabled(false);
-            scrollView.setHorizontalScrollBarEnabled(false);
-            if (layout != null) {
-                layout.setMinimumWidth((int) (location.scrollX * location.getScale()));
-                layout.setMinimumHeight((int) (location.scrollY * location.getScale()));
-                scrollView.addView(layout);
-            }
-            else {
-                viewParent = scrollView;
-            }
-            layout = scrollView;
-        }
-        if (layout == null) {
-            viewParent = layout = new RelativeLayout(ctx) {
-                @Override
-                public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-                    applyWindowInsets(insets);
-                    return super.onApplyWindowInsets(insets);
-                }
-            };;
-        }
-
-        final ViewGroup viewParentFinal = viewParent;
-        ((Activity) ctx).runOnUiThread(new Runnable() {
-            public void run() {
-                elementView.setMinimumWidth((int) (location.scrollX * location.getScale()));
-                elementView.setMinimumHeight((int) (location.scrollY * location.getScale()));
-
-                if (elementView.getParent() != null) {
-                    ((ViewGroup) elementView.getParent()).removeView(elementView);
-                }
-                viewParentFinal.addView(elementView, params);
-            }
-        });*/
-    }
 
     public void updateWindowLocation() {
         updateScrollDimensions();
@@ -162,14 +50,12 @@ public class UIWindow implements IWindow {
     }
 
     public void updateScrollDimensions() {
-
     }
-
 
     public UIWindow(UIWindowLocation location) {
         this.location = location;
 
-        elementView = null;
+        layout = ScrollView.getSingletonInternalProxy();
 
         contentProvider = new ContentProvider(this);
         backgroundProvider = new UIWindowBackgroundDrawable(this);
@@ -188,6 +74,7 @@ public class UIWindow implements IWindow {
     }
 
     private ArrayList<UIWindow> adjacentWindows = new ArrayList<>();
+
     public void addAdjacentWindow(UIWindow win) {
         if (!adjacentWindows.contains(win)) {
             adjacentWindows.add(win);
@@ -199,7 +86,7 @@ public class UIWindow implements IWindow {
     }
 
     public void preOpen() {
-        synchronized(LOCK) {
+        synchronized (LOCK) {
             setupIfNeeded();
 
             if (isOpened) {
@@ -208,8 +95,7 @@ public class UIWindow implements IWindow {
 
             Callback.invokeAPICallback("CustomWindowOpened", this);
 
-            //refreshLocation();
-            initializeLayout(null);
+            // refreshLocation();
             forceRefresh();
             runCachePreparation(false);
 
@@ -223,13 +109,21 @@ public class UIWindow implements IWindow {
     }
 
     public void postOpen() {
-        synchronized(LOCK) {
+        synchronized (LOCK) {
             if (isOpened) {
                 return;
             }
             isOpened = true;
 
             backgroundProvider.prepareCache();
+
+            UIUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    invalidateBackground();
+                    invalidateForeground();
+                }
+            });
 
             WindowParent.openWindow(this);
             WindowProvider.instance.onWindowOpened(this);
@@ -247,7 +141,7 @@ public class UIWindow implements IWindow {
     }
 
     public void close() {
-        synchronized(LOCK) {
+        synchronized (LOCK) {
             if (!isOpened) {
                 return;
             }
@@ -286,9 +180,10 @@ public class UIWindow implements IWindow {
 
     private long lastElementRefresh = -1;
     private long lastBackgroundRefresh = -1;
+
     public void frame(long time) {
         if (!isForegroundDirty) {
-            if (isDynamic ) {
+            if (isDynamic) {
                 if (time - lastElementRefresh > 150) {
                     contentProvider.refreshElements();
                     lastElementRefresh = time;
@@ -327,7 +222,6 @@ public class UIWindow implements IWindow {
     public boolean isOpened() {
         return isOpened;
     }
-
 
     public void postElementRefresh() {
         lastElementRefresh = -1;
@@ -397,6 +291,7 @@ public class UIWindow implements IWindow {
     }
 
     private boolean isSetup = false;
+
     private void setup() {
         isSetup = true;
 
@@ -419,7 +314,8 @@ public class UIWindow implements IWindow {
         contentProvider.setContentObject(content);
         this.content = content;
 
-        ScriptableObject style = ScriptableObjectHelper.getScriptableObjectProperty(content, "style", ScriptableObjectHelper.getScriptableObjectProperty(content, "params", null));
+        ScriptableObject style = ScriptableObjectHelper.getScriptableObjectProperty(content, "style",
+                ScriptableObjectHelper.getScriptableObjectProperty(content, "params", null));
         if (style != null) {
             setStyle(new UIStyle(style));
         }
@@ -445,7 +341,6 @@ public class UIWindow implements IWindow {
 
     public void invalidateForeground() {
         isForegroundDirty = true;
-        elementView.invalidate();
     }
 
     public UIWindowLocation getLocation() {
@@ -489,7 +384,6 @@ public class UIWindow implements IWindow {
         contentProvider.invalidateAllContent();
     }
 
-
     private HashMap<String, Object> windowProperties = new HashMap<>();
 
     public Object getProperty(String name) {
@@ -499,7 +393,6 @@ public class UIWindow implements IWindow {
     public void putProperty(String name, Object property) {
         windowProperties.put(name, property);
     }
-
 
     private UiAbstractContainer container;
 
@@ -531,19 +424,7 @@ public class UIWindow implements IWindow {
     }
 
     public void runCachePreparation(boolean async) {
-        if (!async) {
-            this.elementProvider.runCachePreparation();
-        }
-        else {
-            final IElementProvider elementProvider = this.elementProvider;
-            (new java.lang.Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST);
-                    elementProvider.runCachePreparation();
-                }
-            })).start();
-        }
+        this.elementProvider.runCachePreparation();
     }
 
     public void debug() {
@@ -552,13 +433,13 @@ public class UIWindow implements IWindow {
         log.append("\tcontent provider = ").append(contentProvider).append("\n");
         log.append("\telement provider = ").append(elementProvider).append("\n");
         log.append("\tcontainer = ").append(container).append("\n");
-        log.append("\ttime since last update elements=" + (System.currentTimeMillis() - lastElementRefresh) + " background=" + (System.currentTimeMillis() - lastBackgroundRefresh));
+        log.append("\ttime since last update elements=" + (System.currentTimeMillis() - lastElementRefresh)
+                + " background=" + (System.currentTimeMillis() - lastBackgroundRefresh));
         Logger.debug("UI", log.toString());
     }
 
-
-
     public boolean closeOnBackPressed = false;
+
     public void setCloseOnBackPressed(boolean val) {
         closeOnBackPressed = val;
     }

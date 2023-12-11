@@ -3,6 +3,9 @@ package com.zhekasmirnov.innercore.api.commontypes;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+
+import cn.nukkit.item.Item;
+
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -29,6 +32,10 @@ public class ItemInstance extends ScriptableObject {
 
     public ItemInstance(NativeItemInstance nativeItemInstance) {
         this(nativeItemInstance.id, nativeItemInstance.count, nativeItemInstance.data, nativeItemInstance.extra);
+    }
+
+    public ItemInstance(Item item) {
+        this(new NativeItemInstance(item));
     }
 
     @Deprecated

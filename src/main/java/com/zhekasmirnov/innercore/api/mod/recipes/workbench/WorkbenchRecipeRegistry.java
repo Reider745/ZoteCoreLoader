@@ -1,15 +1,10 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
-import cn.nukkit.Server;
-import cn.nukkit.item.Item;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.NativeItemInstance;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
@@ -221,9 +216,6 @@ public class WorkbenchRecipeRegistry {
     }
 
     public static void cleanupWorkbenchField(WorkbenchField field, long playerUid) {
-        float[] pos = new float[3];
-        NativeAPI.getPosition(playerUid, pos);
-
         NativePlayer player = new NativePlayer(playerUid);
         for (int i = 0; i < 9; i++) {
             AbstractSlot slot = field.getFieldSlot(i);

@@ -13,7 +13,7 @@ public class TagRegistry {
     public interface TagPredicate {
         boolean check(Object obj, Collection<String> tags);
     }
-    
+
     public static class TagGroup {
         public final String name;
 
@@ -35,7 +35,7 @@ public class TagRegistry {
         }
 
         public void addTagsFor(Object obj, String... tags) {
-            synchronized(commonObjectCollection) {
+            synchronized (commonObjectCollection) {
                 String key = obj != null ? obj.toString() : null;
                 HashSet<String> tagSet = primaryTagMap.get(key);
                 if (tagSet == null) {
@@ -43,19 +43,19 @@ public class TagRegistry {
                     primaryTagMap.put(key, tagSet);
                 }
                 for (String tag : tags) {
-                    tagSet.add(tag);   
+                    tagSet.add(tag);
                 }
                 isCommonObjectsCollectionDirty = true;
             }
         }
-        
+
         public void removeTagsFor(Object obj, String... tags) {
-            synchronized(commonObjectCollection) {
+            synchronized (commonObjectCollection) {
                 String key = obj != null ? obj.toString() : null;
                 HashSet<String> tagSet = primaryTagMap.get(key);
                 if (tagSet != null) {
                     for (String tag : tags) {
-                        tagSet.remove(tag);   
+                        tagSet.remove(tag);
                     }
                 }
                 isCommonObjectsCollectionDirty = true;
@@ -64,13 +64,13 @@ public class TagRegistry {
 
         public void addCommonObject(Object obj, String... tags) {
             addTagsFor(obj, tags);
-            synchronized(commonObjectCollection) {
+            synchronized (commonObjectCollection) {
                 commonObjectCollection.put(obj, getTags(obj));
             }
         }
 
         public void removeCommonObject(Object obj) {
-            synchronized(commonObjectCollection) {
+            synchronized (commonObjectCollection) {
                 commonObjectCollection.remove(obj);
             }
         }
@@ -106,7 +106,7 @@ public class TagRegistry {
 
         public List<Object> getAllWhere(TagPredicate predicate) {
             List<Object> result = new ArrayList<>();
-            synchronized(commonObjectCollection) {
+            synchronized (commonObjectCollection) {
                 boolean isDirty = isCommonObjectsCollectionDirty;
                 isCommonObjectsCollectionDirty = false;
                 for (Map.Entry<Object, HashSet<String>> entry : commonObjectCollection.entrySet()) {
@@ -119,7 +119,7 @@ public class TagRegistry {
                 }
             }
             return result;
-        } 
+        }
 
         public List<Object> getAllWithTags(final Collection<String> checkTags) {
             return getAllWhere(new TagPredicate() {
@@ -131,7 +131,7 @@ public class TagRegistry {
                     }
                     return true;
                 }
-            });  
+            });
         }
 
         public List<Object> getAllWithTag(final String tag) {
@@ -139,7 +139,7 @@ public class TagRegistry {
                 public boolean check(Object obj, Collection<String> tags) {
                     return tags.contains(tag);
                 }
-            });  
+            });
         }
     }
 
@@ -155,5 +155,5 @@ public class TagRegistry {
             return group;
         }
     }
-    
+
 }

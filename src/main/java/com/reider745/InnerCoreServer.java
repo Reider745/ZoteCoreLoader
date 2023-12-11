@@ -27,12 +27,10 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
 import com.zhekasmirnov.innercore.api.runtime.Updatable;
 import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
-import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
@@ -88,15 +86,15 @@ public class InnerCoreServer {
         return server.getPropertyBoolean("legacy.workbench");
     }
 
-    public static boolean canEvalEnable(){
+    public static boolean canEvalEnable() {
         return server.getPropertyBoolean("eval-enable", true);
     }
 
-    public static boolean isDevelopMode(){
+    public static boolean isDevelopMode() {
         return server.getPropertyBoolean("develop-mode", false);
     }
 
-    public static boolean isRuntimeException(){
+    public static boolean isRuntimeException() {
         return server.getPropertyBoolean("inner_core.runtime_exception", isDevelopMode());
     }
 
@@ -211,7 +209,6 @@ public class InnerCoreServer {
         PATH = server.getDataPath();
         InnerCoreServer.server = server;
         InnerCoreServer.ic_server = this;
-        ICLog.server = server;
         com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
 
         CallbackHelper.init();
@@ -342,23 +339,23 @@ public class InnerCoreServer {
     }
 
     public static void useNotSupport(String name) {
-        if(isRuntimeException())
+        if (isRuntimeException())
             throw new RuntimeException("Use not support multiplayer method " + name);
     }
 
     public static void useClientMethod(String name) {
-        if(isRuntimeException())
+        if (isRuntimeException())
             throw new RuntimeException("Use client method " + name);
     }
 
     public static void useNotCurrentSupport(String name) {
-        if(isRuntimeException())
+        if (isRuntimeException())
             throw new RuntimeException("The " + name + " method is currently not supported");
     }
 
     public static void useIncomprehensibleMethod(String name) {
-        if(isRuntimeException())
+        if (isRuntimeException())
             throw new RuntimeException("I don't really understand what this method does (" + name
-                + "), which is why you're reading this right now");
+                    + "), which is why you're reading this right now");
     }
 }

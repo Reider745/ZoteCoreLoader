@@ -8,8 +8,12 @@ import com.zhekasmirnov.innercore.api.mod.ui.background.IDrawing;
 
 public interface IBackgroundProvider {
     void setBackgroundColor(int color);
+
     void addDrawing(IDrawing drawing);
+
     void clearAll();
+
     void prepareCache();
+
     void releaseCache();
 }

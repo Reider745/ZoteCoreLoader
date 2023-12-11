@@ -1,6 +1,10 @@
 package com.zhekasmirnov.innercore.api.mod.ui.window;
 
+import android.graphics.Rect;
+import android.view.WindowManager;
+import android.widget.PopupWindow;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import com.zhekasmirnov.innercore.utils.UIUtils;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -17,22 +21,21 @@ public class UIWindowLocation {
     public float zIndex = 0;
 
     public UIWindowLocation() {
-        set(0, 0, 1000, 1);
+        set(0, 0, 1000, (int) (UIUtils.screenHeight * 1000.0f / UIUtils.screenWidth));
     }
 
     public UIWindowLocation(ScriptableObject obj) {
         if (obj == null) {
-            set(0, 0, 1000, 1);
-        }
-        else {
+            set(0, 0, 1000, (int) (UIUtils.screenHeight * 1000.0f / UIUtils.screenWidth));
+        } else {
             x = ScriptableObjectHelper.getIntProperty(obj, "x", 0);
             y = ScriptableObjectHelper.getIntProperty(obj, "y", 0);
             width = ScriptableObjectHelper.getIntProperty(obj, "width", 1000 - x);
-            height = ScriptableObjectHelper.getIntProperty(obj, "height", 1);
+            height = ScriptableObjectHelper.getIntProperty(obj, "height",
+                    (int) (UIUtils.screenHeight * 1000.0f / UIUtils.screenWidth) - y);
             forceScrollX = ScriptableObjectHelper.getBooleanProperty(obj, "forceScrollX", false);
             forceScrollY = ScriptableObjectHelper.getBooleanProperty(obj, "forceScrollY", false);
             globalScale = ScriptableObjectHelper.getBooleanProperty(obj, "globalScale", false);
-            //UIUtils.log("loaded scroll " + scrollX + "x" + scrollY + " (" + width + "x" + height + ")");
 
             ScriptableObject padding = ScriptableObjectHelper.getScriptableObjectProperty(obj, "padding", null);
             if (padding != null) {
@@ -55,7 +58,8 @@ public class UIWindowLocation {
             }
 
             scrollX = Math.max(width, ScriptableObjectHelper.getIntProperty(obj, "scrollX", width));
-            scrollY = Math.max(height, ScriptableObjectHelper.getIntProperty(obj, "scrollY", ScriptableObjectHelper.getIntProperty(obj, "scrollHeight", height)));
+            scrollY = Math.max(height, ScriptableObjectHelper.getIntProperty(obj, "scrollY",
+                    ScriptableObjectHelper.getIntProperty(obj, "scrollHeight", height)));
         }
     }
 
@@ -130,8 +134,6 @@ public class UIWindowLocation {
         scrollY = height;
     }
 
-
-
     public static final int PADDING_TOP = 0;
     public static final int PADDING_BOTTOM = 1;
     public static final int PADDING_LEFT = 2;
@@ -151,7 +153,7 @@ public class UIWindowLocation {
                 y1 = value;
                 break;
             case PADDING_BOTTOM:
-                y2 = 1;
+                y2 = (int) (UIUtils.screenHeight * 1000.0f / UIUtils.screenWidth - value) + 1;
                 break;
             case PADDING_LEFT:
                 x1 = value;
@@ -183,28 +185,28 @@ public class UIWindowLocation {
     }
 
     public float getScale() {
-        return 1;
+        return scale = UIUtils.screenWidth / 1000.0f;
     }
 
     public float getDrawingScale() {
         return (globalScale ? 1.0f : Math.max(scrollX, width) / 1000.0f) * getScale();
     }
 
-    public Object getRect() {
-        return null;
+    public Rect getRect() {
+        return Rect.getSingletonInternalProxy();
     }
 
-    public void showPopupWindow(Object win) {
+    public void showPopupWindow(PopupWindow win) {
     }
 
-    public void updatePopupWindow(Object win) {
+    public void updatePopupWindow(PopupWindow win) {
     }
 
-    public Object getLayoutParams(int a1, int a2, int a3) {
-        return null;
+    public WindowManager.LayoutParams getLayoutParams(int a1, int a2, int a3) {
+        return WindowManager.LayoutParams.getSingletonInternalProxy();
     }
 
-    public void setupAndShowPopupWindow(Object win) {
+    public void setupAndShowPopupWindow(PopupWindow win) {
     }
 
     public void setZ(float z) {

@@ -1,14 +1,10 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
-import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeItem;
-import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -165,7 +161,6 @@ public class InventoryPool {
             }
 
             PoolEntry leadingEntry = entries.get(0);
-            ArrayList<PoolEntry> result = new ArrayList<>();
             ArrayList<PoolEntry> remainingEntries = new ArrayList<>(entries);
             
             // first we get entries without extra

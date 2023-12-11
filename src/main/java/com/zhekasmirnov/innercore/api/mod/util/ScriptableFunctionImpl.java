@@ -41,22 +41,18 @@ public abstract class ScriptableFunctionImpl implements Function {
 
     @Override
     public void put(String s, Scriptable scriptable, Object o) {
-
     }
 
     @Override
     public void put(int i, Scriptable scriptable, Object o) {
-
     }
 
     @Override
     public void delete(String s) {
-
     }
 
     @Override
     public void delete(int i) {
-
     }
 
     @Override
@@ -66,7 +62,6 @@ public abstract class ScriptableFunctionImpl implements Function {
 
     @Override
     public void setPrototype(Scriptable scriptable) {
-
     }
 
     @Override
@@ -76,7 +71,6 @@ public abstract class ScriptableFunctionImpl implements Function {
 
     @Override
     public void setParentScope(Scriptable scriptable) {
-
     }
 
     @Override

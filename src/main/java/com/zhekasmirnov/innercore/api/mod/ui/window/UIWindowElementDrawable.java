@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api.mod.ui.window;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
@@ -8,15 +7,12 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.zhekasmirnov.innercore.api.NativeItemModel;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ui.IBackgroundProvider;
 import com.zhekasmirnov.innercore.api.mod.ui.IElementProvider;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
-import com.zhekasmirnov.innercore.api.mod.ui.memory.BitmapCache;
 import com.zhekasmirnov.innercore.api.mod.ui.types.ITouchEventListener;
+import com.zhekasmirnov.innercore.api.mod.ui.types.TouchEvent;
 import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
-
 import java.util.ArrayList;
 
 /**
@@ -33,11 +29,8 @@ public class UIWindowElementDrawable extends Drawable implements IElementProvide
     public ArrayList<UIElement> windowElements = new ArrayList<>();
     private UIStyle windowStyle = UIStyle.DEFAULT;
 
-    private IBackgroundProvider backgroundProvider;
-
     @Override
     public void setBackgroundProvider(IBackgroundProvider provider) {
-        backgroundProvider = provider;
     }
 
     @Override
@@ -94,15 +87,8 @@ public class UIWindowElementDrawable extends Drawable implements IElementProvide
         }
     }
 
-    private static Bitmap preparationBitmap = Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888);
-    private static Canvas preparationCanvas = new Canvas(preparationBitmap);
-
     @Override
     public void runCachePreparation() {
-        long timeStart = System.currentTimeMillis();
-        drawDirty(preparationCanvas, window.getScale());
-        long timeEnd = System.currentTimeMillis();
-        //ICLog.i("UI", "cache preparation took " + (timeEnd - timeStart) + " ms, rendered " + windowElements.size() + " elements.");
     }
 
     @Override
@@ -112,64 +98,28 @@ public class UIWindowElementDrawable extends Drawable implements IElementProvide
 
     @Override
     public void setWindowStyle(UIStyle style) {
-
+        windowStyle = style;
     }
 
-
-    /**
-     * Draw in its bounds (set via setBounds) respecting optional effects such
-     * as alpha (set via setAlpha) and color filter (set via setColorFilter).
-     *
-     * @param canvas The canvas to draw into
-     */
     @Override
     public void draw(@NonNull Canvas canvas) {
-        try {
-            if (backgroundProvider != null) {
-                ((Drawable) backgroundProvider).draw(canvas);
-            }
-
-            if (window.isForegroundDirty) {
-                drawDirty(canvas, window.getScale());
-                window.isForegroundDirty = false;
-            }
-        } catch (Exception e) {
-            ICLog.e("UI", "uncaught exception occurred", e);
-        } catch (OutOfMemoryError e) {
-            BitmapCache.immediateGC();
-            NativeItemModel.tryReleaseModelBitmapsOnLowMemory(1024 * 1024 * 16); // release some item model icons
-        }
     }
 
     boolean isDebugEnabled = false;
 
     public synchronized void drawDirty(Canvas canvas, float scale) {
-        for (int i = 0; i < windowElements.size(); i++) {
-            UIElement element = windowElements.get(i);
-            if (!element.isReleased()) {
-                element.onDraw(canvas, scale);
-                if (isDebugEnabled) {
-                    element.debug(canvas, scale);
-                }
-            }
-        }
     }
 
+    @Override
+    public synchronized void onTouchEvent(TouchEvent event) {
+    }
 
-    /**
-     * Specify an alpha value for the drawable. 0 means fully transparent, and
-     * 255 means fully opaque.
-     *
-     * @param alpha
-     */
     @Override
     public void setAlpha(@IntRange(from = 0, to = 255) int alpha) {
-
     }
 
     @Override
     public void setColorFilter(@Nullable ColorFilter colorFilter) {
-
     }
 
     @Override
@@ -180,10 +130,5 @@ public class UIWindowElementDrawable extends Drawable implements IElementProvide
     @Override
     public String toString() {
         return "[ElementDrawable elements=" + windowElements.size() + "]";
-    }
-
-    @Override
-    public void onTouchEvent(Object event) {
-
     }
 }

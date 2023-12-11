@@ -6,12 +6,9 @@ import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.coreengine.CEHandler;
-import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import com.zhekasmirnov.innercore.mod.executable.CompilerConfig;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.io.File;
@@ -34,7 +31,7 @@ public class CELoader {
             config.setName("Core Engine");
             Executable executable;
             if (isCompiled) {
-                executable = null;
+                executable = Compiler.loadDex(execFile, config);
             }
             else {
                 executable = Compiler.compileReader(new FileReader(execFile), config);

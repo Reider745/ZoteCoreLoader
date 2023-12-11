@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.preloader;
 
+import android.widget.Toast;
 import com.zhekasmirnov.innercore.api.annotations.APIStaticModule;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
@@ -65,17 +66,17 @@ public class PreloaderAPI extends API {
     @JSStaticFunction
     public static void print(final String str) {
         ICLog.d("PRELOADER-PRINT", str);
-        /*AdaptedScriptAPI.MCSystem.getContext().runOnUiThread(new Runnable() {
+        AdaptedScriptAPI.MCSystem.getContext().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(AdaptedScriptAPI.MCSystem.getContext(), "(PRELOADER) " + str, Toast.LENGTH_SHORT).show();
             }
-        });*/
+        });
     }
 
 
 
-    /*@APIStaticModule
+    @APIStaticModule
     public static class Resources extends AdaptedScriptAPI.Resources {
         // clone usual resources
         @JSStaticFunction
@@ -178,7 +179,7 @@ public class PreloaderAPI extends API {
             }
             return null;
         }
-    }*/
+    }
 
 
 

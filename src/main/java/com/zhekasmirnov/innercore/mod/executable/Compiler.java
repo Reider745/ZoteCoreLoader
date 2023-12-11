@@ -7,6 +7,8 @@ import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.executable.library.Library;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
+import com.zhekasmirnov.innercore.utils.IMessageReceiver;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
@@ -148,10 +150,6 @@ public class Compiler {
         return wrapScript(ctx, script, compilerConfig);
     }
 
-    public static boolean compileMod(Mod mod){
-        return false;
-    }
-
     private static String genUniqueId() {
         return  Integer.toHexString((int) (Math.random() * 16777216)) + "_" + Integer.toHexString((int) (Math.random() * 16777216));
     }
@@ -164,4 +162,8 @@ public class Compiler {
 
       //  AndroidClassLoader.exitCompilationMode();
     }
+
+	public static boolean compileMod(Mod jsToJava, IMessageReceiver jsToJava2) {
+		return false;
+	}
 }

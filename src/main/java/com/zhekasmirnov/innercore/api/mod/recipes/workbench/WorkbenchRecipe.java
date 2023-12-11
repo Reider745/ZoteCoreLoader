@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import android.util.Pair;
-import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
@@ -102,8 +101,7 @@ public abstract class WorkbenchRecipe {
 
     public abstract RecipeEntry[] getSortedEntries();
 
-    public void addToVanillaWorkbench() {
-    }
+    public void addToVanillaWorkbench() { }
 
     public void putIntoTheField(WorkbenchField field, long player) {
         InventoryPool pool = new InventoryPool(player);

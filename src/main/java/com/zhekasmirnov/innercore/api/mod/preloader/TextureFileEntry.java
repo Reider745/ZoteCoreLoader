@@ -8,6 +8,7 @@ import java.io.File;
 
 // TODO: complete
 public class TextureFileEntry {
+    @SuppressWarnings("unused")
     private File source;
 
     public TextureFileEntry(File source) {

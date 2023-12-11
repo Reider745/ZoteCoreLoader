@@ -29,10 +29,12 @@ public class UIUtils {
         return View.getSingletonInternalProxy();
     }
 
+    @Deprecated
     public static void runOnUiThreadUnsafe(Runnable action) {
         getContext().runOnUiThread(action);
     }
 
+    @Deprecated
     public static void runOnUiThread(final Runnable action) {
         getContext().runOnUiThread(() -> {
             try {

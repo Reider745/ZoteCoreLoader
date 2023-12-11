@@ -2,11 +2,7 @@ package com.zhekasmirnov.innercore.api.log;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.utils.FileTools;
-import org.mozilla.javascript.RhinoException;
-
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 
 /**
@@ -98,30 +94,16 @@ public class ICLog {
         logMsg(LogType.ERROR, "ERROR",
                 (prefix != null ? "[" + prefix + "] " : "") + message + (err != null ? "\n" + getStackTrace(err) : ""));
         Logger.error(prefix, removeFaultSymbolsFromString(message + (err != null ? "\n" + getStackTrace(err) : "")));
-        if (err != null) {
-            err.printStackTrace();
-        }
     }
 
     public static String getStackTrace(Throwable err) {
-        String jsStack = null;
-        if (err instanceof RhinoException) {
-            jsStack = ((RhinoException) err).getScriptStackTrace();
-        }
-
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        err.printStackTrace(pw);
-
-        if (jsStack != null) {
-            return "JS STACK TRACE:\n" + jsStack + "\n\nFULL STACK TRACE:\n" + sw.toString();
-        } else {
-            return sw.toString();
-        }
+        return Logger.getStackTrace(err);
     }
 
     public static void flush() {
-        logWriter.flush();
+        if (logWriter != null) {
+            logWriter.flush();
+        }
     }
 
     public static void showIfErrorsAreFound() {

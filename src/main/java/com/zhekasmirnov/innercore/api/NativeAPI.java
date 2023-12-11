@@ -33,6 +33,7 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setDebugDumpDirectory(path)");
     }
 
+    @Deprecated
     public static void addTextureToLoad(String path) {
         InnerCoreServer.useClientMethod("NativeAPI.addTextureToLoad(path)");
     }
@@ -144,6 +145,7 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.addFarParticle(i, d, d2, d3, d4, d5, d6, i2)");
     }
 
+    @Deprecated
     public static void addItemToInventory(int id, int count, int data, long extra, boolean b) {
         InnerCoreServer.useClientMethod("NativeAPI.addItemToInventory(id, count, data, extra, b)");
     }
@@ -152,6 +154,7 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.addParticle(i, d, d2, d3, d4, d5, d6, i2)");
     }
 
+    @Deprecated
     public static void addPlayerExperience(int experience) {
         InnerCoreServer.useClientMethod("NativeAPI.addPlayerExperience(experience)");
     }
@@ -361,56 +364,67 @@ public class NativeAPI {
         return EntityMethod.getNameTag(entity);
     }
 
+    @Deprecated
     public static long getPlayer() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayer()");
         return 0;
     }
 
+    @Deprecated
     public static long getServerPlayer() {
         InnerCoreServer.useNotSupport("NativeAPI.getServerPlayer()");
         return 0;
     }
 
+    @Deprecated
     public static long getLocalPlayer() {
         InnerCoreServer.useNotSupport("NativeAPI.getLocalPlayer()");
         return 0;
     }
 
+    @Deprecated
     public static long getPlayerArmor(int slot) {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerArmor(slot)");
         return 0;
     }
 
+    @Deprecated
     public static float getPlayerExhaustion() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerExhaustion()");
         return 0.0f;
     }
 
+    @Deprecated
     public static float getPlayerExperience() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerExperience()");
         return 0.0f;
     }
 
+    @Deprecated
     public static float getPlayerHunger() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerHunger()");
         return 0.0f;
     }
 
+    @Deprecated
     public static float getPlayerLevel() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerLevel()");
         return 0.0f;
     }
 
+    @Deprecated
     public static float getPlayerSaturation() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerSaturation()");
         return 0.0f;
     }
 
+    @Deprecated
     public static int getPlayerScore() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerScore()");
         return 0;
     }
 
+    @Deprecated
     public static int getPlayerSelectedSlot() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerSelectedSlot()");
         return 0;
@@ -491,6 +505,7 @@ public class NativeAPI {
         return EntityMethod.isImmobile(entity);
     }
 
+    @Deprecated
     public static boolean isPlayerFlying() {
         InnerCoreServer.useClientMethod("NativeAPI.isPlayerFlying()");
         return false;
@@ -514,14 +529,17 @@ public class NativeAPI {
         return EntityMethod.isValidEntity(entity);
     }
 
+    @Deprecated
     public static void nativeSetCameraEntity(long entity) {
         InnerCoreServer.useClientMethod("NativeAPI.nativeSetCameraEntity(entity)");
     }
 
+    @Deprecated
     public static void nativeSetFov(float fov) {
         InnerCoreServer.useClientMethod("NativeAPI.nativeSetFov(fov)");
     }
 
+    @Deprecated
     public static void nativeVibrate(int i) {
         InnerCoreServer.useClientMethod("NativeAPI.nativeVibrate(i)");
     }
@@ -622,6 +640,7 @@ public class NativeAPI {
     public static void setInnerCoreVersion(String str) {
     }
 
+    @Deprecated
     public static void setInventorySlot(int slot, int id, int data, int count, long extra) {
         InnerCoreServer.useClientMethod("NativeAPI.setInventorySlot(slot, id, data, count, extra)");
     }
@@ -657,38 +676,47 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setNightMode(z)");
     }
 
+    @Deprecated
     public static void setPlayerArmor(int i, int i2, int i3, int i4, long extra) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerArmor(i, i2, i3, i4, extra)");
     }
 
+    @Deprecated
     public static void setPlayerCanFly(boolean enabled) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerCanFly(enabled)");
     }
 
+    @Deprecated
     public static void setPlayerExhaustion(float exhaustion) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerExhaustion(exhaustion)");
     }
 
+    @Deprecated
     public static void setPlayerExperience(float experience) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerExperience(experience)");
     }
 
+    @Deprecated
     public static void setPlayerFlying(boolean enabled) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerFlying(enabled)");
     }
 
+    @Deprecated
     public static void setPlayerHunger(float hunger) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerHunger(hunger)");
     }
 
+    @Deprecated
     public static void setPlayerLevel(float level) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerLevel(level)");
     }
 
+    @Deprecated
     public static void setPlayerSaturation(float saturation) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerSaturation(saturation)");
     }
 
+    @Deprecated
     public static void setPlayerSelectedSlot(int slot) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerSelectedSlot(slot)");
     }
@@ -859,19 +887,23 @@ public class NativeAPI {
         return builder.toString();
     }
 
+    @Deprecated
     public static void setPlayerBooleanAbility(String ability, boolean value) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerBooleanAbility(ability, value)");
     }
 
+    @Deprecated
     public static void setPlayerFloatAbility(String ability, float value) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerFloatAbility(ability, value)");
     }
 
+    @Deprecated
     public static boolean getPlayerBooleanAbility(String ability) {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerBooleanAbility(ability)");
         return false;
     }
 
+    @Deprecated
     public static float getPlayerFloatAbility(String ability) {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerFloatAbility(ability)");
         return 0.0f;

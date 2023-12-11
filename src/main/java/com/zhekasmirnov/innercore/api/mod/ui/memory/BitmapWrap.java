@@ -1,8 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.ui.memory;
 
 import android.graphics.Bitmap;
-import com.zhekasmirnov.innercore.api.mod.ui.TextureSource;
-
 import java.util.HashMap;
 
 /**
@@ -10,7 +8,7 @@ import java.util.HashMap;
  */
 
 public abstract class BitmapWrap {
-    public static final Bitmap MISSING_BITMAP = TextureSource.instance.getSafe("missing_texture");
+    public static final Bitmap MISSING_BITMAP = Bitmap.getSingletonInternalProxy();
 
     protected Bitmap bitmap;
     protected int width, height;
@@ -25,24 +23,17 @@ public abstract class BitmapWrap {
     }
 
     public abstract boolean store();
+
     public abstract boolean restore();
+
     public abstract BitmapWrap resize(int w, int h);
 
     public void storeIfNeeded() {
-        synchronized(this) {
-            removeCache();
-            if (!isStored && !isRecycled) {
-                isStored = store();
-            }
-        }
+        isStored = true;
     }
 
     public void restoreIfNeeded() {
-        synchronized(this) {
-            if (isStored && !isRecycled) {
-                isStored = !restore();
-            }
-        }
+        isStored = false;
     }
 
     public int getWidth() {
@@ -57,8 +48,6 @@ public abstract class BitmapWrap {
         return config;
     }
 
-
-
     private int useId = -1;
 
     public int getStackPos() {
@@ -66,7 +55,7 @@ public abstract class BitmapWrap {
     }
 
     public Bitmap get() {
-        synchronized(this) {
+        synchronized (this) {
             useId = BitmapCache.getUseId();
 
             restoreIfNeeded();
@@ -79,65 +68,29 @@ public abstract class BitmapWrap {
     }
 
     public void recycle() {
-        synchronized(this) {
-            removeCache();
-            if (!isRecycled && bitmap != null) {
-                bitmap.recycle();
-                bitmap = null;
-            }
-            isRecycled = true;
-            BitmapCache.unregisterWrap(this);
-        }
+        isRecycled = true;
+        BitmapCache.unregisterWrap(this);
     }
 
-
-
-    private Bitmap resizeCacheBmp;
-    private int resizeCacheW, resizeCacheH;
-
     public void removeCache() {
-        synchronized(this) {
-            if (resizeCacheBmp != null){
-                resizeCacheBmp.recycle();
-                resizeCacheBmp = null;
-            }
-        }
     }
 
     public Bitmap getResizedCache(int w, int h) {
-        synchronized(this) {
-            if (resizeCacheBmp != null && resizeCacheW == w && resizeCacheH == h) {
-                return resizeCacheBmp;
-            }
-
-            removeCache();
-            Bitmap bmp = get();
-
-            resizeCacheBmp = Bitmap.createScaledBitmap(bmp, w, h, false);
-            if (resizeCacheBmp == bmp) {
-                resizeCacheBmp = bmp.copy(getConfig(), true);
-            }
-            resizeCacheW = w;
-            resizeCacheH = h;
-
-            return resizeCacheBmp;
-        }
+        return Bitmap.getSingletonInternalProxy();
     }
-
-
 
     public static BitmapWrap wrap(Bitmap bmp) {
         return new RandomBitmapWrap(bmp);
     }
 
     private static HashMap<String, BitmapWrap> namedWrapCache = new HashMap<>();
+
     public static BitmapWrap wrap(String name, int w, int h) {
         String key = name + w + "." + h;
         BitmapWrap wrap = namedWrapCache.get(key);
         if (wrap != null) {
             return wrap;
-        }
-        else {
+        } else {
             wrap = new SourceBitmapWrap(name, w, h);
             namedWrapCache.put(key, wrap);
             return wrap;
@@ -145,7 +98,6 @@ public abstract class BitmapWrap {
     }
 
     public static BitmapWrap wrap(String name) {
-        Bitmap bmp = TextureSource.instance.getSafe(name);
-        return wrap(name, bmp.getWidth(), bmp.getHeight());
+        return wrap(name, 16, 16);
     }
 }

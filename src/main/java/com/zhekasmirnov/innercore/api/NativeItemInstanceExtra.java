@@ -357,7 +357,7 @@ public class NativeItemInstanceExtra {
     }
 
     public void setCompoundTag(NativeCompoundTag tag) {
-        extraProvider.setCompoundTag(tag != null ? tag.pointer : null);
+        extraProvider.setCompoundTag(tag != null ? tag.tag : null);
     }
 
     private JSONObject customData = null;

@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.coreengine;
 
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.mod.coreengine.builder.CELoader;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
 import org.mozilla.javascript.Function;

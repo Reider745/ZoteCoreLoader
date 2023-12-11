@@ -9,13 +9,13 @@ import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.PreferencesWindowAPI;
 import com.zhekasmirnov.innercore.api.mod.coreengine.CoreEngineAPI;
 import com.zhekasmirnov.innercore.api.mod.preloader.PreloaderAPI;
+import com.zhekasmirnov.innercore.api.mod.util.DebugAPI;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaClass;
-import org.mozilla.javascript.NativeJavaPackage;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -33,10 +33,15 @@ public abstract class API extends ScriptableObject {
     public static final String LOGGER_TAG = "INNERCORE-API";
 
     public abstract String getName();
+
     public abstract int getLevel();
+
     public abstract void onLoaded();
+
     public abstract void onModLoaded(Mod mod);
+
     public abstract void onCallback(String name, Object[] args);
+
     public abstract void setupCallbacks(Executable executable);
 
     protected boolean isLoaded = false;
@@ -68,8 +73,6 @@ public abstract class API extends ScriptableObject {
         }
     }
 
-
-
     @JSStaticFunction
     public String getCurrentAPIName() {
         return getName();
@@ -80,13 +83,12 @@ public abstract class API extends ScriptableObject {
         return getLevel();
     }
 
-
-
     public String getClassName() {
         return getName();
     }
 
     private static ScriptableObject currentScopeToInject = null;
+
     protected void injectIntoScope(ScriptableObject scope, List<String> filter) {
         currentScopeToInject = scope;
         API.injectIntoScope(getClass(), scope, filter);
@@ -97,8 +99,8 @@ public abstract class API extends ScriptableObject {
         injectIntoScope(scope, null);
     }
 
-    private static HashMap<Class, ArrayList<String>> getAllClassMethods(Class clazz, List<String> filter) {
-        HashMap<Class, ArrayList<String>> methodMap = new HashMap<>();
+    private static HashMap<Class<?>, ArrayList<String>> getAllClassMethods(Class<?> clazz, List<String> filter) {
+        HashMap<Class<?>, ArrayList<String>> methodMap = new HashMap<>();
 
         while (clazz != null && clazz.getName().contains("com.zhekasmirnov.innercore")) {
             Method[] methods = clazz.getMethods();
@@ -112,8 +114,9 @@ public abstract class API extends ScriptableObject {
                 if (filter != null && !filter.contains(method.getName())) {
                     continue;
                 }
-                if (method.getAnnotation(JSFunction.class) != null || method.getAnnotation(JSStaticFunction.class) != null) {
-                    Class methodClass = method.getDeclaringClass();
+                if (method.getAnnotation(JSFunction.class) != null
+                        || method.getAnnotation(JSStaticFunction.class) != null) {
+                    Class<?> methodClass = method.getDeclaringClass();
                     if (methodClass == clazz) {
                         names.add(method.getName());
                     }
@@ -126,12 +129,12 @@ public abstract class API extends ScriptableObject {
         return methodMap;
     }
 
-    private static Collection<Class> getSubclasses(Class clazz) {
-        HashSet<Class> allClasses = new HashSet<>();
+    private static Collection<Class<?>> getSubclasses(Class<?> clazz) {
+        HashSet<Class<?>> allClasses = new HashSet<>();
 
         while (clazz != null && clazz.getName().contains("com.zhekasmirnov.innercore")) {
-            Class[] classes = clazz.getClasses();
-            for (Class cla$$ : classes) {
+            Class<?>[] classes = clazz.getClasses();
+            for (Class<?> cla$$ : classes) {
                 allClasses.add(cla$$);
             }
             clazz = clazz.getSuperclass();
@@ -140,23 +143,22 @@ public abstract class API extends ScriptableObject {
         return allClasses;
     }
 
-    protected static void injectIntoScope(Class apiClass, ScriptableObject scope, List<String> filter) {
-        //Log.d(LOGGER_TAG, "injecting api class: " + apiClass.getSimpleName());
-        Method[] methods = apiClass.getMethods();
+    protected static void injectIntoScope(Class<?> apiClass, ScriptableObject scope, List<String> filter) {
+        // Log.d(LOGGER_TAG, "injecting api class: " + apiClass.getSimpleName());
 
-        HashMap<Class, ArrayList<String>> methodMap = getAllClassMethods(apiClass, filter);
+        HashMap<Class<?>, ArrayList<String>> methodMap = getAllClassMethods(apiClass, filter);
 
-        Iterator<Class> methodIterator = methodMap.keySet().iterator();
+        Iterator<Class<?>> methodIterator = methodMap.keySet().iterator();
         while (methodIterator.hasNext()) {
-            Class methodClass = methodIterator.next();
+            Class<?> methodClass = methodIterator.next();
             ArrayList<String> names = methodMap.get(methodClass);
             String[] nameArr = new String[names.size()];
             names.toArray(nameArr);
             scope.defineFunctionProperties(nameArr, methodClass, ScriptableObject.DONTENUM);
         }
 
-        Collection<Class> classes = getSubclasses(apiClass);
-        for (final Class module : classes) {
+        Collection<Class<?>> classes = getSubclasses(apiClass);
+        for (final Class<?> module : classes) {
             if (filter != null && !filter.contains(module.getSimpleName())) {
                 continue;
             }
@@ -174,7 +176,8 @@ public abstract class API extends ScriptableObject {
                 injectIntoScope(module, childScope, null);
             } else if (module.getAnnotation(APIIgnore.class) == null) {
                 try {
-                    scope.defineProperty(module.getSimpleName(), new NativeJavaClass(currentScopeToInject, module, false), ScriptableObject.DONTENUM);
+                    scope.defineProperty(module.getSimpleName(),
+                            new NativeJavaClass(currentScopeToInject, module, false), ScriptableObject.DONTENUM);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -184,9 +187,9 @@ public abstract class API extends ScriptableObject {
 
     @JSStaticFunction
     public void createDump(Object _aClass) {
-        Class aClass = null;
+        Class<?> aClass = null;
         if (_aClass instanceof Class) {
-            aClass = (Class) _aClass;
+            aClass = (Class<?>) _aClass;
         }
         if (aClass == null) {
             aClass = getClass();
@@ -194,13 +197,13 @@ public abstract class API extends ScriptableObject {
 
         String str = createDumpString(aClass, "", "");
 
-        Logger.error(str);
+        DebugAPI.dialog(str);
     }
 
     private String dumpMethod(Method method) {
         String str = method.getName() + "(";
 
-        Class[] params = method.getParameterTypes();
+        Class<?>[] params = method.getParameterTypes();
         for (int i = 0; i < params.length; i++) {
             if (i > 0) {
                 str += ", ";
@@ -212,18 +215,20 @@ public abstract class API extends ScriptableObject {
         return str;
     }
 
-    private String createDumpString(Class aClass, String prefix, String str) {
+    private String createDumpString(Class<?> aClass, String prefix, String str) {
         Method[] methods = aClass.getMethods();
         for (Method method : methods) {
             if (method.getAnnotation(JSStaticFunction.class) != null) {
                 str += prefix + dumpMethod(method);
                 str += "\n";
 
-                Class returnType = method.getReturnType();
+                Class<?> returnType = method.getReturnType();
                 if (returnType != null && !returnType.isPrimitive()) {
                     Method[] returnMethods = returnType.getMethods();
                     for (Method returnMethod : returnMethods) {
-                        if ((returnMethod.getModifiers() & Modifier.STATIC) == 0 && !returnMethod.getName().equals("getClassName") && returnMethod.getDeclaringClass().getPackage().toString().contains("zhekasmirnov")) {
+                        if ((returnMethod.getModifiers() & Modifier.STATIC) == 0
+                                && !returnMethod.getName().equals("getClassName")
+                                && returnMethod.getDeclaringClass().getPackage().toString().contains("zhekasmirnov")) {
                             str += "\t" + dumpMethod(returnMethod) + "\n";
                         }
                     }
@@ -233,8 +238,8 @@ public abstract class API extends ScriptableObject {
 
         str += "\n";
 
-        Class[] classes = aClass.getClasses();
-        for (Class module : classes) {
+        Class<?>[] classes = aClass.getClasses();
+        for (Class<?> module : classes) {
             if (module.getAnnotation(APIStaticModule.class) != null) {
                 str = createDumpString(module, prefix + module.getSimpleName() + ".", str);
             }
@@ -254,7 +259,7 @@ public abstract class API extends ScriptableObject {
 
     protected static void registerInstance(API instance) {
         if (!APIInstanceList.contains(instance)) {
-           Logger.debug(LOGGER_TAG, "Register Mod API: " + instance.getName());
+            Logger.debug(LOGGER_TAG, "Register Mod API: " + instance.getName());
             APIInstanceList.add(instance);
         }
     }
@@ -269,7 +274,7 @@ public abstract class API extends ScriptableObject {
         return null;
     }
 
-    public static void invokeCallback(String name, Object ...args) {
+    public static void invokeCallback(String name, Object... args) {
         for (API apiInstance : APIInstanceList) {
             apiInstance.onCallback(name, args);
         }
@@ -301,35 +306,32 @@ public abstract class API extends ScriptableObject {
         return null;
     }
 
-
-
-    public static void debugLookUpClass(Class clazz) {
+    public static void debugLookUpClass(Class<?> clazz) {
         ICLog.d("LOOKUP", "starting at " + clazz);
         debugLookUpClass(clazz, "");
     }
 
-    private static void debugLookUpClass(Class clazz, String prefix) {
+    private static void debugLookUpClass(Class<?> clazz, String prefix) {
         if (clazz == null) {
             return;
         }
 
         String _prefix = prefix + "  ";
-        HashMap<Class, ArrayList<String>> methodMap = getAllClassMethods(clazz, null);
+        HashMap<Class<?>, ArrayList<String>> methodMap = getAllClassMethods(clazz, null);
 
-        for (Class cla$$ : methodMap.keySet()) {
+        for (Class<?> cla$$ : methodMap.keySet()) {
             ICLog.d("LOOKUP", prefix + "methods in class " + cla$$.getSimpleName() + ": ");
             for (String name : methodMap.get(cla$$)) {
                 ICLog.d("LOOKUP", _prefix + name + "(...)");
             }
         }
 
-        Collection<Class> classes = getSubclasses(clazz);
-        for (Class cla$$ : classes) {
+        Collection<Class<?>> classes = getSubclasses(clazz);
+        for (Class<?> cla$$ : classes) {
             if (cla$$ != null && cla$$.getAnnotation(APIIgnore.class) == null) {
                 if (cla$$.getAnnotation(APIStaticModule.class) != null) {
                     ICLog.d("LOOKUP", prefix + "looking up module " + cla$$.getSimpleName() + ":");
-                }
-                else {
+                } else {
                     ICLog.d("LOOKUP", prefix + "looking up constructor class " + cla$$.getSimpleName() + ":");
                 }
                 debugLookUpClass(cla$$, _prefix);

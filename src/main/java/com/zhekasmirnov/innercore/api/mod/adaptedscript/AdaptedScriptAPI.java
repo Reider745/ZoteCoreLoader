@@ -1,5 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.adaptedscript;
 
+import android.app.Activity;
+import android.graphics.Bitmap;
 import android.util.Pair;
 import cn.nukkit.nbt.tag.CompoundTag;
 
@@ -15,22 +17,29 @@ import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkJsAdapter;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
+import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.annotations.*;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
-//import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
+import com.zhekasmirnov.innercore.api.entities.NativeAttributeInstance;
+import com.zhekasmirnov.innercore.api.entities.NativePathNavigation;
+import com.zhekasmirnov.innercore.api.log.DialogHelper;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeRegistry;
 import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
+import com.zhekasmirnov.innercore.api.mod.ui.icon.ItemModels;
+import com.zhekasmirnov.innercore.api.mod.ui.types.FrameTexture;
 import com.zhekasmirnov.innercore.api.mod.ui.window.*;
+import com.zhekasmirnov.innercore.api.mod.util.DebugAPI;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 import com.zhekasmirnov.innercore.api.nbt.NativeListTag;
 import com.zhekasmirnov.innercore.api.nbt.NbtDataType;
+import com.zhekasmirnov.innercore.api.particles.ParticleRegistry;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
@@ -49,14 +58,12 @@ import com.zhekasmirnov.innercore.mod.executable.Executable;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
-import com.zhekasmirnov.innercore.api.particles.ParticleRegistry;
-
+import com.zhekasmirnov.innercore.utils.UIUtils;
 import org.json.JSONException;
 import org.mozilla.javascript.*;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,12 +71,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
 /**
  * Created by zheka on 28.07.2017.
  */
-public class AdaptedScriptAPI extends API {
 
+public class AdaptedScriptAPI extends API {
     @Override
     public String getName() {
         return "AdaptedScript";
@@ -82,52 +88,23 @@ public class AdaptedScriptAPI extends API {
 
     @Override
     public void onLoaded() {
-
     }
 
     @Override
     public void onModLoaded(Mod mod) {
-
     }
 
     @Override
     public void onCallback(String name, Object[] args) {
-
     }
 
     @Override
     public void setupCallbacks(Executable executable) {
-
     }
 
     @Override
     public void prepareExecutable(Executable executable) {
         super.prepareExecutable(executable);
-    }
-
-    @JSStaticFunction
-    public static void logDeprecation(String functionName){
-        ICLog.d("WARNING", "using deprecated or unimplemented method " + functionName + "()");
-    }
-
-    @APIStaticModule
-    public static class ICRender extends NativeICRender {
-
-    }
-
-    @APIStaticModule
-    public static class IDRegistry extends com.zhekasmirnov.innercore.api.unlimited.IDRegistry {
-        @JSStaticFunction
-        @Deprecated
-        public static void __placeholder() {
-            logDeprecation("IDRegistry.__placeholder");
-        }
-
-        @JSStaticFunction
-        @Deprecated
-        public static String getIdInfo(int id) {
-            return NativeAPI.getStringIdAndTypeForIntegerId(id);
-        }
     }
 
     @JSStaticFunction
@@ -146,11 +123,9 @@ public class AdaptedScriptAPI extends API {
     }
 
     @JSStaticFunction
-    public static String getRoot(){
-        return FileTools.DIR_ROOT;
+    public static void logDeprecation(String functionName) {
+        ICLog.d("WARNING", "using deprecated or unimplemented method " + functionName + "()");
     }
-
-
 
     @JSStaticFunction
     public static void setTile(int x, int y, int z, int id, int data) {
@@ -174,17 +149,18 @@ public class AdaptedScriptAPI extends API {
 
     @JSStaticFunction
     public static void clientMessage(String message) {
+        NativeAPI.clientMessage(message);
     }
 
     @JSStaticFunction
     public static void tipMessage(String message) {
+        NativeAPI.tipMessage(message);
     }
 
     @JSStaticFunction
     public static void explode(double x, double y, double z, double power, boolean onFire) {
         NativeAPI.explode((float) x, (float) y, (float) z, (float) power, onFire);
     }
-
 
     @APIStaticModule
     public static class Logger {
@@ -210,7 +186,6 @@ public class AdaptedScriptAPI extends API {
             ICLog.flush();
         }
 
-
         // new log methods
 
         @JSStaticFunction
@@ -229,12 +204,11 @@ public class AdaptedScriptAPI extends API {
                 Throwable throwable = (Throwable) Context.jsToJava(error, Throwable.class);
                 ICLog.e(tag, message, throwable);
             } catch (Throwable e) {
-                ICLog.e("ERROR", "error occurred while logging mod error (" + error + ", " + error.getClass() + "):", e);
+                ICLog.e("ERROR", "error occurred while logging mod error (" + error + ", " + error.getClass() + "):",
+                        e);
             }
         }
     }
-
-
 
     @APIStaticModule
     public static class Level {
@@ -342,13 +316,15 @@ public class AdaptedScriptAPI extends API {
         // entity
 
         @JSStaticFunction
-        public static void addParticle(int id, double x, double y, double z, double vx, double vy, double vz, int data) {
-
+        public static void addParticle(int id, double x, double y, double z, double vx, double vy, double vz,
+                int data) {
+            NativeAPI.addParticle(id, x, y, z, vx, vy, vz, data);
         }
 
         @JSStaticFunction
-        public static void addFarParticle(int id, double x, double y, double z, double vx, double vy, double vz, int data) {
-
+        public static void addFarParticle(int id, double x, double y, double z, double vx, double vy, double vz,
+                int data) {
+            NativeAPI.addFarParticle(id, x, y, z, vx, vy, vz, data);
         }
 
         @JSStaticFunction
@@ -366,11 +342,13 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static long dropItem(double x, double y, double z, int placeholder, int id, int count, int data, Object extra) {
+        public static long dropItem(double x, double y, double z, int placeholder, int id, int count, int data,
+                Object extra) {
             if (id == 0) {
                 return -1;
             }
-            return NativeAPI.spawnDroppedItem((float) x, (float) y, (float) z, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            return NativeAPI.spawnDroppedItem((float) x, (float) y, (float) z, id, count, data,
+                    NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
@@ -434,7 +412,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         @Placeholder
-        public static void playSound(double x, double y, double z,String name, double f1, double f2) {
+        public static void playSound(double x, double y, double z, String name, double f1, double f2) {
             NativeAPI.playSound(name, (float) x, (float) y, (float) z, (float) f1, (float) f2);
         }
 
@@ -451,7 +429,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void setNightMode(boolean val) {
-           NativeAPI.setNightMode(val);
+            NativeAPI.setNightMode(val);
         }
 
         @JSStaticFunction
@@ -480,17 +458,17 @@ public class AdaptedScriptAPI extends API {
             return LevelInfo.getLevelDir();
         }
 
-
-
         @JSStaticFunction
-        public static ScriptableObject clip(double x1, double y1, double z1, double x2, double y2, double z2, int mode) {
+        public static ScriptableObject clip(double x1, double y1, double z1, double x2, double y2, double z2,
+                int mode) {
             float[] clip = new float[4];
-            long actor = NativeAPI.clipWorld((float) x1, (float) y1, (float) z1, (float) x2, (float) y2, (float) z2, mode, clip);
+            long actor = NativeAPI.clipWorld((float) x1, (float) y1, (float) z1, (float) x2, (float) y2, (float) z2,
+                    mode, clip);
             int side = (int) clip[3];
 
             int normalX = 0, normalY = 0, normalZ = 0;
 
-            switch(side){
+            switch (side) {
                 case 0:
                     normalY--;
                     break;
@@ -511,10 +489,10 @@ public class AdaptedScriptAPI extends API {
                     break;
             }
 
-            double dis = Math.sqrt(Math.pow(clip[0] - x1, 2) + Math.pow(clip[1] - y1, 2) + Math.pow(clip[2] - z1, 2));
             double lim = 0.99;
 
-            boolean collision = !(Math.abs(clip[0] - x2) < .0001 && Math.abs(clip[1] - y2) < .0001 && Math.abs(clip[2] - z2) < .0001);
+            boolean collision = !(Math.abs(clip[0] - x2) < .0001 && Math.abs(clip[1] - y2) < .0001
+                    && Math.abs(clip[2] - z2) < .0001);
 
             return new ScriptableParams(
                     new Pair<String, Object>("entity", actor),
@@ -523,22 +501,16 @@ public class AdaptedScriptAPI extends API {
                     new Pair<String, Object>("pos", new ScriptableParams(
                             new Pair<String, Object>("x", (double) clip[0]),
                             new Pair<String, Object>("y", (double) clip[1]),
-                            new Pair<String, Object>("z", (double) clip[2])
-                    )),
+                            new Pair<String, Object>("z", (double) clip[2]))),
                     new Pair<String, Object>("pos_limit", new ScriptableParams(
                             new Pair<String, Object>("x", collision ? clip[0] * lim + x1 * (1 - lim) : clip[0]),
                             new Pair<String, Object>("y", collision ? clip[1] * lim + y1 * (1 - lim) : clip[1]),
-                            new Pair<String, Object>("z", collision ? clip[2] * lim + z1 * (1 - lim) : clip[2])
-                    )),
+                            new Pair<String, Object>("z", collision ? clip[2] * lim + z1 * (1 - lim) : clip[2]))),
                     new Pair<String, Object>("normal", new ScriptableParams(
                             new Pair<String, Object>("x", (double) normalX),
                             new Pair<String, Object>("y", (double) normalY),
-                            new Pair<String, Object>("z", (double) normalZ)
-                    ))
-            );
+                            new Pair<String, Object>("z", (double) normalZ))));
         }
-
-
 
         @JSStaticFunction
         public static void setSkyColor(double r, double g, double b) {
@@ -611,15 +583,10 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
-
     @APIStaticModule
     public static class Entity {
 
         static long unwrapEntity(Object ent) {
-            /*if (!NativeAPI.isValidEntity(entity)) {
-                throw new IllegalArgumentException("invalid entity passed to api method: " + entity);
-            }*/
             return (long) (ent instanceof Wrapper ? ((Wrapper) ent).unwrap() : ((Number) ent).longValue());
         }
 
@@ -635,11 +602,13 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ArrayList<Long> getAllArrayList() {
+            logDeprecation("Entity.getAllArrayList()");
             return new ArrayList<>(NativeCallback.getAllEntities());
         }
 
         @JSStaticFunction
         public static NativeArray getAll() {
+            logDeprecation("Entity.getAll()");
             return new NativeArray(NativeCallback.getAllEntities().toArray());
         }
 
@@ -763,6 +732,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static int getAnimalAge(Object entity) {
+            logDeprecation("Entity.getAnimalAge");
             return NativeAPI.getAge(unwrapEntity(entity));
         }
 
@@ -825,6 +795,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Placeholder
         public static String getSkin(Object entity) {
+            logDeprecation("Entity.getSkin");
             return "missing_texture.png";
         }
 
@@ -836,6 +807,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Placeholder
         public static String getMobSkin(Object entity) {
+            logDeprecation("Entity.getMobSkin");
             return "missing_texture.png";
         }
 
@@ -874,12 +846,14 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void setCarriedItem(Object entity, int id, int count, int data, Object extra) {
-            NativeAPI.setEntityCarriedItem(unwrapEntity(entity), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            NativeAPI.setEntityCarriedItem(unwrapEntity(entity), id, count, data,
+                    NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
         public static void setOffhandItem(Object entity, int id, int count, int data, Object extra) {
-            NativeAPI.setEntityOffhandItem(unwrapEntity(entity), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            NativeAPI.setEntityOffhandItem(unwrapEntity(entity), id, count, data,
+                    NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
@@ -889,7 +863,8 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void setArmor(Object entity, int slot, int id, int count, int data, Object extra) {
-            NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data,
+                    NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
@@ -899,7 +874,8 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void setArmorSlot(Object entity, int slot, int id, int count, int data, Object extra) {
-            NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data,
+                    NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         // other
@@ -915,7 +891,8 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static void addEffect(Object entity, int effect, int duration, int level, boolean b1, boolean b2, boolean effectAnimation) {
+        public static void addEffect(Object entity, int effect, int duration, int level, boolean b1, boolean b2,
+                boolean effectAnimation) {
             NativeAPI.addEffect(unwrapEntity(entity), effect, duration, level, b1, b2, effectAnimation);
         }
 
@@ -995,7 +972,7 @@ public class AdaptedScriptAPI extends API {
         public static void setCompoundTag(Object entity, Object _tag) {
             NativeCompoundTag tag = (NativeCompoundTag) Context.jsToJava(_tag, NativeCompoundTag.class);
             if (tag != null) {
-                EntityMethod.setEntityCompoundTag(unwrapEntity(entity), tag.pointer);
+                EntityMethod.setEntityCompoundTag(unwrapEntity(entity), tag.tag);
             }
         }
 
@@ -1014,22 +991,25 @@ public class AdaptedScriptAPI extends API {
             boolean b1 = ScriptableObjectHelper.getBooleanProperty(additionalParams, "bool1", false);
             boolean b2 = ScriptableObjectHelper.getBooleanProperty(additionalParams, "bool2", false);
 
-            NativeAPI.dealDamage(unwrapEntity(entity), damage, cause, attacker == null ? -1 : unwrapEntity(attacker), b1, b2);
+            NativeAPI.dealDamage(unwrapEntity(entity), damage, cause, attacker == null ? -1 : unwrapEntity(attacker),
+                    b1, b2);
         }
 
-        /*@JSStaticFunction
-        public static NativeAttributeInstance getAttribute(Object entity, String attribute){
+        @JSStaticFunction
+        public static NativeAttributeInstance getAttribute(Object entity, String attribute) {
             return new NativeAttributeInstance(unwrapEntity(entity), attribute);
         }
 
         @JSStaticFunction
-        public static NativePathNavigation getPathNavigation(Object entity){
+        public static NativePathNavigation getPathNavigation(Object entity) {
             return NativePathNavigation.getNavigation(unwrapEntity(entity));
-        }*/
+        }
 
         @JSStaticFunction
-        public static NativeArray getEntitiesInsideBox(double x1, double y1, double z1, double x2, double y2, double z2, int type, boolean flag) {
-            long[] ents = NativeAPI.fetchEntitiesInAABB((float) x1, (float) y1, (float) z1, (float) x2, (float) y2, (float) z2, type, flag);
+        public static NativeArray getEntitiesInsideBox(double x1, double y1, double z1, double x2, double y2, double z2,
+                int type, boolean flag) {
+            long[] ents = NativeAPI.fetchEntitiesInAABB((float) x1, (float) y1, (float) z1, (float) x2, (float) y2,
+                    (float) z2, type, flag);
             Object[] result = new Object[ents.length];
             int i = 0;
             for (long ent : ents) {
@@ -1039,8 +1019,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
-
     @APIStaticModule
     public static class Player {
         @JSStaticFunction
@@ -1049,10 +1027,14 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static long getServer() { return NativeAPI.getServerPlayer(); }
+        public static long getServer() {
+            return NativeAPI.getServerPlayer();
+        }
 
         @JSStaticFunction
-        public static long getLocal() { return NativeAPI.getLocalPlayer(); }
+        public static long getLocal() {
+            return NativeAPI.getLocalPlayer();
+        }
 
         @JSStaticFunction
         public static boolean isPlayer(Object entity) {
@@ -1071,24 +1053,22 @@ public class AdaptedScriptAPI extends API {
                             new Pair<String, Object>("x", pos[0]),
                             new Pair<String, Object>("y", pos[1]),
                             new Pair<String, Object>("z", pos[2]),
-                            new Pair<String, Object>("side", pos[3])
-                    )),
+                            new Pair<String, Object>("side", pos[3]))),
 
                     new Pair<String, Object>("vec", new ScriptableParams(
                             new Pair<String, Object>("x", vec[0]),
                             new Pair<String, Object>("y", vec[1]),
-                            new Pair<String, Object>("z", vec[2])
-                    )),
+                            new Pair<String, Object>("z", vec[2]))),
 
-                    new Pair<String, Object>("entity", entity)
-            );
+                    new Pair<String, Object>("entity", entity));
         }
 
         // inventory
 
         @JSStaticFunction
         public static void addItemInventory(int id, int count, int data, boolean preventDropThatLeft, Object extra) {
-            NativeAPI.addItemToInventory(id, count, data, NativeItemInstanceExtra.unwrapValue(extra), !preventDropThatLeft);
+            NativeAPI.addItemToInventory(id, count, data, NativeItemInstanceExtra.unwrapValue(extra),
+                    !preventDropThatLeft);
         }
 
         @JSStaticFunction
@@ -1108,12 +1088,12 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ItemInstance getArmorSlot(int slot) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getPlayerArmor(slot)));
+            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityArmor(get(), slot)));
         }
 
         @JSStaticFunction
         public static void setArmorSlot(int slot, int id, int count, int data, Object extra) {
-            NativeAPI.setPlayerArmor(slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            EntityMethod.setEntityArmor(get(), slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
@@ -1128,12 +1108,12 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void setCarriedItem(int id, int count, int data, Object extra) {
-            NativeAPI.setEntityCarriedItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            EntityMethod.setEntityCarriedItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
         public static void setOffhandItem(int id, int count, int data, Object extra) {
-            NativeAPI.setEntityOffhandItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            EntityMethod.setEntityOffhandItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
@@ -1289,12 +1269,12 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static void setAbility(String ability, Object value){
-            if(!NativeAPI.isValidAbility(ability)){
+        public static void setAbility(String ability, Object value) {
+            if (!NativeAPI.isValidAbility(ability)) {
                 throw new IllegalArgumentException("Invalid ability name: " + ability);
             }
 
-            if(value instanceof Number){
+            if (value instanceof Number) {
                 NativeAPI.setPlayerFloatAbility(ability, ((Number) value).floatValue());
             } else {
                 NativeAPI.setPlayerBooleanAbility(ability, (Boolean) value);
@@ -1302,43 +1282,224 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static float getFloatAbility(String ability){
-            if(NativeAPI.isValidAbility(ability)){
+        public static float getFloatAbility(String ability) {
+            if (NativeAPI.isValidAbility(ability)) {
                 return NativeAPI.getPlayerFloatAbility(ability);
-            } else throw new IllegalArgumentException("Invalid ability name: " + ability);
+            } else
+                throw new IllegalArgumentException("Invalid ability name: " + ability);
         }
 
         @JSStaticFunction
-        public static boolean getBooleanAbility(String ability){
-            if(NativeAPI.isValidAbility(ability)){
+        public static boolean getBooleanAbility(String ability) {
+            if (NativeAPI.isValidAbility(ability)) {
                 return NativeAPI.getPlayerBooleanAbility(ability);
-            } else throw new IllegalArgumentException("Invalid ability name: " + ability);
+            } else {
+                throw new IllegalArgumentException("Invalid ability name: " + ability);
+            }
         }
     }
 
+    @APIStaticModule
+    public static class UI {
+        public static class Container extends com.zhekasmirnov.innercore.api.mod.ui.container.Container {
+            public Container() {
+                super();
+            }
 
+            public Container(Object parent) {
+                super(parent);
+            }
+        }
 
+        public static class Window extends UIWindow {
+            public Window(UIWindowLocation location) {
+                super(location);
+            }
 
+            public Window(ScriptableObject content) {
+                super(content);
+            }
 
+            public Window() {
+                super(ScriptableObjectHelper.createEmpty());
+            }
+        }
+
+        public static class WindowGroup extends UIWindowGroup {
+            public WindowGroup() {
+                super();
+            }
+        }
+
+        // legacy
+        public static class StandartWindow extends UIWindowStandard {
+            public StandartWindow(ScriptableObject content) {
+                super(content);
+            }
+
+            public StandartWindow() {
+                super(ScriptableObjectHelper.createEmpty());
+            }
+
+            protected boolean isLegacyFormat() {
+                return true;
+            }
+        }
+
+        // new one
+        public static class StandardWindow extends UIWindowStandard {
+            public StandardWindow(ScriptableObject content) {
+                super(content);
+            }
+
+            public StandardWindow() {
+                super(ScriptableObjectHelper.createEmpty());
+            }
+
+            protected boolean isLegacyFormat() {
+                return false;
+            }
+        }
+
+        public static class AdaptiveWindow extends UIAdaptiveWindow {
+            public AdaptiveWindow(ScriptableObject content) {
+                super(content);
+            }
+
+            public AdaptiveWindow() {
+                super(ScriptableObjectHelper.createEmpty());
+            }
+        }
+
+        public static class TabbedWindow extends UITabbedWindow {
+            public TabbedWindow(UIWindowLocation location) {
+                super(location);
+            }
+
+            public TabbedWindow(ScriptableObject content) {
+                super(content);
+            }
+
+            public TabbedWindow() {
+                super(ScriptableObjectHelper.createEmpty());
+            }
+        }
+
+        public static class WindowLocation extends UIWindowLocation {
+            public WindowLocation() {
+                super();
+            }
+
+            public WindowLocation(ScriptableObject obj) {
+                super(obj);
+            }
+        }
+
+        public static class Texture extends com.zhekasmirnov.innercore.api.mod.ui.types.Texture {
+            public Texture(Object obj) {
+                super(obj);
+            }
+        }
+
+        public static class Font extends com.zhekasmirnov.innercore.api.mod.ui.types.Font {
+            public Font(int color, float size, float shadow) {
+                super(color, size, shadow);
+            }
+
+            public Font(ScriptableObject obj) {
+                super(obj);
+            }
+        }
+
+        public static class ConfigVisualizer extends com.zhekasmirnov.innercore.api.mod.util.ConfigVisualizer {
+            public ConfigVisualizer(com.zhekasmirnov.innercore.mod.build.Config config, String prefix) {
+                super(config, prefix);
+            }
+
+            public ConfigVisualizer(com.zhekasmirnov.innercore.mod.build.Config config) {
+                super(config);
+            }
+        }
+
+        @APIStaticModule
+        public static class FrameTextureSource {
+            @JSStaticFunction
+            public static FrameTexture get(String name) {
+                return com.zhekasmirnov.innercore.api.mod.ui.types.FrameTextureSource.getFrameTexture(name);
+            }
+        }
+
+        @APIStaticModule
+        public static class TextureSource {
+            @JSStaticFunction
+            public static Bitmap get(String name) {
+                return com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.getSafe(name);
+            }
+
+            @JSStaticFunction
+            public static Bitmap getNullable(String name) {
+                return com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.get(name);
+            }
+
+            @JSStaticFunction
+            public static void put(String name, Object bmp) {
+                com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.put(name,
+                        (Bitmap) Context.jsToJava(bmp, Bitmap.class));
+            }
+        }
+
+        @JSStaticFunction
+        public static float getMinecraftUiScale() {
+            return NativeAPI.getGuiScale();
+        }
+
+        @JSStaticFunction
+        public static float getRelMinecraftUiScale() {
+            return getMinecraftUiScale() / (UIUtils.screenWidth / 1000.0f);
+        }
+
+        @JSStaticFunction
+        public static float getScreenRelativeHeight() {
+            return 1000.0f * UIUtils.screenHeight / (float) UIUtils.screenWidth;
+        }
+
+        @JSStaticFunction
+        public static float getScreenHeight() {
+            return getScreenRelativeHeight();
+        }
+
+        @JSStaticFunction
+        public static Activity getContext() {
+            return UIUtils.getContext();
+        }
+
+    }
+
+    @APIStaticModule
+    public static class IDRegistry extends com.zhekasmirnov.innercore.api.unlimited.IDRegistry {
+        @JSStaticFunction
+        @Deprecated
+        public static void __placeholder() {
+            logDeprecation("IDRegistry.__placeholder");
+        }
+
+        @JSStaticFunction
+        @Deprecated
+        public static String getIdInfo(int id) {
+            return NativeAPI.getStringIdAndTypeForIntegerId(id);
+        }
+    }
 
     @APIStaticModule
     public static class Item extends NativeItem {
-        protected Item(int id, Object ptr, String nameId, String nameToDisplay) {
+        protected Item(int id, long ptr, String nameId, String nameToDisplay) {
             super(id, CustomItem.getItemManager(id), nameId, nameToDisplay);
         }
 
         @JSStaticFunction
-        public static NativeItem createFoodItem(int id, String nameId, String name, String iconName, int iconIndex, int food) {
-            /*NativeItem item = createItem(id, nameId, name, iconName, iconIndex);
-            String props = "{\"use_animation\":\"eat\",\"use_duration\": 32,\"food\":{\"nutrition\":" + food 
-                    + ",\"saturation_modifier\": \"normal\",\"is_meat\": false}, \"components\": {\"minecraft:food\": {\"nutrition\": " 
-                    + food + ", \"saturation_modifier\": \"normal\"}}}";
-            item.setProperties(props);
-            item.setUseAnimation(1);
-            item.setMaxUseDuration(32);
-            return item;*/
+        public static NativeItem createFoodItem(int id, String nameId, String name, String iconName, int iconIndex,
+                int food) {
             NativeItem item = NativeItem.createFoodItem(id, nameId, name, iconName, iconIndex, food);
-            //item.setProperties(null);
             item.setUseAnimation(1);
             item.setMaxUseDuration(32);
             return item;
@@ -1375,15 +1536,16 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static void invokeItemUseOn(int id, int count, int data, Object extra, int x, int y, int z, int side, double vx, double vy, double vz, Object entity) {
-            NativeAPI.invokeUseItemOn(id, count, data, NativeItemInstanceExtra.unwrapValue(extra), x, y, z, side, (float) vx, (float) vy, (float) vz, Entity.unwrapEntity(entity));
-        } 
+        public static void invokeItemUseOn(int id, int count, int data, Object extra, int x, int y, int z, int side,
+                double vx, double vy, double vz, Object entity) {
+            NativeAPI.invokeUseItemOn(id, count, data, NativeItemInstanceExtra.unwrapValue(extra), x, y, z, side,
+                    (float) vx, (float) vy, (float) vz, Entity.unwrapEntity(entity));
+        }
 
         public static void invokeItemUseNoTarget(int id, int count, int data, Object extra) {
             NativeAPI.invokeUseItemNoTarget(id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
     }
-
 
     // keep old methods, but now inherit from apparatus api
     public static class Armor extends ActorArmorHandler {
@@ -1401,8 +1563,6 @@ public class AdaptedScriptAPI extends API {
             ArmorRegistry.preventArmorDamaging(id);
         }
     }
-
-
 
     public static class ItemExtraData extends NativeItemInstanceExtra {
         public ItemExtraData(long extra) {
@@ -1422,7 +1582,6 @@ public class AdaptedScriptAPI extends API {
             super.finalize();
         }
     }
-
 
     @APIStaticModule
     public static class NBT extends NbtDataType {
@@ -1444,15 +1603,8 @@ public class AdaptedScriptAPI extends API {
             public ListTag(NativeListTag tag) {
                 super(tag);
             }
-
-            @Override
-            protected void finalize() throws Throwable {
-                super.finalize();
-            }
         }
     }
-
-
 
     @APIStaticModule
     public static class Recipes extends RecipeRegistry {
@@ -1463,18 +1615,17 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
     @APIStaticModule
     public static class Block {
         private static int anonymousSpecialTypeIndex = 0;
 
         private static SpecialType parseSpecialType(Object type) {
             SpecialType specialType = SpecialType.DEFAULT;
-            if(type instanceof SpecialType){
+            if (type instanceof SpecialType) {
                 specialType = (SpecialType) type;
-            } else if(type instanceof String){
+            } else if (type instanceof String) {
                 specialType = SpecialType.getSpecialType((String) type);
-            } else if(type instanceof ScriptableObject) {
+            } else if (type instanceof ScriptableObject) {
                 specialType = SpecialType.createSpecialType("anonymous_type_" + (anonymousSpecialTypeIndex++));
                 specialType.setupProperties((ScriptableObject) type);
             }
@@ -1487,8 +1638,10 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static void createLiquidBlock(int id1, String nameId1, int id2, String nameId2, ScriptableObject variantsScriptable, Object type, int tickDelay, boolean isRenewable) {
-            BlockRegistry.createLiquidBlockPair(id1, nameId1, id2, nameId2, variantsScriptable, parseSpecialType(type), tickDelay, isRenewable);
+        public static void createLiquidBlock(int id1, String nameId1, int id2, String nameId2,
+                ScriptableObject variantsScriptable, Object type, int tickDelay, boolean isRenewable) {
+            BlockRegistry.createLiquidBlockPair(id1, nameId1, id2, nameId2, variantsScriptable, parseSpecialType(type),
+                    tickDelay, isRenewable);
         }
 
         @JSStaticFunction
@@ -1499,12 +1652,13 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static void setShape(int id, double x1, double y1, double z1, double x2, double y2, double z2, Object _data) {
+        public static void setShape(int id, double x1, double y1, double z1, double x2, double y2, double z2,
+                Object _data) {
             if (_data instanceof Number) {
                 int data = ((Number) _data).intValue();
-                BlockRegistry.setShape(id, data, (float) x1, (float) y1, (float) z1, (float) x2, (float) y2, (float) z2);
-            }
-            else {
+                BlockRegistry.setShape(id, data, (float) x1, (float) y1, (float) z1, (float) x2, (float) y2,
+                        (float) z2);
+            } else {
                 BlockRegistry.setShape(id, -1, (float) x1, (float) y1, (float) z1, (float) x2, (float) y2, (float) z2);
             }
         }
@@ -1623,6 +1777,7 @@ public class AdaptedScriptAPI extends API {
         public static void setAnimateTickCallback(int id, Function callback) {
             NativeBlock.setAnimateTickCallback(id, callback);
         }
+
         @JSStaticFunction
         public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
             NativeAPI.setBlockChangeCallbackEnabled(id, enabled);
@@ -1656,8 +1811,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
-
     public static class RenderMesh extends NativeRenderMesh {
         public RenderMesh() {
             super();
@@ -1677,18 +1830,15 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
     @APIStaticModule
     public static class ItemModel extends NativeItemModel {
-        
-    }
 
+    }
 
     @APIStaticModule
     public static class CustomEnchant extends NativeCustomEnchant {
 
     }
-
 
     @APIStaticModule
     public static class BlockRenderer extends NativeBlockRenderer {
@@ -1721,7 +1871,7 @@ public class AdaptedScriptAPI extends API {
 
             public Model(float x1, float y1, float z1, float x2, float y2, float z2, int id, int data) {
                 super();
-                addBox(x1, y1,z1, x2, y2, z2, id, data);
+                addBox(x1, y1, z1, x2, y2, z2, id, data);
             }
 
             public Model(int id, int data) {
@@ -1735,8 +1885,10 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static NativeBlockModel createTexturedBox(double x1, double y1, double z1, double x2, double y2, double z2, ScriptableObject tex) {
-            return NativeBlockModel.createTexturedBox((float) x1, (float) y1, (float) z1, (float) x2, (float) y2, (float) z2, tex);
+        public static NativeBlockModel createTexturedBox(double x1, double y1, double z1, double x2, double y2,
+                double z2, ScriptableObject tex) {
+            return NativeBlockModel.createTexturedBox((float) x1, (float) y1, (float) z1, (float) x2, (float) y2,
+                    (float) z2, tex);
         }
 
         @JSStaticFunction
@@ -1751,23 +1903,23 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void forceRenderRebuild(int x, int y, int z, int mode) {
-
+            NativeAPI.forceRenderRefresh(x, y, z, mode);
         }
     }
 
+    @APIStaticModule
+    public static class ICRender extends NativeICRender {
 
-
-
+    }
 
     @APIStaticModule
     public static class Renderer extends NativeRenderer {
         @JSStaticFunction
-        public static NativeRenderer.Renderer getItemModel(int id, int count, int data, double scale, double rX, double rY, double rZ, boolean randomize) {
-            return null;
+        public static NativeRenderer.Renderer getItemModel(int id, int count, int data, double scale, double rX,
+                double rY, double rZ, boolean randomize) {
+            return ItemModels.getItemOrBlockModel(id, count, data, scale, rX, rY, rZ, randomize);
         }
     }
-
-
 
     @APIStaticModule
     public static class StaticRenderer {
@@ -1777,16 +1929,15 @@ public class AdaptedScriptAPI extends API {
                 if (renderer == -1) {
                     return NativeStaticRenderer.createStaticRenderer(null, (float) x, (float) y, (float) z);
                 } else {
-                    return NativeStaticRenderer.createStaticRenderer(NativeRenderer.getRendererById(renderer), (float) x, (float) y, (float) z);
+                    return NativeStaticRenderer.createStaticRenderer(NativeRenderer.getRendererById(renderer),
+                            (float) x, (float) y, (float) z);
                 }
-            }
-            catch (NullPointerException e) {
-                throw new IllegalArgumentException("invalid renderer id " + renderer + ", id must belong only to custom renderer");
+            } catch (NullPointerException e) {
+                throw new IllegalArgumentException(
+                        "invalid renderer id " + renderer + ", id must belong only to custom renderer");
             }
         }
     }
-
-
 
     public static class ActorRenderer extends NativeActorRenderer {
         public ActorRenderer() {
@@ -1798,8 +1949,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
-
     public static class AttachableRender extends NativeAttachable {
         public AttachableRender(long actorUid) {
             super(actorUid);
@@ -1807,7 +1956,9 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void attachRendererToItem(int id, Object renderer, String texture, String material) {
-            NativeAttachable.attachRendererToItem(id, (NativeActorRenderer) Context.jsToJava(renderer, NativeActorRenderer.class), texture != null ? texture : "", material != null ? material : "");
+            NativeAttachable.attachRendererToItem(id,
+                    (NativeActorRenderer) Context.jsToJava(renderer, NativeActorRenderer.class),
+                    texture != null ? texture : "", material != null ? material : "");
         }
 
         @JSStaticFunction
@@ -1815,8 +1966,6 @@ public class AdaptedScriptAPI extends API {
             NativeAttachable.detachRendererFromItem(id);
         }
     }
-
-
 
     @APIStaticModule
     public static class Callback {
@@ -1826,12 +1975,12 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static void invokeCallback(String name, Object o1, Object o2, Object o3, Object o4, Object o5, Object o6, Object o7, Object o8, Object o9, Object o10) {
-            com.zhekasmirnov.innercore.api.runtime.Callback.invokeCallback(name, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10);
+        public static void invokeCallback(String name, Object o1, Object o2, Object o3, Object o4, Object o5, Object o6,
+                Object o7, Object o8, Object o9, Object o10) {
+            com.zhekasmirnov.innercore.api.runtime.Callback.invokeCallback(name, o1, o2, o3, o4, o5, o6, o7, o8, o9,
+                    o10);
         }
     }
-
-
 
     @APIStaticModule
     public static class Updatable {
@@ -1839,12 +1988,12 @@ public class AdaptedScriptAPI extends API {
         public static void addUpdatable(ScriptableObject obj) {
             com.zhekasmirnov.innercore.api.runtime.Updatable.getForServer().addUpdatable(obj);
         }
-        
+
         @JSStaticFunction
         public static void addLocalUpdatable(ScriptableObject obj) {
             addAnimator(obj);
         }
-        
+
         @JSStaticFunction
         public static void addAnimator(ScriptableObject obj) {
             com.zhekasmirnov.innercore.api.runtime.Updatable.getForClient().addUpdatable(obj);
@@ -1861,18 +2010,19 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
     @APIStaticModule
     public static class Saver {
         @APIIgnore
         public static interface IScopeSaver {
             void read(Object scope);
+
             Object save();
         }
 
         @APIIgnore
         public static interface IObjectSaver {
             Object read(ScriptableObject input);
+
             ScriptableObject save(Object input);
         }
 
@@ -1942,8 +2092,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
-
     public static class Config extends com.zhekasmirnov.innercore.mod.build.Config {
         public Config(File file) {
             super(file);
@@ -1953,8 +2101,6 @@ public class AdaptedScriptAPI extends API {
             super(new File(path.toString()));
         }
     }
-
-
 
     @APIStaticModule
     public static class Resources {
@@ -1979,8 +2125,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
-
     // TODO: create module
     @APIStaticModule
     public static class Translation {
@@ -2000,8 +2144,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
-
     @APIStaticModule
     public static class Particles extends ParticleRegistry {
 
@@ -2011,179 +2153,13 @@ public class AdaptedScriptAPI extends API {
     public static class WorldRenderer {
         @JSStaticFunction
         public static Object getGlobalUniformSet() {
-            return new NativeShaderUniformSet(0);
+            return new NativeShaderUniformSet(NativeAPI.getGlobalShaderUniformSet());
         }
     }
-
-    @APIStaticModule
-    public static class UI {
-        public static class Container extends com.zhekasmirnov.innercore.api.mod.ui.container.Container {
-            public Container() {
-                super();
-            }
-
-            public Container(Object parent) {
-                super(parent);
-            }
-        }
-
-        public static class Window extends UIWindow {
-            public Window(UIWindowLocation location) {
-                super(location);
-            }
-
-            public Window(ScriptableObject content) {
-                super(content);
-            }
-
-            public Window() {
-                super(ScriptableObjectHelper.createEmpty());
-            }
-        }
-
-        public static class WindowGroup extends UIWindowGroup {
-            public WindowGroup() {
-                super();
-            }
-        }
-
-        // legacy
-        public static class StandartWindow extends UIWindowStandard {
-            public StandartWindow(ScriptableObject content) {
-                super(content);
-            }
-
-            public StandartWindow() {
-                super(ScriptableObjectHelper.createEmpty());
-            }
-
-            protected boolean isLegacyFormat() {
-                return true;
-            }
-        }
-
-        // new one
-        public static class StandardWindow extends UIWindowStandard {
-            public StandardWindow(ScriptableObject content) {
-                super(content);
-            }
-
-            public StandardWindow() {
-                super(ScriptableObjectHelper.createEmpty());
-            }
-
-            @Override
-            protected boolean isLegacyFormat() {
-                return false;
-            }
-        }
-
-        public static class AdaptiveWindow extends UIAdaptiveWindow {
-            public AdaptiveWindow(ScriptableObject content) {
-            }
-
-            public AdaptiveWindow() {
-            }
-        }
-
-        public static class TabbedWindow extends UITabbedWindow {
-            public TabbedWindow(UIWindowLocation location) {
-            }
-
-            public TabbedWindow(ScriptableObject content) {
-            }
-
-            public TabbedWindow() {
-            }
-        }
-
-        public static class WindowLocation extends UIWindowLocation {
-            public WindowLocation() {
-                super();
-            }
-
-            public WindowLocation(ScriptableObject obj) {
-                super(obj);
-            }
-        }
-
-        public static class Font extends com.zhekasmirnov.innercore.api.mod.ui.types.Font {
-            public Font(int color, float size, float shadow) {
-                super(color, size, shadow);
-            }
-
-            public Font(ScriptableObject obj) {
-                super(obj);
-            }
-        }
-
-        public static class ConfigVisualizer {
-            public ConfigVisualizer(com.zhekasmirnov.innercore.mod.build.Config config, String prefix) {
-
-            }
-
-            public ConfigVisualizer(com.zhekasmirnov.innercore.mod.build.Config config) {
-
-            }
-        }
-
-        @APIStaticModule
-        public static class FrameTextureSource {
-            @JSStaticFunction
-            public static Object get(String name) {
-                return null;
-            }
-        }
-
-        @APIStaticModule
-        public static class TextureSource {
-            @JSStaticFunction
-            public static Object get(String name) {
-                return com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.getSafe(name);
-            }
-
-            @JSStaticFunction
-            public static Object getNullable(String name) {
-                return com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.get(name);
-            }
-
-            @JSStaticFunction
-            public static void put(String name, Object bmp) {
-                com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.put(name, null);
-            }
-        }
-
-        @JSStaticFunction
-        public static float getMinecraftUiScale() {
-            return 1;
-        }
-
-        @JSStaticFunction
-        public static float getRelMinecraftUiScale() {
-            return 1;
-        }
-
-        @JSStaticFunction
-        public static float getScreenRelativeHeight() {
-            return 1;
-        }
-
-        @JSStaticFunction
-        public static float getScreenHeight() {
-            return getScreenRelativeHeight();
-        }
-
-        @JSStaticFunction
-        public static Object getContext() {
-            return null;
-        }
-
-    }
-
 
     @APIStaticModule
     public static class GenerationUtils extends NativeGenerationUtils {
-        
+
     }
 
     public static class CustomBiome extends com.zhekasmirnov.innercore.api.biomes.CustomBiome {
@@ -2210,7 +2186,8 @@ public class AdaptedScriptAPI extends API {
             }
         }
 
-        public static class MonoBiomeTerrainGenerator extends com.zhekasmirnov.innercore.api.dimensions.MonoBiomeTerrainGenerator {
+        public static class MonoBiomeTerrainGenerator
+                extends com.zhekasmirnov.innercore.api.dimensions.MonoBiomeTerrainGenerator {
             public MonoBiomeTerrainGenerator() {
                 super();
             }
@@ -2248,31 +2225,30 @@ public class AdaptedScriptAPI extends API {
             }
         }
 
-
         @JSStaticFunction
         public static void overrideGeneratorForVanillaDimension(int id, Object generator) {
             if (generator instanceof Wrapper) {
                 generator = ((Wrapper) generator).unwrap();
             }
-            com.zhekasmirnov.innercore.api.dimensions.CustomDimension.setCustomGeneratorForVanillaDimension(id, (CustomDimensionGenerator) generator);
+            com.zhekasmirnov.innercore.api.dimensions.CustomDimension.setCustomGeneratorForVanillaDimension(id,
+                    (CustomDimensionGenerator) generator);
         }
-    
+
         @JSStaticFunction
         public static com.zhekasmirnov.innercore.api.dimensions.CustomDimension getDimensionByName(String name) {
             return com.zhekasmirnov.innercore.api.dimensions.CustomDimension.getDimensionByName(name);
         }
-    
+
         @JSStaticFunction
         public static com.zhekasmirnov.innercore.api.dimensions.CustomDimension getDimensionById(int id) {
             return com.zhekasmirnov.innercore.api.dimensions.CustomDimension.getDimensionById(id);
         }
-        
+
         @JSStaticFunction
         public static boolean isLimboId(int id) {
             return com.zhekasmirnov.innercore.api.dimensions.CustomDimension.isLimboId(id);
         }
-        
-        
+
         @JSStaticFunction
         public static void transfer(Object entity, int dimension) {
             NativeAPI.transferToDimension(Entity.unwrapEntity(entity), dimension);
@@ -2283,7 +2259,6 @@ public class AdaptedScriptAPI extends API {
             return ScriptableObjectHelper.createFromMap(CustomBiome.getAllCustomBiomes());
         }
     }
-
 
     @JSStaticFunction
     public static void runOnMainThread(Object _action) {
@@ -2304,14 +2279,29 @@ public class AdaptedScriptAPI extends API {
             return new NetworkJsAdapter(Network.getSingleton());
         }
 
+        @JSStaticFunction
+        public static void simulateBackPressed() {
+        }
 
+        @JSStaticFunction
+        public static Activity getContext() {
+            return UIUtils.getContext();
+        }
 
+        @JSStaticFunction
+        public static void runAsUi(Object runnable) {
+            getContext().runOnUiThread((Runnable) Context.jsToJava(runnable, Runnable.class));
+        }
 
         @JSStaticFunction
         public static void debugStr(String s) {
-
+            DebugAPI.dialog(s);
         }
 
+        @JSStaticFunction
+        public static void debugBmp(Object bmp) {
+            DebugAPI.img((Bitmap) Context.jsToJava(bmp, Bitmap.class));
+        }
 
         @JSStaticFunction
         public static String getMinecraftVersion() {
@@ -2357,9 +2347,9 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void forceNativeCrash() {
-
+            NativeAPI.forceCrash();
         }
-        
+
         @JSStaticFunction
         public static boolean isDefaultPrevented() {
             return NativeAPI.isDefaultPrevented();
@@ -2383,17 +2373,20 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static void setCustomFatalErrorCallback(Object callback) {
-
+            DialogHelper.setCustomFatalErrorCallback((DialogHelper.ICustomErrorCallback) Context.jsToJava(callback,
+                    DialogHelper.ICustomErrorCallback.class));
         }
 
         @JSStaticFunction
         public static void setCustomNonFatalErrorCallback(Object callback) {
-
+            DialogHelper.setCustomNonFatalErrorCallback((DialogHelper.ICustomErrorCallback) Context.jsToJava(callback,
+                    DialogHelper.ICustomErrorCallback.class));
         }
 
         @JSStaticFunction
         public static void setCustomStartupErrorCallback(Object callback) {
-
+            DialogHelper.setCustomStartupErrorCallback((DialogHelper.ICustomErrorCallback) Context.jsToJava(callback,
+                    DialogHelper.ICustomErrorCallback.class));
         }
 
         @JSStaticFunction
@@ -2402,15 +2395,15 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
     @APIStaticModule
     public static class FileUtil {
         @JSStaticFunction
         public static String readFileText(String path) {
             try {
-                return FileTools.readFileText(new File(path));
-            } catch (IOException exception) {
-                ICLog.e("FileUtil", "error in reading file " + path, exception);
+                return FileUtils.readFileText(new File(path));
+            } catch (Exception exception) {
+                com.zhekasmirnov.horizon.runtime.logger.Logger.error("FileUtil", "error in reading file " + path);
+                // TODO: Actually ICLog.e, but it must be handled more gently.
                 return null;
             }
         }
@@ -2418,36 +2411,41 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         public static void writeFileText(String path, String text) {
             try {
-                FileTools.writeFileText(new File(path), text);
-            } catch (IOException exception) {
-                ICLog.e("FileUtil", "error in writing file " + path, exception);
+                FileUtils.writeFileText(new File(path), text);
+            } catch (Exception exception) {
+                com.zhekasmirnov.horizon.runtime.logger.Logger.error("FileUtil", "error in writing file " + path);
+                // TODO: Actually ICLog.e, but it must be handled more gently.
             }
         }
     }
 
-    
     @APIStaticModule
     public static class Commands {
         @JSStaticFunction
         public static String exec(String command, Object player0, Object blockSource0) {
-            NativeBlockSource blockSource = null;
-            try {
-                blockSource = (NativeBlockSource) Context.jsToJava(blockSource0, NativeBlockSource.class);
-            } catch (Exception ignore) { }
-            return NativeAPI.executeCommand(command, 0, 0, 0, /* blockSource != null ? blockSource.getPointer() : null*/ 0);
+            /*
+             * TODO: NativeBlockSource blockSource = null;
+             * try {
+             * blockSource = (NativeBlockSource) Context.jsToJava(blockSource0,
+             * NativeBlockSource.class);
+             * } catch (Exception ignore) { }
+             */
+            return NativeAPI.executeCommand(command, 0, 0, 0, 0);
         }
 
         @JSStaticFunction
         public static String execAt(String command, int x, int y, int z, Object blockSource0) {
-            NativeBlockSource blockSource = null;
-            try {
-                blockSource = (NativeBlockSource) Context.jsToJava(blockSource0, NativeBlockSource.class);
-            } catch (Exception ignore) { }
-            return NativeAPI.executeCommand(command, x, y, z, /* blockSource != null ? blockSource.getPointer() : null*/ 0);
+            /*
+             * TODO: NativeBlockSource blockSource = null;
+             * try {
+             * blockSource = (NativeBlockSource) Context.jsToJava(blockSource0,
+             * NativeBlockSource.class);
+             * } catch (Exception ignore) { }
+             */
+            return NativeAPI.executeCommand(command, x, y, z, 0);
         }
     }
 
-    
     @APIStaticModule
     public static class TagRegistry extends com.zhekasmirnov.innercore.api.mod.TagRegistry {
 
@@ -2534,7 +2532,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-
     public static class NetworkConnectedClientList extends ConnectedClientList {
         public NetworkConnectedClientList(boolean addToGlobalRefreshList) {
             super(addToGlobalRefreshList);
@@ -2547,7 +2544,8 @@ public class AdaptedScriptAPI extends API {
 
     public static class NetworkEntity extends com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity {
 
-        public NetworkEntity(com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntityType type, Object target, String name) {
+        public NetworkEntity(com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntityType type, Object target,
+                String name) {
             super(type, target, name);
         }
 
@@ -2581,7 +2579,7 @@ public class AdaptedScriptAPI extends API {
             super();
         }
 
-        public ItemContainer(Container container){
+        public ItemContainer(Container container) {
             super(container);
         }
     }
@@ -2626,7 +2624,8 @@ public class AdaptedScriptAPI extends API {
     public static class ECS {
         @JSStaticFunction
         public static Object getEntityManager() {
-            return Context.javaToJS(com.zhekasmirnov.apparatus.ecs.ECS.getEntityManager(), ScriptableObjectHelper.getDefaultScope());
+            return Context.javaToJS(com.zhekasmirnov.apparatus.ecs.ECS.getEntityManager(),
+                    ScriptableObjectHelper.getDefaultScope());
         }
 
         @JSStaticFunction
@@ -2673,16 +2672,17 @@ public class AdaptedScriptAPI extends API {
             super(com.zhekasmirnov.apparatus.ecs.ECS.getEntityManager());
         }
     }
-    
+
     @JSStaticFunction
-    public static Function requireMethodFromNativeAPI(String _className, final String methodName, final boolean denyConversion) {
+    public static Function requireMethodFromNativeAPI(String _className, final String methodName,
+            final boolean denyConversion) {
         if (!_className.startsWith("com.zhekasmirnov.innercore.")) {
             _className = "com.zhekasmirnov.innercore." + _className;
         }
 
         final String className = _className;
 
-        Class clazz;
+        Class<?> clazz;
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -2702,26 +2702,24 @@ public class AdaptedScriptAPI extends API {
         }
 
         final Method method = _method;
-        final Class[] types = method.getParameterTypes();
+        final Class<?>[] types = method.getParameterTypes();
         final Object[] javaParams = new Object[types.length];
         final boolean[] isNumberParam = new boolean[types.length];
         final int[] numberParamType = new int[types.length];
 
         boolean _onlyNumbers = true;
         for (int i = 0; i < types.length; i++) {
-            isNumberParam[i] = int.class.isAssignableFrom(types[i]) || double.class.isAssignableFrom(types[i]) || float.class.isAssignableFrom(types[i]);
+            isNumberParam[i] = int.class.isAssignableFrom(types[i]) || double.class.isAssignableFrom(types[i])
+                    || float.class.isAssignableFrom(types[i]);
 
             if (!isNumberParam[i]) {
                 _onlyNumbers = false;
-            }
-            else {
+            } else {
                 if (int.class.isAssignableFrom(types[i])) {
                     numberParamType[i] = 0;
-                }
-                else if (float.class.isAssignableFrom(types[i])) {
+                } else if (float.class.isAssignableFrom(types[i])) {
                     numberParamType[i] = 1;
-                }
-                else if (double.class.isAssignableFrom(types[i])) {
+                } else if (double.class.isAssignableFrom(types[i])) {
                     numberParamType[i] = 1;
                 }
             }
@@ -2735,8 +2733,7 @@ public class AdaptedScriptAPI extends API {
                 Object _params;
                 if (denyConversion) {
                     _params = params;
-                }
-                else {
+                } else {
                     if (onlyNumbers) {
                         for (int i = 0; i < types.length; i++) {
                             Number param = 0;
@@ -2756,12 +2753,11 @@ public class AdaptedScriptAPI extends API {
                                     break;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         for (int i = 0; i < types.length; i++) {
                             Object param = i >= params.length ? null : params[i];
 
-                            if (param == null && isNumberParam[i]){
+                            if (param == null && isNumberParam[i]) {
                                 param = 0.0;
                             }
 
@@ -2774,13 +2770,12 @@ public class AdaptedScriptAPI extends API {
                 try {
                     return Context.javaToJS(method.invoke(null, (Object[]) _params), parent);
                 } catch (IllegalAccessException e) {
-                    ICLog.i("ERROR", "failed to call required java method class=" + className + " method=" + methodName);
                     throw new RuntimeException(e.toString());
                 } catch (InvocationTargetException e) {
-                    ICLog.i("ERROR", "failed to call required java method class=" + className + " method=" + methodName);
                     throw new RuntimeException(e.toString());
-                } catch(Exception e) {
-                    ICLog.i("ERROR", "failed to call required java method class=" + className + " method=" + methodName);
+                } catch (Exception e) {
+                    ICLog.i("ERROR",
+                            "failed to call required java method class=" + className + " method=" + methodName);
                     throw e;
                 }
             }

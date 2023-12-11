@@ -18,7 +18,6 @@ public class ItemModelCacheManager {
 
     private String currentCacheGroup = null;
 
-
     private void assureCacheDirectory(File directory, String lock) {
         if (directory.isFile()) {
             directory.delete();
@@ -29,32 +28,31 @@ public class ItemModelCacheManager {
         if (lock != null) {
             File lockFile = new File(directory, ".lock");
             String storedLock = null;
-            /*try {
+            try {
                 storedLock = FileUtils.readFileText(lockFile).trim();
-            } catch (IOException ignore) { }
+            } catch (Exception ignore) {
+            }
 
             if (!lock.equals(storedLock)) {
-                ICLog.d("ItemModelCache", "cleaning up item model cache directory " + directory.getName() + ", new lock = " + lock + ", stored lock = " + storedLock);
+                ICLog.d("ItemModelCache", "cleaning up item model cache directory " + directory.getName()
+                        + ", new lock = " + lock + ", stored lock = " + storedLock);
                 FileUtils.clearFileTree(directory, false);
                 try {
                     FileUtils.writeFileText(lockFile, lock);
-                } catch (IOException ignore) { }
-            }*/
+                } catch (Exception ignore) {
+                }
+            }
         }
         File noMediaFlag = new File(directory, ".nomedia");
         if (!noMediaFlag.exists()) {
             try {
                 noMediaFlag.createNewFile();
-            } catch (IOException ignore) { }
+            } catch (IOException ignore) {
+            }
         }
     }
 
-    private void checkAndSetupRoot() {
-        assureCacheDirectory(cacheRoot, null);
-    }
-
     private ItemModelCacheManager() {
-        checkAndSetupRoot();
     }
 
     public File getCacheGroupDirectory(String group) {
@@ -81,10 +79,6 @@ public class ItemModelCacheManager {
     }
 
     public void setCurrentCacheGroup(String currentCacheGroup, String lock) {
-        if (currentCacheGroup != null) {
-            assureCacheDirectory(getCacheGroupDirectory(currentCacheGroup), lock);
-        }
-        ICLog.d("ItemModelCache", "set current cache group " + currentCacheGroup);
         this.currentCacheGroup = currentCacheGroup;
     }
 }

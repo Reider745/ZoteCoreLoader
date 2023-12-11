@@ -41,7 +41,7 @@ function getMCPEVersion() {
         // noinspection JSValidateTypes
         version.array[i] = parseInt(version.array[i]) || 0;
     }
-
+    version.main = version.array[1] + version.array[0] * 17;
     return version;
 }
 var MCPE_VERSION = getMCPEVersion();
@@ -92,7 +92,7 @@ function getPlayerZ() {
 }
 var FileTools = {
     mntdir: "/mnt",
-    root: getRoot() + "/",
+    root: android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/",
     moddir: __modpack__.getModsDirectoryPath() + "/", // __packdir__ + "innercore/mods/",
     mkdir: function(dir) {
         var file = new java.io.File(this.getFullPath(dir));
@@ -5495,77 +5495,163 @@ Callback.addCallback("PlayerAttack", function(attacker, victim) {
 
 function AnimationBase(x, y, z) {
     this.render = null;
+    Saver.registerObject(this, nonSavesObjectSaver);
     this.setPos = function(x, y, z) {
-    }
-        
+        this.coords = {
+            x: x,
+            y: y,
+            z: z
+        };
+        if (this.render) {
+            this.render.setPos(x, y, z);
+        }
+    };
     this.setInterpolationEnabled = function(enabled) {
-        
+        if (this.render) {
+            this.render.setInterpolationEnabled(enabled);
+        }
     }
     this.setIgnoreBlocklight = function(ignore) {
-        
+        if (this.render) {
+            this.render.setIgnoreBlocklight(ignore);
+        }
     }
     this.setBlockLightPos = function(x, y, z) {
-        
+        if (this.render) {
+            this.render.setBlockLightPos(x, y, z);
+        }
     }
     this.resetBlockLightPos = function() {
+        if (this.render) {
+            this.render.resetBlockLightPos();
+        }
     }
-        
     this.setSkylightMode = function() {
-        
+        this.setBlockLightPos(this.coords.x, 256, this.coords.z);
+        this.setIgnoreBlocklight(false);
     }
     this.setBlocklightMode = function() {
-        
+        this.resetBlockLightPos();
+        this.setIgnoreBlocklight(false);
     }
     this.setIgnoreLightMode = function() {
-        
+        this.resetBlockLightPos();
+        this.setIgnoreBlocklight(true);
     }
 
     this.exists = function() {
-        return false;
+        return !!this.render && this.render.exists();
     }
 
     this.transform = function() {
-        return null;
+        if (!this.render) {
+            Logger.Log("transform() should be called only after load()", "WARNING");
+            return null;
+        }
+        return this.render.transform;
     };
 
     this.getShaderUniforms = function() {
-        return null;
+        if (!this.render) {
+            Logger.Log("getShaderUniforms() should be called only after load()", "WARNING");
+            return null;
+        }
+        return this.render.getShaderUniforms();
     }
 
     /* transformations are formatted as [{name: "name", params: [arg1, arg2, arg3], ...}]*/
     this.newTransform = function(transformations, noClear) {
-        
+        var transform = this.transform();
+        if (transform) {
+            // noinspection JSIgnoredPromiseFromCall,JSCheckFunctionSignatures
+            transform.lock();
+            if (!noClear) {
+                transform.clear();
+            }
+            for (var i in transformations) {
+                var t = transformations[i];
+                transform[t.name].apply(transform, t.params);
+            }
+            transform.unlock();
+        }
     }
 
     this.setPos(x, y, z);
     this.description = {};
     this.createRenderIfNeeded = function() {
-        
+        if (!this.description) {
+            return;
+        }
+        if (!this.render) {
+            if (this.description.mesh) {
+                this.render = StaticRenderer.createStaticRenderer(-1, this.coords.x, this.coords.y, this.coords.z);
+            } else if (this.description.render) {
+                this.render = StaticRenderer.createStaticRenderer(this.description.render, this.coords.x, this.coords.y, this.coords.z);
+            }
+        }
+        if (this.render) {
+            if (this.description.skin) {
+                this.render.setSkin(this.description.skin);
+            }
+            if (this.description.scale) {
+                // noinspection JSCheckFunctionSignatures
+                this.render.setScale(this.description.scale);
+            }
+            if (this.description.mesh) {
+                this.render.setMesh(this.description.mesh);
+                this.render.setRenderer(-1);
+            } else if (this.description.render) {
+                this.render.setRenderer(this.description.render);
+                this.render.setMesh(null);
+            }
+            if (this.description.material) {
+                this.render.setMaterial(this.description.material);
+            }
+        }
     };
     this.isLoaded = false;
     this.updateRender = function() {
-        
+        if (this.isLoaded) {
+            this.createRenderIfNeeded();
+        } else {
+            if (this.render) {
+                this.render.remove();
+                this.render = null;
+            }
+        }
     };
     this.load = function() {
-        
+        this.remove = false;
+        this.isLoaded = true;
+        this.updateRender();
     };
     this.loadCustom = function(func) {
-        
+        this.load();
+        this.update = func;
+        Updatable.addUpdatable(this);
     };
     this.getAge = function() {
         return 0;
     };
     this.refresh = function() {
-        
+        this.updateRender();
     };
     this.describe = function(description) {
-        
+        for (var name in description) {
+            this.description[name] = description[name];
+        }
+        this.updateRender();
     };
     this.getRenderAPI = function(base) {
-        return null;
+        if (!this.description.renderAPI) {
+            this.description.renderAPI = new RenderAPI(base);
+        }
+        return this.description.renderAPI;
     };
     this.destroy = function() {
-        
+        this.remove = true;
+        this.isLoaded = false;
+        this.updateRender();
     };
 }
 
@@ -5575,22 +5661,42 @@ var AnimationItemLoadHelper = {
     session: 1,
 
     onLevelDisplayed: function() {
-        
+        this.postRequired = false;
+        for (var i in this.postedAnimations) {
+            var anim = this.postedAnimations[i];
+            if (anim && anim.__postedItem) {
+                anim.describeItem(anim.__postedItem);
+            }
+        }
+        this.postedAnimations = [];
     },
 
     onLevelLeft: function() {
-        
+        this.postRequired = true;
+        this.postedAnimations = [];
+        this.session++;
     },
 
     handleItemDescribeRequest: function(anim, item) {
-        
+        if (this.postRequired) {
+            if (anim.__session != this.session) {
+                anim.__session = this.session;
+                this.postedAnimations.push(anim);
+            }
+            anim.__postedItem = item;
+            return false;
+        } else {
+            return true;
+        }
     }
 }
 
 Callback.addCallback("LevelDisplayed", function() {
+    AnimationItemLoadHelper.onLevelDisplayed();
 });
 
 Callback.addCallback("LevelLeft", function() {
+    AnimationItemLoadHelper.onLevelLeft();
 });
 
 var USE_ALTERNATIVE_ITEM_MODEL = false;
@@ -5603,35 +5709,88 @@ function AnimationItem(x, y, z) {
     this.__scale = 1;
 
     this.describeItemDefault = function(item) {
-        
+        if (!AnimationItemLoadHelper.handleItemDescribeRequest(this, item)) {
+            return;
+        }
+        if (!item.size) {
+            item.size = 0.5;
+        }
+        var rotation = item.rotation;
+        if (!rotation || typeof(rotation) == "string") {
+            rotation = [0, 0, 0];
+            if (rotation == "x") {
+                rotation = [0, 0, Math.PI / 2];
+            }
+            if (rotation == "z") {
+                rotation = [Math.PI / 2, 0, 0];
+            }
+        }
+        var lastMesh = this.__itemMesh;
+
+        var itemModel = ItemModel.getForWithFallback(item.id, item.data);
+        var glint = item.glint || Item.isGlintItemInstance(item.id, item.data, item.extra);
+        var material = glint ? itemModel.getWorldGlintMaterialName() : itemModel.getWorldMaterialName();
+        this.__itemMesh = itemModel.getItemRenderMesh(item.count > 1 ? (item.count > 20 ? 3 : 2) : 1, !item.notRandomize);
+
+        this.describe({
+            mesh: this.__itemMesh,
+            skin: item.skin || itemModel.getWorldTextureName(),
+            material: item.material || material
+        })
+
+        this.__scale = item.size;
+        this.__rotation = rotation;
+        this.resetTransform();
+
+        if (lastMesh && lastMesh !== this.__itemMesh) {
+            ItemModel.releaseMesh(lastMesh);
+        }
     };
     this.describeItem = this.describeItemDefault;
     this.tick = function() {};
 
     this.resetTransform = function() {
-        
+        var transform = this.transform();
+        if (transform) {
+            // noinspection JSCheckFunctionSignatures
+            transform.lock().clear().rotate(this.__rotation[0], this.__rotation[1], this.__rotation[2]).scale(this.__scale, this.__scale, this.__scale).unlock();
+        }
     }
 
     this.setItemRotation = function(x, y, z) {
-       
+        if (this.__postedItem) {
+            this.__postedItem.rotation = [x, y, z];
+        }
+        this.__rotation = [x, y, z];
+        this.resetTransform();
     }
 
     this.setItemSize = function(size) {
-        
+        if (this.__postedItem) {
+            this.__postedItem.size = size;
+        }
+        this.__scale = size;
+        this.resetTransform();
     }
 
     this.setItemSizeAndRotation = function(size, x, y, z) {
-        
+        this.setItemSize(size);
+        this.setItemRotation(x, y, z);
     }
 
     this._destroy = this.destroy;
     this.destroy = function() {
-        
+        this._destroy();
+        this.__postedItem = null;
+        if (this.lastItemModel) {
+            this.lastItemModel.release();
+        }
     };
 
     this._load = this.load;
     this.load = function(tickFunc) {
-        
+        this._load(tickFunc);
+        this.resetTransform();
     }
 }
 var __RAD_TO_DEGREES = 180 / Math.PI;

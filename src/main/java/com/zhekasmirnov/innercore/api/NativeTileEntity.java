@@ -78,7 +78,7 @@ public class NativeTileEntity {
 
     public void setCompoundTag(NativeCompoundTag tag) {
         if (tag != null) {
-            setCompoundTag(blockEntity, tag.pointer);
+            setCompoundTag(blockEntity, tag.tag);
         }
     }
 

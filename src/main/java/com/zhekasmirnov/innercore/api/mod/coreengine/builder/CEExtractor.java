@@ -88,6 +88,7 @@ public class CEExtractor {
         return !CE_DEBUG || COMPILE;
     }
 
+    @SuppressWarnings("unused")
     public static File getExecutableFile() {
         if (isExtractionSucceeded) {
             if (CE_DEBUG && !COMPILE) {

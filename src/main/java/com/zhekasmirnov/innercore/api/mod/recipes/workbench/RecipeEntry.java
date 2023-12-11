@@ -1,7 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
-import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
+import com.zhekasmirnov.innercore.api.mod.ui.container.Slot;
 
 /**
  * Created by zheka on 10.09.2017.
@@ -17,7 +17,7 @@ public class RecipeEntry {
         this.data = data;
     }
 
-    public RecipeEntry(ItemContainerSlot slot) {
+    public RecipeEntry(Slot slot) {
         this(slot.getId(), slot.getData());
     }
 

@@ -9,13 +9,20 @@ import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
 
 public interface IElementProvider {
     void setBackgroundProvider(IBackgroundProvider provider);
+
     void addOrRefreshElement(UIElement element);
+
     void removeElement(UIElement element);
+
     void invalidateAll();
+
     void releaseAll();
+
     void resetAll();
+
     void runCachePreparation();
 
-    Object getStyleFor(UIElement element);
+    UIStyle getStyleFor(UIElement element);
+
     void setWindowStyle(UIStyle style);
 }

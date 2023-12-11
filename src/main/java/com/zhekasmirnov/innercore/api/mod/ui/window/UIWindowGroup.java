@@ -3,6 +3,7 @@ package com.zhekasmirnov.innercore.api.mod.ui.window;
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiAbstractContainer;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
 import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
+import com.zhekasmirnov.innercore.utils.UIUtils;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.ArrayList;
@@ -55,9 +56,9 @@ public class UIWindowGroup implements IWindow {
             }
 
             window.setParentWindow(this);
-        }
-        else {
-            throw new IllegalArgumentException("only default window (UIWindow instance) can be added to the window group.");
+        } else {
+            throw new IllegalArgumentException(
+                    "only default window (UIWindow instance) can be added to the window group.");
         }
     }
 
@@ -115,11 +116,9 @@ public class UIWindowGroup implements IWindow {
         }
     }
 
-
-
     @Override
     public void open() {
-        synchronized(LOCK) {
+        synchronized (LOCK) {
             isOpened = true;
 
             long timeStart = System.currentTimeMillis();
@@ -139,12 +138,13 @@ public class UIWindowGroup implements IWindow {
             WindowProvider.instance.onWindowOpened(this);
 
             long timeEnd = System.currentTimeMillis();
+            UIUtils.log("window group opened in " + (timeEnd - timeStart) * 0.001 + " sec");
         }
     }
 
     @Override
     public void close() {
-        synchronized(LOCK) {
+        synchronized (LOCK) {
             isOpened = false;
             for (UIWindow window : windows) {
                 window.close();
@@ -157,7 +157,6 @@ public class UIWindowGroup implements IWindow {
 
     @Override
     public void frame(long time) {
-
     }
 
     @Override
@@ -186,6 +185,7 @@ public class UIWindowGroup implements IWindow {
     }
 
     private UiAbstractContainer container;
+
     @Override
     public UiAbstractContainer getContainer() {
         return container;
@@ -235,7 +235,6 @@ public class UIWindowGroup implements IWindow {
         }
     }
 
-
     public void invalidateElements(boolean onCurrentThread) {
         for (UIWindow window : windows) {
             window.invalidateElements(onCurrentThread);
@@ -248,9 +247,8 @@ public class UIWindowGroup implements IWindow {
         }
     }
 
-
-
     public boolean closeOnBackPressed = false;
+
     public void setCloseOnBackPressed(boolean val) {
         closeOnBackPressed = val;
     }

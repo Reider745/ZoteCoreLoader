@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.ui.window;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.TextureSource;
@@ -16,7 +17,6 @@ public abstract class UIWindowStandard extends UIWindowGroup {
     private ScriptableObject content;
     private ScriptableObject standardContent;
 
-
     public UIWindowStandard(ScriptableObject content) {
         setContent(content);
         setCloseOnBackPressed(true);
@@ -24,7 +24,6 @@ public abstract class UIWindowStandard extends UIWindowGroup {
 
     private int paddingTop = 0;
     private int paddingLeft = 0;
-
 
     protected abstract boolean isLegacyFormat();
 
@@ -35,7 +34,8 @@ public abstract class UIWindowStandard extends UIWindowGroup {
         WindowContentAdapter mainWinContent = new WindowContentAdapter(this.content);
 
         // setup location
-        UIWindowLocation loc = new UIWindowLocation(ScriptableObjectHelper.getScriptableObjectProperty(this.content, "location", null));
+        UIWindowLocation loc = new UIWindowLocation(
+                ScriptableObjectHelper.getScriptableObjectProperty(this.content, "location", null));
         loc.setPadding(UIWindowLocation.PADDING_TOP, paddingTop);
 
         // setup background
@@ -44,7 +44,8 @@ public abstract class UIWindowStandard extends UIWindowGroup {
             int minHeight = ScriptableObjectHelper.getIntProperty(standardContent, "minHeight", 0);
 
             // setup separate content window if required
-            ScriptableObject contentWindowData = ScriptableObjectHelper.getScriptableObjectProperty(standardContent, "contentWindow", !isLegacyFormat() ? ScriptableObjectHelper.createEmpty() : null);
+            ScriptableObject contentWindowData = ScriptableObjectHelper.getScriptableObjectProperty(standardContent,
+                    "contentWindow", !isLegacyFormat() ? ScriptableObjectHelper.createEmpty() : null);
             if (contentWindowData != null) {
                 WindowContentAdapter contentWinContent = mainWinContent;
                 mainWinContent = new WindowContentAdapter();
@@ -68,13 +69,15 @@ public abstract class UIWindowStandard extends UIWindowGroup {
                 loc.scrollY = minHeight;
             }
 
-            ScriptableObject background = ScriptableObjectHelper.getScriptableObjectProperty(standardContent, "background", null);
+            ScriptableObject background = ScriptableObjectHelper.getScriptableObjectProperty(standardContent,
+                    "background", null);
             if (background != null) {
                 int color = ScriptableObjectHelper.getIntProperty(background, "color", Color.WHITE);
                 String bitmap = ScriptableObjectHelper.getStringProperty(background, "bitmap", null);
                 ScriptableObject frame = ScriptableObjectHelper.getScriptableObjectProperty(background, "frame", null);
 
-                boolean isStandard = ScriptableObjectHelper.getBooleanProperty(background, "standard", ScriptableObjectHelper.getBooleanProperty(background, "standart", false));
+                boolean isStandard = ScriptableObjectHelper.getBooleanProperty(background, "standard",
+                        ScriptableObjectHelper.getBooleanProperty(background, "standart", false));
                 if (isStandard) {
                     color = getStyleSafe().getIntProperty("window_background", 0);
                     frame = ScriptableObjectHelper.createEmpty();
@@ -88,14 +91,14 @@ public abstract class UIWindowStandard extends UIWindowGroup {
                     frameDrawing.put("width", frameDrawing, loc.getWindowWidth());
                     frameDrawing.put("height", frameDrawing, loc.getWindowHeight());
                     frameDrawing.put("scale", frameDrawing, ScriptableObjectHelper.getFloatProperty(frame, "scale", 3));
-                    frameDrawing.put("bitmap", frameDrawing, ScriptableObjectHelper.getStringProperty(frame, "bitmap", getStyleSafe().getBinding("frame", "style:frame_background_border")));
+                    frameDrawing.put("bitmap", frameDrawing, ScriptableObjectHelper.getStringProperty(frame, "bitmap",
+                            getStyleSafe().getBinding("frame", "style:frame_background_border")));
                     mainWinContent.insertDrawing(frameDrawing);
                 }
 
                 if (bitmap != null) {
-                    //Bitmap bmp = TextureSource.instance.getSafe(bitmap);
-                    //float scale = 1000 / bmp.getWidth();
-                    float scale = 1;
+                    Bitmap bmp = TextureSource.instance.getSafe(bitmap);
+                    float scale = 1000 / bmp.getWidth();
 
                     ScriptableObject imageDrawing = ScriptableObjectHelper.createEmpty();
                     imageDrawing.put("type", imageDrawing, "bitmap");
@@ -112,7 +115,8 @@ public abstract class UIWindowStandard extends UIWindowGroup {
                 mainWinContent.insertDrawing(colorDrawing);
             }
 
-            ScriptableObject header = ScriptableObjectHelper.getScriptableObjectProperty(standardContent, "header", null);
+            ScriptableObject header = ScriptableObjectHelper.getScriptableObjectProperty(standardContent, "header",
+                    null);
             if (header != null && !ScriptableObjectHelper.getBooleanProperty(header, "hideShadow", false)) {
                 ScriptableObject shadow = ScriptableObjectHelper.createEmpty();
                 shadow.put("type", shadow, "bitmap");
@@ -148,15 +152,18 @@ public abstract class UIWindowStandard extends UIWindowGroup {
 
         WindowContentAdapter content = new WindowContentAdapter();
 
-        int height = ScriptableObjectHelper.getIntProperty(header, "height", ScriptableObjectHelper.getIntProperty(header, "width", 80));
+        int height = ScriptableObjectHelper.getIntProperty(header, "height",
+                ScriptableObjectHelper.getIntProperty(header, "width", 80));
         paddingTop = height - 20;
 
         UIWindowLocation location = new UIWindowLocation();
         location.set(0, 0, 1000, height);
         content.setLocation(location);
 
-        String frameName = ScriptableObjectHelper.getStringProperty(header, "frame", getStyleSafe().getBinding("headerFrame", "style:frame_background_border"));
-        int frameColor = ScriptableObjectHelper.getIntProperty(header, "color", getStyleSafe().getIntProperty("header_background", 0));
+        String frameName = ScriptableObjectHelper.getStringProperty(header, "frame",
+                getStyleSafe().getBinding("headerFrame", "style:frame_background_border"));
+        int frameColor = ScriptableObjectHelper.getIntProperty(header, "color",
+                getStyleSafe().getIntProperty("header_background", 0));
 
         ScriptableObject transparentBg = ScriptableObjectHelper.createEmpty();
         transparentBg.put("type", transparentBg, "color");
@@ -185,8 +192,10 @@ public abstract class UIWindowStandard extends UIWindowGroup {
             ScriptableObject font = ScriptableObjectHelper.getScriptableObjectProperty(textDescr, "font", textDescr);
             font.put("align", font, Font.ALIGN_CENTER);
             font.put("size", font, ScriptableObjectHelper.getProperty(font, "size", height * .25f));
-            font.put("color", font, ScriptableObjectHelper.getProperty(font, "color", getStyleSafe().getIntProperty("default_font_color", Color.BLACK)));
-            font.put("shadow", font, ScriptableObjectHelper.getProperty(font, "shadow", getStyleSafe().getFloatProperty("default_font_shadow", 0)));
+            font.put("color", font, ScriptableObjectHelper.getProperty(font, "color",
+                    getStyleSafe().getIntProperty("default_font_color", Color.BLACK)));
+            font.put("shadow", font, ScriptableObjectHelper.getProperty(font, "shadow",
+                    getStyleSafe().getFloatProperty("default_font_shadow", 0)));
             text.put("font", text, font);
 
             content.addDrawing(text);
@@ -194,7 +203,6 @@ public abstract class UIWindowStandard extends UIWindowGroup {
 
         boolean isButtonHidden = ScriptableObjectHelper.getBooleanProperty(header, "hideButton", false);
         if (!isButtonHidden) {
-            ScriptableObject buttonStyle = ScriptableObjectHelper.getScriptableObjectProperty(header, "closeButton", null);
             ScriptableObject button = ScriptableObjectHelper.createEmpty();
             button.put("type", button, "closeButton");
             button.put("x", button, 994 - height * .75);
@@ -216,7 +224,8 @@ public abstract class UIWindowStandard extends UIWindowGroup {
             return;
         }
 
-        ScriptableObject inventory = ScriptableObjectHelper.getScriptableObjectProperty(standardContent, "inventory", null);
+        ScriptableObject inventory = ScriptableObjectHelper.getScriptableObjectProperty(standardContent, "inventory",
+                null);
         if (inventory == null) {
             return;
         }
@@ -251,12 +260,10 @@ public abstract class UIWindowStandard extends UIWindowGroup {
         }
 
         UIWindow win = addWindow("inventory", content.getContent());
-        //addWindowInstance("inventory", win);
+        // addWindowInstance("inventory", win);
         win.setDynamic(false);
         win.setInventoryNeeded(true);
     }
-
-
 
     @Override
     public ScriptableObject getContent() {
@@ -270,9 +277,11 @@ public abstract class UIWindowStandard extends UIWindowGroup {
 
     public void setContent(ScriptableObject content) {
         this.content = content;
-        this.standardContent = ScriptableObjectHelper.getScriptableObjectProperty(content, "standard", ScriptableObjectHelper.getScriptableObjectProperty(content, "standart", null));
+        this.standardContent = ScriptableObjectHelper.getScriptableObjectProperty(content, "standard",
+                ScriptableObjectHelper.getScriptableObjectProperty(content, "standart", null));
 
-        ScriptableObject style = ScriptableObjectHelper.getScriptableObjectProperty(content, "style", ScriptableObjectHelper.getScriptableObjectProperty(content, "params", null));
+        ScriptableObject style = ScriptableObjectHelper.getScriptableObjectProperty(content, "style",
+                ScriptableObjectHelper.getScriptableObjectProperty(content, "params", null));
         if (style != null) {
             setStyle(new UIStyle(style));
         }

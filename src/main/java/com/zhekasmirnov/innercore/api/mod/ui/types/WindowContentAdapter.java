@@ -42,12 +42,14 @@ public class WindowContentAdapter {
 
     public void addDrawing(ScriptableObject drawing) {
         IdFunctionObject id = new IdFunctionObject(null, "Array", 8, 0);
-        this.drawing.execIdCall(id, Compiler.assureContextForCurrentThread(), this.drawing, this.drawing, new Object[]{drawing});
+        this.drawing.execIdCall(id, Compiler.assureContextForCurrentThread(), this.drawing, this.drawing,
+                new Object[] { drawing });
     }
 
     public void insertDrawing(ScriptableObject drawing) {
         IdFunctionObject id = new IdFunctionObject(null, "Array", 11, 0);
-        this.drawing.execIdCall(id, Compiler.assureContextForCurrentThread(), this.drawing, this.drawing, new Object[]{drawing});
+        this.drawing.execIdCall(id, Compiler.assureContextForCurrentThread(), this.drawing, this.drawing,
+                new Object[] { drawing });
     }
 
     public void addElement(String name, ScriptableObject element) {

@@ -3,6 +3,7 @@ package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import org.mozilla.javascript.Context;
@@ -18,10 +19,10 @@ import java.util.HashMap;
 
 public class WorkbenchUIHandler {
     private final ScriptableObject target;
-    private final Object targetCon;
+    private final Container targetCon;
     private final WorkbenchField targetField;
 
-    public WorkbenchUIHandler(ScriptableObject target, Object targetCon, WorkbenchField targetField) {
+    public WorkbenchUIHandler(ScriptableObject target, Container targetCon, WorkbenchField targetField) {
         this.target = target;
         this.targetCon = targetCon;
         this.targetField = targetField;
@@ -172,7 +173,7 @@ public class WorkbenchUIHandler {
 
             boolean darken = index >= list.possibleCount;
             refreshSlotAt(index, darken);
-            //targetCon.setSlot(getSlotName(index), recipe.id, darken ? 1 : recipe.count, recipe.data);
+            targetCon.setSlot(getSlotName(index), recipe.id, darken ? 1 : recipe.count, recipe.data);
             index++;
 
             if (index > maximumRecipesShowed) {

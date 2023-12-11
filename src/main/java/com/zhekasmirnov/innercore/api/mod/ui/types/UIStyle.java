@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.ui.types;
 
 import android.graphics.Color;
+import com.zhekasmirnov.innercore.api.mod.ui.memory.BitmapWrap;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.ArrayList;
@@ -87,7 +88,6 @@ public class UIStyle {
         DEFAULT.addBinding("selection", "_selection");
     }
 
-
     private UIStyle parent = null;
     private HashMap<String, String> styleBindings = new HashMap<>();
     private ArrayList<UIStyle> additionalStyles = new ArrayList<>();
@@ -97,7 +97,7 @@ public class UIStyle {
     }
 
     public String getBinding(String key, String fallback) {
-        for (UIStyle style : additionalStyles){
+        for (UIStyle style : additionalStyles) {
             if (style.styleBindings.containsKey(key)) {
                 return style.styleBindings.get(key);
             }
@@ -107,7 +107,7 @@ public class UIStyle {
             return styleBindings.get(key);
         }
 
-        if (parent != null){
+        if (parent != null) {
             return parent.getBinding(key, fallback);
         }
 
@@ -166,128 +166,43 @@ public class UIStyle {
         if (name.startsWith("style:")) {
             name = name.substring(6);
             return getBinding(name, name);
-        }
-        else {
+        } else {
             return name;
         }
     }
 
-
     private final HashMap<String, Object> properties = new HashMap<>();
 
     public int getIntProperty(String name, int defaultValue) {
-        return properties.containsKey(name) ? ((Number) properties.get(name)).intValue() : (parent != null ? parent.getIntProperty(name, defaultValue) : defaultValue);
+        return properties.containsKey(name) ? ((Number) properties.get(name)).intValue()
+                : (parent != null ? parent.getIntProperty(name, defaultValue) : defaultValue);
     }
 
     public float getFloatProperty(String name, float defaultValue) {
-        return properties.containsKey(name) ? ((Number) properties.get(name)).floatValue() : (parent != null ? parent.getFloatProperty(name, defaultValue) : defaultValue);
+        return properties.containsKey(name) ? ((Number) properties.get(name)).floatValue()
+                : (parent != null ? parent.getFloatProperty(name, defaultValue) : defaultValue);
     }
 
     public double getDoubleProperty(String name, double defaultValue) {
-        return properties.containsKey(name) ? ((Number) properties.get(name)).doubleValue() : (parent != null ? parent.getDoubleProperty(name, defaultValue) : defaultValue);
+        return properties.containsKey(name) ? ((Number) properties.get(name)).doubleValue()
+                : (parent != null ? parent.getDoubleProperty(name, defaultValue) : defaultValue);
     }
 
     public String getStringProperty(String name, String defaultValue) {
-        return properties.containsKey(name) ? properties.get(name) + "" : (parent != null ? parent.getStringProperty(name, defaultValue) : defaultValue);
+        return properties.containsKey(name) ? properties.get(name) + ""
+                : (parent != null ? parent.getStringProperty(name, defaultValue) : defaultValue);
     }
 
     public boolean getBooleanProperty(String name, boolean defaultValue) {
-        return properties.containsKey(name) ? ((Boolean) properties.get(name)).booleanValue() : (parent != null ? parent.getBooleanProperty(name, defaultValue) : defaultValue);
+        return properties.containsKey(name) ? ((Boolean) properties.get(name)).booleanValue()
+                : (parent != null ? parent.getBooleanProperty(name, defaultValue) : defaultValue);
     }
 
     public void setProperty(String name, Object value) {
         properties.put(name, value);
     }
 
-
-
-    private static HashMap<String, ArrayList<String>> resolveParameterString(String params) {
-        String[] parts = params.split("\\s");
-        HashMap<String, ArrayList<String>> result = new HashMap<>();
-
-        for (String part : parts) {
-            if (part.length() > 0) {
-                String[] argAndVals = part.split("=");
-                if (argAndVals.length == 2) {
-                    String name = argAndVals[0];
-                    String[] values = argAndVals[1].split(",");
-                    ArrayList<String> valueList = new ArrayList<>();
-                    for (String val : values) {
-                        if (val.length() > 0) {
-                            valueList.add(val);
-                        }
-                    }
-                    if (valueList.size() > 0) {
-                        result.put(name, valueList);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-
-    public static Object getBitmapByDescription(UIStyle style, String description) {
-       /* if (style == null) {
-            style = DEFAULT;
-        }
-
-        int openBracket = description.indexOf('[');
-        if (openBracket != -1) {
-            int closeBracket = description.lastIndexOf(']');
-            if (closeBracket != -1) {
-                String name = description.substring(0, openBracket);
-                HashMap<String, ArrayList<String>> params = resolveParameterString(description.substring(openBracket + 1, closeBracket));
-
-                switch (name) {
-                    case "frame":
-                        if (params.containsKey("name")) {
-                            String texName = params.get("name").get(0);
-                            texName = style.getBitmapName(texName);
-
-                            FrameTexture texture = FrameTextureSource.getFrameTexture(texName);
-                            ArrayList<String> size = params.get("size");
-                            if (size != null && size.size() == 2) {
-                                int width, height;
-                                try {
-                                    width = Integer.parseInt(size.get(0));
-                                    height = Integer.parseInt(size.get(1));
-                                } catch (NumberFormatException e) {
-                                    break;
-                                }
-
-                                int color = texture.getCentralColor();
-                                if (params.containsKey("color")) {
-                                    String rawColor = params.get("color").get(0);
-                                    try {
-                                        color = Color.parseColor(rawColor);
-                                    } catch (IllegalArgumentException ignore) {
-                                    }
-                                }
-
-                                boolean[] sides = new boolean[] {true, true, true, true};
-                                if (params.containsKey("sides")) {
-                                    ArrayList<String> rawSides = params.get("sides");
-                                    sides[FrameTexture.SIDE_TOP] = rawSides.contains("up");
-                                    sides[FrameTexture.SIDE_BOTTOM] = rawSides.contains("down");
-                                    sides[FrameTexture.SIDE_LEFT] = rawSides.contains("left");
-                                    sides[FrameTexture.SIDE_RIGHT] = rawSides.contains("right");
-                                }
-
-                                return BitmapWrap.wrap(texture.expand(width, height, color, sides));
-                            }
-                        }
-
-                        break;
-                }
-            }
-        }
-        else {
-            return BitmapWrap.wrap(style.getBitmapName(description));
-        }
-
-        return BitmapWrap.wrap("missing_bitmap");*/
-        return null;
+    public static BitmapWrap getBitmapByDescription(UIStyle style, String description) {
+        return BitmapWrap.wrap("missing_bitmap");
     }
 }

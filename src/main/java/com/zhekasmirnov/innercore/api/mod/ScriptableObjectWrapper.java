@@ -146,8 +146,7 @@ public class ScriptableObjectWrapper {
                     break;
                 }
             }
-        }
-        else {
+        } else {
             put(id, value);
         }
     }
@@ -186,9 +185,12 @@ public class ScriptableObjectWrapper {
 
     public boolean getBoolean(Object key, boolean defaultValue) {
         if (key instanceof Integer) {
-            return scriptable.has((int) key, scriptable) ? Context.toBoolean(scriptable.get((int) key, scriptable)) : defaultValue;
+            return scriptable.has((int) key, scriptable) ? Context.toBoolean(scriptable.get((int) key, scriptable))
+                    : defaultValue;
         } else {
-            return scriptable.has((String) key, scriptable) ? Context.toBoolean(scriptable.get((String) key, scriptable)) : defaultValue;
+            return scriptable.has((String) key, scriptable)
+                    ? Context.toBoolean(scriptable.get((String) key, scriptable))
+                    : defaultValue;
         }
     }
 
@@ -200,7 +202,8 @@ public class ScriptableObjectWrapper {
         if (key instanceof Integer) {
             return scriptable.has((int) key, scriptable) ? scriptable.get((int) key, scriptable) + "" : defaultValue;
         } else {
-            return scriptable.has((String) key, scriptable) ? scriptable.get((String) key, scriptable) + "" : defaultValue;
+            return scriptable.has((String) key, scriptable) ? scriptable.get((String) key, scriptable) + ""
+                    : defaultValue;
         }
     }
 
@@ -261,7 +264,6 @@ public class ScriptableObjectWrapper {
         return getInt(key, 0);
     }
 
-
     public Object[] asArray() {
         ArrayList<Object> values = new ArrayList<>();
 
@@ -269,8 +271,7 @@ public class ScriptableObjectWrapper {
         for (Object key : keys) {
             if (key instanceof String) {
                 values.add(scriptable.get((String) key, scriptable));
-            }
-            else {
+            } else {
                 values.add(scriptable.get((int) key, scriptable));
             }
         }
@@ -300,8 +301,7 @@ public class ScriptableObjectWrapper {
             }
 
             return jArray;
-        }
-        else {
+        } else {
             float[] jArray = new float[minLength];
             for (int i = 0; i < minLength; i++) {
                 jArray[i] = defaultValue;
@@ -360,5 +360,5 @@ public class ScriptableObjectWrapper {
             arr[3] = 1;
         }
         return arr;
-    } 
+    }
 }

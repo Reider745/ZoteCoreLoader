@@ -1,7 +1,8 @@
 package com.zhekasmirnov.innercore.api.mod;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-//import com.zhekasmirnov.innercore.mod.executable.Compiler;
+import com.zhekasmirnov.innercore.mod.executable.Compiler;
+import com.zhekasmirnov.innercore.utils.UIUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -23,7 +24,7 @@ public class ScriptableObjectHelper {
         return fallback;
     }
 
-    public static Object getJavaProperty(ScriptableObject object, String key, Class clazz, Object fallback) {
+    public static Object getJavaProperty(ScriptableObject object, String key, Class<?> clazz, Object fallback) {
         try {
             return Context.jsToJava(getProperty(object, key, fallback), clazz);
         } catch (Exception e) {
@@ -31,7 +32,8 @@ public class ScriptableObjectHelper {
         }
     }
 
-    public static ScriptableObject getScriptableObjectProperty(ScriptableObject object, String key, ScriptableObject fallback) {
+    public static ScriptableObject getScriptableObjectProperty(ScriptableObject object, String key,
+            ScriptableObject fallback) {
         Object result = getProperty(object, key, fallback);
         if (result instanceof ScriptableObject) {
             return (ScriptableObject) result;
@@ -74,7 +76,7 @@ public class ScriptableObjectHelper {
         if (result instanceof Float) {
             return (float) result;
         }
-        return  fallback;
+        return fallback;
     }
 
     public static int getIntProperty(ScriptableObject object, String key, int fallback) {
@@ -88,7 +90,7 @@ public class ScriptableObjectHelper {
         if (result instanceof Float) {
             return (int) (float) result;
         }
-        return  fallback;
+        return fallback;
     }
 
     public static int getLongProperty(ScriptableObject object, String key, int fallback) {
@@ -102,7 +104,7 @@ public class ScriptableObjectHelper {
         if (result instanceof Float) {
             return (int) (float) result;
         }
-        return  fallback;
+        return fallback;
     }
 
     public static Object getPropByPath(ScriptableObject object, String path, Object fallback) {
@@ -112,17 +114,15 @@ public class ScriptableObjectHelper {
             if (object.has(name, object)) {
                 return object.get(name);
             }
-        }
-        else {
+        } else {
             String name = path.substring(0, dotIndex);
             if (object.has(name, object)) {
                 Object obj = object.get(name);
                 if (obj instanceof ScriptableObject) {
                     return getPropByPath((ScriptableObject) obj, path.substring(dotIndex + 1), fallback);
                 }
-            }
-            else {
-               Logger.debug("INNERCORE", name + " not found");
+            } else {
+                Logger.debug("INNERCORE", name + " not found");
             }
         }
         return fallback;
@@ -130,20 +130,18 @@ public class ScriptableObjectHelper {
 
     public ScriptableObject createFromString(String str) {
         try {
-            /*Context ctx = Compiler.assureContextForCurrentThread();
-            ScriptableObject obj = (ScriptableObject) ctx.evaluateString(new ScriptableObject() {
+            Context ctx = Compiler.assureContextForCurrentThread();
+            return (ScriptableObject) ctx.evaluateString(new ScriptableObject() {
                 @Override
                 public String getClassName() {
                     return "Empty Scope";
                 }
             }, str, "Scriptable From String", 0, null);
-            return obj;*/
         } catch (Exception e) {
-            Logger.error("ERROR", e);
+            UIUtils.processError(e);
         }
         return null;
     }
-
 
     private static ScriptableObject defaultScope = Context.enter().initStandardObjects();
 
@@ -155,7 +153,7 @@ public class ScriptableObjectHelper {
         return (ScriptableObject) Context.enter().newObject(defaultScope);
     }
 
-    public static<K, V> ScriptableObject createFromMap(Map<K, V> map) {
+    public static <K, V> ScriptableObject createFromMap(Map<K, V> map) {
         if (map == null) {
             return null;
         }
@@ -178,8 +176,6 @@ public class ScriptableObjectHelper {
         return (NativeArray) Context.enter().newArray(defaultScope, arr.toArray());
     }
 
-
-
     public static JSONObject toJSON(ScriptableObject obj) {
         try {
             return toJSON(obj, new JSONObject());
@@ -199,11 +195,9 @@ public class ScriptableObjectHelper {
             Object val = obj.get(key);
             if (val.getClass().isPrimitive()) {
                 json.put(key.toString(), val);
-            }
-            else if (val instanceof CharSequence) {
+            } else if (val instanceof CharSequence) {
                 json.put(key.toString(), val.toString());
-            }
-            else if (val instanceof ScriptableObject) {
+            } else if (val instanceof ScriptableObject) {
                 json.put(key.toString(), toJSON((ScriptableObject) val, new JSONObject()));
             }
         }

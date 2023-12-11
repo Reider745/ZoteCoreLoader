@@ -1,17 +1,12 @@
 package com.zhekasmirnov.innercore.api.mod.ui.container;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.NativeItem;
-import com.zhekasmirnov.innercore.api.NativeItemInstance;
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.mod.ScriptableObjectWrapper;
+import com.zhekasmirnov.innercore.api.log.DialogHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchField;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
-//import com.zhekasmirnov.innercore.api.mod.ui.elements.UISlotElement;
 import com.zhekasmirnov.innercore.api.mod.ui.window.IWindow;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
-import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaver;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
 import org.mozilla.javascript.NativeArray;
@@ -78,7 +73,6 @@ public class Container implements WorkbenchField, UiAbstractContainer {
         }
     };
 
-
     public Object getSlot(String name) {
         if (slots.has(name, slots)) {
             return slots.get(name);
@@ -93,8 +87,7 @@ public class Container implements WorkbenchField, UiAbstractContainer {
             Object _slot = slots.get(name);
             if (_slot instanceof Slot) {
                 return (Slot) _slot;
-            }
-            else if (_slot instanceof ScriptableObject) {
+            } else if (_slot instanceof ScriptableObject) {
                 return new Slot((ScriptableObject) _slot);
             }
         }
@@ -110,36 +103,8 @@ public class Container implements WorkbenchField, UiAbstractContainer {
 
     @Override
     public void handleInventoryToSlotTransaction(int inventorySlotId, String slotName, int amount0) {
-        MainThreadQueue.serverThread.enqueue(() -> {
-            int amount = amount0;
-            UIElement element = getElement(slotName);
-            /*UISlotElement slotElement = element instanceof UISlotElement ? (UISlotElement) element : null;
-            if (amount > 0 && (slotElement == null || !slotElement.isVisual)) {
-                Object slotObj = getSlot(slotName);
-                if (slotObj instanceof ScriptableObject) {
-                    NativeItemInstance invSlot = new NativeItemInstance(NativeAPI.getInventorySlot(inventorySlotId));
-                    ScriptableObjectWrapper slot = new ScriptableObjectWrapper((ScriptableObject) slotObj);
-                    if (slot.getInt("id") == 0 || slot.getInt("id") == invSlot.id && slot.getInt("data") == invSlot.data && slot.get("extra") == null) {
-                        if (amount > invSlot.count) {
-                            amount = invSlot.count;
-                        }
-                        if (slotElement == null || slotElement.isValidItem(invSlot.id, invSlot.count, invSlot.data, invSlot.extra)) {
-                            int maxStackSize = slotElement != null && slotElement.maxStackSize > 0 ? slotElement.maxStackSize : NativeItem.getMaxStackForId(invSlot.id, invSlot.data);
-                            amount = Math.min(amount, Math.min(invSlot.count, maxStackSize - slot.getInt("count")));
-                            slot.put("count", slot.getInt("count") + amount);
-                            slot.put("id", invSlot.id);
-                            slot.put("data", invSlot.data);
-                            slot.put("extra", NativeItemInstanceExtra.cloneExtra(invSlot.extra));
-                            if (amount < invSlot.count) {
-                                NativeAPI.setInventorySlot(inventorySlotId, invSlot.id, invSlot.count - amount, invSlot.data, NativeItemInstanceExtra.getValueOrNullPtr(invSlot.extra));
-                            } else {
-                                NativeAPI.setInventorySlot(inventorySlotId, 0, 0, 0, 0);
-                            }
-                        }
-                    }
-                }
-            }*/
-        });
+        InnerCoreServer
+                .useClientMethod("Container.handleInventoryToSlotTransaction(inventorySlotId, slotName, amount0)");
     }
 
     @Override
@@ -149,40 +114,13 @@ public class Container implements WorkbenchField, UiAbstractContainer {
 
     @Override
     public void handleSlotToInventoryTransaction(String slotName, int amount0) {
-        MainThreadQueue.serverThread.enqueue(() -> {
-            int amount = amount0;
-            UIElement element = getElement(slotName);
-            /*UISlotElement slotElement = element instanceof UISlotElement ? (UISlotElement) element : null;
-            if (amount > 0 && (slotElement == null || !slotElement.isVisual)) {
-                Object slotObj = getSlot(slotName);
-                if (slotObj instanceof ScriptableObject) {
-                    ScriptableObjectWrapper slot = new ScriptableObjectWrapper((ScriptableObject) slotObj);
-                    int id = slot.getInt("id");
-                    int count = slot.getInt("count");
-                    int data = slot.getInt("data");
-                    NativeItemInstanceExtra extra = NativeItemInstanceExtra.unwrapObject(slot.get("extra"));
-                    if (id != 0 && count > 0) {
-                        amount = Math.min(amount, count);
-                        count -= amount;
-                        NativeAPI.addItemToInventory(id, amount, data, NativeItemInstanceExtra.getValueOrNullPtr(extra), true);
-                        if (count <= 0) {
-                            id = data = count = 0;
-                            extra = null;
-                        }
-                        slot.put("id", id);
-                        slot.put("count", count);
-                        slot.put("data", data);
-                        slot.put("extra", extra);
-                    }
-                }
-            }*/
-        });
+        InnerCoreServer.useClientMethod("Container.handleSlotToInventoryTransaction(slotName, amount0)");
     }
 
     public void setSlot(String name, int id, int count, int data) {
         getFullSlot(name).set(id, count, data);
     }
-    
+
     public void setSlot(String name, int id, int count, int data, NativeItemInstanceExtra extra) {
         getFullSlot(name).set(id, count, data, extra);
     }
@@ -216,8 +154,6 @@ public class Container implements WorkbenchField, UiAbstractContainer {
             }
         }
     }
-
-
 
     private boolean isOpened = false;
     private IWindow window;
@@ -296,7 +232,7 @@ public class Container implements WorkbenchField, UiAbstractContainer {
             try {
                 openListener.onOpen(this, window);
             } catch (Exception e) {
-                Logger.error("Exception in container open listener", e);
+                DialogHelper.reportNonFatalError("Exception in container open listener", e);
             }
         }
         Callback.invokeCallback("ContainerOpened", this, window);
@@ -307,7 +243,7 @@ public class Container implements WorkbenchField, UiAbstractContainer {
             try {
                 closeListener.onClose(this, window);
             } catch (Exception e) {
-                Logger.error("Exception in container close listener", e);
+                DialogHelper.reportNonFatalError("Exception in container close listener", e);
             }
         }
         Callback.invokeCallback("ContainerClosed", this, window, userCalled);
@@ -316,14 +252,12 @@ public class Container implements WorkbenchField, UiAbstractContainer {
     public void onWindowClosed() {
         if (isOpened && !window.isOpened()) {
             isOpened = false;
-            IWindow win = this.window;
             this.window = null;
             this.elements = null;
 
             callOnCloseEvent(true);
         }
     }
-
 
     public boolean isOpened() {
         return this.window != null && this.window.isOpened();
@@ -388,8 +322,6 @@ public class Container implements WorkbenchField, UiAbstractContainer {
         }
     }
 
-
-
     public void setScale(String name, float value) {
         setBinding(name, "value", value);
     }
@@ -411,7 +343,6 @@ public class Container implements WorkbenchField, UiAbstractContainer {
         return element != null && element.isTouched;
     }
 
-
     public void invalidateUIElements(boolean onCurrentThread) {
         if (window != null) {
             window.invalidateElements(onCurrentThread);
@@ -431,7 +362,7 @@ public class Container implements WorkbenchField, UiAbstractContainer {
     public void invalidateUIDrawing() {
         invalidateUIDrawing(false);
     }
-    
+
     public void invalidateUI(boolean onCurrentThread) {
         if (window != null) {
             window.invalidateDrawing(onCurrentThread);
@@ -443,11 +374,11 @@ public class Container implements WorkbenchField, UiAbstractContainer {
         invalidateUI(false);
     }
 
+    public void refreshSlots() {
+    }
 
-    public void refreshSlots() {}
-
-    public void applyChanges() {}
-
+    public void applyChanges() {
+    }
 
     private String wbSlotNamePrefix = "slot";
 

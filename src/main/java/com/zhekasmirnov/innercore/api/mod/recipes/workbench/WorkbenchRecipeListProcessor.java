@@ -3,10 +3,8 @@ package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
-import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -27,8 +25,6 @@ public class WorkbenchRecipeListProcessor {
 
     private static final String PREFIX = "wbRecipeSlot";
     private int slotsPerLine = 6;
-
-    private int maximumRecipesShowed = 250;
 
     public WorkbenchRecipeListProcessor(ScriptableObject target) {
         this.target = target;
@@ -113,18 +109,6 @@ public class WorkbenchRecipeListProcessor {
         slot.put("visual", slot, true);
         applySlotPosition(slot, index);
         target.put(name, target, slot);
-    }
-
-    private void refreshSlotAt(final int index, boolean darken) {
-        String name = getSlotName(index);
-        if (target.has(name, target)) {
-            Object _element = target.get(name, target);
-            if (_element instanceof ScriptableObject) {
-                ScriptableObject element = (ScriptableObject) _element;
-                element.put("darken", element, darken);
-                applySlotPosition(element, index);
-            }
-        }
     }
 
     private void removeSlotAt(int index) {
