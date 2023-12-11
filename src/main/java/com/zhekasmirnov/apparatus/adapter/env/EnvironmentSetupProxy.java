@@ -1,8 +1,6 @@
 package com.zhekasmirnov.apparatus.adapter.env;
 
 import com.zhekasmirnov.apparatus.modloader.ApparatusMod;
-import com.zhekasmirnov.innercore.mod.build.ModLoader;
-
 import java.io.File;
 
 public interface EnvironmentSetupProxy {
