@@ -1,6 +1,6 @@
 package com.zhekasmirnov.innercore.mod.resource.types;
 
-import com.zhekasmirnov.innercore.api.log.ICLog;
+import android.support.annotation.NonNull;
 import com.zhekasmirnov.innercore.mod.resource.types.enums.FileType;
 import com.zhekasmirnov.innercore.mod.resource.types.enums.ParseError;
 import com.zhekasmirnov.innercore.utils.FileTools;
@@ -15,8 +15,8 @@ import java.util.List;
  * Created by zheka on 27.07.2017.
  */
 
-public class TextureAnimationFile extends ResourceFile{
-    public TextureAnimationFile(String path) {
+public class TextureAnimationFile extends ResourceFile {
+    public TextureAnimationFile(@NonNull String path) {
         super(path);
         read();
     }
@@ -38,16 +38,16 @@ public class TextureAnimationFile extends ResourceFile{
     private int replicate = 0;
 
     /*
-     JSON:
-     {
-        name: texture atlas of animation
-        tile: tile name to animate
-        delay: optional delay in ticks
-     }
-
-     TEXTURE NAME:
-        - "tile.anim.png"
-        - "tile.anim.delay.png"
+     * JSON:
+     * {
+     * name: texture atlas of animation
+     * tile: tile name to animate
+     * delay: optional delay in ticks
+     * }
+     * 
+     * TEXTURE NAME:
+     * - "tile.anim.png"
+     * - "tile.anim.delay.png"
      */
 
     private void read() {
@@ -99,8 +99,7 @@ public class TextureAnimationFile extends ResourceFile{
 
                 if (nameParts.size() > 2 && nameParts.get(nameParts.size() - 2).equals("anim")) {
                     delay = 1;
-                }
-                else if (nameParts.size() > 3 && nameParts.get(nameParts.size() - 3).equals("anim")) {
+                } else if (nameParts.size() > 3 && nameParts.get(nameParts.size() - 3).equals("anim")) {
                     try {
                         delay = Integer.parseInt(nameParts.get(nameParts.size() - 2));
                     } catch (Exception e) {
@@ -111,8 +110,7 @@ public class TextureAnimationFile extends ResourceFile{
                         parseError = ParseError.ANIMATION_INVALID_DELAY;
                         return;
                     }
-                }
-                else {
+                } else {
                     parseError = ParseError.ANIMATION_INVALID_NAME;
                     return;
                 }
@@ -137,7 +135,8 @@ public class TextureAnimationFile extends ResourceFile{
         data.put("atlas_tile", tileToAnimate + "");
         data.put("flipbook_texture", textureName + "");
         data.put("ticks_per_frame", delay);
-        if (replicate > 1) data.put("replicate", replicate);
+        if (replicate > 1)
+            data.put("replicate", replicate);
         return data;
     }
 }

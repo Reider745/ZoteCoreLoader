@@ -12,8 +12,7 @@ public abstract class ModPackExtractionTarget {
     public void writeFile(String name, File file) throws IOException {
         try (
                 OutputStream outputStream = write(name);
-                InputStream inputStream = new FileInputStream(file);
-        ) {
+                InputStream inputStream = new FileInputStream(file);) {
             ReadableByteChannel inputChannel = Channels.newChannel(inputStream);
             WritableByteChannel outputChannel = Channels.newChannel(outputStream);
             ByteBuffer buffer = ByteBuffer.allocateDirect(16384);

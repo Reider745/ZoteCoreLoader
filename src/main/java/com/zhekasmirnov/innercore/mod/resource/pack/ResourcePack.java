@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by zheka on 03.07.2017.
  */
 
-public class ResourcePack implements IResourcePack{
+public class ResourcePack implements IResourcePack {
     private String dir;
     public ArrayList<ResourceFile> resourceFiles = new ArrayList<ResourceFile>();
 
@@ -27,6 +27,7 @@ public class ResourcePack implements IResourcePack{
     }
 
     public boolean isLoaded = false;
+
     public void readAllFiles() {
         resourceFiles.clear();
         try {
@@ -46,6 +47,5 @@ public class ResourcePack implements IResourcePack{
                 files.add(new ResourceFile(this, file));
         }
     }
-
 
 }

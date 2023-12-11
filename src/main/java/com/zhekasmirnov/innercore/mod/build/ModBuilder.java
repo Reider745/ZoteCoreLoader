@@ -6,6 +6,7 @@ package com.zhekasmirnov.innercore.mod.build;
 
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectWrapper;
+import com.zhekasmirnov.innercore.api.mod.ui.TextureSource;
 import com.zhekasmirnov.innercore.mod.build.enums.AnalyzedModType;
 import com.zhekasmirnov.innercore.mod.build.enums.BuildType;
 import com.zhekasmirnov.innercore.mod.build.enums.ResourceDirType;
@@ -38,6 +39,8 @@ public class ModBuilder {
             ICLog.d(LOGGER_TAG, "failed to import resource or ui dir " + resourceDir.path + ": it does not exist");
             return;
         }
+
+        TextureSource.instance.loadDirectory(new File(path));
     }
 
     public static String checkRedirect(String dir) {
@@ -66,7 +69,8 @@ public class ModBuilder {
         @JSFunction
         public void ConfigureMultiplayer(ScriptableObject props) {
             ScriptableObjectWrapper wrapper = new ScriptableObjectWrapper(props);
-            mod.configureMultiplayer(wrapper.getString("name"), wrapper.getString("version"), wrapper.getBoolean("isClientOnly") || wrapper.getBoolean("isClientSide"));
+            mod.configureMultiplayer(wrapper.getString("name"), wrapper.getString("version"),
+                    wrapper.getBoolean("isClientOnly") || wrapper.getBoolean("isClientSide"));
         }
 
         @Override
@@ -77,11 +81,13 @@ public class ModBuilder {
 
     private static void setupLauncherScript(Executable launcherScript, Mod mod) {
         LauncherScope scope = new LauncherScope(mod);
-        scope.defineFunctionProperties(new String[]{"Launch", "ConfigureMultiplayer"}, scope.getClass(), ScriptableObject.DONTENUM);
+        scope.defineFunctionProperties(new String[] { "Launch", "ConfigureMultiplayer" }, scope.getClass(),
+                ScriptableObject.DONTENUM);
         launcherScript.addToScope(scope);
     }
 
-    private static Executable compileOrLoadExecutable(Mod mod, CompiledSources compiledSources, BuildConfig.Source source) throws IOException {
+    private static Executable compileOrLoadExecutable(Mod mod, CompiledSources compiledSources,
+            BuildConfig.Source source) throws IOException {
         CompilerConfig compilerConfig = source.getCompilerConfig();
         compilerConfig.setModName(mod.getName());
 
@@ -89,8 +95,7 @@ public class ModBuilder {
             Executable execFromDex = compiledSources.getCompiledExecutableFor(source.path, compilerConfig);
             if (execFromDex != null) {
                 return execFromDex;
-            }
-            else {
+            } else {
                 ICLog.d(LOGGER_TAG, "no multidex executable created for " + source.path);
             }
         }
@@ -105,12 +110,15 @@ public class ModBuilder {
      * builds all buildDirs
      * adds all resources
      * all sources are compiled, but not run
-     * returns built mod or null, if config could not be loaded or parsed or redirect failed
-    */
+     * returns built mod or null, if config could not be loaded or parsed or
+     * redirect failed
+     */
     public static Mod buildModForDir(String dir, ModPack modPack, String locationName) {
         dir = checkRedirect(dir);
         if (!FileTools.exists(dir)) {
-            ICLog.d(LOGGER_TAG, "failed to load mod, dir does not exist, maybe redirect file is pointing to the missing dir " + dir);
+            ICLog.d(LOGGER_TAG,
+                    "failed to load mod, dir does not exist, maybe redirect file is pointing to the missing dir "
+                            + dir);
             return null;
         }
 
@@ -120,8 +128,7 @@ public class ModBuilder {
         builtMod.buildConfig = loadBuildConfigForDir(dir);
         if (!builtMod.buildConfig.isValid()) {
             return null;
-        }
-        else {
+        } else {
             builtMod.buildConfig.save();
         }
 
@@ -129,7 +136,7 @@ public class ModBuilder {
 
         // build dirs
         if (builtMod.buildConfig.getBuildType() == BuildType.DEVELOP) {
-            ArrayList<BuildConfig.BuildableDir> buildableDirs =  builtMod.buildConfig.buildableDirs;
+            ArrayList<BuildConfig.BuildableDir> buildableDirs = builtMod.buildConfig.buildableDirs;
             for (int i = 0; i < buildableDirs.size(); i++) {
                 BuildConfig.BuildableDir buildableDir = buildableDirs.get(i);
                 BuildHelper.buildDir(dir, buildableDir);
@@ -137,14 +144,14 @@ public class ModBuilder {
         }
 
         // load resources
-        ArrayList<BuildConfig.ResourceDir> resourceDirs =  builtMod.buildConfig.resourceDirs;
+        ArrayList<BuildConfig.ResourceDir> resourceDirs = builtMod.buildConfig.resourceDirs;
         for (int i = 0; i < resourceDirs.size(); i++) {
             BuildConfig.ResourceDir resourceDir = resourceDirs.get(i);
-            if(resourceDir.resourceType == ResourceDirType.GUI){
+            if (resourceDir.resourceType == ResourceDirType.GUI) {
                 addGuiDir(dir, resourceDir);
-            }            
-        }       
-        
+            }
+        }
+
         // add minecraft packs only if mod is enabled
         Config modConfig = builtMod.getConfig();
         if (modConfig.getBool("enabled")) {
@@ -185,7 +192,8 @@ public class ModBuilder {
                 continue;
             }
             if (source.apiInstance == null) {
-                String msg = "could not find api for " + source.path + ", maybe it is missing in build.config or name is incorrect, compilation failed.";
+                String msg = "could not find api for " + source.path
+                        + ", maybe it is missing in build.config or name is incorrect, compilation failed.";
                 ICLog.d(LOGGER_TAG, msg);
                 debugInfo.putStatus(source.path, new IllegalArgumentException(msg));
                 continue;
@@ -221,8 +229,6 @@ public class ModBuilder {
         return builtMod;
     }
 
-
-
     public static AnalyzedModType analyzeModDir(String dir) {
         dir = checkRedirect(dir);
 
@@ -230,8 +236,9 @@ public class ModBuilder {
             return AnalyzedModType.INNER_CORE_MOD;
         }
 
-        if (FileTools.exists(dir + "/main.js") && FileTools.exists(dir + "/launcher.js") && FileTools.exists(dir + "/config.json") && FileTools.exists(dir + "/resources.json")) {
-            //return AnalyzedModType.CORE_ENGINE_MOD;
+        if (FileTools.exists(dir + "/main.js") && FileTools.exists(dir + "/launcher.js")
+                && FileTools.exists(dir + "/config.json") && FileTools.exists(dir + "/resources.json")) {
+            // return AnalyzedModType.CORE_ENGINE_MOD;
         }
 
         return AnalyzedModType.UNKNOWN;
@@ -244,15 +251,10 @@ public class ModBuilder {
 
         switch (analysisResult) {
             case UNKNOWN:
-                return false;
-            case CORE_ENGINE_MOD:
-                break;
             case MODPE_MOD_ARRAY:
                 return false;
-            case RESOUCE_PACK:
-                break;
+            default:
+                return true;
         }
-
-        return true;
     }
 }

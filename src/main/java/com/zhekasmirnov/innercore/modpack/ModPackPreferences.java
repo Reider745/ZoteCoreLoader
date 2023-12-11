@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.modpack;
 
 import com.zhekasmirnov.innercore.utils.FileTools;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,7 +24,6 @@ public class ModPackPreferences {
     public File getFile() {
         return file;
     }
-
 
     private JSONObject json;
 
@@ -83,7 +83,8 @@ public class ModPackPreferences {
         reloadIfRequired();
         try {
             json.put(key, value);
-        } catch (JSONException ignore) { }
+        } catch (JSONException ignore) {
+        }
         return this;
     }
 
@@ -91,7 +92,8 @@ public class ModPackPreferences {
         reloadIfRequired();
         try {
             json.put(key, value);
-        } catch (JSONException ignore) { }
+        } catch (JSONException ignore) {
+        }
         return this;
     }
 
@@ -99,7 +101,8 @@ public class ModPackPreferences {
         reloadIfRequired();
         try {
             json.put(key, value);
-        } catch (JSONException ignore) { }
+        } catch (JSONException ignore) {
+        }
         return this;
     }
 
@@ -107,7 +110,8 @@ public class ModPackPreferences {
         reloadIfRequired();
         try {
             json.put(key, value);
-        } catch (JSONException ignore) { }
+        } catch (JSONException ignore) {
+        }
         return this;
     }
 
@@ -115,7 +119,8 @@ public class ModPackPreferences {
         reloadIfRequired();
         try {
             json.put(key, value);
-        } catch (JSONException ignore) { }
+        } catch (JSONException ignore) {
+        }
         return this;
     }
 

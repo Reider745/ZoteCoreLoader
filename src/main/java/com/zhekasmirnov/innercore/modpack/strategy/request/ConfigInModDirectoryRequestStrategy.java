@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.modpack.strategy.request;
 
 import com.zhekasmirnov.horizon.util.FileUtils;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +25,8 @@ public class ConfigInModDirectoryRequestStrategy extends DirectoryRequestStrateg
             if (redirectDir.isDirectory()) {
                 return redirectDir;
             }
-        } catch (Exception ignore) { }
+        } catch (IOException ignore) {
+        }
         return dir;
     }
 

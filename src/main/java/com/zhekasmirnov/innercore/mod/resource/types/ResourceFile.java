@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.mod.resource.types;
 
+import android.support.annotation.NonNull;
 import com.zhekasmirnov.innercore.mod.resource.pack.IResourcePack;
 import com.zhekasmirnov.innercore.mod.resource.types.enums.AnimationType;
 import com.zhekasmirnov.innercore.mod.resource.types.enums.FileType;
@@ -17,11 +18,9 @@ public class ResourceFile extends File {
     private TextureType textureType;
     private AnimationType animationType;
 
-    private String packDir;
-
     protected ParseError parseError = ParseError.NONE;
 
-    public ResourceFile(String path) {
+    public ResourceFile(@NonNull String path) {
         super(path);
         String name = getName();
 
@@ -35,8 +34,7 @@ public class ResourceFile extends File {
                 type = FileType.INVALID;
                 parseError = ParseError.ANIMATION_INVALID_NAME;
             }
-        }
-        else if (name.endsWith(".png") || name.endsWith(".tga")) {
+        } else if (name.endsWith(".png") || name.endsWith(".tga")) {
             type = FileType.TEXTURE;
             if (path.contains("items-opaque/"))
                 textureType = TextureType.ITEM;
@@ -46,30 +44,26 @@ public class ResourceFile extends File {
                 textureType = TextureType.PARTICLE;
             else
                 textureType = TextureType.DEFAULT;
-        }
-        else if (name.endsWith(".json")) {
+        } else if (name.endsWith(".json")) {
             if (name.equals("pack_manifest.json"))
                 type = FileType.MANIFEST;
             else
                 type = FileType.JSON;
-        }
-        else if (name.endsWith(".js")) {
+        } else if (name.endsWith(".js")) {
             type = FileType.EXECUTABLE;
-        }
-        else {
+        } else {
             type = FileType.RAW;
         }
     }
 
-    public ResourceFile (File f) {
+    public ResourceFile(File f) {
         this(f.getAbsolutePath());
     }
 
-    public ResourceFile (IResourcePack pack, File f) {
+    public ResourceFile(IResourcePack pack, File f) {
         this(f);
         setResourcePack(pack);
     }
-
 
     private IResourcePack resourcePack;
 
@@ -86,8 +80,7 @@ public class ResourceFile extends File {
         String path = getAbsolutePath();
         if (resourcePack == null) {
             return path;
-        }
-        else {
+        } else {
             return path.substring(resourcePack.getAbsolutePath().length());
         }
     }

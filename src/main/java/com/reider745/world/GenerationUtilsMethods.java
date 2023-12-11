@@ -9,8 +9,6 @@ import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
 import com.reider745.api.CallbackHelper;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
-import org.mozilla.javascript.annotations.JSStaticFunction;
-
 import java.util.ArrayList;
 
 public class GenerationUtilsMethods {

@@ -12,33 +12,21 @@ import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConvertor;
-import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
-import com.zhekasmirnov.apparatus.api.container.ItemContainer;
-import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
-import com.zhekasmirnov.apparatus.multiplayer.NetworkJsAdapter;
-import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
-import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerModList;
-import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerPackVersionChecker;
-import com.zhekasmirnov.apparatus.multiplayer.mod.RuntimeIdDataPacketSender;
-import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
-import com.zhekasmirnov.innercore.api.mod.API;
-import com.zhekasmirnov.innercore.api.runtime.AsyncModLauncher;
-import com.zhekasmirnov.innercore.api.runtime.Updatable;
+import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
 import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
-import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
 import com.zhekasmirnov.innercore.modpack.ModPackFactory;
-import com.zhekasmirnov.innercore.utils.ColorsPatch;
+import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
-import com.zhekasmirnov.innercore.utils.ReflectionPatch;
+import com.zhekasmirnov.mcpe161.InnerCore;
 
 import org.json.JSONObject;
 
@@ -46,7 +34,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
-import java.nio.file.FileSystem;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -270,15 +257,13 @@ public class InnerCoreServer {
             }
         }
 
-        // Rhino JavaMembers.reflect patches
-        ColorsPatch.init();
-        ReflectionPatch.init();
-
-        MultiplayerModList.loadClass();
-        NetworkPlayerRegistry.loadClass();
-        MultiplayerPackVersionChecker.loadClass();
-        NetworkEntity.loadClass();
-        IdConversionMap.loadClass();
+        new InnerCore(new File(PATH)).load();
+        LoadingStage.setStage(LoadingStage.STAGE_MCPE_STARTING);
+        InnerCoreConfig.set("gameplay.use_legacy_workbench_override", isLegacyWorkbench());
+        LoadingStage.setStage(LoadingStage.STAGE_MCPE_INITIALIZING);
+        LoadingUI.setTextAndProgressBar("Initializing Minecraft...", 0.55f);
+        NativeCallback.onFinalInitStarted();
+        NativeCallback.onFinalInitComplete();
 
         JSONObject object = new JSONObject();
         object.put("fix", server.getPropertyBoolean("inner_core.legacy_inventory", true));
@@ -289,23 +274,9 @@ public class InnerCoreServer {
             // for new inner core
         });
 
-        RuntimeIdDataPacketSender.loadClass();
-        NetworkJsAdapter.instance = new NetworkJsAdapter(Network.getSingleton());
-        InnerCoreConfig.set("gameplay.use_legacy_workbench_override", isLegacyWorkbench());
-
-        API.loadAllAPIs();
-        ModLoader.initialize();
-        ModLoader.loadModsAndSetupEnvViaNewModLoader();
-        ModLoader.prepareResourcesViaNewModLoader();
-        new AsyncModLauncher().launchModsInCurrentThread();
-
-        Updatable.init();
         NativeCallback.onLocalServerStarted();
 
-        ItemContainer.loadClass();
-
         Logger.info("INNERCORE", "preloaded in " + (System.currentTimeMillis() - startupMillis) + "ms");
-        Logger.info("INNERCORE", PackInfo.toInfo());
     }
 
     public void afterload() {
@@ -339,23 +310,39 @@ public class InnerCoreServer {
     }
 
     public static void useNotSupport(String name) {
-        if (isRuntimeException())
-            throw new RuntimeException("Use not support multiplayer method " + name);
+        String message = "Use not support multiplayer method " + name;
+        if (isRuntimeException()) {
+            throw new RuntimeException(message);
+        } else {
+            Logger.warning(message);
+        }
     }
 
     public static void useClientMethod(String name) {
-        if (isRuntimeException())
-            throw new RuntimeException("Use client method " + name);
+        String message = "Use client method " + name;
+        if (isRuntimeException()) {
+            throw new RuntimeException(message);
+        } else {
+            Logger.warning(message);
+        }
     }
 
     public static void useNotCurrentSupport(String name) {
-        if (isRuntimeException())
-            throw new RuntimeException("The " + name + " method is currently not supported");
+        String message = "The " + name + " method is currently not supported";
+        if (isRuntimeException()) {
+            throw new RuntimeException(message);
+        } else {
+            Logger.warning(message);
+        }
     }
 
     public static void useIncomprehensibleMethod(String name) {
-        if (isRuntimeException())
-            throw new RuntimeException("I don't really understand what this method does (" + name
-                    + "), which is why you're reading this right now");
+        String message = "I don't really understand what this method does (" + name
+                + "), which is why you're reading this right now";
+        if (isRuntimeException()) {
+            throw new RuntimeException(message);
+        } else {
+            Logger.warning(message);
+        }
     }
 }

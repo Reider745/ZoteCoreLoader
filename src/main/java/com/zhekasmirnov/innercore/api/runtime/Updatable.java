@@ -229,10 +229,6 @@ public class Updatable {
         return clientInstance;
     }
 
-    public static void init() {
-        // TODO: UNATTENDED
-    }
-
     static {
         setPreferences(MODE_COUNT_BASED, 256);
 

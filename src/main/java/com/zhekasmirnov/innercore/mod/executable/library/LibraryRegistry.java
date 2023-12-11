@@ -21,8 +21,7 @@ public class LibraryRegistry {
 
         if (libraryMap.containsKey(mod)) {
             libraryMap.get(mod).add(library);
-        }
-        else {
+        } else {
             ArrayList<Library> list = new ArrayList<>();
             list.add(library);
             libraryMap.put(mod, list);
@@ -30,8 +29,6 @@ public class LibraryRegistry {
 
         allLibraries.add(library);
     }
-
-
 
     private static Library resolveDependencyInList(Collection<Library> libs, LibraryDependency dependency) {
         Library result = null;
@@ -68,8 +65,7 @@ public class LibraryRegistry {
             if (lib.isShared()) {
                 lib = resolveSharedDependency(dependency);
             }
-        }
-        else {
+        } else {
             lib = resolveSharedDependency(dependency);
         }
 
@@ -80,17 +76,20 @@ public class LibraryRegistry {
         LoadingUI.setTip("Resolving dependency: " + dependency);
 
         Library library = resolveDependency(dependency);
-        if (library != null){
-            if(!library.isLoaded()) {
+        if (library != null) {
+            if (!library.isLoaded()) {
                 if (!library.isLoadingInProgress()) {
                     library.load();
                 } else {
-                    ICLog.i("ERROR", "DEPENDENCY RECURSION DETECTED! it may be caused by recursive library dependencies or recursive imports, recursion detected at: " + dependency);
+                    ICLog.i("ERROR",
+                            "DEPENDENCY RECURSION DETECTED! it may be caused by recursive library dependencies or recursive imports, recursion detected at: "
+                                    + dependency);
                     return null;
                 }
             }
-            if (library.isInvalid()){
-                ICLog.i("ERROR", "incorrectly loaded library found for dependency " + dependency + " searching other matches");
+            if (library.isInvalid()) {
+                ICLog.i("ERROR",
+                        "incorrectly loaded library found for dependency " + dependency + " searching other matches");
                 return resolveDependencyAndLoadLib(dependency);
             }
         }
@@ -99,21 +98,20 @@ public class LibraryRegistry {
         return library;
     }
 
-
-    private static void importLibraryInternal(Scriptable scope, Library library, LibraryDependency dependency, String exportName) {
+    private static void importLibraryInternal(Scriptable scope, Library library, LibraryDependency dependency,
+            String exportName) {
         if (exportName.equals("*")) {
             Collection<String> exports = library.getExportNames();
             for (String export : exports) {
                 importLibraryInternal(scope, library, dependency, export);
             }
-        }
-        else {
+        } else {
             LibraryExport export = library.getExportForDependency(dependency, exportName);
             if (export != null) {
                 scope.put(export.name, scope, export.value);
-            }
-            else {
-                ICLog.i("ERROR", "failed to import value " + exportName + " from " + dependency + ", library does not have value with this name to import");
+            } else {
+                ICLog.i("ERROR", "failed to import value " + exportName + " from " + dependency
+                        + ", library does not have value with this name to import");
             }
         }
     }
@@ -122,8 +120,7 @@ public class LibraryRegistry {
         Library library = resolveDependencyAndLoadLib(dependency);
         if (library != null) {
             importLibraryInternal(scope, library, dependency, exportName);
-        }
-        else {
+        } else {
             ICLog.i("ERROR", "failed to import library " + dependency + ", it does not exist or failed to load");
         }
     }
@@ -134,7 +131,7 @@ public class LibraryRegistry {
     }
 
     public static void loadAllBuiltInLibraries() {
-        
+
     }
 
     public static void prepareAllLibraries() {

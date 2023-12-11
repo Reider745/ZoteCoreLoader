@@ -8,7 +8,8 @@ public class ConfigDirectoryExtractStrategy extends AllFilesDirectoryExtractStra
     @Override
     public List<File> getFilesToExtract() {
         List<File> files = new ArrayList<>();
-        addAllRecursive(getAssignedDirectory().getLocation(), files, file -> !file.getAbsolutePath().toLowerCase().contains(".keep-unchanged"));
+        addAllRecursive(getAssignedDirectory().getLocation(), files,
+                file -> !file.getAbsolutePath().toLowerCase().contains(".keep-unchanged"));
         return files;
     }
 }

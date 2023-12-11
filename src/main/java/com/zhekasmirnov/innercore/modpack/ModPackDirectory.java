@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.modpack;
 
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.modpack.strategy.extract.DirectoryExtractStrategy;
 import com.zhekasmirnov.innercore.modpack.strategy.request.DirectoryRequestStrategy;
 import com.zhekasmirnov.innercore.modpack.strategy.update.DirectoryUpdateStrategy;
@@ -24,7 +23,8 @@ public class ModPackDirectory {
 
     private final DirectoryType type;
     private final File location;
-    private final String pathPattern; // path pattern for update entries, will be wrapped inside [\s\/\\]*<pathPattern with / replaced with \/>[\s\/\\]*.*
+    private final String pathPattern; // path pattern for update entries, will be wrapped inside [\s\/\\]*<pathPattern
+                                      // with / replaced with \/>[\s\/\\]*.*
     private final Pattern pathPatternRegex;
 
     private final DirectoryRequestStrategy requestStrategy;
@@ -33,7 +33,9 @@ public class ModPackDirectory {
 
     private ModPack modPack;
 
-    public ModPackDirectory(DirectoryType type, File location, String pathPattern, DirectoryRequestStrategy requestStrategy, DirectoryUpdateStrategy updateStrategy, DirectoryExtractStrategy extractStrategy) {
+    public ModPackDirectory(DirectoryType type, File location, String pathPattern,
+            DirectoryRequestStrategy requestStrategy, DirectoryUpdateStrategy updateStrategy,
+            DirectoryExtractStrategy extractStrategy) {
         this.type = type;
         this.location = location;
         this.pathPattern = pathPattern;
@@ -63,7 +65,6 @@ public class ModPackDirectory {
         this.modPack = modPack;
     }
 
-
     public DirectoryType getType() {
         return type;
     }
@@ -87,7 +88,6 @@ public class ModPackDirectory {
         }
         return matcher.group(1);
     }
-
 
     public DirectoryRequestStrategy getRequestStrategy() {
         return requestStrategy;

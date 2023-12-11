@@ -45,8 +45,7 @@ public class BuildHelper {
                     }
                     addFileTree(includedFile, includedFiles);
                 }
-            }
-            else {
+            } else {
                 ICLog.d(ModBuilder.LOGGER_TAG, "failed to include file due it does not exist: " + line);
             }
         }
@@ -56,13 +55,16 @@ public class BuildHelper {
 
     public static void buildDir(File dir, File target, File parentDir) {
         if (!dir.exists() || !dir.isDirectory()) {
-            ICLog.d(ModBuilder.LOGGER_TAG, "failed to build dir " + FileTools.getPrettyPath(parentDir, dir) + " it does not exist or not a directory.");
+            ICLog.d(ModBuilder.LOGGER_TAG, "failed to build dir " + FileTools.getPrettyPath(parentDir, dir)
+                    + " it does not exist or not a directory.");
             return;
         }
 
         try {
             ArrayList<File> includedFiles = readIncludesFile(dir);
-            String buildedCode = "/*\n" + "BUILD INFO:\n" + "  dir: " + FileTools.getPrettyPath(parentDir, dir) + "\n" + "  target: " + FileTools.getPrettyPath(parentDir, target) + "\n  files: " + includedFiles.size() + "\n*/\n\n\n\n";
+            String buildedCode = "/*\n" + "BUILD INFO:\n" + "  dir: " + FileTools.getPrettyPath(parentDir, dir) + "\n"
+                    + "  target: " + FileTools.getPrettyPath(parentDir, target) + "\n  files: " + includedFiles.size()
+                    + "\n*/\n\n\n\n";
 
             for (int i = 0; i < includedFiles.size(); i++) {
                 File file = includedFiles.get(i);
@@ -73,7 +75,8 @@ public class BuildHelper {
             FileTools.assureFileDir(target);
             FileTools.writeFileText(target.getAbsolutePath(), buildedCode);
 
-            ICLog.d(ModBuilder.LOGGER_TAG, "directory build succeeded: dir=" + FileTools.getPrettyPath(parentDir, dir) + " target=" + FileTools.getPrettyPath(parentDir, target));
+            ICLog.d(ModBuilder.LOGGER_TAG, "directory build succeeded: dir=" + FileTools.getPrettyPath(parentDir, dir)
+                    + " target=" + FileTools.getPrettyPath(parentDir, target));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,7 +84,8 @@ public class BuildHelper {
     }
 
     public static void buildDir(String parentDir, BuildConfig.BuildableDir buildableDir) {
-        buildDir(new File(parentDir, buildableDir.dir), new File(parentDir, buildableDir.targetSource), new File(parentDir));
+        buildDir(new File(parentDir, buildableDir.dir), new File(parentDir, buildableDir.targetSource),
+                new File(parentDir));
     }
 
 }

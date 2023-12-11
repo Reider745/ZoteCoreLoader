@@ -5,11 +5,12 @@ package com.zhekasmirnov.innercore.mod.build.enums;
  */
 
 public enum ResourceDirType {
-    RESOURCE ("resource"),
-    GUI ("gui");
+    RESOURCE("resource"),
+    GUI("gui");
 
     private final String name;
-    ResourceDirType (String name) {
+
+    ResourceDirType(String name) {
         this.name = name;
     }
 
@@ -18,11 +19,9 @@ public enum ResourceDirType {
     }
 
     public static ResourceDirType fromString(String str) {
-        switch (str) {
-            case "gui":
-                return GUI;
-            default:
-                return RESOURCE;
-        }
+        return switch (str) {
+            case "gui" -> GUI;
+            default -> RESOURCE;
+        };
     }
 }

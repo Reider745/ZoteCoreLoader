@@ -2,11 +2,10 @@ package com.zhekasmirnov.innercore.mod.build;
 
 import com.zhekasmirnov.apparatus.minecraft.enums.EnumsJsInjector;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
-import com.zhekasmirnov.apparatus.modloader.ApparatusMod;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import com.zhekasmirnov.innercore.api.mod.ui.ItemModelCacheManager;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.mod.build.enums.BuildType;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
@@ -48,7 +47,6 @@ public class Mod {
     private String multiplayerName = null;
     private String multiplayerVersion = null;
 
-
     private ModPack modPack;
     private String modPackLocationName;
 
@@ -65,10 +63,10 @@ public class Mod {
         return modPackLocationName;
     }
 
-
     private void importConfigIfNeeded() {
         if (config == null) {
-            config = new Config(modPack.getRequestHandler(ModPackDirectory.DirectoryType.CONFIG).get(modPackLocationName, "config.json"));
+            config = new Config(modPack.getRequestHandler(ModPackDirectory.DirectoryType.CONFIG)
+                    .get(modPackLocationName, "config.json"));
             try {
                 config.checkAndRestore("{\"enabled\":true}");
             } catch (Exception e) {
@@ -150,18 +148,16 @@ public class Mod {
             }
         }
 
-        loadModInfo();
-    }
+        if (FileTools.exists(this.dir + "mod_icon.png")) {
+            guiIconName = "_modIcon" + (guiIconCounter++);
+        }
 
-    public void loadModInfo(){
         if (FileTools.exists(this.dir + "mod.info")) {
             try {
                 modInfoJson = FileTools.readJSON(this.dir + "mod.info");
             } catch (IOException | JSONException e) {
-                Logger.error(e.getMessage());
             }
-        }else
-            Logger.error("Not mod.info");
+        }
     }
 
     public BuildType getBuildType() {
@@ -177,14 +173,12 @@ public class Mod {
         setBuildType(BuildType.fromString(strType));
     }
 
-
-
     // ui helper methods
 
     private static int guiIconCounter = 0;
     private String guiIconName = "missing_mod_icon";
 
-    private JSONObject modInfoJson = null;
+    private JSONObject modInfoJson = new JSONObject();
 
     public String getGuiIcon() {
         return guiIconName;
@@ -225,10 +219,10 @@ public class Mod {
     }
 
     public Object getInfoProperty(String name) {
-        if (modInfoJson == null)
-            loadModInfo();
-
-        return modInfoJson.opt(name);
+        if (modInfoJson != null) {
+            return modInfoJson.opt(name);
+        }
+        return null;
     }
 
     public ArrayList<Executable> getAllExecutables() {
@@ -240,11 +234,10 @@ public class Mod {
         return all;
     }
 
-
-
     // runtime
 
     private boolean isPreloaderRunning = false;
+
     public void RunPreloaderScripts() {
         if (!isEnabled) {
             return;
@@ -260,6 +253,7 @@ public class Mod {
     }
 
     private boolean isLauncherRunning = false;
+
     public void RunLauncherScripts() {
         if (!isEnabled) {
             return;
@@ -275,6 +269,7 @@ public class Mod {
     }
 
     public boolean isModRunning = false;
+
     public void RunMod(ScriptableObject additionalScope) {
         if (!isEnabled) {
             return;
@@ -284,7 +279,7 @@ public class Mod {
         }
 
         // reset current cache group before launching mod
-        //ItemModelCacheManager.getSingleton().setCurrentCacheGroup(null, null);
+        ItemModelCacheManager.getSingleton().setCurrentCacheGroup(null, null);
 
         isModRunning = true;
         for (int i = 0; i < compiledModSources.size(); i++) {
@@ -294,7 +289,7 @@ public class Mod {
         }
 
         // ... and after
-       // ItemModelCacheManager.getSingleton().setCurrentCacheGroup(null, null);
+        ItemModelCacheManager.getSingleton().setCurrentCacheGroup(null, null);
     }
 
     public void configureMultiplayer(String name, String version, boolean isClientOnly) {

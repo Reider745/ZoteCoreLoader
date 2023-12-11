@@ -39,7 +39,8 @@ public class Executable implements Runnable {
         return parentMod;
     }
 
-    public Executable(Context context, Script script, ScriptableObject scriptScope, CompilerConfig config, API apiInstance) {
+    public Executable(Context context, Script script, ScriptableObject scriptScope, CompilerConfig config,
+            API apiInstance) {
         this.parentContext = context;
         this.script = script;
         this.scriptScope = scriptScope;
@@ -62,6 +63,7 @@ public class Executable implements Runnable {
     public boolean isLoadedFromDex = false;
 
     protected boolean isRunning = false;
+
     public boolean isRunning() {
         return isRunning;
     }
@@ -104,7 +106,7 @@ public class Executable implements Runnable {
     public Function getFunction(String name) {
         Object _func = ScriptableObjectHelper.getProperty(scriptScope, name, null);
         if (_func != null && _func instanceof Function) {
-            return  (Function) _func;
+            return (Function) _func;
         }
         return null;
     }
@@ -115,9 +117,9 @@ public class Executable implements Runnable {
         return lastRunException;
     }
 
-
     private static final HashMap<String, Scriptable> javaWrapCache = new HashMap<String, Scriptable>();
 
+    @SuppressWarnings("deprecation")
     public void injectStaticAPIs() {
         IDRegistry.injectAPI(scriptScope);
 
@@ -156,16 +158,16 @@ public class Executable implements Runnable {
             @Override
             public Object call(Context context, Scriptable parent, Scriptable current, Object[] params) {
                 String name = (String) params[0];
-                if(name.contains("com.zhekasmirnov.horizon.launcher.ads")){
+                if (name.contains("com.zhekasmirnov.horizon.launcher.ads")) {
                     throw new IllegalArgumentException("Unauthorized");
-                } 
+                }
                 Scriptable result = javaWrapCache.get(name);
                 if (result != null) {
                     return result;
                 }
                 try {
                     result = new NativeJavaClass(parent, Class.forName(name), false);
-                } catch(ClassNotFoundException e) {
+                } catch (ClassNotFoundException e) {
                     result = new NativeJavaPackage(name);
                 }
                 javaWrapCache.put(name, result);
@@ -174,24 +176,23 @@ public class Executable implements Runnable {
         });
 
         scriptScope.put("__packdir__", scriptScope, FileTools.DIR_PACK);
-        scriptScope.put("__modpack__", scriptScope, Context.javaToJS(ModPackContext.getInstance().assureJsAdapter(), scriptScope));
+        scriptScope.put("__modpack__", scriptScope,
+                Context.javaToJS(ModPackContext.getInstance().assureJsAdapter(), scriptScope));
 
-        if(!InnerCoreServer.canEvalEnable())
+        if (!InnerCoreServer.canEvalEnable()) {
             scriptScope.put("eval", scriptScope, new ScriptableFunctionImpl() {
                 @Override
                 public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
                     return null;
                 }
             });
+        }
     }
 
     private boolean isApiAdded = false;
 
     public void run() {
-        // String str = parentContext.decompileScript(script, 4);
-        // System.out.println(str);
         runForResult();
-
     }
 
     protected Object runScript() {
@@ -217,8 +218,7 @@ public class Executable implements Runnable {
 
         try {
             injectAPI();
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
             lastRunException = e;
             ICLog.e("INNERCORE-EXEC", "failed to inject API to executable '" + name + "', some errors occurred:", e);
             return null;

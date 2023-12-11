@@ -5,14 +5,15 @@ package com.zhekasmirnov.innercore.mod.build.enums;
  */
 
 public enum SourceType {
-    PRELOADER ("preloader"),
-    LAUNCHER ("launcher"),
-    MOD ("mod"),
-    CUSTOM ("custom"),
-    LIBRARY ("library");
+    PRELOADER("preloader"),
+    LAUNCHER("launcher"),
+    MOD("mod"),
+    CUSTOM("custom"),
+    LIBRARY("library");
 
     private final String name;
-    SourceType (String name) {
+
+    SourceType(String name) {
         this.name = name;
     }
 
@@ -21,17 +22,12 @@ public enum SourceType {
     }
 
     public static SourceType fromString(String str) {
-        switch (str) {
-            case "preloader":
-                return PRELOADER;
-            case "launcher":
-                return LAUNCHER;
-            case "library":
-                return LIBRARY;
-            case "custom":
-                return CUSTOM;
-            default:
-                return MOD;
-        }
+        return switch (str) {
+            case "preloader" -> PRELOADER;
+            case "launcher" -> LAUNCHER;
+            case "library" -> LIBRARY;
+            case "custom" -> CUSTOM;
+            default -> MOD;
+        };
     }
 }

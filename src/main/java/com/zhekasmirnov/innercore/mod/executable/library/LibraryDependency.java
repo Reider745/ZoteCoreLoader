@@ -27,14 +27,16 @@ public class LibraryDependency {
         }
 
         if (parts.length > 2) {
-            throw new IllegalArgumentException("invalid library dependency " + formattedString + ", it should be formatted as <name>:<versionCode>");
+            throw new IllegalArgumentException("invalid library dependency " + formattedString
+                    + ", it should be formatted as <name>:<versionCode>");
         }
 
         try {
             libName = parts[0];
             minVersion = Integer.valueOf(parts[1]);
         } catch (NumberFormatException err) {
-            throw new IllegalArgumentException("invalid library dependency " + formattedString + ", it should be formatted as <name>:<versionCode>");
+            throw new IllegalArgumentException("invalid library dependency " + formattedString
+                    + ", it should be formatted as <name>:<versionCode>");
         }
     }
 

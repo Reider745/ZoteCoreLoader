@@ -4,7 +4,6 @@ import com.zhekasmirnov.apparatus.minecraft.version.ResourceGameVersion;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
-import com.zhekasmirnov.innercore.mod.build.enums.BuildConfigError;
 import com.zhekasmirnov.innercore.mod.build.enums.BuildType;
 import com.zhekasmirnov.innercore.mod.build.enums.ResourceDirType;
 import com.zhekasmirnov.innercore.mod.build.enums.SourceType;
@@ -57,7 +56,6 @@ public class BuildConfig {
 
     private boolean isValid = false;
     private JSONObject configJson;
-    private BuildConfigError configError = BuildConfigError.NONE;
 
     public static class DeclaredDirectory {
         public final String path;
@@ -98,12 +96,7 @@ public class BuildConfig {
 
         try {
             configJson = FileTools.readJSON(file.getAbsolutePath());
-        } catch (IOException e) {
-            configError = BuildConfigError.FILE_ERROR;
-            e.printStackTrace();
-            return;
-        } catch (JSONException e) {
-            configError = BuildConfigError.PARSE_ERROR;
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
             return;
         }
@@ -126,8 +119,6 @@ public class BuildConfig {
     public boolean isValid() {
         return isValid;
     }
-
-
 
     /* setups primary config structure */
     public void validate() {
@@ -195,12 +186,12 @@ public class BuildConfig {
         JSONArray javaJson = configJson.optJSONArray("javaDirs");
         for (int i = 0; i < javaJson.length(); i++) {
             JSONObject directoryJson = javaJson.optJSONObject(i);
-            try{
+            try {
                 DeclaredDirectory directory = DeclaredDirectory.fromJson(directoryJson, "path");
                 if (directory != null) {
                     javaDirectories.add(directory);
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
                 ICLog.e("InnerCore-BuildConfig", "invalid java directory object", e);
             }
         }
@@ -209,12 +200,12 @@ public class BuildConfig {
         JSONArray nativeJson = configJson.optJSONArray("nativeDirs");
         for (int i = 0; i < nativeJson.length(); i++) {
             JSONObject directoryJson = nativeJson.optJSONObject(i);
-            try{
+            try {
                 DeclaredDirectory directory = DeclaredDirectory.fromJson(directoryJson, "path");
                 if (directory != null) {
                     nativeDirectories.add(directory);
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
                 ICLog.e("InnerCore-BuildConfig", "invalid native directory object", e);
             }
         }
@@ -245,7 +236,8 @@ public class BuildConfig {
                 File[] files = libraryDir.listFiles();
                 if (files != null) {
                     for (File file : files) {
-                        Logger.debug("LIB-DIR", "found library file " + file + " local_path=" + defaultConfig.libDir + file.getName());
+                        Logger.debug("LIB-DIR",
+                                "found library file " + file + " local_path=" + defaultConfig.libDir + file.getName());
                         if (!file.isDirectory()) {
                             Source source = new Source(new JSONObject());
                             if (useApi) {
@@ -263,8 +255,6 @@ public class BuildConfig {
 
         return sources;
     }
-
-
 
     public static class DefaultConfig {
         public final ResourceGameVersion gameVersion;
@@ -523,25 +513,21 @@ public class BuildConfig {
 
             if (json.has("sourceName")) {
                 source.sourceName = json.optString("sourceName", "Unknown Source");
-            }
-            else {
+            } else {
                 source.sourceName = source.path.substring(source.path.lastIndexOf("/") + 1);
             }
             if (json.has("api")) {
                 source.apiInstance = BuildConfig.getAPIFromJSON(json);
-            }
-            else {
+            } else {
                 if (source.sourceType == SourceType.PRELOADER) {
                     source.apiInstance = API.getInstanceByName("Preloader");
-                }
-                else {
+                } else {
                     source.apiInstance = config.apiInstance;
                 }
             }
-            if (json.has("optimizationLevel")){
+            if (json.has("optimizationLevel")) {
                 source.optimizationLevel = BuildConfig.getOptimizationLevelFromJSON(json);
-            }
-            else {
+            } else {
                 source.optimizationLevel = config.optimizationLevel;
             }
 
@@ -549,12 +535,10 @@ public class BuildConfig {
         }
     }
 
-
-
-
-
-
-    /* gets API instance from "api" tag of given json object, returns null, if nothing found */
+    /*
+     * gets API instance from "api" tag of given json object, returns null, if
+     * nothing found
+     */
     public static API getAPIFromJSON(JSONObject obj) {
         if (obj.has("api")) {
             try {
@@ -577,7 +561,10 @@ public class BuildConfig {
         return 9;
     }
 
-    /* gets resource type from json object, if it is invalid or not specified, sets it to default */
+    /*
+     * gets resource type from json object, if it is invalid or not specified, sets
+     * it to default
+     */
     public static ResourceDirType getResourceDirTypeFromJSON(JSONObject obj) {
         ResourceDirType result = ResourceDirType.RESOURCE;
         try {
@@ -616,8 +603,6 @@ public class BuildConfig {
         }
         return result;
     }
-
-
 
     public BuildableDir findRelatedBuildableDir(Source source) {
         for (BuildableDir dir : buildableDirs) {

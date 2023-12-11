@@ -16,22 +16,16 @@ public enum ParseError {
 
     @Override
     public String toString() {
-        switch (this) {
-            case NONE:
-                return "No Error";
-            case ANIMATION_INVALID_FILE:
-                return "Animation file has invalid extension (.png or .json needed)";
-            case ANIMATION_INVALID_NAME:
-                return "Animation file has invalid name (use <tile>.anim.png or <tile>.anim.<delay>.png)";
-            case ANIMATION_INVALID_JSON:
-                return "Animation json file could not be parsed";
-            case ANIMATION_NAME_MISSING:
-                return "Animation json missing animation texture name";
-            case ANIMATION_TILE_MISSING:
-                return "Animation json missing tile texture name";
-            case ANIMATION_INVALID_DELAY:
-                return "Animation delay is not a number or less than 1";
-        }
-        return "Unknown Error";
+        return switch (this) {
+            case NONE -> "No Error";
+            case ANIMATION_INVALID_FILE -> "Animation file has invalid extension (.png or .json needed)";
+            case ANIMATION_INVALID_NAME ->
+                "Animation file has invalid name (use <tile>.anim.png or <tile>.anim.<delay>.png)";
+            case ANIMATION_INVALID_JSON -> "Animation json file could not be parsed";
+            case ANIMATION_NAME_MISSING -> "Animation json missing animation texture name";
+            case ANIMATION_TILE_MISSING -> "Animation json missing tile texture name";
+            case ANIMATION_INVALID_DELAY -> "Animation delay is not a number or less than 1";
+            default -> "Unknown Error";
+        };
     }
 }

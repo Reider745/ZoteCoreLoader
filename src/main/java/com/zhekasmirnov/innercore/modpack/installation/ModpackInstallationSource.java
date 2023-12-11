@@ -11,6 +11,7 @@ import java.util.Enumeration;
 public abstract class ModpackInstallationSource {
     public interface Entry {
         String getName();
+
         InputStream getInputStream() throws IOException;
     }
 
@@ -23,5 +24,6 @@ public abstract class ModpackInstallationSource {
     }
 
     public abstract int getEntryCount();
+
     public abstract Enumeration<Entry> entries();
 }

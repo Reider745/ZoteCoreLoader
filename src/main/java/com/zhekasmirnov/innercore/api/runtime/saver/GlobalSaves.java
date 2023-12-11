@@ -7,7 +7,6 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
  */
 
 import com.zhekasmirnov.innercore.api.NativeAPI;
-// import com.zhekasmirnov.innercore.api.log.DialogHelper;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
@@ -100,7 +99,7 @@ public class GlobalSaves {
         if (!savesErrors.isEmpty()) {
             StringBuilder log = new StringBuilder();
             for (LoggedSavesError err : savesErrors) {
-                // TODO: log.append(err.message).append("\n").append(DialogHelper.getFormattedStackTrace(err.error)).append("\n\n");
+                log.append(err.message).append("\n").append(Logger.getStackTrace(err.error)).append("\n\n");
             }
             Logger.error(
                     "Errors occurred while " + (isReading ? "reading" : "saving") + " data:\n\n" + log,

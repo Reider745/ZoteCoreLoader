@@ -2,7 +2,6 @@ package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
-// import com.zhekasmirnov.innercore.api.log.DialogHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,7 +55,7 @@ public class WorldDataSaver {
             if (!lockCheck || !FileUtils.getFileFlag(directory, name + "-opened")) {
                 try {
                     return FileUtils.readJSON(file);
-                } catch (JSONException exception) {
+                } catch (IOException | JSONException exception) {
                     Logger.error("FAILED TO READ SAVES", new IOException("Failed to read this world saves", exception));
                 }
             }
@@ -147,7 +146,7 @@ public class WorldDataSaver {
         if (!errorLog.isEmpty()) {
             StringBuilder log = new StringBuilder();
             for (LoggedSavesError err : errorLog) {
-                // TODO: log.append(err.message).append("\n").append(DialogHelper.getFormattedStackTrace(err.error)).append("\n\n");
+                log.append(err.message).append("\n").append(Logger.getStackTrace(err.error)).append("\n\n");
             }
             Logger.error(
                     "Errors occurred while " + (state == SaverState.READ ? "reading" : "saving") + " data:\n\n" + log,

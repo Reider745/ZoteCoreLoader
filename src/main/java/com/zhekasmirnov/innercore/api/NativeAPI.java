@@ -452,9 +452,8 @@ public class NativeAPI {
         EntityMethod.getRotation(entity, rotation);
     }
 
-    public static int getSeed() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.getSeed()");
-        return 0;
+    public static /* int */ long getSeed() {
+        return WorldMethod.getSeed();
     }
 
     public static int getTile(int x, int y, int z) {

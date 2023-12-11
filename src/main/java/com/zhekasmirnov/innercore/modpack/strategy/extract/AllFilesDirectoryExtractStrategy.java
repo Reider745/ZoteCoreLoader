@@ -1,7 +1,5 @@
 package com.zhekasmirnov.innercore.modpack.strategy.extract;
 
-import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

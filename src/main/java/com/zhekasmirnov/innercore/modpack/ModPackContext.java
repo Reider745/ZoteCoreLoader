@@ -15,7 +15,6 @@ public class ModPackContext {
         return instance;
     }
 
-
     public interface ModPackSelectedListener {
         void onSelected(ModPack modPack);
     }
@@ -24,22 +23,17 @@ public class ModPackContext {
         void onDeselected(ModPack modPack);
     }
 
-
     private final ModPackStorage storage = new ModPackStorage(
-            //null, null,
             new File(FileTools.DIR_PACK, "modpacks"),
             new File(FileTools.DIR_PACK, "modpacks-archive"),
-            new File(FileTools.DIR_WORK)
-    );
-    
+            new File(FileTools.DIR_WORK));
+
     private ModPack currentModPack = null;
 
     private final List<ModPackSelectedListener> selectedListenerList = new ArrayList<>();
     private final List<ModPackDeselectedListener> deselectedListenerList = new ArrayList<>();
 
-
     private ModPackContext() {
-        // setModPack(ModPackFactory.getInstance().createFromDirectory(new File(FileTools.DIR_PACK, "modpacks/test")));
     }
 
     public ModPackStorage getStorage() {
@@ -79,7 +73,6 @@ public class ModPackContext {
         }
     }
 
-
     public void addSelectedListener(ModPackSelectedListener listener) {
         selectedListenerList.add(listener);
     }
@@ -87,7 +80,6 @@ public class ModPackContext {
     public void addDeselectedListener(ModPackDeselectedListener listener) {
         deselectedListenerList.add(listener);
     }
-
 
     private final LinkedBlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
     private Thread taskThread = null;

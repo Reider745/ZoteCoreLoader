@@ -45,6 +45,7 @@ public class InnerCore {
         return javaDirectoriesFromProxy;
     }
 
+    @Deprecated
     public InnerCore(Activity context, /* Pack */ Object pack) {
         throw new UnsupportedOperationException("InnerCore(context, pack)");
     }

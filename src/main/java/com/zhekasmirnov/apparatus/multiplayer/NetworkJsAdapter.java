@@ -14,7 +14,6 @@ import org.mozilla.javascript.NativeArray;
 
 public class NetworkJsAdapter {
     private final Network network;
-    public static NetworkJsAdapter instance;
 
     public NetworkJsAdapter(Network network) {
         this.network = network;
@@ -48,12 +47,13 @@ public class NetworkJsAdapter {
         return NetworkPlayerRegistry.getSingleton().getHandlerFor(player);
     }
 
-
-    public void addClientInitializationPacket(String name, Network.ClientInitializationPacketSender sender, ConnectedClient.InitializationPacketListener receiver) {
+    public void addClientInitializationPacket(String name, Network.ClientInitializationPacketSender sender,
+            ConnectedClient.InitializationPacketListener receiver) {
         network.addClientInitializationPacket(name, sender, receiver);
     }
 
-    public void addServerInitializationPacket(String name, Network.ServerInitializationPacketSender sender, ModdedClient.OnPacketReceivedListener receiver) {
+    public void addServerInitializationPacket(String name, Network.ServerInitializationPacketSender sender,
+            ModdedClient.OnPacketReceivedListener receiver) {
         network.addServerInitializationPacket(name, sender, receiver);
     }
 
@@ -73,7 +73,6 @@ public class NetworkJsAdapter {
         network.addServerPacket(name, listener);
     }
 
-
     public void sendToAllClients(String packetName, Object data) {
         ThreadTypeMarker.assertServerThread();
         network.getServer().sendToAll(packetName, data);
@@ -88,7 +87,6 @@ public class NetworkJsAdapter {
         ThreadTypeMarker.assertServerThread();
         network.getServer().sendMessageToAll(message);
     }
-
 
     public int serverToLocalId(int id) {
         return IdConversionMap.serverToLocal(id);

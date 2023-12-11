@@ -1,8 +1,6 @@
 package com.zhekasmirnov.innercore.modpack.strategy.update;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
-import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
 import com.zhekasmirnov.innercore.utils.FileTools;
 
 import java.io.*;
@@ -10,7 +8,7 @@ import java.io.*;
 public class ResourceDirectoryUpdateStrategy extends DirectoryUpdateStrategy {
     @Override
     public void beginUpdate() throws IOException {
-        //FileUtils.clearFileTree(getAssignedDirectory().getLocation(), true);
+        FileUtils.clearFileTree(getAssignedDirectory().getLocation(), true);
         getAssignedDirectory().getLocation().mkdirs();
     }
 
@@ -25,6 +23,5 @@ public class ResourceDirectoryUpdateStrategy extends DirectoryUpdateStrategy {
 
     @Override
     public void finishUpdate() throws IOException {
-
     }
 }

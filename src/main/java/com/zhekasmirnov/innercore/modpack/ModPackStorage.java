@@ -51,7 +51,6 @@ public class ModPackStorage {
         }
     }
 
-
     public ModPackContext getContext() {
         return context;
     }
@@ -87,7 +86,6 @@ public class ModPackStorage {
         return defaultModPackDirectory.equals(modPack.getRootDirectory());
     }
 
-
     private static String normalizeFileName(String name) {
         if (name == null || name.equals("")) {
             return "unnamed";
@@ -111,7 +109,8 @@ public class ModPackStorage {
         return name;
     }
 
-    public ModPack installNewModPack(ModpackInstallationSource source, ModPack.TaskReporter taskReporter) throws InterruptedException {
+    public ModPack installNewModPack(ModpackInstallationSource source, ModPack.TaskReporter taskReporter)
+            throws InterruptedException {
         ModPackManifest manifest;
         try {
             manifest = source.getTempManifest();
@@ -121,8 +120,8 @@ public class ModPackStorage {
             return null; // this should never happen, so function is non-null
         }
 
-
-        File packDirectory = new File(packsDirectory, getAvailablePackFileName(manifest, name -> !new File(packsDirectory, name).exists()));
+        File packDirectory = new File(packsDirectory,
+                getAvailablePackFileName(manifest, name -> !new File(packsDirectory, name).exists()));
         packDirectory.mkdirs();
 
         if (!packDirectory.isDirectory()) {
@@ -142,8 +141,10 @@ public class ModPackStorage {
         return modPack;
     }
 
-    public ModPack installNewModPack(InputStream inputStream, ModPack.TaskReporter taskReporter) throws InterruptedException {
-        try (ExternalZipFileInstallationSource installationSource = new ExternalZipFileInstallationSource(inputStream)) {
+    public ModPack installNewModPack(InputStream inputStream, ModPack.TaskReporter taskReporter)
+            throws InterruptedException {
+        try (ExternalZipFileInstallationSource installationSource = new ExternalZipFileInstallationSource(
+                inputStream)) {
             return installNewModPack(installationSource, taskReporter);
         } catch (IOException exception) {
             taskReporter.reportError("failed to create installation source", exception, false);
@@ -157,7 +158,8 @@ public class ModPackStorage {
             ModPack.interruptTask("failed to load pack manifest");
         }
 
-        File archiveFile = new File(packsArchiveDirectory, getAvailablePackFileName(modPack.getManifest(), name -> !new File(packsArchiveDirectory, name + ".zip").exists()) + ".zip");
+        File archiveFile = new File(packsArchiveDirectory, getAvailablePackFileName(modPack.getManifest(),
+                name -> !new File(packsArchiveDirectory, name + ".zip").exists()) + ".zip");
         archiveFile.getParentFile().mkdirs();
 
         try (ZipFileExtractionTarget extractionTarget = new ZipFileExtractionTarget(archiveFile)) {
@@ -178,7 +180,7 @@ public class ModPackStorage {
         }
 
         modPacks.remove(modPack);
-        //FileUtils.clearFileTree(modPack.getRootDirectory(), true);
+        FileUtils.clearFileTree(modPack.getRootDirectory(), true);
     }
 
     public File archiveAndDeletePack(ModPack modPack, ModPack.TaskReporter taskReporter) throws InterruptedException {
@@ -187,11 +189,12 @@ public class ModPackStorage {
         }
 
         File archive = archivePack(modPack, taskReporter);
-        //FileUtils.clearFileTree(modPack.getRootDirectory(), true);
+        FileUtils.clearFileTree(modPack.getRootDirectory(), true);
         return archive;
     }
 
-    public ModPack unarchivePack(File archivedPackFile, ModPack.TaskReporter taskReporter, boolean deleteArchiveFile) throws InterruptedException {
+    public ModPack unarchivePack(File archivedPackFile, ModPack.TaskReporter taskReporter, boolean deleteArchiveFile)
+            throws InterruptedException {
         ZipFileInstallationSource installationSource;
         try {
             installationSource = new ZipFileInstallationSource(new ZipFile(archivedPackFile));

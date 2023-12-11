@@ -52,7 +52,8 @@ public class ModPackJsAdapter {
     }
 
     public NativeArray getDirectoriesOfType(String type) {
-        return ScriptableObjectHelper.createArray(modPack.getDirectoriesOfType(ModPackDirectory.DirectoryType.valueOf(type.trim().toUpperCase())));
+        return ScriptableObjectHelper.createArray(
+                modPack.getDirectoriesOfType(ModPackDirectory.DirectoryType.valueOf(type.trim().toUpperCase())));
     }
 
     public ModPackDirectory getDirectoryOfType(String type) {

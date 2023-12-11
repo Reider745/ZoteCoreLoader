@@ -5,11 +5,12 @@ package com.zhekasmirnov.innercore.mod.build.enums;
  */
 
 public enum BuildType {
-    RELEASE ("release"),
-    DEVELOP ("develop");
+    RELEASE("release"),
+    DEVELOP("develop");
 
     private final String name;
-    BuildType (String name) {
+
+    BuildType(String name) {
         this.name = name;
     }
 
@@ -18,11 +19,9 @@ public enum BuildType {
     }
 
     public static BuildType fromString(String str) {
-        switch (str) {
-            case "release":
-                return RELEASE;
-            default:
-                return DEVELOP;
-        }
+        return switch (str) {
+            case "release" -> RELEASE;
+            default -> DEVELOP;
+        };
     }
 }

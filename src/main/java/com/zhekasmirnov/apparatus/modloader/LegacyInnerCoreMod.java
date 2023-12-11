@@ -37,7 +37,8 @@ public class LegacyInnerCoreMod extends DirectoryBasedMod {
     public void init() {
         if (legacyModInstance == null) {
             ICLog.d("INNERCORE-MOD", "building and importing mod: " + getDirectory().getName());
-            legacyModInstance = ModBuilder.buildModForDir(getDirectory().getAbsolutePath() + "/", modPack, locationName);
+            legacyModInstance = ModBuilder.buildModForDir(getDirectory().getAbsolutePath() + "/", modPack,
+                    locationName);
             if (legacyModInstance != null) {
                 legacyModInstance.onImport();
             } else {
@@ -62,46 +63,6 @@ public class LegacyInnerCoreMod extends DirectoryBasedMod {
 
     @Override
     public void onSettingUpEnvironment(EnvironmentSetupProxy proxy, ModLoaderReporter reporter) {
-        // resource & gui
-        /*for (BuildConfig.ResourceDir resourceDir : legacyModInstance.buildConfig.resourceDirs) {
-            if (resourceDir.gameVersion.isCompatible()) {
-                switch (resourceDir.resourceType) {
-                    case RESOURCE:
-                        //proxy.addResourceDirectory(this, new File(getDirectory(), resourceDir.path));
-                        break;
-                    case GUI:
-                        proxy.addGuiAssetsDirectory(this, new File(getDirectory(), resourceDir.path));
-                        //break;
-                }
-            }
-        }*/
-
-        // addon behavior packs
-       /* String behaviorPackDirName = legacyModInstance.buildConfig.defaultConfig.behaviorPacksDir;
-        if (behaviorPackDirName != null) {
-            File[] behaviorPacks = new File(getDirectory(), behaviorPackDirName).listFiles();
-            if (behaviorPacks != null) {
-                for (File behaviorPack : behaviorPacks) {
-                    if (new ResourceGameVersion(new File(behaviorPack, "game_version.json")).isCompatible()) {
-                        proxy.addBehaviorPackDirectory(this, behaviorPack);
-                    }
-                }
-            }
-        }
-
-        // addon resource packs
-        String resourcePackDirName = legacyModInstance.buildConfig.defaultConfig.resourcePacksDir;
-        if (resourcePackDirName != null) {
-            File[] resourcePacks = new File(getDirectory(), resourcePackDirName).listFiles();
-            if (resourcePacks != null) {
-                for (File resourcePack : resourcePacks) {
-                    if (new ResourceGameVersion(new File(resourcePack, "game_version.json")).isCompatible()) {
-                        proxy.addResourcePackDirectory(this, resourcePack);
-                    }
-                }
-            }
-        }*/
-
         // java directories
         for (BuildConfig.DeclaredDirectory directory : legacyModInstance.buildConfig.javaDirectories) {
             if (directory.version.isCompatible()) {
@@ -124,13 +85,10 @@ public class LegacyInnerCoreMod extends DirectoryBasedMod {
 
     @Override
     public void onRunningMod(ModLoaderReporter reporter) {
-        legacyModInstance.loadModInfo();
         legacyModInstance.RunLauncherScripts();
         // update properties, after multiplayer info is set by launcher scripts
         getInfo().pullLegacyModProperties(legacyModInstance);
     }
-
-
 
     @Override
     public void onShuttingDown(ModLoaderReporter reporter) {

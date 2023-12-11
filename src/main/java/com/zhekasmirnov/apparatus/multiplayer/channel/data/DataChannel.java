@@ -65,7 +65,7 @@ public abstract class DataChannel {
                 }
                 closeImpl();
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.info(e.getMessage());
             }
         }
     }

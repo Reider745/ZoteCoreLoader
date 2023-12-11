@@ -1,12 +1,10 @@
 package com.zhekasmirnov.innercore.modpack;
 
 import com.zhekasmirnov.innercore.modpack.strategy.request.DirectoryRequestStrategy;
-import com.zhekasmirnov.innercore.modpack.strategy.update.DirectoryUpdateStrategy;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class DirectorySetRequestHandler {
@@ -14,10 +12,9 @@ public class DirectorySetRequestHandler {
     private final List<DirectoryRequestStrategy> strategies = new ArrayList<>();
 
     public DirectorySetRequestHandler() {
-
     }
 
-    public DirectorySetRequestHandler(ModPackDirectory ... directories) {
+    public DirectorySetRequestHandler(ModPackDirectory... directories) {
         for (ModPackDirectory directory : directories) {
             add(directory);
         }

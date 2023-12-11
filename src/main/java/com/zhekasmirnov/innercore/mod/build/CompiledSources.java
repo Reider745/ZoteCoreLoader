@@ -18,14 +18,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class CompiledSources {
-    private boolean isValid = true;
     private JSONObject sourceList = new JSONObject();
 
     private File dir;
     private File sourceListFile;
 
     private void invalidate() {
-        isValid = false;
         validateJson();
         validateFiles();
     }
@@ -83,8 +81,6 @@ public class CompiledSources {
         validateFiles();
     }
 
-
-
     public File[] getCompiledSourceFilesFor(String name) {
         JSONObject data = sourceList.optJSONObject(name);
 
@@ -101,13 +97,13 @@ public class CompiledSources {
                     File file = new File(dir, path);
                     if (file.exists()) {
                         files.add(file);
+                    } else {
+                        ICLog.d("WARNING", "compiled dex file " + path + " related to source " + name
+                                + " has incorrect formatted path");
                     }
-                    else {
-                        ICLog.d("WARNING", "compiled dex file " + path + " related to source " + name + " has incorrect formatted path");
-                    }
-                }
-                else {
-                    ICLog.d("WARNING", "compiled dex file at index " + i + " related to source " + name + " has incorrect formatted path");
+                } else {
+                    ICLog.d("WARNING", "compiled dex file at index " + i + " related to source " + name
+                            + " has incorrect formatted path");
                 }
             }
             File[] _files = new File[files.size()];
@@ -117,7 +113,7 @@ public class CompiledSources {
 
         String path = data.optString("path");
         if (path != null) {
-            return new File[]{new File(dir, path)};
+            return new File[] { new File(dir, path) };
         }
 
         return null;

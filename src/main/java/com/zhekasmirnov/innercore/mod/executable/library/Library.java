@@ -25,15 +25,14 @@ public class Library extends Executable {
 
     private ArrayList<LibraryDependency> dependencies = new ArrayList<>();
 
-    public Library(Context context, Script script, ScriptableObject scriptScope, CompilerConfig config, API apiInstance) {
+    public Library(Context context, Script script, ScriptableObject scriptScope, CompilerConfig config,
+            API apiInstance) {
         super(context, script, scriptScope, config, apiInstance);
     }
 
     public Library(Context context, ScriptableObject scriptScope, CompilerConfig config, API apiInstance) {
         super(context, scriptScope, config, apiInstance);
     }
-
-
 
     public String getLibName() {
         return libName;
@@ -51,10 +50,8 @@ public class Library extends Executable {
         return isShared;
     }
 
-
-
     private LibraryState state = LibraryState.NONE;
-    private boolean isOldFormatted = false;
+    // private boolean isOldFormatted = false;
 
     private void setState(LibraryState state) {
         this.state = state;
@@ -84,8 +81,6 @@ public class Library extends Executable {
         ICLog.e("INNERCORE-EXEC", "failed to run executable '" + name + "', some errors occurred:", exception);
     }
 
-
-
     private static class RunInterruptionException extends RuntimeException {
 
     }
@@ -96,7 +91,8 @@ public class Library extends Executable {
         }
     }
 
-    private void headerCall(String name, int version, String apiName, boolean shared, ArrayList<LibraryDependency> dependencies) {
+    private void headerCall(String name, int version, String apiName, boolean shared,
+            ArrayList<LibraryDependency> dependencies) {
         if (name == null) {
             throw new InvalidHeaderCall("Error in library initialization - name is not given");
         }
@@ -140,7 +136,8 @@ public class Library extends Executable {
                     }
                 }
 
-                headerCall(params.getString("name"), params.getInt("version"), params.getString("api"), params.getBoolean("shared"), dependencies);
+                headerCall(params.getString("name"), params.getInt("version"), params.getString("api"),
+                        params.getBoolean("shared"), dependencies);
                 return null;
             }
         });
@@ -148,11 +145,11 @@ public class Library extends Executable {
         try {
             runScript();
         } catch (RunInterruptionException ignore) {
-            isOldFormatted = false;
+            // isOldFormatted = false;
         } catch (InvalidHeaderCall err) {
             onFatalException(err);
-        } catch (Throwable ignore){
-            isOldFormatted = true;
+        } catch (Throwable ignore) {
+            // isOldFormatted = true;
             isShared = true;
             libName = compilerConfig.getName();
             versionCode = 0;
@@ -163,13 +160,6 @@ public class Library extends Executable {
 
             prepare();
         }
-
-
-//        Object[] keys = scriptScope.getAllIds();
-//        for (Object key : keys) {
-//            ICLog.d("LIBRARY", key + " = " + scriptScope.get(key));
-//        }
-//        ICLog.d("LIBRARY", "prepared lib: " + libName + " " + isOldFormatted + " " + isShared + " " + versionCode + " " + state);
     }
 
     public void prepare() {
@@ -190,8 +180,8 @@ public class Library extends Executable {
         }
 
         // inject annotations
-        new LibraryAnnotation("$EXPORT", new Class[] {CharSequence.class}).injectMethod(scriptScope);
-        new LibraryAnnotation("$BACKCOMP", new Class[] {Number.class}).injectMethod(scriptScope);
+        new LibraryAnnotation("$EXPORT", new Class[] { CharSequence.class }).injectMethod(scriptScope);
+        new LibraryAnnotation("$BACKCOMP", new Class[] { Number.class }).injectMethod(scriptScope);
 
         // inject export method
         ScriptableFunctionImpl EXPORT = new ScriptableFunctionImpl() {
@@ -207,7 +197,8 @@ public class Library extends Executable {
                     try {
                         targetVersion = Integer.valueOf(parts[1]);
                     } catch (NumberFormatException ignore) {
-                        ICLog.i("ERROR", "invalid formatted library export name " + name + " target version will be ignored");
+                        ICLog.i("ERROR",
+                                "invalid formatted library export name " + name + " target version will be ignored");
                     }
                 }
 
@@ -241,7 +232,8 @@ public class Library extends Executable {
         // force all required libs to load
         for (LibraryDependency dependency : dependencies) {
             if (LibraryRegistry.resolveDependencyAndLoadLib(dependency) == null) {
-                ICLog.i("ERROR", "failed to resolve dependency " + dependency + " for library " + libName + ", it may load incorrectly.");
+                ICLog.i("ERROR", "failed to resolve dependency " + dependency + " for library " + libName
+                        + ", it may load incorrectly.");
             }
         }
 
@@ -269,15 +261,14 @@ public class Library extends Executable {
         LibraryAnnotation.AnnotationInstance backCompAnnotation = set.find("$BACKCOMP");
 
         if (exportAnnotation != null) {
-            LibraryExport export = new LibraryExport(exportAnnotation.getParameter(0, CharSequence.class).toString(), set.getTarget());
+            LibraryExport export = new LibraryExport(exportAnnotation.getParameter(0, CharSequence.class).toString(),
+                    set.getTarget());
             if (backCompAnnotation != null) {
                 export.setTargetVersion(backCompAnnotation.getParameter(0, Number.class).intValue());
             }
             addExport(export);
         }
     }
-
-
 
     private ArrayList<LibraryExport> exports = new ArrayList<>();
     private HashSet<String> exportNames = new HashSet<>();
@@ -316,9 +307,6 @@ public class Library extends Executable {
 
         return result;
     }
-
-
-
 
     @Override
     public Object runForResult() {

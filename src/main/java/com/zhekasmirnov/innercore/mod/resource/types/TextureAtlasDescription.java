@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.mod.resource.types;
 
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONArray;
@@ -23,19 +24,24 @@ public class TextureAtlasDescription {
         jsonObject = new JSONObject();
         try {
             jsonObject.put("texture_data", textureData);
-        } catch (JSONException ignore) { }
+        } catch (JSONException ignore) {
+        }
 
         for (String resourcePack : MinecraftVersions.getCurrent().getVanillaResourcePacksDirs()) {
             try {
-                JSONObject packTextureData = FileTools.getAssetAsJSON(resourcePack + resourcesPath).optJSONObject("texture_data");
-                if (packTextureData != null) {
-                    for (Iterator<String> it = packTextureData.keys(); it.hasNext(); ) {
-                        String key = it.next();
-                        textureData.put(key, packTextureData.opt(key));
+                String manifestFile = resourcePack + resourcesPath;
+                if (FileTools.exists(manifestFile)) {
+                    JSONObject packTextureData = FileTools.getAssetAsJSON(manifestFile)
+                            .optJSONObject("texture_data");
+                    if (packTextureData != null) {
+                        for (Iterator<String> it = packTextureData.keys(); it.hasNext();) {
+                            String key = it.next();
+                            textureData.put(key, packTextureData.opt(key));
+                        }
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.message("TextureAtlasDescription(resourcesPath)", e);
             }
         }
     }
@@ -44,9 +50,8 @@ public class TextureAtlasDescription {
         try {
             jsonObject = content;
             textureData = this.jsonObject.getJSONObject("texture_data");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Logger.message("TextureAtlasDescription(content)", e);
         }
     }
 
@@ -54,8 +59,7 @@ public class TextureAtlasDescription {
         JSONObject textureUnit;
         if (textureData.has(name)) {
             textureUnit = textureData.getJSONObject(name);
-        }
-        else {
+        } else {
             textureUnit = new JSONObject();
             textureUnit.put("textures", new JSONArray());
         }
@@ -94,14 +98,13 @@ public class TextureAtlasDescription {
                 String name = filename.substring(0, filename.lastIndexOf('.'));
                 int index = getTextureCount(name);
                 if (index > 0) {
-                    ICLog.i("ERROR", "found texture with no index that conflicts with already added texture, add aborted");
-                }
-                else {
+                    ICLog.i("ERROR",
+                            "found texture with no index that conflicts with already added texture, add aborted");
+                } else {
                     addTexturePath(name, index, path);
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             ICLog.i("ERROR", "invalid texture file name: " + texture.getName() + ", failed with error " + e);
         }
     }
@@ -119,8 +122,8 @@ public class TextureAtlasDescription {
                     return texture;
                 }
             }
-        } 
-        
+        }
+
         return null;
     }
 }

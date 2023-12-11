@@ -13,19 +13,17 @@ import java.io.InputStream;
 public class JsonMergeDirectoryUpdateStrategy extends DirectoryUpdateStrategy {
     @Override
     public void beginUpdate() throws IOException {
-
     }
 
     private JSONObject readJson(File file, JSONObject fallback) {
         try {
             return FileUtils.readJSON(file);
-        } catch (Exception exception) {
+        } catch (IOException | JSONException exception) {
             return new JSONObject();
         }
     }
 
     private JSONObject mergeJson(JSONObject userData, JSONObject originalData, JSONObject updateData) {
-
         return updateData;
     }
 
@@ -53,8 +51,7 @@ public class JsonMergeDirectoryUpdateStrategy extends DirectoryUpdateStrategy {
                     FileUtils.writeJSON(originalFile, updateJson);
                     return;
                 }
-            } catch (JSONException ignore) { } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (JSONException ignore) {
             }
         }
 
@@ -65,6 +62,5 @@ public class JsonMergeDirectoryUpdateStrategy extends DirectoryUpdateStrategy {
 
     @Override
     public void finishUpdate() throws IOException {
-
     }
 }

@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.modpack.installation;
 
-import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.utils.FileTools;
 
 import java.io.Closeable;
@@ -16,12 +15,11 @@ public class ExternalZipFileInstallationSource extends ZipFileInstallationSource
         tmpFile.getParentFile().mkdirs();
         tmpFile.delete();
 
-        //FileUtils.unpackInputStream(inputStream, tmpFile);
+        FileTools.unpackInputStream(inputStream, tmpFile.getAbsolutePath());
         setFile(new ZipFile(tmpFile));
     }
 
     @Override
     public void close() throws IOException {
-
     }
 }

@@ -17,7 +17,6 @@ public class ZipFileInstallationSource extends ModpackInstallationSource {
     }
 
     public ZipFileInstallationSource() {
-
     }
 
     public void setFile(ZipFile file) {

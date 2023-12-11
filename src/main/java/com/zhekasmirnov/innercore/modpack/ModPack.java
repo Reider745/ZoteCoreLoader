@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-
 /*
  * desired mod pack structure:
  * root/
@@ -91,7 +90,6 @@ public class ModPack {
         }
     }
 
-
     public List<ModPackDirectory> getAllDirectories() {
         List<ModPackDirectory> directories = new ArrayList<>(defaultDirectories);
         directories.addAll(declaredDirectories);
@@ -122,10 +120,11 @@ public class ModPack {
         return new DirectorySetRequestHandler(getDirectoriesOfType(type));
     }
 
-
     public interface TaskReporter {
         void reportError(String logMessage, Exception exception, boolean isFatal) throws InterruptedException;
+
         void reportProgress(String logMessage, int stage, int progress, int maxProgress) throws InterruptedException;
+
         void reportResult(boolean success);
     }
 
@@ -137,14 +136,14 @@ public class ModPack {
         throw new InterruptedException(message);
     }
 
-
-    public synchronized void installOrUpdate(ModpackInstallationSource source, TaskReporter reporter) throws InterruptedException {
+    public synchronized void installOrUpdate(ModpackInstallationSource source, TaskReporter reporter)
+            throws InterruptedException {
         Enumeration<ModpackInstallationSource.Entry> entries = source.entries();
 
         try {
             File manifestFile = getManifestFile();
             manifestFile.getParentFile().mkdirs();
-            FileTools.writeFileText(manifestFile.getAbsolutePath(), source.getManifestContent());
+            FileTools.writeFileText(manifestFile, source.getManifestContent());
             manifest.loadFile(manifestFile);
             reporter.reportProgress("loaded manifest", 0, 1, 1);
         } catch (IOException | JSONException exception) {
@@ -178,7 +177,8 @@ public class ModPack {
                     try (InputStream inputStream = entry.getInputStream()) {
                         directory.getUpdateStrategy().updateFile(localPath, inputStream);
                     } catch (IOException exception) {
-                        reporter.reportError("failed to update entry " + name + " (local path " + localPath + ") in directory " + directory, exception, false);
+                        reporter.reportError("failed to update entry " + name + " (local path " + localPath
+                                + ") in directory " + directory, exception, false);
                     }
                 }
             }
@@ -197,16 +197,17 @@ public class ModPack {
         reporter.reportResult(true);
     }
 
-    public synchronized void extract(ModPackExtractionTarget target, TaskReporter reporter) throws InterruptedException {
+    public synchronized void extract(ModPackExtractionTarget target, TaskReporter reporter)
+            throws InterruptedException {
         reloadAndValidateManifest();
 
         try {
             reporter.reportProgress("extracting modpack", 0, 0, 1);
             target.writeFile("modpack.json", getManifestFile());
             File iconFile = getIconFile();
-            if(iconFile.exists()){
+            if (iconFile.exists()) {
                 target.writeFile("pack_icon.png", iconFile);
-            }            
+            }
         } catch (IOException exception) {
             reporter.reportError("failed to extract manifest", exception, true);
             interruptTask(exception, "failed to extract manifest");

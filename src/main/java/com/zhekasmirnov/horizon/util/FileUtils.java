@@ -1,5 +1,6 @@
 package com.zhekasmirnov.horizon.util;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -13,7 +14,7 @@ public class FileUtils {
                 File[] var4 = var0.listFiles();
                 int var3 = var4.length;
 
-                for(int var2 = 0; var2 < var3; ++var2) {
+                for (int var2 = 0; var2 < var3; ++var2) {
                     clearFileTree(var4[var2], true);
                 }
             }
@@ -24,15 +25,11 @@ public class FileUtils {
         }
     }
 
-    public static JSONObject readJSON(File file) {
-        try {
-            return new JSONObject(readFileText(file));
-        } catch (Exception e) {
-            throw new RuntimeException(e.getCause().toString());
-        }
+    public static JSONObject readJSON(File file) throws JSONException, IOException {
+        return new JSONObject(readFileText(file));
     }
 
-    public static String readFileText(File file) throws Exception {
+    public static String readFileText(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             StringBuilder text = new StringBuilder();
             String line;
@@ -43,13 +40,13 @@ public class FileUtils {
         }
     }
 
-    public static void writeFileText(File file, String text) throws Exception {
+    public static void writeFileText(File file, String text) throws IOException {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file, false)))) {
             writer.write(text);
         }
     }
 
-    public static void writeJSON(File file, JSONObject jsonObject) throws Exception {
+    public static void writeJSON(File file, JSONObject jsonObject) throws IOException {
         String result = jsonObject.toString();
         FileUtils.writeFileText(file, result);
     }

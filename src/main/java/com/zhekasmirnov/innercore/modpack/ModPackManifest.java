@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.modpack;
 
+import android.text.TextUtils;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.innercore.modpack.strategy.extract.AllFilesDirectoryExtractStrategy;
 import com.zhekasmirnov.innercore.modpack.strategy.request.DefaultDirectoryRequestStrategy;
@@ -7,6 +8,7 @@ import com.zhekasmirnov.innercore.modpack.strategy.request.DirectoryRequestStrat
 import com.zhekasmirnov.innercore.modpack.strategy.request.NoAccessDirectoryRequestStrategy;
 import com.zhekasmirnov.innercore.modpack.strategy.update.*;
 import com.zhekasmirnov.innercore.utils.FileTools;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,8 +34,7 @@ public class ModPackManifest {
         USER_DATA, // user data kept during updates and re-installs
         CONFIG, // config uses merge update strategy, but default request strategy
         CACHE, // cache is always deleted
-        INVALID // directory is not managed, used when invalid type is declared
-        ;
+        INVALID; // directory is not managed, used when invalid type is declared
 
         public static DirectoryRequestStrategy createDirectoryRequestStrategy(DeclaredDirectoryType type) {
             switch (type) {
@@ -83,15 +84,15 @@ public class ModPackManifest {
 
     public void loadJson(JSONObject json) {
         packName = json.optString("packName", json.optString("name"));
-        displayedName = "Хуй";
-        versionName = "Хуй";
+        displayedName = json.optString("displayedName");
+        versionName = json.optString("versionName");
         versionCode = json.optInt("versionCode");
-        author = "Хуй";
-        description = "Хуйли нет :D";
+        author = json.optString("author");
+        description = json.optString("description");
 
         declaredDirectories.clear();
         JSONArray directories = json.optJSONArray("directories");
-        /*if (directories != null) {
+        if (directories != null) {
             for (int i = 0; i < directories.length(); i++) {
                 JSONObject directory = directories.optJSONObject(i);
                 if (directory != null) {
@@ -101,12 +102,13 @@ public class ModPackManifest {
                         DeclaredDirectoryType type = DeclaredDirectoryType.INVALID;
                         try {
                             type = DeclaredDirectoryType.valueOf(typeName);
-                        } catch (IllegalArgumentException ignore) {}
+                        } catch (IllegalArgumentException ignore) {
+                        }
                         declaredDirectories.add(new DeclaredDirectory(type, path));
                     }
                 }
             }
-        }*/
+        }
     }
 
     public void loadInputStream(InputStream inputStream) throws IOException, JSONException {
@@ -123,7 +125,7 @@ public class ModPackManifest {
     }
 
     public String getDisplayedName() {
-        return "Всё хуйня";
+        return !TextUtils.isEmpty(displayedName) ? displayedName : packName;
     }
 
     public String getVersionName() {
@@ -153,10 +155,8 @@ public class ModPackManifest {
                 declaredDirectory.path.trim(),
                 DeclaredDirectoryType.createDirectoryRequestStrategy(declaredDirectory.type),
                 DeclaredDirectoryType.createDirectoryUpdateStrategy(declaredDirectory.type),
-                new AllFilesDirectoryExtractStrategy()
-        )).collect(Collectors.toList());
+                new AllFilesDirectoryExtractStrategy())).collect(Collectors.toList());
     }
-
 
     public void setPackName(String packName) {
         this.packName = packName;

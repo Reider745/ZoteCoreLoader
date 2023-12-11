@@ -1,5 +1,9 @@
 package com.zhekasmirnov.innercore.mod.build;
 
+/**
+ * Created by zheka on 15.08.2017.
+ */
+
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.utils.FileTools;
@@ -14,8 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 public class Config {
+
     private File file;
     private Config parent;
 
@@ -54,8 +58,7 @@ public class Config {
     public void save() {
         if (this.parent != null) {
             this.parent.save();
-        }
-        else {
+        } else {
             try {
                 if (data == null) {
                     data = new JSONObject();
@@ -78,8 +81,6 @@ public class Config {
         return nameArr;
     }
 
-
-
     public Object get(String name) {
         int dotIndex = name.indexOf('.');
         String firstName;
@@ -87,8 +88,7 @@ public class Config {
         if (dotIndex != -1) {
             firstName = name.substring(0, dotIndex);
             lastName = name.substring(dotIndex + 1);
-        }
-        else {
+        } else {
             firstName = name;
         }
 
@@ -100,8 +100,7 @@ public class Config {
             Config cfg = new Config(this, (JSONObject) val);
             if (lastName != null) {
                 return cfg.get(lastName);
-            }
-            else {
+            } else {
                 return cfg;
             }
         }
@@ -153,8 +152,6 @@ public class Config {
         return null;
     }
 
-
-
     public boolean set(String name, Object val) {
         int dotIndex = name.indexOf('.');
         String firstName;
@@ -162,8 +159,7 @@ public class Config {
         if (dotIndex != -1) {
             firstName = name.substring(0, dotIndex);
             lastName = name.substring(dotIndex + 1);
-        }
-        else {
+        } else {
             firstName = name;
         }
 
@@ -175,13 +171,11 @@ public class Config {
                 return false;
             }
             return true;
-        }
-        else {
+        } else {
             Object unit = data.opt(firstName);
             if (unit != null && unit instanceof JSONObject) {
                 return (new Config(this, (JSONObject) unit)).set(lastName, val);
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -192,15 +186,14 @@ public class Config {
         return val.isValid ? val : null;
     }
 
-
-
     public void checkAndRestore(String str) throws JSONException {
         checkAndRestore(new JSONObject(str));
     }
 
     public void checkAndRestore(ScriptableObject obj) {
         try {
-            checkAndRestore(NativeJSON.stringify(Context.enter(), ScriptableObjectHelper.getDefaultScope(), obj, null, null).toString());
+            checkAndRestore(NativeJSON
+                    .stringify(Context.enter(), ScriptableObjectHelper.getDefaultScope(), obj, null, null).toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -231,14 +224,12 @@ public class Config {
                 if (defVal != null) {
                     if (defVal instanceof JSONObject) {
                         cur.put(key, checkAndRestoreRecursive((JSONObject) defVal, cur.optJSONObject(key)));
-                    }
-                    else {
+                    } else {
                         if (curVal != null) {
                             if (curVal.getClass() != defVal.getClass()) {
                                 cur.put(key, defVal);
                             }
-                        }
-                        else {
+                        } else {
                             cur.put(key, defVal);
                         }
                     }
@@ -249,15 +240,13 @@ public class Config {
         return cur;
     }
 
-
-
     public static class ConfigValue {
         private Config parent;
         private String path;
 
         private boolean isValid;
 
-        private ConfigValue (Config parent, String path) {
+        private ConfigValue(Config parent, String path) {
             this.parent = parent;
             this.path = path;
             this.isValid = parent.get(path) != null;

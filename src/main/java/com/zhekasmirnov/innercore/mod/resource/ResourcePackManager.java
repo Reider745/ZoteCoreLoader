@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.mod.resource;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONArray;
@@ -18,8 +19,8 @@ public class ResourcePackManager {
     public static ResourcePackManager instance;
 
     static {
-        FileTools.assureDir(FileTools.DIR_MINECRAFT + "minecraftpe");
-        FileTools.assureDir(FileTools.DIR_MINECRAFT + "resource_packs");
+        // TODO: FileTools.assureDir(FileTools.DIR_MINECRAFT + "minecraftpe");
+        // TODO: FileTools.assureDir(FileTools.DIR_MINECRAFT + "resource_packs");
 
         instance = new ResourcePackManager();
     }
@@ -39,23 +40,21 @@ public class ResourcePackManager {
             resourceStorage.build();
             LoadingUI.setProgress(0.05f);
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.message("ResourcePackManager.initializeResources()", e);
         }
     }
 
     public static String getBlockTextureName(String name, int id) {
-        /*if (instance.resourceStorage != null) {
-            String result = instance.resourceStorage.blockTextureDescriptor.getTextureName(name, id);
-            return result;
-        }*/
+        if (instance.resourceStorage != null) {
+            return instance.resourceStorage.blockTextureDescriptor.getTextureName(name, id);
+        }
         return null;
     }
 
     public static String getItemTextureName(String name, int id) {
-        /*if (instance.resourceStorage != null) {
-            String result = instance.resourceStorage.itemTextureDescriptor.getTextureName(name, id);
-            return result;
-        }*/
+        if (instance.resourceStorage != null) {
+            return instance.resourceStorage.itemTextureDescriptor.getTextureName(name, id);
+        }
         return null;
     }
 
@@ -71,13 +70,11 @@ public class ResourcePackManager {
         return FileTools.DIR_PACK + "assets/resource_packs/vanilla/";
     }
 
-
-
     public class ListWatcher {
         JSONArray list;
         String path;
 
-        public ListWatcher (String path) {
+        public ListWatcher(String path) {
             this.path = path;
             try {
                 this.list = FileTools.readJSONArray(path);
@@ -110,7 +107,8 @@ public class ResourcePackManager {
                 boolean equal = true;
                 while (elementKeys.hasNext()) {
                     String elementtKey = elementKeys.next();
-                    if (!(newElement.has(elementtKey) && newElement.getString(elementtKey).equals(element.getString(elementtKey)))) {
+                    if (!(newElement.has(elementtKey)
+                            && newElement.getString(elementtKey).equals(element.getString(elementtKey)))) {
                         equal = false;
                         break;
                     }

@@ -24,15 +24,15 @@ public class FileTools {
     public static String DIR_ROOT, DIR_PACK, DIR_WORK, DIR_MINECRAFT, DIR_HORIZON;
 
     // static {
-        // DIR_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
-        // DIR_HORIZON = DIR_ROOT + "games/horizon/";
-        // DIR_MINECRAFT =
-        // MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath()
-        // + "/";
+    // DIR_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+    // DIR_HORIZON = DIR_ROOT + "games/horizon/";
+    // DIR_MINECRAFT =
+    // MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath()
+    // + "/";
     // }
 
     public static void init() {
-        DIR_ROOT = DIR_HORIZON = DIR_PACK = InnerCoreServer.PATH + "/";
+        DIR_ROOT = DIR_HORIZON = DIR_PACK = DIR_MINECRAFT = InnerCoreServer.PATH + "/";
         DIR_WORK = DIR_ROOT + "innercore/";
         checkdirs();
     }
@@ -88,7 +88,7 @@ public class FileTools {
     public static byte[] getAssetBytes(String name) {
         try {
             return readFileText(DIR_WORK + "assets/" + name).getBytes();
-        } catch (Exception e) {
+        } catch (IOException e) {
             Logger.debug("Failed to find resource or it should not exist: " + name);
         }
         return new byte[0];

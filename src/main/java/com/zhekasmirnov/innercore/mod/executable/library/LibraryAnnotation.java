@@ -15,11 +15,10 @@ import java.util.HashSet;
 public class LibraryAnnotation {
     private static final String NAME_ID = "$_annotation";
 
-
     private final String name;
-    private final Class[] parameterTypes;
+    private final Class<?>[] parameterTypes;
 
-    public LibraryAnnotation(String name, Class[] parameterTypes) {
+    public LibraryAnnotation(String name, Class<?>[] parameterTypes) {
         this.name = name;
         this.parameterTypes = parameterTypes;
     }
@@ -31,8 +30,6 @@ public class LibraryAnnotation {
     public String getName() {
         return name;
     }
-
-
 
     public static class AnnotationInstance {
         private final LibraryAnnotation parent;
@@ -47,6 +44,7 @@ public class LibraryAnnotation {
             return params;
         }
 
+        @SuppressWarnings("unchecked")
         public <T> T getParameter(int id, Class<? extends T> type) {
             return (T) params[id];
         }
@@ -114,7 +112,7 @@ public class LibraryAnnotation {
         StringBuilder message = new StringBuilder();
         message.append(name).append(" got invalid parameters: required (");
 
-        for (Class type : parameterTypes) {
+        for (Class<?> type : parameterTypes) {
             message.append(type).append(", ");
         }
         message.append(") got (");
@@ -138,8 +136,6 @@ public class LibraryAnnotation {
         }
     }
 
-
-
     public static ArrayList<AnnotationSet> getAllAnnotations(Scriptable scope) {
         ArrayList<AnnotationSet> allAnnotations = new ArrayList<>();
         Object[] ids = scope.getIds();
@@ -157,8 +153,7 @@ public class LibraryAnnotation {
             Object obj;
             if (id instanceof String) {
                 obj = scope.get((String) id, scope);
-            }
-            else {
+            } else {
                 obj = scope.get((int) id, scope);
             }
 

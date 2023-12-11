@@ -1,7 +1,9 @@
 package com.zhekasmirnov.innercore.mod.build;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
+import com.zhekasmirnov.innercore.api.runtime.other.PrintStacking;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import com.zhekasmirnov.innercore.mod.executable.CompilerConfig;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
@@ -46,7 +48,7 @@ public class ExtractionHelper {
                 break;
             }
             String name = entry.getName();
-            Logger.debug("DEBUG", "searching: " + name);
+            Logger.message("DEBUG", "searching: " + name);
 
             if (name.endsWith(searchFor)) {
                 return name.substring(0, name.length() - searchFor.length());
@@ -195,6 +197,9 @@ public class ExtractionHelper {
         scope.put("print", scope, new ScriptableFunctionImpl() {
             @Override
             public Object call(Context context, Scriptable scriptable, Scriptable scriptable1, Object[] objects) {
+                for (Object obj : objects) {
+                    PrintStacking.print(obj + "");
+                }
                 return null;
             }
         });
@@ -211,102 +216,115 @@ public class ExtractionHelper {
         }
     }
 
-    private static ArrayList<String> extractionPathList = new ArrayList<>();
-    private static String lastLocation;
-
     public static synchronized ArrayList<String> extractICModFile(File file, IMessageReceiver logger,
             Runnable readyToInstallCallback) {
-        synchronized (ExtractionHelper.class) {
-            logger.message("preparing to install " + file.getName());
-            extractionPathList.clear();
+        logger.message("preparing to install " + file.getName());
+        extractionLocationList.clear();
+
+        ZipFile modArchiveFile;
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 24) {
+                modArchiveFile = new ZipFile(file, Charset.forName("UTF-8"));
+            } else {
+                modArchiveFile = new ZipFile(file);
+            }
+        } catch (ZipException e) {
+            logger.message("mod archive is corrupt: " + e);
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            logger.message("io exception occurred: " + e);
+            e.printStackTrace();
+            return null;
+        }
+
+        String subPath = searchForSubPath(modArchiveFile, "build.config");
+        if (subPath == null) {
+            logger.message("mod archive has incorrect structure: build.config file was not found anywhere");
+            return null;
+        } else {
+            logger.message("mod installation dir was found at path '/" + subPath + "'");
+        }
+
+        String[][] filesToExtract = new String[][] {
+                new String[] { "cfg", "build.config" },
+                new String[] { "icon", "mod_icon.png" },
+                new String[] { "info", "mod.info" },
+        };
+
+        logger.message("extracting installation files");
+        for (String[] f : filesToExtract) {
+            File tmp = new File(TEMP_DIR, f[0]);
+            if (tmp.exists()) {
+                tmp.delete();
+            }
             try {
-                try {
-                    ZipFile modArchiveFile = new ZipFile(file, Charset.forName("UTF-8"));
-                    String subPath = searchForSubPath(modArchiveFile, "build.config");
-                    if (subPath == null) {
-                        logger.message("mod archive has incorrect structure: build.config file was not found anywhere");
-                        return null;
-                    }
-                    logger.message("mod installation dir was found at path '/" + subPath + "'");
-                    String[][] filesToExtract = { new String[] { "cfg", "build.config" },
-                            new String[] { "icon", "mod_icon.png" }, new String[] { "info", "mod.info" } };
-                    logger.message("extracting installation files");
-                    int length = filesToExtract.length;
-                    int offset = 0;
-                    while (offset < length) {
-                        String[] fileRelocation = filesToExtract[offset];
-                        File tmp = new File(TEMP_DIR, fileRelocation[0]);
-                        if (tmp.exists()) {
-                            tmp.delete();
-                        }
-                        try {
-                            extractEntry(modArchiveFile, subPath, fileRelocation[1], TEMP_DIR + fileRelocation[0]);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        offset++;
-                    }
-                    BuildConfig buildConfig = new BuildConfig(new File(TEMP_DIR, "cfg"));
-                    if (!buildConfig.read()) {
-                        logger.message(
-                                "build config cannot be loaded correctly, it failed to extract or was corrupted");
-                        return null;
-                    }
-                    logger.message("we are ready to install");
-                    if (readyToInstallCallback != null) {
-                        readyToInstallCallback.run();
-                    }
-                    String setupScriptDir = buildConfig.defaultConfig.setupScriptDir;
-                    String expectedDefaultDirectory;
-                    if (subPath.length() > 0) {
-                        int slashIndex = Math.max(subPath.indexOf(47), subPath.indexOf(92));
-                        expectedDefaultDirectory = subPath.substring(0,
-                                slashIndex != -1 ? slashIndex : subPath.length());
-                    } else {
-                        String archiveName = file.getName();
-                        if (archiveName.endsWith(".icmod")) {
-                            expectedDefaultDirectory = archiveName.substring(0, archiveName.length() - 6);
-                        } else {
-                            expectedDefaultDirectory = archiveName;
-                        }
-                    }
-                    String defaultDirectory = getFreeLocation(expectedDefaultDirectory);
-                    logger.message("installing mod (default directory name is '" + defaultDirectory
-                            + "', but it probably will change).");
-                    if (setupScriptDir != null) {
-                        try {
-                            extractEntry(modArchiveFile, subPath, setupScriptDir, TEMP_DIR + "setup");
-                            logger.message("running setup script");
-                            runSetupScript(modArchiveFile, subPath, new File(TEMP_DIR, "setup"), defaultDirectory,
-                                    logger);
-                            lastLocation = defaultDirectory;
-                            return extractionPathList;
-                        } catch (Exception e2) {
-                            logger.message("failed to extract setup script: " + e2);
-                            return null;
-                        }
-                    }
-                    try {
-                        logger.message("extracting mod to ...mods/" + defaultDirectory);
-                        extractAs(modArchiveFile, subPath, defaultDirectory);
-                        lastLocation = defaultDirectory;
-                        return extractionPathList;
-                    } catch (IOException extractExc) {
-                        logger.message("failed to extract mod archive: " + extractExc);
-                        return null;
-                    }
-                } catch (ZipException corruptExc) {
-                    logger.message("mod archive is corrupt: " + corruptExc);
-                    corruptExc.printStackTrace();
-                    return null;
-                }
-            } catch (IOException accessExc) {
-                logger.message("io exception occurred: " + accessExc);
-                accessExc.printStackTrace();
+                extractEntry(modArchiveFile, subPath, f[1], TEMP_DIR + f[0]);
+                // logger.message("extracted file: " + subPath + f[1]);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        BuildConfig buildConfig = new BuildConfig(new File(TEMP_DIR, "cfg"));
+        if (!buildConfig.read()) {
+            logger.message("build config cannot be loaded correctly, it failed to extract or was corrupted");
+            return null;
+        }
+
+        logger.message("we are ready to install");
+        if (readyToInstallCallback != null) {
+            readyToInstallCallback.run();
+        }
+
+        String setupScriptDir = buildConfig.defaultConfig.setupScriptDir;
+
+        String defaultDir;
+        if (subPath.length() > 0) {
+            int slashIndex = Math.max(subPath.indexOf('/'), subPath.indexOf('\\'));
+            defaultDir = subPath.substring(0, slashIndex != -1 ? slashIndex : subPath.length());
+        } else {
+            defaultDir = file.getName();
+            if (defaultDir.endsWith(".icmod")) {
+                defaultDir = defaultDir.substring(0, defaultDir.length() - 6);
+            }
+        }
+
+        defaultDir = getFreeLocation(defaultDir);
+
+        logger.message("installing mod (default directory name is '" + defaultDir + "', but it probably will change).");
+        if (setupScriptDir != null) {
+            try {
+                extractEntry(modArchiveFile, subPath, setupScriptDir, TEMP_DIR + "setup");
+            } catch (Exception e) {
+                logger.message("failed to extract setup script: " + e);
+                return null;
+            }
+            logger.message("running setup script");
+            try {
+                runSetupScript(modArchiveFile, subPath, new File(TEMP_DIR, "setup"), defaultDir, logger);
+            } catch (Throwable e) {
+                logger.message("failed to run setup script: " + ICLog.getStackTrace(e));
+                return null;
+            }
+        } else {
+            try {
+                logger.message("extracting mod to location: " + defaultDir);
+                extractAs(modArchiveFile, subPath, defaultDir);
+            } catch (IOException e) {
+                logger.message("failed to extract mod archive: " + e);
                 return null;
             }
         }
+
+        lastLocation = defaultDir;
+        if (extractionLocationList.size() > 0) {
+            lastLocation = extractionLocationList.get(0);
+        }
+        return extractionLocationList;
     }
+
+    private static String lastLocation;
 
     public static String getLastLocation() {
         return lastLocation;

@@ -1,12 +1,12 @@
 package-lock.json
 node_modules
-.gradle
-bin
-build
+/.gradle
+/bin
+/build
 
-target/*
-!target/README.md
-logs
+/target/*
+!/target/README.md
+/logs
 
 .idea
 .vscode

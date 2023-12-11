@@ -41,8 +41,6 @@ import com.zhekasmirnov.innercore.api.runtime.*;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.runtime.other.WorldGen;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
-import com.zhekasmirnov.innercore.mod.build.ModLoader;
-import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.innercore.utils.UIUtils;
 
 import java.io.File;
@@ -115,8 +113,8 @@ public class NativeCallback {
             // Profiler.setExtremeSignalHandlingEnabled(false);
         }
 
-        NativeAPI.setDebugDumpDirectory(
-                InnerCoreConfig.getBool("create_debug_dump") ? FileTools.DIR_HORIZON + "logs/" : null);
+        // NativeAPI.setDebugDumpDirectory(InnerCoreConfig.getBool("create_debug_dump")
+        // ? FileTools.DIR_HORIZON + "logs/" : null);
 
         NameTranslation.loadBuiltinTranslations();
     }
@@ -170,7 +168,7 @@ public class NativeCallback {
         LevelInfo.onEnter(worldName, worldDir);
 
         // add resource packs to world
-        ModLoader.instance.addResourceAndBehaviorPacksInWorld(worldDirFile);
+        // TODO: ModLoader.instance.addResourceAndBehaviorPacksInWorld(worldDirFile);
 
         // initialize new world data saver instance
         WorldDataSaverHandler.getInstance().onLevelSelected(worldDirFile);
@@ -375,7 +373,7 @@ public class NativeCallback {
         // reset more server side native modules
         if (isServer) {
             // path navigation module for entities
-            // TODO: NativePathNavigation.cleanup();
+            NativePathNavigation.cleanup();
 
             // block source by dimension cache for server ticking thread
             NativeBlockSource.resetDefaultBlockSources();
@@ -440,7 +438,7 @@ public class NativeCallback {
 
         // update inventory for UI
         // if (!NativeAPI.isLocalServerRunning()) {
-            // TODO: InventorySource.tick();
+        // TODO: InventorySource.tick();
         // }
 
         // update local player handler
@@ -791,8 +789,8 @@ public class NativeCallback {
                 someBool2);
 
         // if (entity == NativeAPI.getPlayer()) {
-            // ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1,
-            // someBool2);
+        // ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1,
+        // someBool2);
         // }
     }
 

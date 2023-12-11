@@ -1,7 +1,9 @@
 package com.zhekasmirnov.innercore.mod.build;
 
+import android.graphics.Color;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import com.zhekasmirnov.innercore.api.mod.ui.types.Font;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -31,8 +33,7 @@ public class ModDebugInfo {
         public Throwable getError() {
             if (isCompiled) {
                 return executable.getLastRunException();
-            }
-            else {
+            } else {
                 return compileError;
             }
         }
@@ -49,11 +50,11 @@ public class ModDebugInfo {
 
         public String getReport() {
             Throwable err = getError();
-            return getStatus() + (err != null ? "\n" + err.getMessage() : "");
+            return getStatus() + (err != null ? "\n" + ICLog.getStackTrace(err) : "");
         }
 
         public ScriptableObject getFont() {
-            return null;
+            return (getError() != null ? new Font(Color.RED, 30, .5f) : new Font(Color.GREEN, 30, .5f)).asScriptable();
         }
     }
 

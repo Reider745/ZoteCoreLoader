@@ -11,15 +11,11 @@ public enum BuildConfigError {
 
     @Override
     public String toString() {
-        switch (this) {
-            case NONE:
-                return "No Error";
-            case FILE_ERROR:
-                return "File could not be loaded";
-            case PARSE_ERROR:
-                return "JSON Parse Error";
-        }
-
-        return "Unknown Error";
+        return switch (this) {
+            case NONE -> "No Error";
+            case FILE_ERROR -> "File could not be loaded";
+            case PARSE_ERROR -> "JSON Parse Error";
+            default -> "Unknown Error";
+        };
     }
 }

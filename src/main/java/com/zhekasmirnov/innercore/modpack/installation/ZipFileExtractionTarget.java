@@ -5,11 +5,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class ZipFileExtractionTarget extends ModPackExtractionTarget implements Closeable {
-    private final File file;
     private final ZipOutputStream outputStream;
 
     public ZipFileExtractionTarget(File file) throws FileNotFoundException {
-        this.file = file;
         outputStream = new ZipOutputStream(new FileOutputStream(file));
     }
 

@@ -33,7 +33,7 @@ public class WorldGen {
     private static final int MODE_CUSTOM = 3;
 
     private static void invokeGenerateChunkCallback(String name, int chunkX, int chunkZ, int dimensionId) {
-        int worldSeed = NativeAPI.getSeed();
+        /* int */ long worldSeed = NativeAPI.getSeed();
         long seed = (long) worldSeed + (chunkX ^ 836430234L) * (chunkZ ^ 827774123L);
         Random random = new Random(seed);
         List<Runnable> callbacks = Callback.getCallbackAsRunnableList(name, new Object[] { chunkX, chunkZ, random,

@@ -8,8 +8,8 @@ public class ModsWithoutConfigExtractStrategy extends AllFilesDirectoryExtractSt
     @Override
     public List<File> getFilesToExtract() {
         List<File> files = new ArrayList<>();
-        addAllRecursive(getAssignedDirectory().getLocation(), files, file ->
-                !file.getName().toLowerCase().matches("(config(.info)?.json|.staticids)") &&
+        addAllRecursive(getAssignedDirectory().getLocation(), files,
+                file -> !file.getName().toLowerCase().matches("(config(.info)?.json|.staticids)") &&
                         !file.getParentFile().getName().equalsIgnoreCase("config"));
         return files;
     }

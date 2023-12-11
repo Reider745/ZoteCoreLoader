@@ -2403,7 +2403,6 @@ public class AdaptedScriptAPI extends API {
                 return FileUtils.readFileText(new File(path));
             } catch (Exception exception) {
                 com.zhekasmirnov.horizon.runtime.logger.Logger.error("FileUtil", "error in reading file " + path);
-                // TODO: Actually ICLog.e, but it must be handled more gently.
                 return null;
             }
         }
@@ -2414,7 +2413,6 @@ public class AdaptedScriptAPI extends API {
                 FileUtils.writeFileText(new File(path), text);
             } catch (Exception exception) {
                 com.zhekasmirnov.horizon.runtime.logger.Logger.error("FileUtil", "error in writing file " + path);
-                // TODO: Actually ICLog.e, but it must be handled more gently.
             }
         }
     }
