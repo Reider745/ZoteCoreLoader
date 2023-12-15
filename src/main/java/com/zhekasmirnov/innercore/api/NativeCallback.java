@@ -124,11 +124,7 @@ public class NativeCallback {
         UIUtils.initialize(UIUtils.getContext());
 
         AsyncModLauncher modLauncher = new AsyncModLauncher();
-        if (InnerCoreConfig.getBool("disable_loading_screen")) {
-            modLauncher.launchModsInCurrentThread();
-        } else {
-            modLauncher.launchModsInThread();
-        }
+        modLauncher.launchModsInCurrentThread();
     }
 
     public static void onMinecraftAppSuspended() {
