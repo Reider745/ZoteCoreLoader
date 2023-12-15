@@ -22,6 +22,7 @@ import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.ItemUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 public class BlockSourceMethods {
@@ -32,6 +33,17 @@ public class BlockSourceMethods {
             blockEntity.close();
             level.updateComparatorOutputLevel(target);
         }
+    }
+
+    private static void sendBlock(Level level, int x, int y, int z){
+        final int X = x/16, Z = z/16;
+        final ArrayList<Player> players = new ArrayList<>();
+
+        for(int xo = -1;xo <= 1;xo++)
+            for(int zo = -1;zo <= 1;zo++)
+                players.addAll(level.getChunkPlayers(X+xo, Z+zo).values());
+
+        level.sendBlocks(players.toArray(new Player[0]), new Vector3[]{new Vector3(x, y, z)});
     }
 
     public static Level getLevelForDimension(int dimension) {
@@ -62,6 +74,7 @@ public class BlockSourceMethods {
         }
         defDestroy(pointer, block);
         pointer.setBlock(x, y, z, Block.get(0), false, update);
+        sendBlock(pointer, x, y, z);
     }
 
     public static int getBlockId(Level pointer, int x, int y, int z) {
@@ -129,6 +142,7 @@ public class BlockSourceMethods {
         Block block = pointer.getBlock(x, y, z);
         defDestroy(pointer, block);
         pointer.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
+        sendBlock(pointer, x, y, z);
     }
 
     public static void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate,
@@ -141,6 +155,7 @@ public class BlockSourceMethods {
     public static void setExtraBlock(Level pointer, int x, int y, int z, int id, int data, boolean allowUpdate,
             int updateType) {
         pointer.setBlockExtraDataAt(x, y, z, id, data);
+        sendBlock(pointer, x, y, z);
     }
 
     public static void setExtraBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate,
