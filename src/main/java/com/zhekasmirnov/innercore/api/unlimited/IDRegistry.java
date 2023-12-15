@@ -114,10 +114,11 @@ public class IDRegistry {
     }
 
     public static int getIdByNameId(String id) {
+        System.out.println(id);
         if (id.startsWith("item_")) {
-            return (int) CustomItem.getIdForText(id.replace("block_", ""));
+            return CustomItem.getIdForText(id.replace("item_", ""));
         }
-        return (int) CustomBlock.getIdForText(id.replace("block_", ""));
+        return CustomBlock.getIdForText(id.replace("block_", ""));
     }
 
     static boolean isOccupied(int id) {

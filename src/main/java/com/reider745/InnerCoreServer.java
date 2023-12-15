@@ -82,7 +82,7 @@ public class InnerCoreServer {
     }
 
     public static boolean isRuntimeException() {
-        return server.getPropertyBoolean("inner_core.runtime_exception", isDevelopMode());
+        return server.getPropertyBoolean("inner_core.runtime_exception", false);
     }
 
     private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {
@@ -319,6 +319,7 @@ public class InnerCoreServer {
     }
 
     public static void useClientMethod(String name) {
+        if(!isDevelopMode()) return;
         String message = "Use client method " + name;
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -328,6 +329,7 @@ public class InnerCoreServer {
     }
 
     public static void useNotCurrentSupport(String name) {
+        if(!isDevelopMode()) return;
         String message = "The " + name + " method is currently not supported";
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -337,6 +339,7 @@ public class InnerCoreServer {
     }
 
     public static void useIncomprehensibleMethod(String name) {
+        if(!isDevelopMode()) return;
         String message = "I don't really understand what this method does (" + name
                 + "), which is why you're reading this right now";
         if (isRuntimeException()) {

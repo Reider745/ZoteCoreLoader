@@ -13,7 +13,9 @@ public class CallbackHelper {
         GENERATION_CHUNK_OVERWORLD,
         GENERATION_CHUNK_NETHER,
         GENERATION_CHUNK_END,
-        PRE_GENERATION_CHUNK;
+        PRE_GENERATION_CHUNK,
+        PRE_GENERATION_CHUNK_NETHER,
+        PRE_GENERATION_CHUNK_END;
     }
 
     private static final HashMap<Type, ThreadRegion> types = new HashMap<>();
@@ -26,7 +28,9 @@ public class CallbackHelper {
         private Level region;
         private final ArrayList<ICallbackApply> applys = new ArrayList<>();
 
-        private Level getRegion() {
+        private final Level getRegion() {
+            if(region == null)
+                System.out.println("isNull: true");
             return region;
         }
 

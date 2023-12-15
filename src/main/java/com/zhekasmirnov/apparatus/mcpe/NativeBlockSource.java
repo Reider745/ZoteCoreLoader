@@ -449,6 +449,5 @@ public class NativeBlockSource {
     }
     private static Level nativeGetForCurrentThread() {
         return CallbackHelper.getForCurrentThread();
-
     }
 }

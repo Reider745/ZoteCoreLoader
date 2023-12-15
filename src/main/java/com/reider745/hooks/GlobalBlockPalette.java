@@ -87,8 +87,8 @@ public class GlobalBlockPalette implements HookClass {
                 final JSONObject states = e.getJSONObject("states");
 
                 final long hash = computeStateHash(legacyId, states, stateIdByName);
-               /* if (stateHashToLegacyIdData.containsKey(hash))
-                    throw new RuntimeException("hash collision: " + hash + " " + e);*/
+                if (stateHashToLegacyIdData.containsKey(hash))
+                    throw new RuntimeException("hash collision: " + hash + " " + e);
 
                 debug_hash.put(hash, e);
                 BlockStateRegisters.addState(hash, states);

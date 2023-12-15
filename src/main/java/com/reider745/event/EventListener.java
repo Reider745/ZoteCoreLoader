@@ -95,22 +95,35 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void chunkGeneration(ChunkPopulateEvent event) {
-        FullChunk fullChunk = event.getChunk();
-        Level level = event.getLevel();
-        CallbackHelper.ICallbackApply apply = () -> NativeCallback.onChunkPostProcessed(fullChunk.getX(),
-                fullChunk.getZ());
+        final FullChunk fullChunk = event.getChunk();
+        final Level level = event.getLevel();
 
-        CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK, level, () -> NativeCallback.onPreChunkPostProcessed(
-                fullChunk.getX(), fullChunk.getZ())
-        );
-        switch (level.getDimension()) {
-            case Level.DIMENSION_OVERWORLD ->
-                CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVERWORLD, level, apply);
-            case Level.DIMENSION_NETHER ->
-                CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_NETHER, level, apply);
-            case Level.DIMENSION_THE_END ->
-                CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, apply);
+        final int X = fullChunk.getX();
+        final int Z = fullChunk.getZ();
+
+        final CallbackHelper.ICallbackApply applyPre = () -> NativeCallback.onPreChunkPostProcessed(X, Z);
+        final CallbackHelper.ICallbackApply applyPost = () -> NativeCallback.onChunkPostProcessed(X, Z);
+
+        try{
+            switch (level.getDimension()) {
+                case Level.DIMENSION_OVERWORLD -> {
+                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK, level, applyPre);
+                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVERWORLD, level, applyPost);
+                }
+                case Level.DIMENSION_NETHER -> {
+                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_NETHER, level, applyPre);
+                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_NETHER, level, applyPost);
+                }
+
+                case Level.DIMENSION_THE_END -> {
+                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, applyPost);
+                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_END, level, applyPre);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     @EventHandler

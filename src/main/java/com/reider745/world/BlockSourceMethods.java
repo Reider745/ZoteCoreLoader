@@ -75,6 +75,7 @@ public class BlockSourceMethods {
     public static long spawnDroppedItem(Level pointer, float x, float y, float z, int id, int count, int data,
             long extra) {
         EntityItem item = pointer.dropAndGetItem(new Vector3(x, y, z), ItemUtils.get(id, count, data, extra));
+        System.out.println(item.getItem().toString());
         if (item == null)
             return 0;
         return item.getId();

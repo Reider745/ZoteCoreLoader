@@ -7,6 +7,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.ItemMethod;
+import com.reider745.world.BlockSourceMethods;
 import com.reider745.world.WorldMethod;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.innercore.api.constants.PlayerAbility;
@@ -227,11 +228,19 @@ public class NativeAPI {
         return EntityMethod.getAge(entity);
     }
 
+
+
     public static int getBiomeMap(int x, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getBiome(x, z);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return region.getBiome(x, z);
+        return 0;
     }
 
     public static void setBiomeMap(int x, int z, int id) {
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            region.setBiome(x, z, id);
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setBiomeMap(x, z, id)");
     }
 
@@ -240,7 +249,9 @@ public class NativeAPI {
     }
 
     public static void setBiome(int x, int z, int id) {
-        NativeBlockSource.getCurrentWorldGenRegion().setBiome(x, z, id);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            region.setBiome(x, z, id);
     }
 
     public static String getBiomeName(int id) {
@@ -249,16 +260,24 @@ public class NativeAPI {
     }
 
     public static float getBiomeTemperatureAt(int x, int y, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getBiomeTemperatureAt(x, y, z);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return region.getBiomeTemperatureAt(x, y, z);
+        return 0;
     }
 
     public static int getBrightness(int x, int y, int z) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.getBrightness(x, y, z)");
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return region.getLightLevel(x, y, z);
         return 0;
     }
 
     public static int getData(int x, int y, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getBlockData(x, y, z);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return region.getBlockData(x, y, z);
+        return 0;
     }
 
     public static int getDifficulty() {
@@ -342,7 +361,6 @@ public class NativeAPI {
 
     public static long getItemFromDrop(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getItemFromDrop(entity)");
-        // return EntityMethod.getItemFromDrop(entity);
         return 0;
     }
 
@@ -457,7 +475,10 @@ public class NativeAPI {
     }
 
     public static int getTile(int x, int y, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getBlockId(x, y, z);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return region.getBlockId(x, y, z);
+        return 0;
     }
 
     public static int getTileAndData(int i, int i2, int i3) {
@@ -479,7 +500,10 @@ public class NativeAPI {
     }
 
     public static boolean isChunkLoaded(int x, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().isChunkLoaded(x, z);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return NativeBlockSource.getCurrentWorldGenRegion().isChunkLoaded(x, z);
+        return false;
     }
 
     public static int getChunkState(int x, int z) {
@@ -809,7 +833,9 @@ public class NativeAPI {
     }
 
     public static void setTile(int x, int y, int z, int id, int data) {
-        NativeBlockSource.getCurrentWorldGenRegion().setBlock(x, y, z, id, data);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            NativeBlockSource.getCurrentWorldGenRegion().setBlock(x, y, z, id, data);
     }
 
     public static void setTileUpdateAllowed(boolean z) {
@@ -833,15 +859,23 @@ public class NativeAPI {
     }
 
     public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, long extra) {
-        return NativeBlockSource.getCurrentWorldGenRegion().spawnDroppedItem(x, y, z, id, count, data);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return BlockSourceMethods.spawnDroppedItem(CallbackHelper.getForCurrentThread(), x, y, z, id, count, data, extra);
+        return 0;
     }
 
     public static long spawnEntity(int id, float x, float y, float z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().spawnEntity(x, y, z, id);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            return region.spawnEntity(x, y, z, id);
+        return 0;
     }
 
     public static void spawnExpOrbs(float x, float y, float z, int amount) {
-        NativeBlockSource.getCurrentWorldGenRegion().spawnExpOrbs(x, y, z, amount);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if(region != null)
+            region.spawnExpOrbs(x, y, z, amount);
     }
 
     public static void teleportTo(long entity, float x, float y, float z) {

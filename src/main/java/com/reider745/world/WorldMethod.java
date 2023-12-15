@@ -42,6 +42,6 @@ public class WorldMethod {
     }
 
     public static long getSeed() {
-        return InnerCoreServer.server.getLevel(0).getSeed();
+        return InnerCoreServer.server.getLevelByName("world").getSeed();
     }
 }
