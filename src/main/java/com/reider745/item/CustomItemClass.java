@@ -32,6 +32,8 @@ public class CustomItemClass extends Item implements ItemDurable {
 
         CompoundTag tag = getOrCreateNamedTag();
 
+      //  tag.putInt("Damage", max_damage);
+
         CompoundTag components = tag.getCompound("components");
         if(components == null){
             components = new CompoundTag();

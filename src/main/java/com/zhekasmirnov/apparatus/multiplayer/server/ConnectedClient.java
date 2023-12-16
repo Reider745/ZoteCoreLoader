@@ -1,6 +1,9 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
+import cn.nukkit.Player;
 import cn.nukkit.network.protocol.SetLocalPlayerAsInitializedPacket;
+import com.reider745.InnerCoreServer;
+import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface;
@@ -8,6 +11,7 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -191,11 +195,31 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
 
     public void send(String name, Object data) {
-        channel.send(name, data);
+        try{
+            channel.send(name, data);
+        }catch (Exception e){
+            ICLog.e("Network", "error send "+playerUid, e);
+
+            final Player player = EntityMethod.getPlayerToLong(playerUid);
+            if(player != null)
+                player.kick();
+            else
+                ICLog.i("Network", "error kick player");
+        }
     }
 
     public<T> void send(String name, T data, Class<T> dataType) {
-        channel.send(name, data, dataType);
+        try{
+            channel.send(name, data, dataType);
+        }catch (Exception e){
+            ICLog.e("Network", "error send "+playerUid, e);
+
+            final Player player = EntityMethod.getPlayerToLong(playerUid);
+            if(player != null)
+                player.kick();
+            else
+                ICLog.i("Network", "error kick player");
+        }
     }
 
     public void sendMessage(String message) {

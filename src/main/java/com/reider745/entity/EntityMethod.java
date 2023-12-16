@@ -32,6 +32,14 @@ public class EntityMethod {
         return null;
     }
 
+    public static Player getPlayerToLong(long ent){
+        for (Level level : InnerCoreServer.server.getLevels().values())
+            for (Player entity : level.getPlayers().values())
+                if(entity.getId() == ent)
+                    return entity;
+        return null;
+    }
+
     public static EntityHuman getEntityHumanToLong(long ent){
         for (Level level : InnerCoreServer.server.getLevels().values())
             for (Entity entity : level.getEntities())
