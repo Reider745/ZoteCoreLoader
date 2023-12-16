@@ -38,7 +38,7 @@ public class WorldMethod {
     }
 
     public static double getRainLevel() {
-
+        return 0;
     }
 
     public static void setRainLevel(float v) {
