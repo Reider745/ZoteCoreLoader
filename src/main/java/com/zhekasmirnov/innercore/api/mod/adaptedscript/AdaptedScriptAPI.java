@@ -143,16 +143,19 @@ public class AdaptedScriptAPI extends API {
     }
 
     @JSStaticFunction
+    @SuppressWarnings("deprecation")
     public static long getPlayerEnt() {
         return NativeAPI.getPlayer();
     }
 
     @JSStaticFunction
+    @SuppressWarnings("deprecation")
     public static void clientMessage(String message) {
         NativeAPI.clientMessage(message);
     }
 
     @JSStaticFunction
+    @SuppressWarnings("deprecation")
     public static void tipMessage(String message) {
         NativeAPI.tipMessage(message);
     }
@@ -602,13 +605,11 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ArrayList<Long> getAllArrayList() {
-            logDeprecation("Entity.getAllArrayList()");
             return new ArrayList<>(NativeCallback.getAllEntities());
         }
 
         @JSStaticFunction
         public static NativeArray getAll() {
-            logDeprecation("Entity.getAll()");
             return new NativeArray(NativeCallback.getAllEntities().toArray());
         }
 
@@ -881,6 +882,7 @@ public class AdaptedScriptAPI extends API {
         // other
 
         @JSStaticFunction
+        @SuppressWarnings("deprecation")
         public static long getPlayerEnt() {
             return NativeAPI.getPlayer();
         }
@@ -1022,16 +1024,19 @@ public class AdaptedScriptAPI extends API {
     @APIStaticModule
     public static class Player {
         @JSStaticFunction
+        @SuppressWarnings("deprecation")
         public static long get() {
             return NativeAPI.getPlayer();
         }
 
         @JSStaticFunction
+        @SuppressWarnings("deprecation")
         public static long getServer() {
             return NativeAPI.getServerPlayer();
         }
 
         @JSStaticFunction
+        @SuppressWarnings("deprecation")
         public static long getLocal() {
             return NativeAPI.getLocalPlayer();
         }

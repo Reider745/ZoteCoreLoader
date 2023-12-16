@@ -28,7 +28,6 @@ public class NativeCustomEnchant {
         setDescription("custom_enchant." + nameId);
     }
 
-    @Deprecated
     public NativeCustomEnchant() {
         throw new UnsupportedOperationException();
     }

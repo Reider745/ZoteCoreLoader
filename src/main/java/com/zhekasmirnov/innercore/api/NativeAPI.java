@@ -69,11 +69,13 @@ public class NativeAPI {
     }
 
     public static void sendCachedItemNameOverride(int id, int data, String overrideCache) {
-        // InnerCoreServer.useNotCurrentSupport("NativeAPI.sendCachedItemNameOverride(id, data, overrideCache)");
+        // InnerCoreServer.useNotCurrentSupport("NativeAPI.sendCachedItemNameOverride(id,
+        // data, overrideCache)");
     }
 
     public static void setItemNameOverrideCallbackForced(int id, boolean forces) {
-        //InnerCoreServer.useNotCurrentSupport("NativeAPI.setItemNameOverrideCallbackForced(id, forces)");
+        // InnerCoreServer.useNotCurrentSupport("NativeAPI.setItemNameOverrideCallbackForced(id,
+        // forces)");
     }
 
     public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
@@ -160,6 +162,7 @@ public class NativeAPI {
         InnerCoreServer.useClientMethod("NativeAPI.addPlayerExperience(experience)");
     }
 
+    @Deprecated
     public static boolean canPlayerFly() {
         InnerCoreServer.useClientMethod("NativeAPI.canPlayerFly()");
         return false;
@@ -169,8 +172,8 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.clearAllFurnaceRecipes()");
     }
 
+    @Deprecated
     public static void clientMessage(String str) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.clientMessage(str)");
     }
 
     public static float getGuiScale() {
@@ -228,18 +231,16 @@ public class NativeAPI {
         return EntityMethod.getAge(entity);
     }
 
-
-
     public static int getBiomeMap(int x, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             return region.getBiome(x, z);
         return 0;
     }
 
     public static void setBiomeMap(int x, int z, int id) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             region.setBiome(x, z, id);
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setBiomeMap(x, z, id)");
     }
@@ -250,7 +251,7 @@ public class NativeAPI {
 
     public static void setBiome(int x, int z, int id) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             region.setBiome(x, z, id);
     }
 
@@ -261,21 +262,21 @@ public class NativeAPI {
 
     public static float getBiomeTemperatureAt(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             return region.getBiomeTemperatureAt(x, y, z);
         return 0;
     }
 
     public static int getBrightness(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             return region.getLightLevel(x, y, z);
         return 0;
     }
 
     public static int getData(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             return region.getBlockData(x, y, z);
         return 0;
     }
@@ -284,6 +285,7 @@ public class NativeAPI {
         return WorldMethod.getDifficulty();
     }
 
+    @Deprecated
     public static int getDimension() {
         InnerCoreServer.useClientMethod("NativeAPI.getDimension()");
         return 0;
@@ -299,18 +301,21 @@ public class NativeAPI {
         return new long[0];
     }
 
+    @Deprecated
     public static long getEntityArmor(long entity, int slot) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityArmor(entity, slot)");
         // return EntityMethod.getEntityArmor(entity, slot);
         return 0;
     }
 
+    @Deprecated
     public static long getEntityCarriedItem(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityCarriedItem(entity)");
         // return EntityMethod.getEntityCarriedItem(entity);
         return 0;
     }
 
+    @Deprecated
     public static long getEntityOffhandItem(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityOffhandItem(entity)");
         // return EntityMethod.getEntityOffhandItem(entity);
@@ -326,12 +331,14 @@ public class NativeAPI {
         return "";
     }
 
+    @Deprecated
     public static long getEntityCompoundTag(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityCompoundTag(entity)");
         // return EntityMethod.getEntityCompoundTag(entity);
         return 0;
     }
 
+    @Deprecated
     public static void setEntityCompoundTag(long entity, long tag) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setEntityCompoundTag(entity, tag)");
         // EntityMethod.setEntityCompoundTag(entity, tag);
@@ -364,6 +371,7 @@ public class NativeAPI {
         return 0;
     }
 
+    @Deprecated
     public static long getItemFromProjectile(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getItemFromProjectile(entity)");
         // return EntityMethod.getItemFromProjectile(entity);
@@ -476,7 +484,7 @@ public class NativeAPI {
 
     public static int getTile(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             return region.getBlockId(x, y, z);
         return 0;
     }
@@ -500,7 +508,7 @@ public class NativeAPI {
 
     public static boolean isChunkLoaded(int x, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             return NativeBlockSource.getCurrentWorldGenRegion().isChunkLoaded(x, z);
         return false;
     }
@@ -691,7 +699,8 @@ public class NativeAPI {
     }
 
     public static void setNativeThreadPriorityParams(int low, int high, int threshold) {
-        // InnerCoreServer.useNotCurrentSupport("NativeAPI.setNativeThreadPriorityParams(low, high, threshold)");
+        // InnerCoreServer.useNotCurrentSupport("NativeAPI.setNativeThreadPriorityParams(low,
+        // high, threshold)");
     }
 
     public static void setNightMode(boolean z) {
@@ -833,7 +842,7 @@ public class NativeAPI {
 
     public static void setTile(int x, int y, int z, int id, int data) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             NativeBlockSource.getCurrentWorldGenRegion().setBlock(x, y, z, id, data);
     }
 
@@ -859,21 +868,22 @@ public class NativeAPI {
 
     public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, long extra) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
-            return BlockSourceMethods.spawnDroppedItem(CallbackHelper.getForCurrentThread(), x, y, z, id, count, data, extra);
+        if (region != null)
+            return BlockSourceMethods.spawnDroppedItem(CallbackHelper.getForCurrentThread(), x, y, z, id, count, data,
+                    extra);
         return 0;
     }
 
     public static long spawnEntity(int id, float x, float y, float z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             return region.spawnEntity(x, y, z, id);
         return 0;
     }
 
     public static void spawnExpOrbs(float x, float y, float z, int amount) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if(region != null)
+        if (region != null)
             region.spawnExpOrbs(x, y, z, amount);
     }
 
@@ -881,8 +891,8 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.teleportTo(entity, x, y, z)");
     }
 
+    @Deprecated
     public static void tipMessage(String str) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.tipMessage(str)");
     }
 
     public static void transferToDimension(long entity, int id) {
