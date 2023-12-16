@@ -470,7 +470,7 @@ public class NativeAPI {
         EntityMethod.getRotation(entity, rotation);
     }
 
-    public static /* int */ long getSeed() {
+    public static long getSeed() {
         return WorldMethod.getSeed();
     }
 
@@ -491,7 +491,6 @@ public class NativeAPI {
     }
 
     public static int getUiProfile() {
-        InnerCoreServer.useClientMethod("NativeAPI.getUiProfile()");
         return 0;
     }
 

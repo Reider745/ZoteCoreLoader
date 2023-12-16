@@ -42,8 +42,8 @@ public class ItemMethod {
             return Item.get(id, data).getMaxDurability();
         CustomManager manager = getCustomManager(id);
         if(manager != null)
-            return manager.get(PropertiesNames.MAX_DAMAGE);
-        return 64;
+            return manager.get(PropertiesNames.MAX_DAMAGE, 0);
+        return 0;
     }
 
     public static void setMaxDamage(CustomManager manager, int id){

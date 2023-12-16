@@ -13,6 +13,7 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
+import com.reider745.item.ItemMethod;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
@@ -63,17 +64,18 @@ public class RuntimeItemsHooks implements HookClass {
         CustomItem.customItems.forEach((name, id) -> {
             paletteBuffer.putString(name);
             paletteBuffer.putLShort(id);
-            paletteBuffer.putBoolean(false); // Component item
+            paletteBuffer.putBoolean(true); // Component item
 
             int fullId = RuntimeItems.getFullId(id, 0);
             int legacyId = id;
             int runtimeId = id;
-            boolean hasData = CustomItem.hasData(id);
+            int damage = ItemMethod.getMaxDamageForId(id, 0);
+            boolean hasData = damage <= 0;
 
             runtimeId2Name.put(runtimeId, name);
             name2RuntimeId.put(name, runtimeId);
 
-            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, hasData, 0);
+            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, hasData, damage);
 
             runtime2Legacy.put(runtimeId, legacyEntry);
             identifier2Legacy.put(name, legacyEntry);

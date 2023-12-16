@@ -12,7 +12,7 @@ import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 
-public class CustomItemClass extends Item implements ItemDurable {
+public class CustomItemClass extends Item {
     private CustomManager parameters;
     private int max_damage, max_stack;
     private boolean use_no_target;
@@ -32,7 +32,7 @@ public class CustomItemClass extends Item implements ItemDurable {
 
         CompoundTag tag = getOrCreateNamedTag();
 
-      //  tag.putInt("Damage", max_damage);
+        tag.putInt("Damage", max_damage);
 
         CompoundTag components = tag.getCompound("components");
         if(components == null){
