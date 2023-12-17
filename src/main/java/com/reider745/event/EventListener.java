@@ -59,7 +59,7 @@ public class EventListener implements Listener {
     public void breakBlock(BlockBreakEvent event) {
         Block block = event.getBlock();
         preventedCallback(event, () -> NativeCallback.onBlockDestroyed((int) block.x, (int) block.y, (int) block.z,
-                event.getFace().getIndex(), event.getPlayer().getId()), false);
+                event.getFace().getIndex(), event.getPlayer().getId()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

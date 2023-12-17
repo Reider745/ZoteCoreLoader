@@ -33,9 +33,9 @@ public class CustomItemClass extends Item {
         this.max_damage = parameters.get(PropertiesNames.MAX_DAMAGE);
         this.max_stack = parameters.get(PropertiesNames.MAX_STACK);
         this.use_no_target = Callback.count("ItemUseNoTarget") > 0;
-        this.slot = parameters.get(PropertiesNames.Armors.SLOT);
-        this.defense = parameters.get(PropertiesNames.Armors.DEFENSE);
-        this.knockbackResist = parameters.get(PropertiesNames.Armors.KNOCKBACK_RESIST);
+        this.slot = parameters.get(PropertiesNames.Armors.SLOT, -1);
+        this.defense = parameters.get(PropertiesNames.Armors.DEFENSE, 0);
+        this.knockbackResist = parameters.get(PropertiesNames.Armors.KNOCKBACK_RESIST, 0);
         this.ARMOR_DAMAGEABLE = parameters.get(PropertiesNames.ARMOR_DAMAGEABLE, false);
 
         CompoundTag tag = getOrCreateNamedTag();
