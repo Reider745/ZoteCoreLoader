@@ -6,6 +6,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.entity.EntityRideable;
 import cn.nukkit.entity.item.EntityItem;
+import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
@@ -388,5 +389,12 @@ public class EntityMethod {
         Entity entity = getEntityToLong(unwrapEntity);
         if(entity != null)
             entity.teleport(Location.fromObject(entity.getPosition(), BlockSourceMethods.getLevelForDimension(dimension)));
+    }
+
+    public static int getExperienceOrbValue(long unwrapEntity) {
+        Entity entity = getEntityToLong(unwrapEntity);
+        if(entity instanceof EntityXPOrb xp)
+            return xp.getExp();
+        return 0;
     }
 }

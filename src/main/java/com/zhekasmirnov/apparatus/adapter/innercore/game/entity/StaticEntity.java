@@ -47,8 +47,7 @@ public class StaticEntity {
     }
 
     public static int getExperienceOrbValue(long entity) {
-        CompoundTag tag = EntityMethod.getEntityCompoundTag(entity);
-        return tag != null ? new NativeCompoundTag(tag).getInt("experience value") : 0;
+        return EntityMethod.getExperienceOrbValue(entity);
     }
 
 
