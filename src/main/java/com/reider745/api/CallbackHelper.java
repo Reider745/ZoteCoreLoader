@@ -89,15 +89,17 @@ public class CallbackHelper {
 
     private static class ThreadCallbackEvent extends ThreadCallback {
         protected final Event event;
+        protected final boolean isPrevented;
 
-        public ThreadCallbackEvent(Event event, ICallbackApply apply) {
+        public ThreadCallbackEvent(Event event, ICallbackApply apply, boolean isPrevented) {
             super(apply);
             this.event = event;
+            this.isPrevented = isPrevented;
         }
 
         @Override
         public void run() {
-            if (event.isCancelled())
+            if (isPrevented && event.isCancelled())
                 return;
             apply.apply();
             event.setCancelled(isPrevent());
@@ -125,8 +127,8 @@ public class CallbackHelper {
         threadRegion.add(apply);
     }
 
-    public static void apply(Event event, ICallbackApply apply) {
-        Thread thread = new ThreadCallbackEvent(event, apply);
+    public static void apply(Event event, ICallbackApply apply, boolean isPrevented) {
+        Thread thread = new ThreadCallbackEvent(event, apply, isPrevented);
         thread.start();
         while (thread.isAlive()) {
         }

@@ -7,6 +7,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.event.entity.EntityExplosionPrimeEvent;
+import cn.nukkit.event.entity.ExplosionPrimeEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Explosion;
 import cn.nukkit.level.Level;
@@ -189,7 +190,8 @@ public class BlockSourceMethods {
     }
 
     public static void explode(Level pointer, float x, float y, float z, float power, boolean fire) {
-        EntityExplosionPrimeEvent event = new EntityExplosionPrimeEvent(null, power);
+
+        ExplosionPrimeEvent event = new ExplosionPrimeEvent(null, power);
         InnerCoreServer.server.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             return;

@@ -669,6 +669,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("ExpLevelAdd", level, player);
     }
 
+    @Deprecated
     public static void onCommandExec() {
         String command = getStringParam("command");
         Callback.invokeAPICallback("NativeCommand", command == null ? null : command.trim());

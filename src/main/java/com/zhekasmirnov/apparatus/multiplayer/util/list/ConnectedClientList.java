@@ -1,11 +1,14 @@
 package com.zhekasmirnov.apparatus.multiplayer.util.list;
 
+import cn.nukkit.Player;
+import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.common.Vector3;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -238,7 +241,21 @@ public class ConnectedClientList implements Iterable<ConnectedClient> {
     }
 
     public void send(String name, Object data) {
-        forEach(client -> client.send(name, data));
+        forEach(client -> {
+            try{
+                client.send(name, data);
+            }catch (Exception e){
+                final long playerUid = client.getPlayerUid();
+                ICLog.e("Network", "error send "+playerUid, e);
+
+                final Player player = EntityMethod.getPlayerToLong(playerUid);
+                if(player != null)
+                    player.kick();
+                else
+                    ICLog.i("Network", "error kick player");
+            }
+
+        });
     }
 
     public<T> void send(String name, T data, Class<T> type) {

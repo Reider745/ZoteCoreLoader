@@ -185,7 +185,7 @@ public class NativeItemInstanceExtra {
             if (data != null && data.length() > 0) {
                 json.put("data", data);
             }
-        } catch (JSONException ignore) {
+        } catch (Exception ignore) {
         }
         return json.length() > 0 ? json : null;
     }

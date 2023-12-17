@@ -151,6 +151,10 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         return customBlocks.get(block);
     }
 
+    @Override
+    public int getToolTier() {
+        return 0;
+    }
 
     @Override
     public boolean canRandomTickBlocks() {

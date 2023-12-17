@@ -52,12 +52,13 @@ public class WorldMethod {
     }
 
     public static double getLightningLevel() {
-        InnerCoreServer.useNotSupport("World.setGameMode");
+        Level level = getLevel();
+        if(level != null)
+            return level.isRaining() ? 8 : 15;
         return 0;
     }
 
     public static void setLightningLevel(float v) {
-        InnerCoreServer.useNotSupport("World.setGameMode");
     }
 
     public static long getSeed() {

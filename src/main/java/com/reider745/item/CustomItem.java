@@ -135,7 +135,7 @@ public class CustomItem {
     }
 
     public static CustomManager registerArmorItem(String nameId, int id, String name, int slot, int defense, int durability, float knockbackResist) {
-        CustomManager manager = registerItem(nameId, id, name, CustomItemArmor.class);
+        CustomManager manager = registerItem(nameId, id, name);
         manager.put(PropertiesNames.Armors.SLOT, slot);
         manager.put(PropertiesNames.Armors.DEFENSE, defense);
         manager.put(PropertiesNames.MAX_DAMAGE, durability);

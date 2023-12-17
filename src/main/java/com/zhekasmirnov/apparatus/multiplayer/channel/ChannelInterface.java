@@ -4,6 +4,7 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.codec.ChannelCodec;
 import com.zhekasmirnov.apparatus.multiplayer.channel.codec.ChannelCodecFactory;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import org.json.JSONObject;
 import org.mozilla.javascript.Scriptable;
 

@@ -16,6 +16,10 @@ public class CustomItemClass extends Item {
     private CustomManager parameters;
     private int max_damage, max_stack;
     private boolean use_no_target;
+    private int slot;
+    private int defense;
+    private float knockbackResist;
+    private boolean ARMOR_DAMAGEABLE;
 
     public CustomItemClass(int id, Integer meta, int count){
         this(id, meta, count, CustomItem.getItemManager(id));
@@ -29,6 +33,10 @@ public class CustomItemClass extends Item {
         this.max_damage = parameters.get(PropertiesNames.MAX_DAMAGE);
         this.max_stack = parameters.get(PropertiesNames.MAX_STACK);
         this.use_no_target = Callback.count("ItemUseNoTarget") > 0;
+        this.slot = parameters.get(PropertiesNames.Armors.SLOT);
+        this.defense = parameters.get(PropertiesNames.Armors.DEFENSE);
+        this.knockbackResist = parameters.get(PropertiesNames.Armors.KNOCKBACK_RESIST);
+        this.ARMOR_DAMAGEABLE = parameters.get(PropertiesNames.ARMOR_DAMAGEABLE, false);
 
         CompoundTag tag = getOrCreateNamedTag();
 
@@ -48,6 +56,46 @@ public class CustomItemClass extends Item {
 
         item_properties.putInt("creative_category", parameters.get(PropertiesNames.CREATIVE_CATEGORY, ItemCreativeCategory.EQUIPMENT.ordinal()));
         setCompoundTag(tag);
+    }
+
+    @Override
+    public int getTier() {
+        return 6;
+    }
+
+    @Override
+    public boolean isUnbreakable() {
+        return ARMOR_DAMAGEABLE;
+    }
+
+    @Override
+    public boolean isHelmet() {
+        return slot == 0;
+    }
+
+    @Override
+    public boolean isChestplate() {
+        return slot == 1;
+    }
+
+    @Override
+    public boolean isLeggings() {
+        return slot == 2;
+    }
+
+    @Override
+    public boolean isBoots() {
+        return slot == 3;
+    }
+
+    @Override
+    public int getArmorPoints() {
+        return defense;
+    }
+
+    @Override
+    public int getToughness() {
+        return (int) knockbackResist;
     }
 
     @Override

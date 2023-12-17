@@ -12,13 +12,17 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
+import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
+import cn.nukkit.event.player.PlayerExperienceChangeEvent;
+import cn.nukkit.event.player.PlayerInteractEntityEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
@@ -31,7 +35,10 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 public class EventListener implements Listener {
     public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply) {
-        CallbackHelper.apply(event, apply);
+        CallbackHelper.apply(event, apply, true);
+    }
+    public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply, boolean isPrevent) {
+        CallbackHelper.apply(event, apply, isPrevent);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -52,7 +59,7 @@ public class EventListener implements Listener {
     public void breakBlock(BlockBreakEvent event) {
         Block block = event.getBlock();
         preventedCallback(event, () -> NativeCallback.onBlockDestroyed((int) block.x, (int) block.y, (int) block.z,
-                event.getFace().getIndex(), event.getPlayer().getId()));
+                event.getFace().getIndex(), event.getPlayer().getId()), false);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -153,5 +160,33 @@ public class EventListener implements Listener {
     @EventHandler
     public void removeEntity(EntityDespawnEvent event) {
         NativeCallback.onEntityRemoved(event.getEntity().getId());
+    }
+
+    @EventHandler
+    public void explode(ExplosionPrimeEvent event){
+        final Entity entity = event.getEntity();
+
+        if(entity != null){
+            final Position pos = entity.getPosition();
+            preventedCallback(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z, (float) event.getForce(), entity.getId(), false, false, 0));
+        }
+    }
+
+    @EventHandler
+    public void expChange(PlayerExperienceChangeEvent event){
+
+    }
+
+    @EventHandler
+    public void interactEntity(PlayerInteractEntityEvent event){
+        final Vector3 position = event.getClickedPos();
+        NativeCallback.onInteractWithEntity(event.getEntity().getId(), event.getPlayer().getId(), (float) position.x, (float) position.y, (float) position.z);
+    }
+
+    @EventHandler
+    public void pickUpDrop(InventoryPickupItemEvent event){
+        //event.getItem().getId();
+
+        //preventedCallback(event, () -> NativeCallback.onEntityPickUpDrop());
     }
 }
