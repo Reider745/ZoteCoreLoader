@@ -44,8 +44,7 @@ public class NativeAPI {
     }
 
     public static String getGameLanguage() {
-        // InnerCoreServer.useNotCurrentSupport("NativeAPI.getGameLanguage()");
-        return "en";
+        return InnerCoreServer.getGameLanguage();
     }
 
     public static void preventPendingAppEvent(int event, int timeout) {

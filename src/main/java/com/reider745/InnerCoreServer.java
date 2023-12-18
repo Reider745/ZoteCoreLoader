@@ -3,6 +3,7 @@ package com.reider745;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginDescription;
 
+import cn.nukkit.plugin.PluginManager;
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
@@ -61,7 +62,14 @@ public class InnerCoreServer {
         };
     }
 
-    public void loadMods() {
+    public static String getGameLanguage() {
+        final String lang = server.getLanguage().getLang();
+
+        final StringBuilder icLang = new StringBuilder();
+        for(int i = 0;i < lang.length()-1;i++)
+            icLang.append(lang.indexOf(i));
+
+        return icLang.toString();
     }
 
     public void left() {
@@ -281,7 +289,9 @@ public class InnerCoreServer {
 
     public void afterload() {
         server.getLogger().info("Registering Nukkit-MOT containment...");
-        server.getPluginManager().registerEvents(new EventListener(), plugin);
+
+        Logger.info("Register events ZotCoreLoader");
+        InnerCoreServer.server.getPluginManager().registerEvents(new EventListener(), InnerCoreServer.plugin);
 
         CustomBlock.init();
         CustomItem.init();
@@ -310,6 +320,7 @@ public class InnerCoreServer {
     }
 
     public static void useNotSupport(String name) {
+        if(!isDevelopMode()) return;
         String message = "Use not support multiplayer method " + name;
         if (isRuntimeException()) {
             throw new RuntimeException(message);

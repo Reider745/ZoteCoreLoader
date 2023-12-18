@@ -42,14 +42,13 @@ public class EventListener implements Listener {
         CallbackHelper.apply(event, apply,false);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void use(PlayerInteractEvent event) {
         Vector3 pos = event.getTouchVector();
         Block block = event.getBlock();
         Player player = event.getPlayer();
-        PlayerInteractEvent.Action action = event.getAction();
 
-        if (action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
+        if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
             preventedCallback(event,
                     () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z,
                             event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true,
@@ -62,14 +61,14 @@ public class EventListener implements Listener {
                 event.getFace().getIndex(), event.getPlayer().getId()), isNukkitPrevent);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void playerEat(PlayerEatFoodEvent event) {
         Food food = event.getFood();
         preventedCallback(event, () -> NativeCallback.onPlayerEat(food.getRestoreFood(), food.getRestoreSaturation(),
                 event.getPlayer().getId()));
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void placeBlock(BlockPlaceEvent event) {
         Block block = event.getBlock();
         preventedCallback(event, () -> NativeCallback.onBlockBuild((int) block.x, (int) block.y, (int) block.z, 0,
