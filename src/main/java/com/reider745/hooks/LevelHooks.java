@@ -21,6 +21,7 @@ import cn.nukkit.potion.Effect;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
+import com.reider745.event.EventListener;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
@@ -104,17 +105,27 @@ public class LevelHooks implements HookClass {
             boolean fastBreak = (player.lastBreak + breakTime * 1000) > Long.sum(System.currentTimeMillis(), 1000);
             BlockBreakEvent ev = new BlockBreakEvent(player, target, face, item, eventDrops, player.isCreative(), fastBreak);
 
-            level.getServer().getPluginManager().callEvent(ev);//TODO Для ломания инструментов иннера, нужен вызов эвента раньше setCancelled накита
-
+            boolean isNukkitPrevent = false;
             if ((player.isSurvival() || player.isAdventure()) && !target.isBreakable(item)) {
                 ev.setCancelled();
+                isNukkitPrevent = true;
             } else if (!player.isOp() && level.isInSpawnRadius(target)) {
                 ev.setCancelled();
+                isNukkitPrevent = true;
             } else if (!ev.getInstaBreak() && ev.isFastBreak()) {
                 ev.setCancelled();
+                isNukkitPrevent = true;
             }
 
             player.lastBreak = System.currentTimeMillis();
+
+            ev.setCancelled(false);
+            level.getServer().getPluginManager().callEvent(ev);
+
+            if(!ev.isCancelled()) {
+                EventListener.eventBreakBlock(ev, false);
+                if(isNukkitPrevent) ev.setCancelled();
+            }
 
             if (ev.isCancelled()) {
                 return null;

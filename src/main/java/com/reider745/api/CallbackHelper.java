@@ -99,10 +99,11 @@ public class CallbackHelper {
 
         @Override
         public void run() {
-            if (isPrevented && event.isCancelled())
-                return;
-            apply.apply();
-            event.setCancelled(isPrevent());
+            if (!event.isCancelled() || isPrevented){
+                apply.apply();
+                if(isPrevent())
+                    event.setCancelled();
+            }
         }
     }
 
@@ -129,13 +130,6 @@ public class CallbackHelper {
 
     public static void apply(Event event, ICallbackApply apply, boolean isPrevented) {
         Thread thread = new ThreadCallbackEvent(event, apply, isPrevented);
-        thread.start();
-        while (thread.isAlive()) {
-        }
-    }
-
-    public static void apply(HookController controller, ICallbackApply apply) {
-        Thread thread = new ThreadCallbackController(controller, apply);
         thread.start();
         while (thread.isAlive()) {
         }

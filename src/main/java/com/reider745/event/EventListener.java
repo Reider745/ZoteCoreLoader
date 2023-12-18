@@ -34,11 +34,12 @@ import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 public class EventListener implements Listener {
-    public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply) {
-        CallbackHelper.apply(event, apply, true);
-    }
     public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply, boolean isPrevent) {
         CallbackHelper.apply(event, apply, isPrevent);
+    }
+
+    public static void preventedCallback(Event event, CallbackHelper.ICallbackApply apply) {
+        CallbackHelper.apply(event, apply,false);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -55,11 +56,10 @@ public class EventListener implements Listener {
                             player.getHealth() > 0, player.getId()));
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void breakBlock(BlockBreakEvent event) {
+    public static void eventBreakBlock(BlockBreakEvent event, boolean isNukkitPrevent) {
         Block block = event.getBlock();
         preventedCallback(event, () -> NativeCallback.onBlockDestroyed((int) block.x, (int) block.y, (int) block.z,
-                event.getFace().getIndex(), event.getPlayer().getId()));
+                event.getFace().getIndex(), event.getPlayer().getId()), isNukkitPrevent);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
