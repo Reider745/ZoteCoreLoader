@@ -59,6 +59,7 @@ public class CallbackHelper {
 
     public static void registerCallback(Type type) {
         ThreadRegion threadRegion = new ThreadRegion();
+        threadRegion.setName(type.name());
         threadRegion.start();
 
         types.put(type, threadRegion);
@@ -130,6 +131,7 @@ public class CallbackHelper {
 
     public static void apply(Event event, ICallbackApply apply, boolean isPrevented) {
         Thread thread = new ThreadCallbackEvent(event, apply, isPrevented);
+        thread.setName(event.getEventName());
         thread.start();
         while (thread.isAlive()) {
         }
