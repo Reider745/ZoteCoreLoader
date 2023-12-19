@@ -15,10 +15,9 @@ public class CustomManager {
     }
 
     public <T>T get(String key, T def){
-        T value = (T) parameters.get(key);
-        if(value == null)
+        if(!parameters.containsKey(key))
             return def;
-        return value;
+        return (T) parameters.get(key);
     }
 
     public Class<?> getClazz() {

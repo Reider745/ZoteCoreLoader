@@ -21,6 +21,9 @@ public class CustomItem {
 
     public static void init(){
         items.forEach((key, value) -> Item.list[key] = value.getClazz());
+    }
+
+    public static void postInit(){
         foods.forEach((key, value) -> Food.registerFood(new FoodNormal(value, 4), InnerCoreServer.plugin).addRelative(key));
         CustomBlock.blocks.forEach((id, manager) -> Item.list[id] = manager.getClazz());
     }

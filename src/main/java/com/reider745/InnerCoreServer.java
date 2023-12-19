@@ -67,8 +67,7 @@ public class InnerCoreServer {
 
         final StringBuilder icLang = new StringBuilder();
         for(int i = 0;i < lang.length()-1;i++)
-            icLang.append(lang.indexOf(i));
-
+            icLang.append(lang.charAt(i));
         return icLang.toString();
     }
 
@@ -294,7 +293,7 @@ public class InnerCoreServer {
         InnerCoreServer.server.getPluginManager().registerEvents(new EventListener(), InnerCoreServer.plugin);
 
         CustomBlock.init();
-        CustomItem.init();
+        CustomItem.postInit();
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
         CommandsHelper.init();

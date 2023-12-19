@@ -155,6 +155,11 @@ public class ItemUtils implements HookClass {
         return Item.get(id, meta.orElse(0));
     }
 
+    @Inject
+    public static void initCreativeItems(){
+        CustomItem.init();
+    }
+
     @Inject(signature = "()Ljava/lang/Short;", type = TypeHook.BEFORE)
     public static void getFuelTime(HookController controller) {
         short fuel = NativeFurnaceRegistry.getBurnTime(controller.getSelf());

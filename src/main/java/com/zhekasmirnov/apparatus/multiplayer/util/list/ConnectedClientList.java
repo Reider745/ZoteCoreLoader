@@ -241,21 +241,7 @@ public class ConnectedClientList implements Iterable<ConnectedClient> {
     }
 
     public void send(String name, Object data) {
-        forEach(client -> {
-            try{
-                client.send(name, data);
-            }catch (Exception e){
-                final long playerUid = client.getPlayerUid();
-                ICLog.e("Network", "error send "+playerUid, e);
-
-                final Player player = EntityMethod.getPlayerToLong(playerUid);
-                if(player != null)
-                    player.kick();
-                else
-                    ICLog.i("Network", "error kick player");
-            }
-
-        });
+        forEach(client -> client.send(name, data));
     }
 
     public<T> void send(String name, T data, Class<T> type) {

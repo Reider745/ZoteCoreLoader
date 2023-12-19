@@ -14,5 +14,6 @@ public class CommandsHelper {
         map.register(fallbackPrefix, new StateCommand());
         map.register(fallbackPrefix, new InnerCoreNetworkCommand());
         map.register(fallbackPrefix, new GenChunksCommands());
+        map.register(fallbackPrefix, new PlayerInfoCommand());
     }
 }

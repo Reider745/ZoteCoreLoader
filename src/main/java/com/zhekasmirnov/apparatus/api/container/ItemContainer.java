@@ -554,8 +554,6 @@ public class ItemContainer implements WorkbenchField {
         return 0;
     }
 
-
-
     public void sendChanges() {
         if (isServer) {
             if (!dirtySlotSet.isEmpty()) {
