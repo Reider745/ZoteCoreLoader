@@ -196,8 +196,9 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     public void send(String name, Object data) {
         try{
-            channel.send(name, data);
-        }catch (Exception e){
+            if(!channel.isClosed())
+                channel.send(name, data);
+        }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
 
             final Player player = EntityMethod.getPlayerToLong(playerUid);
@@ -210,8 +211,9 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     public<T> void send(String name, T data, Class<T> dataType) {
         try{
-            channel.send(name, data, dataType);
-        }catch (Exception e){
+            if(!channel.isClosed())
+                channel.send(name, data, dataType);
+        }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
 
             final Player player = EntityMethod.getPlayerToLong(playerUid);
