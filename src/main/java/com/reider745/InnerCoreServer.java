@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginDescription;
 
 import cn.nukkit.plugin.PluginManager;
+import cn.nukkit.utils.MainLogger;
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
@@ -203,7 +204,7 @@ public class InnerCoreServer {
         PATH = server.getDataPath();
         InnerCoreServer.server = server;
         InnerCoreServer.ic_server = this;
-        com.zhekasmirnov.horizon.runtime.logger.Logger.server = server;
+        Logger.server = server;
 
         CallbackHelper.init();
         NukkitIdConvertor.init();

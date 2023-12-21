@@ -198,6 +198,8 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         try{
             if(!channel.isClosed())
                 channel.send(name, data);
+            else
+                ICLog.i("Network", "error send packet, socket close");
         }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
 
@@ -213,6 +215,8 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         try{
             if(!channel.isClosed())
                 channel.send(name, data, dataType);
+            else
+                ICLog.i("Network", "error send packet, socket close");
         }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
 

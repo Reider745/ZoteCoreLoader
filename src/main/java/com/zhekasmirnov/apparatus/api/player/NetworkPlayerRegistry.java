@@ -3,6 +3,7 @@ package com.zhekasmirnov.apparatus.api.player;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.innercore.api.NativeAPI;
+import com.zhekasmirnov.innercore.api.runtime.Callback;
 //import com.zhekasmirnov.innercore.api.runtime.Callback;
 
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class NetworkPlayerRegistry {
         synchronized (handlerMap) {
             NetworkPlayerHandler handler = handlerMap.remove(client.getPlayerUid());
             if (handler != null) {
-                //Network.getSingleton().getServerThreadJobExecutor().add(() -> Callback.invokeAPICallback("ServerPlayerLeft", handler.getActor().getUid()));
+                Network.getSingleton().getServerThreadJobExecutor().add(() -> Callback.invokeAPICallback("ServerPlayerLeft", handler.getActor().getUid()));
             }
         }
     }

@@ -3,9 +3,9 @@ package com.zhekasmirnov.horizon.runtime.logger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import cn.nukkit.Server;
 import org.mozilla.javascript.RhinoException;
 
-import cn.nukkit.Server;
 
 public class Logger {
     public static Server server;

@@ -39,6 +39,7 @@ import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegis
 import com.zhekasmirnov.innercore.api.mod.ui.window.WindowProvider;
 import com.zhekasmirnov.innercore.api.mod.util.InventorySource;
 import com.zhekasmirnov.innercore.api.runtime.*;
+import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.runtime.other.WorldGen;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
