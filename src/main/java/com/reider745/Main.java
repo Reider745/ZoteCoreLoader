@@ -82,7 +82,8 @@ public class Main {
         loader.registerHooksInitializationForClass(BlocksHooks.class);
         loader.registerHooksInitializationForClass(LevelHooks.class);
         loader.registerHooksInitializationForClass(ItemUtils.class);
-        loader.registerHooksInitializationForClass(AndroidSdkHooks.class);
+        loader.registerHooksInitializationForClass(AndroidHooks.class);
+        loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
 
         loader.init();
         loader.run("cn.nukkit.Nukkit", args);

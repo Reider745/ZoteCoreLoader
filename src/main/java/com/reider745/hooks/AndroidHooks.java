@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 @Hooks
-public class AndroidSdkHooks implements HookClass {
+public class AndroidHooks implements HookClass {
 	@FieldPatched(className = "android.os.Build.VERSION")
 	public static final String INCREMENTAL = "1661782216865";
 	@FieldPatched(className = "android.os.Build.VERSION")
@@ -276,6 +276,6 @@ public class AndroidSdkHooks implements HookClass {
 		sColorNameMap.put("teal", 0xFF008080);
 	}
 
-	private AndroidSdkHooks() {
+	private AndroidHooks() {
 	}
 }
