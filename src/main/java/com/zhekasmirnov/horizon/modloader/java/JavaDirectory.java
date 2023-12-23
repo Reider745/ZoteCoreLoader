@@ -3,166 +3,192 @@ package com.zhekasmirnov.horizon.modloader.java;
 import android.content.Context;
 import com.googlecode.d2j.dex.Dex2jar;
 import com.zhekasmirnov.horizon.util.FileUtils;
+import com.zhekasmirnov.innercore.utils.FileTools;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.json.JSONException;
+
 public class JavaDirectory {
+    public final /* Mod */ Object mod;
     public final File directory;
     public final JavaLibraryManifest manifest;
-    public final Object mod;
 
-    public JavaDirectory(Object var1, File var2) {
-        this.mod = var1;
-        PrintStream var3 = System.out;
-        StringBuilder var6 = new StringBuilder();
-        var6.append("java dir=");
-        var6.append(var2);
-        var3.println(var6.toString());
-        if (var2.isDirectory()) {
-            this.directory = var2;
-            File var7 = new File(var2, "oat");
-            if (var7.isDirectory()) {
-                FileUtils.clearFileTree(var7, true);
-            }
-
-            JavaLibraryManifest var8;
-            try {
-                var7 = new File(var2, "manifest");
-                var8 = new JavaLibraryManifest(var7);
-            } catch (IOException var4) {
-                var6 = new StringBuilder();
-                var6.append("failed to read java library manifest for ");
-                var6.append(var2);
-                throw new RuntimeException(var6.toString(), var4);
-            } catch (JSONException var5) {
-                StringBuilder var9 = new StringBuilder();
-                var9.append("failed to read java library manifest for ");
-                var9.append(var2);
-                throw new RuntimeException(var9.toString(), var5);
-            }
-
-            this.manifest = var8;
-        } else {
-            var6 = new StringBuilder();
-            var6.append("non-directory file passed to JavaDirectory constructor: ");
-            var6.append(var2);
-            throw new IllegalStateException(var6.toString());
+    public JavaDirectory(/* Mod */ Object mod, File directory) {
+        this.mod = mod;
+        System.out.println("java dir=" + directory);
+        if (!directory.isDirectory()) {
+            throw new IllegalStateException("non-directory file passed to JavaDirectory constructor: " + directory);
+        }
+        this.directory = directory;
+        try {
+            JavaLibraryManifest manifest = new JavaLibraryManifest(new File(directory, "manifest"));
+            this.manifest = manifest;
+        } catch (IOException err) {
+            throw new RuntimeException("failed to read java library manifest for " + directory, err);
+        } catch (JSONException err2) {
+            throw new RuntimeException("failed to read java library manifest for " + directory, err2);
         }
     }
 
-    private void getAllSourceFiles(ArrayList<String> var1, File var2) {
-        if (var2.exists()) {
-            File[] var6 = var2.listFiles();
-            int var4 = var6.length;
-
-            for(int var3 = 0; var3 < var4; ++var3) {
-                File var5 = var6[var3];
-                if (var5.isDirectory()) {
-                    this.getAllSourceFiles(var1, var5);
-                } else if (var5.exists() && var5.isFile() && var5.getName().endsWith(".java")) {
-                    var1.add(var5.getAbsolutePath());
-                }
-            }
-
-        }
+    public String getName() {
+        return this.directory.getName();
     }
 
-    private static String makeSeparatedString(List<File> var0) {
-        StringBuilder var1 = new StringBuilder();
-
-        File var3;
-        for(Iterator var2 = var0.iterator(); var2.hasNext(); var1.append(var3.getAbsolutePath())) {
-            var3 = (File)var2.next();
-            if (var1.length() > 0) {
-                var1.append(':');
-            }
-        }
-
-        return var1.toString();
-    }
-
-    /*public JavaLibrary addToExecutionDirectory(ExecutionDirectory var1, Context var2) {
-        File var3 = this.getCompiledClassesFile();
-        JavaLibrary var4;
-        if (var3.exists() && !var3.isDirectory()) {
-            var4 = new JavaLibrary(this, this.getCompiledClassesFiles());
-        } else {
-            (new JavaCompiler(var2)).compile(this);
-            var3 = this.getCompiledDexFile();
-            if (var3.exists()) {
-                var4 = new JavaLibrary(this, var3);
+    public File getSubDirectory(String path, boolean createIfRequired) {
+        File dir = new File(this.directory, path);
+        if (!dir.exists()) {
+            if (createIfRequired) {
+                dir.mkdirs();
             } else {
-                var3 = this.getBuildDexFile();
-                if (!var3.exists()) {
-                    StringBuilder var5 = new StringBuilder();
-                    var5.append("failed to build library ");
-                    var5.append(this);
-                    var5.append(" for some reason");
-                    throw new RuntimeException(var5.toString());
+                return null;
+            }
+        }
+        if (!dir.isDirectory()) {
+            return null;
+        }
+        return dir;
+    }
+
+    public File getDestinationDirectory() {
+        return getSubDirectory(".build/classes", true);
+    }
+
+    public File getJarDirectory() {
+        return getSubDirectory(".build/jar", true);
+    }
+
+    private static String makeSeparatedString(List<File> files) {
+        StringBuilder string = new StringBuilder();
+        for (File src : files) {
+            if (string.length() > 0) {
+                string.append(':');
+            }
+            string.append(src.getAbsolutePath());
+        }
+        return string.toString();
+    }
+
+    public File getBuildDexFile() {
+        File buildDir = getSubDirectory(".build", true);
+        if (buildDir != null) {
+            return new File(buildDir, "build.dex");
+        }
+        return null;
+    }
+
+    public File getCompiledDexFile() {
+        return new File(this.directory, ".compiled.dex");
+    }
+
+    public String getSourceDirectories() {
+        return makeSeparatedString(this.manifest.sourceDirs);
+    }
+
+    public String getLibraryPaths(List<File> bootPaths) {
+        List<File> all = new ArrayList<>();
+        all.addAll(bootPaths);
+        for (File lib : this.manifest.libraryPaths) {
+            if (lib.getName().endsWith(".dex")) {
+                try {
+                    Dex2jar dex2jar = Dex2jar.from(lib);
+                    String libPath = lib.getAbsolutePath();
+                    File jar = new File(libPath.substring(0, libPath.length() - 4) + ".jar");
+                    dex2jar.to(jar.toPath());
+                    all.add(jar);
+                } catch (IOException e) {
+                    throw new RuntimeException("Cannot create jar file of dex " + lib, e);
                 }
-
-                var4 = new JavaLibrary(this, var3);
+            } else {
+                all.add(lib);
             }
         }
-
-        return var4;
-    }*/
-
-/*    public void compileToClassesFile(Context var1) {
-        (new JavaCompiler(var1)).compile(this);
-        File var3 = this.getCompiledDexFile();
-        if (var3.exists()) {
-            try {
-                FileUtils.copy(var3, this.getCompiledClassesFile());
-            } catch (IOException var2) {
-                throw new RuntimeException(var2);
-            }
-        } else {
-            StringBuilder var4 = new StringBuilder();
-            var4.append("failed to build library ");
-            var4.append(this);
-            var4.append(" for some reason");
-            throw new RuntimeException(var4.toString());
-        }
-    }*/
-
-    public String[] getAllSourceFiles() {
-        ArrayList var1 = new ArrayList();
-        Iterator var2 = this.manifest.sourceDirs.iterator();
-
-        while(var2.hasNext()) {
-            this.getAllSourceFiles(var1, (File)var2.next());
-        }
-
-        PrintStream var4 = System.out;
-        StringBuilder var3 = new StringBuilder();
-        var3.append("source size: ");
-        var3.append(var1.size());
-        var4.println(var3.toString());
-        return (String[])var1.toArray(new String[var1.size()]);
+        all.addAll(this.manifest.libraryPaths);
+        return makeSeparatedString(all);
     }
 
     public String[] getArguments() {
         return this.manifest.arguments;
     }
 
+    public boolean isVerboseRequired() {
+        return this.manifest.verbose;
+    }
+
+    public String[] getAllSourceFiles() {
+        ArrayList<String> javaFiles = new ArrayList<>();
+        for (File sourcePath : this.manifest.sourceDirs) {
+            getAllSourceFiles(javaFiles, sourcePath);
+        }
+        System.out.println("source size: " + javaFiles.size());
+        String[] sources = new String[javaFiles.size()];
+        return (String[]) javaFiles.toArray(sources);
+    }
+
+    private void getAllSourceFiles(ArrayList<String> toAdd, File parent) {
+        if (!parent.exists()) {
+            return;
+        }
+        for (File child : parent.listFiles()) {
+            if (child.isDirectory()) {
+                getAllSourceFiles(toAdd, child);
+            } else if (child.exists() && child.isFile() && child.getName().endsWith(".java")) {
+                toAdd.add(child.getAbsolutePath());
+            }
+        }
+    }
+
     public List<String> getBootClassNames() {
         return this.manifest.bootClasses;
     }
 
-    public File getBuildDexFile() {
-        File var1 = this.getSubDirectory(".build", true);
-        if (var1 != null) {
-            var1 = new File(var1, "build.dex");
-        } else {
-            var1 = null;
-        }
+    @Deprecated
+    public JavaLibrary addToExecutionDirectory(/* ExecutionDirectory */ Object executionDirectory, Context context) {
+        return addToExecutionDirectory();
+    }
 
-        return var1;
+    public JavaLibrary addToExecutionDirectory() {
+        JavaLibrary library;
+        File compiled = getCompiledClassesFile();
+        if (compiled.exists() && !compiled.isDirectory()) {
+            List<File> files = getCompiledClassesFiles();
+            library = new JavaLibrary(this, files);
+        } else {
+            // new JavaCompiler(context).compile(this);
+            File dex = getCompiledDexFile();
+            if (dex.exists()) {
+                library = new JavaLibrary(this, dex);
+            } else {
+                File build = getBuildDexFile();
+                if (build.exists()) {
+                    library = new JavaLibrary(this, build);
+                } else {
+                    throw new RuntimeException("failed to build library " + this + " for some reason");
+                }
+            }
+        }
+        return library;
+    }
+
+    @Deprecated
+    public void compileToClassesFile(Context context) {
+        compileToClassesFile();
+    }
+
+    public void compileToClassesFile() {
+        // new JavaCompiler(context).compile(this);
+        File dex = getCompiledDexFile();
+        if (dex.exists()) {
+            try {
+                FileTools.copy(dex, getCompiledClassesFile());
+                return;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        throw new RuntimeException("failed to build library " + this + " for some reason");
     }
 
     public File getCompiledClassesFile() {
@@ -170,94 +196,25 @@ public class JavaDirectory {
     }
 
     public List<File> getCompiledClassesFiles() {
-        String[] var3 = this.directory.list();
-        ArrayList var4 = new ArrayList(var3.length);
-        int var2 = var3.length;
-
-        for(int var1 = 0; var1 < var2; ++var1) {
-            String var5 = var3[var1];
-            if (var5.matches("classes[0-9]*\\.dex")) {
-                var4.add(new File(this.directory, var5));
+        String[] files = this.directory.list();
+        List<File> result = new ArrayList<>(files.length);
+        for (String file : files) {
+            if (file.matches("classes[0-9]*\\.dex")) {
+                result.add(new File(this.directory, file));
             }
         }
-
-        return var4;
-    }
-
-    public File getCompiledDexFile() {
-        return new File(this.directory, ".compiled.dex");
-    }
-
-    public File getDestinationDirectory() {
-        return this.getSubDirectory(".build/classes", true);
-    }
-
-    public File getJarDirectory() {
-        return this.getSubDirectory(".build/jar", true);
-    }
-
-    public String getLibraryPaths(List<File> var1) {
-        ArrayList var2 = new ArrayList();
-        var2.addAll(var1);
-        Iterator var4 = this.manifest.libraryPaths.iterator();
-
-        while(var4.hasNext()) {
-            File var7 = (File)var4.next();
-            if (var7.getName().endsWith(".dex")) {
-                try {
-                    Dex2jar var5 = Dex2jar.from(var7);
-                    File var8 = new File(var7.getAbsolutePath().replace(".dex", ".jar"));
-                    var5.to(var8.toPath());
-                    var2.add(var8);
-                } catch (IOException var6) {
-                    StringBuilder var3 = new StringBuilder();
-                    var3.append("Cannot create jar file of dex ");
-                    var3.append(var7);
-                    throw new RuntimeException(var3.toString(), var6);
-                }
-            } else {
-                var2.add(var7);
-            }
-        }
-
-        var2.addAll(this.manifest.libraryPaths);
-        return makeSeparatedString(var2);
-    }
-
-    public String getName() {
-        return this.directory.getName();
-    }
-
-    public String getSourceDirectories() {
-        return makeSeparatedString(this.manifest.sourceDirs);
-    }
-
-    public File getSubDirectory(String var1, boolean var2) {
-        File var3 = new File(this.directory, var1);
-        if (!var3.exists()) {
-            if (!var2) {
-                return null;
-            }
-
-            var3.mkdirs();
-        }
-
-        return !var3.isDirectory() ? null : var3;
+        return result;
     }
 
     public boolean isInDevMode() {
-        return this.getCompiledClassesFile().exists();
+        return getCompiledClassesFile().exists();
+    }
+
+    public void setPreCompiled(boolean preCompiled) {
+        FileUtils.setFileFlag(this.directory, "not_precompiled", !preCompiled);
     }
 
     public boolean isPreCompiled() {
-        return FileUtils.getFileFlag(this.directory, "not_precompiled") ^ true;
-    }
-
-    public boolean isVerboseRequired() {
-        return this.manifest.verbose;
-    }
-
-    public void setPreCompiled(boolean var1) {
-        FileUtils.setFileFlag(this.directory, "not_precompiled", var1 ^ true);
+        return !FileUtils.getFileFlag(this.directory, "not_precompiled");
     }
 }

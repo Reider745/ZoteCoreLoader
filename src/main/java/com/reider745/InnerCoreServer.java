@@ -3,8 +3,6 @@ package com.reider745;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginDescription;
 
-import cn.nukkit.plugin.PluginManager;
-import cn.nukkit.utils.MainLogger;
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
@@ -67,7 +65,7 @@ public class InnerCoreServer {
         final String lang = server.getLanguage().getLang();
 
         final StringBuilder icLang = new StringBuilder();
-        for(int i = 0;i < lang.length()-1;i++)
+        for (int i = 0; i < lang.length() - 1; i++)
             icLang.append(lang.charAt(i));
         return icLang.toString();
     }
@@ -220,8 +218,8 @@ public class InnerCoreServer {
 
         plugin.init(null, server, new PluginDescription(configs), null, null);
 
-        final File innercoreDirectory = new File(PATH, "innercore");
-        if (!innercoreDirectory.exists()) {
+        final File innerCoreDirectory = new File(PATH, "innercore");
+        if (!innerCoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
             try {
                 File innercoreFile = unpackExistingResources("/innercore.zip", PATH);
@@ -230,7 +228,7 @@ public class InnerCoreServer {
                 }
             } catch (IOException | SecurityException fileExc) {
                 try {
-                    unpackExistingResources("/innercore", innercoreDirectory.getPath());
+                    unpackExistingResources("/innercore", innerCoreDirectory.getPath());
                 } catch (IOException | SecurityException directoryExc) {
                     server.getLogger().debug("Failed to unpack 'innercore.zip' or it was not found", fileExc);
                     server.getLogger().debug("Failed to unpack 'innercore' or it was not found", directoryExc);
@@ -251,10 +249,10 @@ public class InnerCoreServer {
         // Required to be called before modpack instantiation
         FileTools.init();
 
-        ModPack innercoreModPack = ModPackFactory.getInstance().createFromDirectory(innercoreDirectory);
-        ModPackContext.getInstance().setCurrentModPack(innercoreModPack);
+        ModPack innerCoreModPack = ModPackFactory.getInstance().createFromDirectory(innerCoreDirectory);
+        ModPackContext.getInstance().setCurrentModPack(innerCoreModPack);
 
-        for (ModPackDirectory directoryWithMods : innercoreModPack
+        for (ModPackDirectory directoryWithMods : innerCoreModPack
                 .getDirectoriesOfType(ModPackDirectory.DirectoryType.MODS)) {
             directoryWithMods.assureDirectoryRoot();
             for (File potentialIcmodFile : directoryWithMods.getLocation().listFiles()) {
@@ -265,7 +263,9 @@ public class InnerCoreServer {
             }
         }
 
-        new InnerCore(new File(PATH)).load();
+        InnerCore innerCore = new InnerCore(new File(PATH));
+        innerCore.load();
+        innerCore.build();
         LoadingStage.setStage(LoadingStage.STAGE_MCPE_STARTING);
         InnerCoreConfig.set("gameplay.use_legacy_workbench_override", isLegacyWorkbench());
         LoadingStage.setStage(LoadingStage.STAGE_MCPE_INITIALIZING);
@@ -320,7 +320,8 @@ public class InnerCoreServer {
     }
 
     public static void useNotSupport(String name) {
-        if(!isDevelopMode()) return;
+        if (!isDevelopMode())
+            return;
         String message = "Use not support multiplayer method " + name;
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -330,7 +331,8 @@ public class InnerCoreServer {
     }
 
     public static void useClientMethod(String name) {
-        if(!isDevelopMode()) return;
+        if (!isDevelopMode())
+            return;
         String message = "Use client method " + name;
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -340,7 +342,8 @@ public class InnerCoreServer {
     }
 
     public static void useNotCurrentSupport(String name) {
-        if(!isDevelopMode()) return;
+        if (!isDevelopMode())
+            return;
         String message = "The " + name + " method is currently not supported";
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -350,7 +353,8 @@ public class InnerCoreServer {
     }
 
     public static void useIncomprehensibleMethod(String name) {
-        if(!isDevelopMode()) return;
+        if (!isDevelopMode())
+            return;
         String message = "I don't really understand what this method does (" + name
                 + "), which is why you're reading this right now";
         if (isRuntimeException()) {

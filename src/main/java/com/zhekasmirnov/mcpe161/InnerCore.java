@@ -6,6 +6,7 @@ import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.env.EnvironmentSetupProxy;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.modloader.ApparatusMod;
+import com.zhekasmirnov.horizon.modloader.JavaEnvironment;
 import com.zhekasmirnov.horizon.modloader.java.JavaDirectory;
 import com.zhekasmirnov.horizon.modloader.library.LibraryDirectory;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -31,6 +32,7 @@ public class InnerCore {
     public static final boolean isLicenceVersion = false;
 
     private static InnerCore instance;
+    private static JavaEnvironment javaEnvironment;
 
     public static InnerCore getInstance() {
         return instance;
@@ -54,6 +56,9 @@ public class InnerCore {
         FileTools.initializeDirectories(packDirectory);
         instance = this;
         Logger.info("initializing innercore");
+        if (javaEnvironment == null) {
+            javaEnvironment = new JavaEnvironment();
+        }
     }
 
     public static boolean checkLicence(Activity activity) {
@@ -69,6 +74,7 @@ public class InnerCore {
     }
 
     public void setMinecraftActivity(Activity activity) {
+        InnerCoreServer.useNotSupport("InnerCore.setMinecraftActivity(activity)");
     }
 
     public Activity getCurrentActivity() {
@@ -81,6 +87,15 @@ public class InnerCore {
         preloadInnerCore();
     }
 
+    public void build() {
+        ArrayList<JavaDirectory> javaDirectories = new ArrayList<>();
+        addJavaDirectories(javaDirectories);
+        for (JavaDirectory javaDirectory : javaDirectories) {
+            javaEnvironment.addDirectory(javaDirectory);
+        }
+        javaEnvironment.build();
+    }
+
     public List<File> allResourceDirectories = new ArrayList<>();
 
     private void preloadInnerCore() {
@@ -90,10 +105,6 @@ public class InnerCore {
         ICLog.setupEventHandlerForCurrentThread(new ModLoaderEventHandler());
 
         LoadingUI.setTextAndProgressBar("Initializing Resources...", 0f);
-        try {
-            Thread.sleep(500); // letting loading ui to draw
-        } catch (InterruptedException e) {
-        }
         LoadingStage.setStage(LoadingStage.STAGE_RESOURCES_LOADING);
 
         // load
