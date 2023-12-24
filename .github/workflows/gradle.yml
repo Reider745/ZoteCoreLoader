@@ -34,5 +34,4 @@ jobs:
       with:
          name: ZoteCoreLoader
          path: build/libs/ZotCore-SNAPSHOT.jar
-         compression-level: 9
          retention-days: 30
