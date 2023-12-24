@@ -48,6 +48,7 @@ jar {
 run {
     workingDir = 'target'
     standardInput = System.in
+    jvmArgs += ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
 }
 
 task rebuildAndroidStubs(type: JavaExec, dependsOn: classes) {

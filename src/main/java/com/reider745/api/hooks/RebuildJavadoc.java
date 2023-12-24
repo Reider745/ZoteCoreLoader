@@ -5,30 +5,21 @@ import javassist.bytecode.AccessFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
+import com.zhekasmirnov.horizon.launcher.env.ClassLoaderPatch;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-import java.util.stream.Stream;
 
 public class RebuildJavadoc {
-    private static final String[] progressHandles = new String[] { "::", ":.", ": ", ". ", "  ", " .", " :", ".:" };
+    private static final String[] INDICATORS = new String[] { "::", ":.", ": ", ". ", "  ", " .", " :", ".:" };
 
     private static Logger logger;
     private Set<String> singletonClasses;
@@ -41,27 +32,6 @@ public class RebuildJavadoc {
         }
         singletonClasses = null;
         rewrittenSingletonClasses = null;
-    }
-
-    private static ArrayList<String> fetchClassesFromJar(File jarPath) {
-        ArrayList<String> classNames = new ArrayList<>();
-        try {
-            JarFile jarFile = new JarFile(jarPath);
-            Enumeration<JarEntry> entries = jarFile.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry jarEntry = entries.nextElement();
-                if (jarEntry.getName().endsWith(".class")) {
-                    classNames.add(
-                            jarEntry.getName()
-                                    .replace('/', '.')
-                                    .replace(".class", ""));
-                }
-            }
-            jarFile.close();
-        } catch (IOException e) {
-            logger.error("An error occurred while reading the JAR file", e);
-        }
-        return classNames;
     }
 
     private static String getStubValue(CtClass retType) {
@@ -188,6 +158,7 @@ public class RebuildJavadoc {
         if (ctClass.isEnum() || ctClass.isInterface() || (ctClass.getModifiers() & AccessFlag.ABSTRACT) != 0) {
             return;
         }
+
         CtConstructor minimumConstructor = getMinimumConstructor(ctClass.getDeclaredConstructors());
         if (minimumConstructor == null) {
             minimumConstructor = new CtConstructor(new CtClass[0], ctClass);
@@ -197,6 +168,7 @@ public class RebuildJavadoc {
             }
             ctClass.addConstructor(minimumConstructor);
         }
+
         StringBuilder parameters = new StringBuilder();
         for (CtClass parameter : minimumConstructor.getParameterTypes()) {
             if (!parameters.isEmpty()) {
@@ -204,12 +176,14 @@ public class RebuildJavadoc {
             }
             parameters.append(getStubValue(parameter));
         }
+
         CtField newInstanceField = new CtField(ctClass, "singletonInternalProxy", ctClass);
         newInstanceField.setModifiers(AccessFlag.PRIVATE | AccessFlag.STATIC);
         ctClass.addField(newInstanceField);
         CtMethod newInstance = new CtMethod(ctClass, "getSingletonInternalProxy", new CtClass[0], ctClass);
         newInstance.setExceptionTypes(minimumConstructor.getExceptionTypes());
         newInstance.setModifiers(AccessFlag.PUBLIC | AccessFlag.STATIC);
+
         StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append("{ if (singletonInternalProxy == null) { singletonInternalProxy = new ");
         if (parameters.isEmpty()) {
@@ -219,6 +193,7 @@ public class RebuildJavadoc {
         }
         bodyBuilder.append("; } return singletonInternalProxy; }");
         newInstance.setBody(bodyBuilder.toString());
+
         ctClass.addMethod(newInstance);
     }
 
@@ -237,6 +212,7 @@ public class RebuildJavadoc {
                         || (returnClass.getModifiers() & AccessFlag.ABSTRACT) != 0) {
                     continue;
                 }
+
                 String returnType = returnClass.getName();
                 int modifiers = method.getModifiers();
                 if ((modifiers & AccessFlag.ABSTRACT) != 0
@@ -277,14 +253,17 @@ public class RebuildJavadoc {
             if (!outputDirectory.canWrite()) {
                 throw new SecurityException("No write permissions for the output directory");
             }
+
             ClassPool.releaseUnmodifiedClassFile = false;
             final ClassPool classPool = new ClassPool();
             classPool.insertClassPath(jarFile.getPath());
+
             singletonClasses = new HashSet<>();
-            ArrayList<String> classes = fetchClassesFromJar(jarFile);
+            List<String> classes = ClassLoaderPatch.fetchClassesFromJar(jarFile);
             offset = 0;
             length = classes.size() * 2;
             HashMap<String, CtClass> cachedClasses = new HashMap<>();
+
             for (String className : classes) {
                 if (!(className.startsWith("java.") || className.startsWith("javax.")
                         || className.startsWith("org.json."))) {
@@ -295,11 +274,12 @@ public class RebuildJavadoc {
                 if (offset % 100 == 0) {
                     System.out.print(String.format(
                             "\r%s Stubbing... %.1f%% : " + className.substring(0, Math.min(className.length(), 40)),
-                            progressHandles[(int) (System.currentTimeMillis() / 100 % progressHandles.length)],
+                            INDICATORS[(int) (System.currentTimeMillis() / 100 % INDICATORS.length)],
                             (float) ((1000L * offset) / (length + singletonClasses.size())) / 10f));
                 }
                 offset++;
             }
+
             boolean singletonsRequired = !singletonClasses.isEmpty();
             if (singletonsRequired) {
                 rewrittenSingletonClasses = new HashSet<>();
@@ -317,12 +297,13 @@ public class RebuildJavadoc {
                         System.out.print(String.format(
                                 "\r%s Constructing... %.1f%% : "
                                         + className.substring(0, Math.min(className.length(), 40)),
-                                progressHandles[(int) (System.currentTimeMillis() / 100 % progressHandles.length)],
+                                INDICATORS[(int) (System.currentTimeMillis() / 100 % INDICATORS.length)],
                                 (float) ((1000L * offset) / length) / 10f));
                     }
                     offset++;
                 }
             }
+
             for (String className : classes) {
                 if (!(className.startsWith("java.") || className.startsWith("javax.")
                         || className.startsWith("org.json."))) {
@@ -336,60 +317,22 @@ public class RebuildJavadoc {
                 if (offset % 100 == 0) {
                     System.out.print(String.format(
                             "\r%s Overriding... %.1f%% : " + className.substring(0, Math.min(className.length(), 40)),
-                            progressHandles[(int) (System.currentTimeMillis() / 100 % progressHandles.length)],
+                            INDICATORS[(int) (System.currentTimeMillis() / 100 % INDICATORS.length)],
                             (float) ((1000L * offset) / (length + singletonClasses.size())) / 10f));
                 }
                 offset++;
             }
-            final Manifest jarManifest = new Manifest();
-            jarManifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-            Files.createDirectories(Paths.get(outputDirectoryPath, "META-INF"));
-            Path manifestPath = Paths.get(outputDirectoryPath, "META-INF", "MANIFEST.MF");
-            Files.deleteIfExists(manifestPath);
-            try (final OutputStream outStream = Files.newOutputStream(manifestPath)) {
-                jarManifest.write(outStream);
-            }
-            if (outputJarFile.exists()) {
-                outputJarFile.delete();
-            }
-            try (final JarOutputStream jarStream = new JarOutputStream(new FileOutputStream(outputJarFile))) {
-                try (final Stream<Path> walk = Files.walk(outputDirectoryRoot)) {
-                    walk.forEach(childPath -> {
-                        final Path childFilePath = outputDirectoryRoot.relativize(childPath);
-                        final String relativePath = childFilePath.toString().replace("\\", "/");
-                        if (Files.isRegularFile(childPath)) {
-                            final File childFile = childPath.toFile();
-                            final JarEntry entry = new JarEntry(relativePath);
-                            entry.setTime(childFile.lastModified());
-                            try (final BufferedInputStream inStream = new BufferedInputStream(
-                                    new FileInputStream(childFile))) {
-                                jarStream.putNextEntry(entry);
-                                byte[] buffer = new byte[1024];
-                                int count;
-                                while (true) {
-                                    if ((count = inStream.read(buffer)) == -1) {
-                                        break;
-                                    }
-                                    jarStream.write(buffer, 0, count);
-                                }
-                                jarStream.closeEntry();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        if (offset % 100 == 0) {
-                            System.out.print(String.format(
-                                    "\r%s Flushing jar... %.1f%% : "
-                                            + relativePath.substring(0, Math.min(relativePath.length(), 40)),
-                                    progressHandles[(int) (System.currentTimeMillis() / 100 % progressHandles.length)],
-                                    (float) ((1000L * offset) / (length + singletonClasses.size())) / 10f));
-                        }
-                        offset++;
-                    });
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+
+            ClassLoaderPatch.compressToJar(outputDirectory, outputJarFile, relativePath -> {
+                if (offset % 100 == 0) {
+                    System.out.print(String.format(
+                            "\r%s Flushing jar... %.1f%% : "
+                                    + relativePath.substring(0, Math.min(relativePath.length(), 40)),
+                            INDICATORS[(int) (System.currentTimeMillis() / 100 % INDICATORS.length)],
+                            (float) ((1000L * offset) / (length + singletonClasses.size())) / 10f));
                 }
-            }
+                offset++;
+            });
             System.out.print("\r" + " ".repeat(70));
             System.out.println(String.format(
                     "\rRebuilding completed in %.1fs.",
