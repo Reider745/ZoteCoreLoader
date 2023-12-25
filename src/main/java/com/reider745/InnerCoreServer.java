@@ -2,12 +2,14 @@ package com.reider745;
 
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginDescription;
+import cn.nukkit.plugin.PluginManager;
 
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
+import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
@@ -290,8 +292,10 @@ public class InnerCoreServer {
     public void afterload() {
         server.getLogger().info("Registering Nukkit-MOT containment...");
 
-        Logger.info("Register events ZotCoreLoader");
-        InnerCoreServer.server.getPluginManager().registerEvents(new EventListener(), InnerCoreServer.plugin);
+        Logger.info("Registering ZoteCore events...");
+        PluginManager pluginManager = server.getPluginManager();
+        pluginManager.registerEvents(new EventListener(), plugin);
+        pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
 
         CustomBlock.init();
         CustomItem.postInit();
@@ -320,8 +324,9 @@ public class InnerCoreServer {
     }
 
     public static void useNotSupport(String name) {
-        if (!isDevelopMode())
+        if (!isDevelopMode()) {
             return;
+        }
         String message = "Use not support multiplayer method " + name;
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -331,8 +336,9 @@ public class InnerCoreServer {
     }
 
     public static void useClientMethod(String name) {
-        if (!isDevelopMode())
+        if (!isDevelopMode()) {
             return;
+        }
         String message = "Use client method " + name;
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -342,8 +348,9 @@ public class InnerCoreServer {
     }
 
     public static void useNotCurrentSupport(String name) {
-        if (!isDevelopMode())
+        if (!isDevelopMode()) {
             return;
+        }
         String message = "The " + name + " method is currently not supported";
         if (isRuntimeException()) {
             throw new RuntimeException(message);
@@ -353,8 +360,9 @@ public class InnerCoreServer {
     }
 
     public static void useIncomprehensibleMethod(String name) {
-        if (!isDevelopMode())
+        if (!isDevelopMode()) {
             return;
+        }
         String message = "I don't really understand what this method does (" + name
                 + "), which is why you're reading this right now";
         if (isRuntimeException()) {

@@ -10,6 +10,9 @@ import com.reider745.api.hooks.annotation.Inject;
 
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntitySpawnable;
+import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.Listener;
+import cn.nukkit.event.weather.LightningStrikeEvent;
 import cn.nukkit.level.DimensionData;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.level.format.ChunkSection;
@@ -28,7 +31,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  * Special christmas adaptation, do not use anywhere else.
  */
 @Hooks
-public class SnowfallEverywhere implements HookClass {
+public class SnowfallEverywhere implements HookClass, Listener {
 
 	@Inject(className = "cn.nukkit.level.format.generic.serializer.NetworkChunkSerializer")
 	public static void serialize(IntSet protocols, BaseChunk chunk,
@@ -104,5 +107,10 @@ public class SnowfallEverywhere implements HookClass {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@EventHandler
+	public void onLightningStrike(LightningStrikeEvent event) {
+		event.setCancelled();
 	}
 }

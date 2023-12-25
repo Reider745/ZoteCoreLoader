@@ -9,24 +9,27 @@ import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
+import cn.nukkit.event.block.BlockExplosionPrimeEvent;
 import cn.nukkit.event.block.BlockGrowEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
+import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerExperienceChangeEvent;
 import cn.nukkit.event.player.PlayerInteractEntityEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
-import cn.nukkit.inventory.Inventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
+
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.ItemUtils;
@@ -50,11 +53,12 @@ public class EventListener implements Listener {
         final Block block = event.getBlock();
         final Player player = event.getPlayer();
 
-        if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)
+        if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
             consumeEvent(event,
                     () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z,
                             event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true,
                             player.getHealth() > 0, player.getId()));
+        }
     }
 
     public static void onBlockBreak(BlockBreakEvent event, boolean isNukkitPrevent) {
@@ -177,7 +181,8 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
         final Entity entity = event.getEntity();
-        final Entity attacker = event instanceof EntityDamageByEntityEvent damageByEntity ? damageByEntity.getDamager()
+        final Entity attacker = event instanceof EntityDamageByEntityEvent damageByEntity
+                ? damageByEntity.getDamager()
                 : null;
 
         if (attacker instanceof Player) {
@@ -196,20 +201,39 @@ public class EventListener implements Listener {
         final Entity entity = event.getEntity();
         final EntityDamageEvent damageEvent = entity.getLastDamageCause();
         final Entity attacker = damageEvent instanceof EntityDamageByEntityEvent damageByEntityEvent
-                ? damageByEntityEvent.getDamager()
-                : null;
+                ? damageByEntityEvent.getDamager() : null;
 
         NativeCallback.onEntityDied(entity.getId(), attacker != null ? attacker.getId() : -1,
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM));
     }
 
     @EventHandler
-    public void onExplosion(ExplosionPrimeEvent event) {
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        final Entity entity = event.getEntity();
+        final EntityDamageEvent damageEvent = entity.getLastDamageCause();
+        final Entity attacker = damageEvent instanceof EntityDamageByEntityEvent damageByEntityEvent
+                ? damageByEntityEvent.getDamager() : null;
+
+        consumeEvent(event, () -> NativeCallback.onEntityDied(entity.getId(), attacker != null ? attacker.getId() : -1,
+                convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM)));
+    }
+
+    @EventHandler
+    public void onBlockExplosion(BlockExplosionPrimeEvent event) {
+        final Location pos = event.getBlock().getLocation();
+
+        consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
+                (float) event.getForce(), -1, event.isIncendiary(), event.isBlockBreaking(),
+                (float) event.getFireChance()));
+    }
+
+    @EventHandler
+    public void onEntityExplosion(EntityExplosionPrimeEvent event) {
         final Entity entity = event.getEntity();
         final Position pos = entity.getPosition();
 
         consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
-                (float) event.getForce(), entity != null ? entity.getId() : -1, false, event.isBlockBreaking(), 0f));
+                (float) event.getForce(), entity.getId(), false, event.isBlockBreaking(), 0f));
     }
 
     @EventHandler
@@ -242,9 +266,11 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPickupItem(InventoryPickupItemEvent event) {
         final long dropEntity = event.getItem().getId();
-        final long entity = event.getInventory() instanceof Inventory inventory
-                && inventory.getHolder() instanceof Entity pickupEntity ? pickupEntity.getId() : -1;
-        final int count = event.getItem().getItem() instanceof Item item ? item.getCount() : 0;
+        final long entity = event.getInventory().getHolder() instanceof Entity pickupEntity
+                ? pickupEntity.getId()
+                : -1;
+        final Item item = event.getItem().getItem();
+        final int count = item != null ? item.getCount() : 0;
 
         consumeEvent(event, () -> NativeCallback.onEntityPickUpDrop(entity, dropEntity, count));
     }
@@ -256,7 +282,8 @@ public class EventListener implements Listener {
 
         consumeEvent(event,
                 () -> NativeCallback.onBlockChanged((int) block.x, (int) block.y, (int) block.z, block.getId(),
-                        block.getDamage(), newBlock.getId(), newBlock.getDamage(), 0, 0, block.getLevel()));
+                        block.getDamage(), newBlock.getId(), newBlock.getDamage(), block.getFullId(),
+                        newBlock.getFullId(), block.getLevel()));
     }
 
     // TODO: onPathNavigationDone
