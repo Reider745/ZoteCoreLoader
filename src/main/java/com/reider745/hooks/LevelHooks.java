@@ -37,7 +37,8 @@ public class LevelHooks implements HookClass {
     }
 
     @Inject
-    public static Item useBreakOn(Level level, Vector3 vector, BlockFace face, Item item, Player player, boolean createParticles){
+    public static Item useBreakOn(Level level, Vector3 vector, BlockFace face, Item item, Player player,
+            boolean createParticles) {
         if (player != null && player.getGamemode() > Player.ADVENTURE) {
             return null;
         }
@@ -59,7 +60,8 @@ public class LevelHooks implements HookClass {
                     for (Tag v : ((ListTag<? extends Tag>) tag).getAll()) {
                         if (v instanceof StringTag) {
                             Item entry = Item.fromString(((StringTag) v).data);
-                            if (entry.getId() > 0 && entry.getBlockUnsafe() != null && entry.getBlockUnsafe().getId() == target.getId()) {
+                            if (entry.getId() > 0 && entry.getBlockUnsafe() != null
+                                    && entry.getBlockUnsafe().getId() == target.getId()) {
                                 canBreak = true;
                                 break;
                             }
@@ -97,13 +99,14 @@ public class LevelHooks implements HookClass {
             if (!player.isSurvival()) {
                 eventDrops = Item.EMPTY_ARRAY;
             } else if (isSilkTouch && target.canSilkTouch()) {
-                eventDrops = new Item[]{target.toItem()};
+                eventDrops = new Item[] { target.toItem() };
             } else {
                 eventDrops = target.getDrops(item);
             }
-            //TODO 直接加1000可能会影响其他判断，需要进一步改进
+            // TODO 直接加1000可能会影响其他判断，需要进一步改进
             boolean fastBreak = (player.lastBreak + breakTime * 1000) > Long.sum(System.currentTimeMillis(), 1000);
-            BlockBreakEvent ev = new BlockBreakEvent(player, target, face, item, eventDrops, player.isCreative(), fastBreak);
+            BlockBreakEvent ev = new BlockBreakEvent(player, target, face, item, eventDrops, player.isCreative(),
+                    fastBreak);
 
             boolean isNukkitPrevent = false;
             if ((player.isSurvival() || player.isAdventure()) && !target.isBreakable(item)) {
@@ -122,9 +125,10 @@ public class LevelHooks implements HookClass {
             ev.setCancelled(false);
             level.getServer().getPluginManager().callEvent(ev);
 
-            if(!ev.isCancelled()) {
-                EventListener.eventBreakBlock(ev, false);
-                if(isNukkitPrevent) ev.setCancelled();
+            if (!ev.isCancelled()) {
+                EventListener.onBlockBreak(ev, false);
+                if (isNukkitPrevent)
+                    ev.setCancelled();
             }
 
             if (ev.isCancelled()) {
@@ -136,7 +140,7 @@ public class LevelHooks implements HookClass {
         } else if (!target.isBreakable(item)) {
             return null;
         } else if (item.hasEnchantment(Enchantment.ID_SILK_TOUCH)) {
-            drops = new Item[]{target.toItem()};
+            drops = new Item[] { target.toItem() };
         } else {
             drops = target.getDrops(item);
         }
@@ -169,7 +173,8 @@ public class LevelHooks implements HookClass {
         }
 
         if (level.gameRules.getBoolean(GameRule.DO_TILE_DROPS)) {
-            if (!isSilkTouch && player != null && drops.length != 0) { // For example no xp from redstone if it's mined with stone pickaxe
+            if (!isSilkTouch && player != null && drops.length != 0) { // For example no xp from redstone if it's mined
+                                                                       // with stone pickaxe
                 if (player.isSurvival() || player.isAdventure()) {
                     level.dropExpOrb(vector.add(0.5, 0.5, 0.5), dropExp);
                 }

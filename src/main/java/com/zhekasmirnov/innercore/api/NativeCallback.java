@@ -5,7 +5,6 @@ import cn.nukkit.level.Level;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
-import com.reider745.event.EventListener;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
@@ -39,7 +38,6 @@ import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegis
 import com.zhekasmirnov.innercore.api.mod.ui.window.WindowProvider;
 import com.zhekasmirnov.innercore.api.mod.util.InventorySource;
 import com.zhekasmirnov.innercore.api.runtime.*;
-import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.runtime.other.WorldGen;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
@@ -133,6 +131,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("AppSuspended");
     }
 
+    @Deprecated
     public static void onKeyEventDispatched(int key, int state) {
         Callback.invokeAPICallback("SystemKeyEventDispatched", key, state);
         if (key == 0 && state == 1) {
@@ -276,7 +275,7 @@ public class NativeCallback {
         setupThreadPriorityFromConfig();
     }
 
-    // this is local callback!
+    @Deprecated // this is local callback!
     public static void onDimensionChanged(int current, int last) {
         if (current != last) {
             Callback.invokeAPICallback("DimensionUnloaded", last);
@@ -410,6 +409,7 @@ public class NativeCallback {
         }
     };
 
+    @Deprecated
     public static void onLocalTick() {
         // run for first local tick
         if (isFirstLocalTick) {
@@ -874,6 +874,7 @@ public class NativeCallback {
                 new FullBlock(blockSource, x, y, z), new Coords(changedX, changedY, changedZ), blockSource);
     }
 
+    @Deprecated
     public static void onCustomTessellation(long tessellator, int x, int y, int z, int id, int data, boolean b) {
         NativeBlockRenderer.onRenderCall(new NativeBlockRenderer.RenderAPI(tessellator), new Coords(x, y, z),
                 new FullBlock(id, data), b);

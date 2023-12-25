@@ -29,8 +29,9 @@ public class CallbackHelper {
         private final ArrayList<ICallbackApply> applys = new ArrayList<>();
 
         private final Level getRegion() {
-            if(region == null)
+            if (region == null) {
                 System.out.println("isNull: true");
+            }
             return region;
         }
 
@@ -66,21 +67,22 @@ public class CallbackHelper {
     }
 
     public static void init() {
-        for (Type type : Type.values())
+        for (Type type : Type.values()) {
             registerCallback(type);
+        }
     }
 
     private static class ThreadCallback extends Thread {
         protected final ICallbackApply apply;
 
-        protected boolean prevent_status;
+        protected boolean isPrevented;
 
         public boolean isPrevent() {
-            return prevent_status;
+            return isPrevented;
         }
 
         public void prevent() {
-            this.prevent_status = true;
+            this.isPrevented = true;
         }
 
         public ThreadCallback(ICallbackApply apply) {
@@ -100,14 +102,16 @@ public class CallbackHelper {
 
         @Override
         public void run() {
-            if (!event.isCancelled() || isPrevented){
+            if (isPrevented || !event.isCancelled()) {
                 apply.apply();
-                if(isPrevent())
+                if (isPrevent()) {
                     event.setCancelled();
+                }
             }
         }
     }
 
+    @SuppressWarnings("unused")
     private static class ThreadCallbackController extends ThreadCallback {
         protected final HookController event;
 
@@ -133,30 +137,32 @@ public class CallbackHelper {
         Thread thread = new ThreadCallbackEvent(event, apply, isPrevented);
         thread.setName(event.getEventName());
         thread.start();
+
         while (thread.isAlive()) {
+            java.lang.Thread.yield();
         }
     }
 
     public static void prevent() {
         Thread thread = Thread.currentThread();
-
-        if (thread instanceof ThreadCallback threadCallback)
+        if (thread instanceof ThreadCallback threadCallback) {
             threadCallback.prevent();
+        }
     }
 
     public static boolean isPrevent() {
         Thread thread = Thread.currentThread();
-
-        if (thread instanceof ThreadCallback threadCallback)
+        if (thread instanceof ThreadCallback threadCallback) {
             return threadCallback.isPrevent();
+        }
         return false;
     }
 
     public static Level getForCurrentThread() {
         Thread thread = Thread.currentThread();
-
-        if (thread instanceof ThreadRegion threadCallback)
+        if (thread instanceof ThreadRegion threadCallback) {
             return threadCallback.getRegion();
+        }
         return null;
     }
 }

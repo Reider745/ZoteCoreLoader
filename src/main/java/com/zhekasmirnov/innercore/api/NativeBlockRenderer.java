@@ -250,6 +250,7 @@ public class NativeBlockRenderer {
         jsRenderCallbacks.put(id, callback);
     }
 
+    @Deprecated
     public static void onRenderCall(RenderAPI api, Coords coords, FullBlock block, boolean b) {
         Callback.invokeAPICallback("CustomBlockTessellation", api, coords, block, b);
 
