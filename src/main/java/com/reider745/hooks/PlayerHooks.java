@@ -47,7 +47,7 @@ public class PlayerHooks implements HookClass {
         ConnectedClient client = getForPlayer(player);
         try {
             if (client != null)
-                client.getChannelInterface().close();
+                client.disconnect();
         } catch (Exception ignore) {
         }
     }

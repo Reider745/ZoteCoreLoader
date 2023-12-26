@@ -5,6 +5,7 @@ import cn.nukkit.network.Network;
 
 import com.reider745.api.hooks.JarEditor;
 import com.reider745.hooks.*;
+import com.reider745.hooks.bugfix.EntityItemHooks;
 import com.reider745.network.InnerCorePacket;
 
 public class Main {
@@ -75,6 +76,9 @@ public class Main {
         loader.registerHooksInitializationForClass(ItemUtils.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
         loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
+
+        //bug fix
+        loader.registerHooksInitializationForClass(EntityItemHooks.class);
 
         loader.init();
         loader.run("cn.nukkit.Nukkit", args);
