@@ -306,6 +306,7 @@ public class InnerCoreServer {
     }
 
     public void reload() {
+        Logger.info("Reload ZoteCore events...");
         plugin.setEnabled();
         PluginManager pluginManager = Server.getInstance().getPluginManager();
         pluginManager.getPlugins().put(plugin.getDescription().getName(), plugin);

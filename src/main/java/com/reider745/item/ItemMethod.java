@@ -4,6 +4,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.util.ArrayList;
 
@@ -62,7 +63,8 @@ public class ItemMethod {
         CustomManager ptr = getCustomManager(id);
         if(ptr != null)
             return ptr.get(PropertiesNames.CREATIVE_CATEGORY, 1);
-        throw new RuntimeException("not get CreativeCategory "+id);
+        Logger.warning("not get CreativeCategory "+id);
+        return 0;
     }
 
     public static int getMaxStackForId(int id, int data){

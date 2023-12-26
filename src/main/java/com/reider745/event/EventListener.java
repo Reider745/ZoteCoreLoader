@@ -1,12 +1,14 @@
 package com.reider745.event;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.entity.projectile.EntitySnowball;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockExplosionPrimeEvent;
@@ -47,7 +49,7 @@ public class EventListener implements Listener {
         consumeEvent(event, apply, false);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
         final Vector3 pos = event.getTouchVector();
         final Block block = event.getBlock();
@@ -67,21 +69,21 @@ public class EventListener implements Listener {
                 event.getFace().getIndex(), event.getPlayer().getId()), isNukkitPrevent);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEatFood(PlayerEatFoodEvent event) {
         final Food food = event.getFood();
         consumeEvent(event, () -> NativeCallback.onPlayerEat(food.getRestoreFood(), food.getRestoreSaturation(),
                 event.getPlayer().getId()));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         final Block block = event.getBlock();
         consumeEvent(event, () -> NativeCallback.onBlockBuild((int) block.x, (int) block.y, (int) block.z, 0,
                 event.getPlayer().getId()));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRedstoneUpdate(RedstoneUpdateEvent event) {
         final Block block = event.getBlock();
         final Level level = event.getBlock().getLevel();
@@ -90,7 +92,7 @@ public class EventListener implements Listener {
                 true, level);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onProjectileHit(ProjectileHitEvent event) {
         final Entity entity = event.getEntity();
         if (entity instanceof EntitySnowball) { // TODO?
@@ -105,7 +107,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onChunkPopulate(ChunkPopulateEvent event) {
         final FullChunk fullChunk = event.getChunk();
         final Level level = event.getLevel();
@@ -138,7 +140,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySpawn(EntitySpawnEvent event) {
         final Entity entity = event.getEntity();
 
@@ -149,7 +151,7 @@ public class EventListener implements Listener {
         NativeCallback.onEntityAdded(entity.getId());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDespawn(EntityDespawnEvent event) {
         NativeCallback.onEntityRemoved(event.getEntity().getId());
     }
@@ -178,7 +180,7 @@ public class EventListener implements Listener {
         };
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
         final Entity entity = event.getEntity();
         final Entity attacker = event instanceof EntityDamageByEntityEvent damageByEntity
@@ -196,7 +198,7 @@ public class EventListener implements Listener {
                         event.canBeReducedByArmor(), event.isBreakShield())); // последний 2 boolean тут временно
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeath(EntityDeathEvent event) {
         final Entity entity = event.getEntity();
         final EntityDamageEvent damageEvent = entity.getLastDamageCause();
@@ -208,7 +210,7 @@ public class EventListener implements Listener {
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
         final Entity entity = event.getEntity();
         final EntityDamageEvent damageEvent = entity.getLastDamageCause();
@@ -220,7 +222,7 @@ public class EventListener implements Listener {
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM)));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockExplosion(BlockExplosionPrimeEvent event) {
         final Location pos = event.getBlock().getLocation();
 
@@ -228,7 +230,7 @@ public class EventListener implements Listener {
                 (float) event.getForce(), -1, event.isIncendiary(), event.isBlockBreaking(), Float.MAX_VALUE));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplosion(EntityExplosionPrimeEvent event) {
         final Entity entity = event.getEntity();
         final Position pos = entity.getPosition();
@@ -237,7 +239,7 @@ public class EventListener implements Listener {
                 (float) event.getForce(), entity.getId(), false, event.isBlockBreaking(), Float.MAX_VALUE));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onExperienceChange(PlayerExperienceChangeEvent event) {
         final Player player = event.getPlayer();
         final int newExperienceLevel = event.getNewExperienceLevel();
@@ -256,7 +258,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         final Vector3 position = event.getClickedPos();
 
@@ -264,7 +266,7 @@ public class EventListener implements Listener {
                 (float) position.y, (float) position.z);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPickupItem(InventoryPickupItemEvent event) {
         final long dropEntity = event.getItem().getId();
         final long entity = event.getInventory().getHolder() instanceof Entity pickupEntity
@@ -276,7 +278,7 @@ public class EventListener implements Listener {
         consumeEvent(event, () -> NativeCallback.onEntityPickUpDrop(entity, dropEntity, count));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockUpdate(BlockGrowEvent event) {
         final Block block = event.getBlock();
         final Block newBlock = event.getNewState();
