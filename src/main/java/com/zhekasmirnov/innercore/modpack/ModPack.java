@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.modpack;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.modpack.installation.ModPackExtractionTarget;
 import com.zhekasmirnov.innercore.modpack.installation.ModpackInstallationSource;
 import com.zhekasmirnov.innercore.modpack.strategy.extract.DirectoryExtractStrategy;
@@ -80,12 +81,15 @@ public class ModPack {
 
     public boolean reloadAndValidateManifest() {
         try {
+            if (!getManifestFile().exists()) {
+                return false;
+            }
             declaredDirectories.clear();
             manifest.loadFile(getManifestFile());
             declaredDirectories.addAll(manifest.createDeclaredDirectoriesForModPack(this));
             return manifest.getPackName() != null;
         } catch (IOException | JSONException exception) {
-            exception.printStackTrace();
+            Logger.warning("ModPack.reloadAndValidateManifest()", exception);
             return false;
         }
     }

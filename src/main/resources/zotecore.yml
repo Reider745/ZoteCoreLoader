@@ -4,6 +4,10 @@ pack: Inner Core Test
 pack-version: 2.3.0b115 test
 pack-version-code: 152
 
+# Sets the list of mods and configs to load, you can specify
+# folder name of a modpack from /modpacks or a path.
+# modpack: StoneBlock
+
 # Use vanilla crafting table interface, instead of custom one.
 # Attention: currently not supported and custom recipes will not be dislayed.
 # use-legacy-workbench-override: off

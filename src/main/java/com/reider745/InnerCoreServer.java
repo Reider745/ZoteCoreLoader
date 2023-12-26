@@ -26,7 +26,7 @@ import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
 import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
-import com.zhekasmirnov.innercore.modpack.ModPackFactory;
+import com.zhekasmirnov.innercore.modpack.ModPackStorage;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.mcpe161.InnerCore;
@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -55,6 +56,7 @@ public class InnerCoreServer {
 
     public static final int PROTOCOL = 422;
     public static final int EXIT_CODE_NO_INTERNAL_PACKAGE = 32;
+    public static final int EXIT_CODE_NO_MODPACK = 33;
 
     public static String dataPath;
     public static InnerCoreServer singleton;
@@ -235,8 +237,8 @@ public class InnerCoreServer {
                     try {
                         System.exit(EXIT_CODE_NO_INTERNAL_PACKAGE);
                     } catch (SecurityException e) {
-                        throw new RuntimeException("EXIT_CODE_NO_INTERNAL_PACKAGE");
                     }
+                    throw new RuntimeException("EXIT_CODE_NO_INTERNAL_PACKAGE");
                 }
             }
         }
@@ -246,10 +248,9 @@ public class InnerCoreServer {
         // Required to be called before modpack instantiation
         FileTools.init();
 
-        ModPack innerCoreModPack = ModPackFactory.getInstance().createFromDirectory(innerCoreDirectory);
-        ModPackContext.getInstance().setCurrentModPack(innerCoreModPack);
+        ModPackContext.getInstance().setCurrentModPack(getModpack());
 
-        for (ModPackDirectory directoryWithMods : innerCoreModPack
+        for (ModPackDirectory directoryWithMods : ModPackContext.getInstance().getCurrentModPack()
                 .getDirectoriesOfType(ModPackDirectory.DirectoryType.MODS)) {
             directoryWithMods.assureDirectoryRoot();
             for (File potentialIcmodFile : directoryWithMods.getLocation().listFiles()) {
@@ -355,6 +356,53 @@ public class InnerCoreServer {
                 default -> false;
             };
         }
+    }
+
+    private ModPack getModpack() {
+        String modpackRequirement = getPropertyString("modpack");
+        ModPackStorage storage = ModPackContext.getInstance().getStorage();
+        storage.rebuildModPackList();
+
+        if (modpackRequirement == null) {
+            return storage.getDefaultModPack();
+        }
+
+        List<ModPack> modpacks = storage.getAllModPacks();
+        for (ModPack modpack : modpacks) {
+            if (modpackRequirement.equals(modpack.getRootDirectory().getAbsolutePath())) {
+                return modpack;
+            }
+            if (modpackRequirement.equals(modpack.getRootDirectory().getName())) {
+                return modpack;
+            }
+        }
+        for (ModPack modpack : modpacks) {
+            if (modpackRequirement.equals(modpack.getManifest().getPackName())) {
+                return modpack;
+            }
+            if (modpackRequirement.equals(modpack.getManifest().getDisplayedName())) {
+                return modpack;
+            }
+        }
+
+        Logger.critical(
+                "Unable to find specified modpack, please enter modpack name, folder name or relative path instead. " +
+                        "It is possible that your hosting provider dynamically updates paths, preventing you from specifying absolute one.");
+        if (modpacks.size() > 0) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Available modpacks: ");
+            for (ModPack modpack : modpacks) {
+                builder.append(modpack.getRootDirectory().getName());
+            }
+            builder.append('.');
+            Logger.critical(builder.toString());
+        }
+
+        try {
+            System.exit(EXIT_CODE_NO_MODPACK);
+        } catch (SecurityException e) {
+        }
+        throw new RuntimeException("EXIT_CODE_NO_MODPACK");
     }
 
     public static boolean isLegacyWorkbench() {

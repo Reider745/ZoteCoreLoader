@@ -19,7 +19,9 @@ public class FileLoader {
         this.file = file;
 
         try {
-            data = FileTools.readJSON(file.getAbsolutePath());
+            if (file.exists()) {
+                data = FileTools.readJSON(file.getAbsolutePath());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             data = new JSONObject();

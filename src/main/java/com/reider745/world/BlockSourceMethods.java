@@ -6,7 +6,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityItem;
-import cn.nukkit.event.entity.ExplosionPrimeEvent;
+import cn.nukkit.event.block.BlockExplosionPrimeEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Explosion;
 import cn.nukkit.level.Level;
@@ -176,15 +176,19 @@ public class BlockSourceMethods {
             int unknown /* = 0 */) {
     }
 
-    public static void explode(Level pointer, float x, float y, float z, float power, boolean fire) {
-        ExplosionPrimeEvent event = new ExplosionPrimeEvent(null, power);
+    public static void explode(Level level, float x, float y, float z, float power, boolean fire) {
+        final Block block = level.getBlock((int) x, (int) y, (int) z);
+        final BlockExplosionPrimeEvent event = new BlockExplosionPrimeEvent(block, power, 0d);
+        event.setIncendiary(fire);
         Server.getInstance().getPluginManager().callEvent(event);
+
         if (event.isCancelled()) {
             return;
         }
-        Position position = new Position(x, y, z);
-        position.setLevel(pointer);
-        Explosion explosion = new Explosion(position, event.getForce(), (Entity) null);
+
+        final Position position = new Position(x, y, z);
+        position.setLevel(level);
+        final Explosion explosion = new Explosion(position, event.getForce(), block);
         if (event.isBlockBreaking()) {
             explosion.explodeA();
         }

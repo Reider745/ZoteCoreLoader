@@ -201,7 +201,8 @@ public class EventListener implements Listener {
         final Entity entity = event.getEntity();
         final EntityDamageEvent damageEvent = entity.getLastDamageCause();
         final Entity attacker = damageEvent instanceof EntityDamageByEntityEvent damageByEntityEvent
-                ? damageByEntityEvent.getDamager() : null;
+                ? damageByEntityEvent.getDamager()
+                : null;
 
         NativeCallback.onEntityDied(entity.getId(), attacker != null ? attacker.getId() : -1,
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM));
@@ -212,7 +213,8 @@ public class EventListener implements Listener {
         final Entity entity = event.getEntity();
         final EntityDamageEvent damageEvent = entity.getLastDamageCause();
         final Entity attacker = damageEvent instanceof EntityDamageByEntityEvent damageByEntityEvent
-                ? damageByEntityEvent.getDamager() : null;
+                ? damageByEntityEvent.getDamager()
+                : null;
 
         consumeEvent(event, () -> NativeCallback.onEntityDied(entity.getId(), attacker != null ? attacker.getId() : -1,
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM)));
@@ -223,8 +225,7 @@ public class EventListener implements Listener {
         final Location pos = event.getBlock().getLocation();
 
         consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
-                (float) event.getForce(), -1, event.isIncendiary(), event.isBlockBreaking(),
-                (float) event.getFireChance()));
+                (float) event.getForce(), -1, event.isIncendiary(), event.isBlockBreaking(), Float.MAX_VALUE));
     }
 
     @EventHandler
@@ -233,7 +234,7 @@ public class EventListener implements Listener {
         final Position pos = entity.getPosition();
 
         consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
-                (float) event.getForce(), entity.getId(), false, event.isBlockBreaking(), 0f));
+                (float) event.getForce(), entity.getId(), false, event.isBlockBreaking(), Float.MAX_VALUE));
     }
 
     @EventHandler
@@ -306,7 +307,8 @@ public class EventListener implements Listener {
 
     // TODO: onItemDispensed
 
-    // TODO: onEnchantPostAttack, onEnchantPostHurt, onEnchantGetDamageBonus, onEnchantGetProtectionBonus
+    // TODO: onEnchantPostAttack, onEnchantPostHurt, onEnchantGetDamageBonus,
+    // onEnchantGetProtectionBonus
 
     // TODO: onWorkbenchCraft
 
