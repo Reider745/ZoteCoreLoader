@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import android.util.Pair;
+import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 
 import com.reider745.InnerCoreServer;
@@ -74,7 +75,7 @@ public class NativeCallback {
     }
 
     public static void onCopyrightCheck() {
-        InnerCoreServer.server.getLogger()
+        Server.getInstance().getLogger()
                 .info("Inner Core is developed fully and only by zheka_smirnov (zheka2304), all rights are reserved.");
     }
 

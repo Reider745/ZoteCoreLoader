@@ -1,29 +1,24 @@
 package com.reider745.world;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityItem;
-import cn.nukkit.entity.item.EntityXPOrb;
-import cn.nukkit.event.entity.EntityExplosionPrimeEvent;
 import cn.nukkit.event.entity.ExplosionPrimeEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Explosion;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
-import cn.nukkit.level.biome.Biome;
-import cn.nukkit.level.format.anvil.palette.BiomePalette;
 import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.math.BlockVector3;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import com.reider745.InnerCoreServer;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.ItemUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 public class BlockSourceMethods {
@@ -42,14 +37,14 @@ public class BlockSourceMethods {
 
     public static Level getLevelForDimension(int dimension) {
         if (dimension >= 0 && dimension <= 2) {
-            return InnerCoreServer.server.getLevelByName(switch (dimension) {
+            return Server.getInstance().getLevelByName(switch (dimension) {
                 case 0 -> "world";
                 case 1 -> "nether";
                 case 2 -> "the_end";
                 default -> throw new UnsupportedOperationException();
             });
         }
-        return InnerCoreServer.server.getLevel(dimension);
+        return Server.getInstance().getLevel(dimension);
     }
 
     public static void destroyBlock(Level pointer, int x, int y, int z, boolean drop, int updateType,
@@ -141,7 +136,6 @@ public class BlockSourceMethods {
 
     public static void setBlockByRuntimeId(Level pointer, int x, int y, int z, int runtimeId, boolean allowUpdate,
             int updateType) {
-        Block block = pointer.getBlock(x, y, z);
         int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
         setBlock(pointer, x, y, z, legacyId >> 6, legacyId & 0x3F, allowUpdate, updateType);
     }
@@ -183,9 +177,8 @@ public class BlockSourceMethods {
     }
 
     public static void explode(Level pointer, float x, float y, float z, float power, boolean fire) {
-
         ExplosionPrimeEvent event = new ExplosionPrimeEvent(null, power);
-        InnerCoreServer.server.getPluginManager().callEvent(event);
+        Server.getInstance().getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             return;
         }

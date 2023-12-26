@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginDescription;
 import cn.nukkit.plugin.PluginManager;
 
+import com.google.common.base.Preconditions;
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
@@ -36,6 +37,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -46,14 +49,21 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class InnerCoreServer {
+    public enum MethodHandling {
+        NONE, DEBUG, WARNING, RAISE;
+    }
+
     public static final int PROTOCOL = 422;
     public static final int EXIT_CODE_NO_INTERNAL_PACKAGE = 32;
 
+    public static String dataPath;
+    public static InnerCoreServer singleton;
     public static InnerCorePlugin plugin;
 
-    public static String PATH;
-    public static Server server;
-    public static InnerCoreServer ic_server;
+    public InnerCoreServer() {
+        Preconditions.checkState(singleton == null, "Already initialized!");
+        singleton = this;
+    }
 
     public static String getStringParam(String name) {
         return switch (name) {
@@ -64,33 +74,19 @@ public class InnerCoreServer {
     }
 
     public static String getGameLanguage() {
-        final String lang = server.getLanguage().getLang();
+        final String langName = Server.getInstance().getLanguage().getLang();
 
-        final StringBuilder icLang = new StringBuilder();
-        for (int i = 0; i < lang.length() - 1; i++)
-            icLang.append(lang.charAt(i));
-        return icLang.toString();
+        final StringBuilder targetLang = new StringBuilder();
+        for (int i = 0; i < langName.length() - 1; i++) {
+            targetLang.append(langName.charAt(i));
+        }
+        return targetLang.toString();
     }
 
     public void left() {
         NativeCallback.onGameStopped(true);
         NativeCallback.onMinecraftAppSuspended();
-    }
-
-    public boolean isLegacyWorkbench() {
-        return server.getPropertyBoolean("legacy.workbench");
-    }
-
-    public static boolean canEvalEnable() {
-        return server.getPropertyBoolean("eval-enable", true);
-    }
-
-    public static boolean isDevelopMode() {
-        return server.getPropertyBoolean("develop-mode", false);
-    }
-
-    public static boolean isRuntimeException() {
-        return server.getPropertyBoolean("inner_core.runtime_exception", false);
+        singleton = null;
     }
 
     private static void processFile(ZipFile file, String uncompressedDirectory, ZipEntry entry) throws IOException {
@@ -190,8 +186,8 @@ public class InnerCoreServer {
         try {
             return unpackExistingResources(targetPath, outputPath);
         } catch (IOException | SecurityException e) {
-            server.getLogger().warning("Failed to unpack '" + targetPath + "' or it was not found");
-            server.getLogger().debug("Failed to unpack '" + targetPath + "' or it was not found", e);
+            Server.getInstance().getLogger().warning("Failed to unpack '" + targetPath + "' or it was not found");
+            Server.getInstance().getLogger().debug("Failed to unpack '" + targetPath + "' or it was not found", e);
         }
         return null;
     }
@@ -201,32 +197,31 @@ public class InnerCoreServer {
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");
 
-        PATH = server.getDataPath();
-        InnerCoreServer.server = server;
-        InnerCoreServer.ic_server = this;
-        Logger.server = server;
+        dataPath = server.getDataPath();
+        final File dataFolderFile = new File(dataPath);
 
         CallbackHelper.init();
         NukkitIdConvertor.init();
 
+        HashMap<String, Object> description = new HashMap<>();
+        description.put("name", "ZoteCore");
+        description.put("version", "SNAPSHOT");
+        description.put("main", InnerCorePlugin.class.getName());
+        description.put("api", new ArrayList<String>());
+
         plugin = new InnerCorePlugin();
-        plugin.setEnabled(true);
+        plugin.init(null, server, new PluginDescription(description), dataFolderFile, dataFolderFile);
+        plugin.saveDefaultConfig();
+        plugin.onLoad();
+        plugin.setEnabled();
 
-        HashMap<String, Object> configs = new HashMap<>();
-        configs.put("name", "InnerCore");
-        configs.put("version", getVersionName());
-        configs.put("main", "cn.nukkit.plugin.InternalPlugin");
-        configs.put("api", null);
-
-        plugin.init(null, server, new PluginDescription(configs), null, null);
-
-        final File innerCoreDirectory = new File(PATH, "innercore");
+        final File innerCoreDirectory = new File(dataPath, "innercore");
         if (!innerCoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
             try {
-                File innercoreFile = unpackExistingResources("/innercore.zip", PATH);
+                File innercoreFile = unpackExistingResources("/innercore.zip", dataPath);
                 try (final ZipFile zipFile = new ZipFile(innercoreFile)) {
-                    unzip(zipFile, PATH);
+                    unzip(zipFile, dataPath);
                 }
             } catch (IOException | SecurityException fileExc) {
                 try {
@@ -246,7 +241,7 @@ public class InnerCoreServer {
             }
         }
 
-        unpackResources("/innercore_default_config.json", PATH);
+        unpackResources("/innercore_default_config.json", dataPath);
 
         // Required to be called before modpack instantiation
         FileTools.init();
@@ -265,7 +260,7 @@ public class InnerCoreServer {
             }
         }
 
-        InnerCore innerCore = new InnerCore(new File(PATH));
+        InnerCore innerCore = new InnerCore(dataFolderFile);
         innerCore.load();
         innerCore.build();
         LoadingStage.setStage(LoadingStage.STAGE_MCPE_STARTING);
@@ -290,10 +285,11 @@ public class InnerCoreServer {
     }
 
     public void afterload() {
-        server.getLogger().info("Registering Nukkit-MOT containment...");
+        Server.getInstance().getLogger().info("Registering Nukkit-MOT containment...");
+        PluginManager pluginManager = Server.getInstance().getPluginManager();
+        pluginManager.getPlugins().put(plugin.getDescription().getName(), plugin);
 
         Logger.info("Registering ZoteCore events...");
-        PluginManager pluginManager = server.getPluginManager();
         pluginManager.registerEvents(new EventListener(), plugin);
         pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
 
@@ -308,67 +304,118 @@ public class InnerCoreServer {
         NativeCallback.onLevelCreated();
     }
 
+    public void reload() {
+        plugin.setEnabled();
+        PluginManager pluginManager = Server.getInstance().getPluginManager();
+        pluginManager.getPlugins().put(plugin.getDescription().getName(), plugin);
+        pluginManager.registerEvents(new EventListener(), plugin);
+        pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
+    }
+
     public void start() {
     }
 
-    public static int getVersionCode() {
-        return server.getPropertyInt("inner-core-version", 152);
+    public Object getProperty(String variable) {
+        return getProperty(variable, (Object) null);
     }
 
-    public static String getVersionName() {
-        return server.getPropertyString("inner-core-version-name", "2.3.1b115 test");
+    public Object getProperty(String variable, Object defaultValue) {
+        return plugin.getConfig().exists(variable) ? plugin.getConfig().get(variable) : defaultValue;
+    }
+
+    public String getPropertyString(String key) {
+        return getPropertyString(key, (String) null);
+    }
+
+    public String getPropertyString(String key, String defaultValue) {
+        return plugin.getConfig().exists(key) ? String.valueOf(plugin.getConfig().get(key)) : defaultValue;
+    }
+
+    public int getPropertyInt(String variable) {
+        return getPropertyInt(variable, (Integer) null);
+    }
+
+    public int getPropertyInt(String variable, Integer defaultValue) {
+        return plugin.getConfig().exists(variable) ? (!plugin.getConfig().get(variable).equals("")
+                ? Integer.parseInt(String.valueOf(plugin.getConfig().get(variable)))
+                : defaultValue) : defaultValue;
+    }
+
+    public boolean getPropertyBoolean(String variable) {
+        return getPropertyBoolean(variable, (Object) null);
+    }
+
+    public boolean getPropertyBoolean(String variable, Object defaultValue) {
+        Object value = plugin.getConfig().exists(variable) ? plugin.getConfig().get(variable) : defaultValue;
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else {
+            return switch (String.valueOf(value)) {
+                case "on", "true", "1", "yes" -> true;
+                default -> false;
+            };
+        }
+    }
+
+    public static boolean isLegacyWorkbench() {
+        return singleton.getPropertyBoolean("use-legacy-workbench-override", true);
+    }
+
+    public static boolean isUnsafeScriptingAllowed() {
+        return singleton.getPropertyBoolean("allow-unsafe-scripting", true);
+    }
+
+    public static boolean isDeveloperMode() {
+        return singleton.getPropertyBoolean("developer-mode", false);
+    }
+
+    public static MethodHandling getUnsupportedMethodHandling() {
+        try {
+            return MethodHandling
+                    .valueOf(singleton.getPropertyString("unsupported-method-handling", "debug").toUpperCase());
+        } catch (IllegalArgumentException exc) {
+            return MethodHandling.DEBUG;
+        }
     }
 
     public static String getName() {
-        return server.getPropertyString("inner-core-pack-name", "Inner Core Test");
+        return singleton.getPropertyString("pack", "Inner Core Test");
+    }
+
+    public static String getVersionName() {
+        return singleton.getPropertyString("pack-version", "2.3.1b115 test");
+    }
+
+    public static int getVersionCode() {
+        return singleton.getPropertyInt("pack-version-code", 152);
+    }
+
+    private static void handleUnsupportedMethod(String message) {
+        MethodHandling handling = getUnsupportedMethodHandling();
+        if (handling != MethodHandling.NONE) {
+            switch (handling) {
+                case DEBUG -> Logger.message(message);
+                case WARNING -> Logger.warning(message);
+                case RAISE -> throw new RuntimeException(message);
+                default -> throw new UnsupportedOperationException();
+            }
+        }
     }
 
     public static void useNotSupport(String name) {
-        if (!isDevelopMode()) {
-            return;
-        }
-        String message = "Use not support multiplayer method " + name;
-        if (isRuntimeException()) {
-            throw new RuntimeException(message);
-        } else {
-            Logger.warning(message);
-        }
+        handleUnsupportedMethod("Usage of unavailable multiplayer method " + name);
     }
 
     public static void useClientMethod(String name) {
-        if (!isDevelopMode()) {
-            return;
-        }
-        String message = "Use client method " + name;
-        if (isRuntimeException()) {
-            throw new RuntimeException(message);
-        } else {
-            Logger.warning(message);
-        }
+        handleUnsupportedMethod("Usage of client method " + name);
     }
 
     public static void useNotCurrentSupport(String name) {
-        if (!isDevelopMode()) {
-            return;
-        }
-        String message = "The " + name + " method is currently not supported";
-        if (isRuntimeException()) {
-            throw new RuntimeException(message);
-        } else {
-            Logger.warning(message);
-        }
+        handleUnsupportedMethod("Usage of method " + name + " currently is not supported");
     }
 
     public static void useIncomprehensibleMethod(String name) {
-        if (!isDevelopMode()) {
-            return;
-        }
-        String message = "I don't really understand what this method does (" + name
-                + "), which is why you're reading this right now";
-        if (isRuntimeException()) {
-            throw new RuntimeException(message);
-        } else {
-            Logger.warning(message);
-        }
+        handleUnsupportedMethod("I don't really understand what this method does (" + name
+                + "), which is why you're reading this right now");
     }
 }

@@ -37,14 +37,14 @@ public class PlayerHooks implements HookClass {
     }
 
     @Inject(type = TypeHook.AFTER)
-    public static void completeLoginSequence(Player self) {
-        if (getForPlayer(self) == null)
-            self.kick("Failed to connection Inner Core 1.16.201");
+    public static void completeLoginSequence(Player player) {
+        if (getForPlayer(player) == null)
+            player.kick("Failed to connection Inner Core 1.16.201");
     }
 
     @Inject
-    public static void close(Player self, TextContainer message, String reason, boolean notify) {
-        ConnectedClient client = getForPlayer(self);
+    public static void close(Player player, TextContainer message, String reason, boolean notify) {
+        ConnectedClient client = getForPlayer(player);
         try {
             if (client != null)
                 client.getChannelInterface().close();

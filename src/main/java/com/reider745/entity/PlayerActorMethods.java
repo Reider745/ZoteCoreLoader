@@ -2,20 +2,20 @@ package com.reider745.entity;
 
 import cn.nukkit.Player;
 import cn.nukkit.PlayerFood;
-import cn.nukkit.inventory.PlayerInventory;
+import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
-import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 public class PlayerActorMethods {
+
     @Nullable
     public static Player constructNew(long entity){
-        Collection<Player> collection = InnerCoreServer.server.getOnlinePlayers().values();
+        Collection<Player> collection = Server.getInstance().getOnlinePlayers().values();
         for(Player player : collection)
             if(player.getId() == entity)
                 return player;

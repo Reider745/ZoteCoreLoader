@@ -1,6 +1,7 @@
 package com.reider745.entity;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.BaseEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityHuman;
@@ -18,15 +19,13 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
-import com.reider745.InnerCoreServer;
 import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.ItemUtils;
-import com.reider745.item.CustomProjectileItem;
 import com.reider745.world.BlockSourceMethods;
 
 public class EntityMethod {
     public static Entity getEntityToLong(long ent){
-        for (Level level : InnerCoreServer.server.getLevels().values())
+        for (Level level : Server.getInstance().getLevels().values())
             for (Entity entity : level.getEntities())
                 if(entity.getId() == ent)
                     return entity;
@@ -34,7 +33,7 @@ public class EntityMethod {
     }
 
     public static Player getPlayerToLong(long ent){
-        for (Level level : InnerCoreServer.server.getLevels().values())
+        for (Level level : Server.getInstance().getLevels().values())
             for (Player entity : level.getPlayers().values())
                 if(entity.getId() == ent)
                     return entity;
@@ -42,7 +41,7 @@ public class EntityMethod {
     }
 
     public static EntityHuman getEntityHumanToLong(long ent){
-        for (Level level : InnerCoreServer.server.getLevels().values())
+        for (Level level : Server.getInstance().getLevels().values())
             for (Entity entity : level.getEntities())
                 if(entity.getId() == ent && entity instanceof EntityHuman)
                     return (EntityHuman) entity;
@@ -123,7 +122,7 @@ public class EntityMethod {
     }
 
     public static boolean isValidEntity(long ent){
-        for (Level level : InnerCoreServer.server.getLevels().values())
+        for (Level level : Server.getInstance().getLevels().values())
             for (Entity entity : level.getEntities())
                 if(entity.getId() == ent)
                     return true;
@@ -224,7 +223,7 @@ public class EntityMethod {
     }
 
     public static void removeEntity(long unwrapEntity) {
-        for (Level level : InnerCoreServer.server.getLevels().values())
+        for (Level level : Server.getInstance().getLevels().values())
             for (Entity entity : level.getEntities())
                 if(entity.getId() == unwrapEntity)
                     level.removeEntity(entity);

@@ -1,11 +1,11 @@
 package com.reider745.commands;
 
+import cn.nukkit.Server;
 import cn.nukkit.command.SimpleCommandMap;
-import com.reider745.InnerCoreServer;
 
 public class CommandsHelper {
     public static void init(){
-        final SimpleCommandMap map = InnerCoreServer.server.getCommandMap();
+        final SimpleCommandMap map = Server.getInstance().getCommandMap();
         final String fallbackPrefix = "inner_core";
 
         map.register(fallbackPrefix, new ModsListCommand());

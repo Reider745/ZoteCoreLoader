@@ -1,0 +1,26 @@
+# Change resolution of pack that client should have to log into server.
+# However, no deprecated or unimplemented methods will be added.
+pack: Inner Core Test
+pack-version: 2.3.0b115 test
+pack-version-code: 152
+
+# Use vanilla crafting table interface, instead of custom one.
+# Attention: currently not supported and custom recipes will not be dislayed.
+# use-legacy-workbench-override: off
+
+# Disabling inventory fix for connected clients, outdated versions do not
+# work properly with it, not allowing moving items around inventory.
+# use-legacy-inventory: off
+
+# Switches the debugging mode for unsupported methods (e.g., client-side).
+# Might be one of: none, debug (default), warning, raise.
+# unsupported-method-handling: raise
+
+# Can mods use unsafe features (e.g., calling eval) or not.
+# Attention: can create a security risk, however, for example,
+# using requireGlobal can often disrupt operation of mods.  
+# allow-unsafe-scripting: off
+
+# Developer mode allows you to receive additional information
+# about engine operation, as well as profiling of methods.
+# developer-mode: on

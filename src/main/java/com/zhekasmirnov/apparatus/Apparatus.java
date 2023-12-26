@@ -25,6 +25,6 @@ public class Apparatus {
     }
 
     public static boolean isDevelop() {
-        return InnerCoreServer.isDevelopMode();
+        return InnerCoreServer.isDeveloperMode();
     }
 }

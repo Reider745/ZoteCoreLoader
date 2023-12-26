@@ -5,6 +5,7 @@ import cn.nukkit.utils.Config;
 import com.reider745.InnerCoreServer;
 import com.reider745.Main;
 import com.reider745.api.hooks.HookClass;
+import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.zhekasmirnov.innercore.api.NativeCallback;
@@ -59,5 +60,10 @@ public class ServerHooks implements HookClass {
     @Inject
     public static void forceShutdown(Server server, String reason) throws Exception {
         Main.LoadingStages.stop(server);
+    }
+
+    @Inject(type = TypeHook.AFTER)
+    public static void reload(Server server) {
+        InnerCoreServer.singleton.reload();
     }
 }

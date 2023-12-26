@@ -6,104 +6,102 @@ import java.io.StringWriter;
 import cn.nukkit.Server;
 import org.mozilla.javascript.RhinoException;
 
-
 public class Logger {
-    public static Server server;
 
     public static void message(String message) {
-        server.getLogger().debug(message);
+        Server.getInstance().getLogger().debug(message);
     }
 
     public static void message(String tag, String message) {
-        server.getLogger().debug("[" + tag + "] " + message);
+        Server.getInstance().getLogger().debug("[" + tag + "] " + message);
     }
 
     public static void message(String message, Throwable exc) {
-        server.getLogger().debug(message + ": ", exc);
+        Server.getInstance().getLogger().debug(message + ": ", exc);
     }
 
     public static void message(String tag, String message, Throwable exc) {
-        server.getLogger().debug("[" + tag + "] " + message, exc);
+        Server.getInstance().getLogger().debug("[" + tag + "] " + message, exc);
     }
 
     public static void debug(String message) {
-        server.getLogger().info(message);
+        Server.getInstance().getLogger().info(message);
     }
 
     public static void debug(String tag, String message) {
-        server.getLogger().info("[" + tag + "] " + message);
+        Server.getInstance().getLogger().info("[" + tag + "] " + message);
     }
 
     public static void debug(String message, Throwable exc) {
-        server.getLogger().info(message + ": ", exc);
+        Server.getInstance().getLogger().info(message + ": ", exc);
     }
 
     public static void debug(String tag, String message, Throwable exc) {
-        server.getLogger().info("[" + tag + "] " + message, exc);
+        Server.getInstance().getLogger().info("[" + tag + "] " + message, exc);
     }
 
     public static void error(String message) {
-        server.getLogger().error(message);
+        Server.getInstance().getLogger().error(message);
     }
 
     public static void error(String tag, String message) {
-        server.getLogger().error("[" + tag + "] " + message);
+        Server.getInstance().getLogger().error("[" + tag + "] " + message);
     }
 
     public static void error(String message, Throwable exc) {
-        server.getLogger().error(message + ": ", exc);
+        Server.getInstance().getLogger().error(message + ": ", exc);
     }
 
     public static void error(String tag, String message, Throwable exc) {
-        server.getLogger().error("[" + tag + "] " + message, exc);
+        Server.getInstance().getLogger().error("[" + tag + "] " + message, exc);
     }
 
     public static void info(String message) {
-        server.getLogger().info(message);
+        Server.getInstance().getLogger().info(message);
     }
 
     public static void info(String tag, String message) {
-        server.getLogger().info("[" + tag + "] " + message);
+        Server.getInstance().getLogger().info("[" + tag + "] " + message);
     }
 
     public static void info(String message, Throwable exc) {
-        server.getLogger().info(message + ": ", exc);
+        Server.getInstance().getLogger().info(message + ": ", exc);
     }
 
     public static void info(String tag, String message, Throwable exc) {
-        server.getLogger().info("[" + tag + "] " + message, exc);
+        Server.getInstance().getLogger().info("[" + tag + "] " + message, exc);
     }
 
     public static void warning(String message) {
-        server.getLogger().warning(message);
+        Server.getInstance().getLogger().warning(message);
     }
 
     public static void warning(String tag, String message) {
-        server.getLogger().warning("[" + tag + "] " + message);
+        Server.getInstance().getLogger().warning("[" + tag + "] " + message);
     }
 
     public static void warning(String message, Throwable exc) {
-        server.getLogger().warning(message + ": ", exc);
+        Server.getInstance().getLogger().warning(message + ": ", exc);
     }
 
     public static void warning(String tag, String message, Throwable exc) {
-        server.getLogger().warning("[" + tag + "] " + message, exc);
+        Server.getInstance().getLogger().warning("[" + tag + "] " + message, exc);
     }
 
     public static void critical(String message) {
-        server.getLogger().critical(message);
+        Server.getInstance().getLogger().critical(message);
     }
 
     public static void critical(String tag, String message) {
-        server.getLogger().warning("[" + tag + "] " + message);
+        Server.getInstance().getLogger().warning("[" + tag + "] " + message);
     }
 
     public static void critical(String message, Throwable exc) {
-        server.getLogger().critical(message + ": ", exc);
+        Server.getInstance().getLogger().critical(message + ": ", exc);
     }
 
     public static void critical(String tag, String message, Throwable exc) {
-        server.getLogger().critical("[" + tag + "] " + message, exc);
+        Server.getInstance().getLogger().critical("[" + tag + "] " + message, exc);
     }
 
     public static String getStackTrace(Throwable err) {

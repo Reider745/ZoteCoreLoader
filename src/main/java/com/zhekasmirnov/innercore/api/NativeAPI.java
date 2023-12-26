@@ -24,7 +24,7 @@ public class NativeAPI {
     }
 
     public static String executeCommand(String command, int x, int y, int z, long blockSource) {
-        if (InnerCoreServer.server.getCommandMap().dispatch(InnerCoreServer.server.getConsoleSender(), command)) {
+        if (Server.getInstance().getCommandMap().dispatch(Server.getInstance().getConsoleSender(), command)) {
             return "TODO";
         }
         return null;

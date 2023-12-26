@@ -1,12 +1,13 @@
 package com.reider745.world;
 
+import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import com.reider745.InnerCoreServer;
 
 public class WorldMethod {
 
     private static Level getLevel(){
-        return InnerCoreServer.server.getDefaultLevel();
+        return Server.getInstance().getDefaultLevel();
     }
 
     public static long getTime() {
@@ -23,7 +24,7 @@ public class WorldMethod {
     }
 
     public static int getGameMode() {
-        return InnerCoreServer.server.getGamemode();
+        return Server.getInstance().getGamemode();
     }
 
     public static void setGameMode(int mode) {
@@ -31,11 +32,11 @@ public class WorldMethod {
     }
 
     public static int getDifficulty() {
-        return InnerCoreServer.server.getDifficulty();
+        return Server.getInstance().getDifficulty();
     }
 
     public static void setDifficulty(int difficulty) {
-        InnerCoreServer.server.setDifficulty(difficulty);
+        Server.getInstance().setDifficulty(difficulty);
     }
 
     public static double getRainLevel() {

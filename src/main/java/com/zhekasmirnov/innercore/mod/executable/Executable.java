@@ -179,7 +179,7 @@ public class Executable implements Runnable {
         scriptScope.put("__modpack__", scriptScope,
                 Context.javaToJS(ModPackContext.getInstance().assureJsAdapter(), scriptScope));
 
-        if (!InnerCoreServer.canEvalEnable()) {
+        if (!InnerCoreServer.isUnsafeScriptingAllowed()) {
             scriptScope.put("eval", scriptScope, new ScriptableFunctionImpl() {
                 @Override
                 public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {

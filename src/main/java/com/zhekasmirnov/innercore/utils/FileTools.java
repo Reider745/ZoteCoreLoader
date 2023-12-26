@@ -32,7 +32,7 @@ public class FileTools {
     // }
 
     public static void init() {
-        DIR_ROOT = DIR_HORIZON = DIR_PACK = DIR_MINECRAFT = InnerCoreServer.PATH + "/";
+        DIR_ROOT = DIR_HORIZON = DIR_PACK = DIR_MINECRAFT = InnerCoreServer.dataPath + "/";
         DIR_WORK = DIR_ROOT + "innercore/";
         checkdirs();
     }
