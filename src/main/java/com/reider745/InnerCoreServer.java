@@ -22,6 +22,7 @@ import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
+import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
 import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
 import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
@@ -281,6 +282,7 @@ public class InnerCoreServer {
         });
 
         NativeCallback.onLocalServerStarted();
+        WorldDataSaverHandler.getInstance().fetchParamsFromConfig();
 
         Logger.info("INNERCORE", "preloaded in " + (System.currentTimeMillis() - startupMillis) + "ms");
     }
@@ -416,6 +418,14 @@ public class InnerCoreServer {
 
     public static boolean isDeveloperMode() {
         return singleton.getPropertyBoolean("developer-mode", false);
+    }
+
+    public static int getAutoSavePeriod() {
+        return singleton.getPropertyInt("auto-save-period", 60);
+    }
+
+    public static boolean canAutoSaveWorld() {
+        return singleton.getPropertyBoolean("auto-save-world", true);
     }
 
     public static MethodHandling getUnsupportedMethodHandling() {
