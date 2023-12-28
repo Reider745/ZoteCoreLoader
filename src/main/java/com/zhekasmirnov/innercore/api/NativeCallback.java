@@ -1091,7 +1091,7 @@ public class NativeCallback {
     }
 
     public static void onBiomeMapGenerated(int dimension, int x, int z) {
-        WorldGen.onBiomeMapGenerated(dimension, x >> 4, z >> 4);
+        WorldGen.onBiomeMapGenerated(dimension, x, z);
     }
 
     public static void onCustomDimensionTransfer(long entity, int from, int to) {

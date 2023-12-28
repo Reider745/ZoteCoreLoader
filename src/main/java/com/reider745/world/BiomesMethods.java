@@ -1,6 +1,9 @@
 package com.reider745.world;
 
+import cn.nukkit.block.BlockID;
+import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.biome.Biome;
+import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.BiomeDefinitionListPacket;
@@ -38,6 +41,12 @@ public class BiomesMethods {
         protected void reg(int id){
             register(id, this);
         }
+
+        @Override
+        public void populateChunk(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
+            super.populateChunk(level, chunkX, chunkZ, random);
+            level.setBlockAt(16, 80, 16, BlockID.STONE);
+        }
     }
 
     private static final PointersStorage<NukkitCustomBiome> customBiomesPointers = new PointersStorage<>("biomes", new PointerGenFastest(), false);
@@ -54,7 +63,7 @@ public class BiomesMethods {
         }
     }
 
-    private static int pre_id = 256;
+    private static int pre_id = 182;
 
     public static long nativeRegister(String name) {
         NukkitCustomBiome biome = new NukkitCustomBiome(name);

@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
+import com.reider745.hooks.BiomesHooks;
 import com.reider745.item.ItemMethod;
 import com.reider745.world.BlockSourceMethods;
 import com.reider745.world.WorldMethod;
@@ -238,10 +239,7 @@ public class NativeAPI {
     }
 
     public static void setBiomeMap(int x, int z, int id) {
-        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
-        if (region != null)
-            region.setBiome(x, z, id);
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setBiomeMap(x, z, id)");
+        BiomesHooks.setBiomeMap(x, z, id);
     }
 
     public static int getBiome(int x, int z) {
