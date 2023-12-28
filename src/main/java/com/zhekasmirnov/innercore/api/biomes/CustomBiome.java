@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.biomes;
 
+import com.reider745.world.BiomesMethods;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,7 +22,8 @@ public class CustomBiome {
 
     public CustomBiome(String name) {
         allCustomBiomes.put(name, this);
-        this.pointer = this.id = 0;
+        this.pointer = nativeRegister(name);
+        this.id = nativeGetId(pointer);
         this.name = name;
     }
 
@@ -31,7 +33,6 @@ public class CustomBiome {
     }
 
     public CustomBiome setGrassColor(int color) {
-        InnerCoreServer.useNotCurrentSupport("CustomBiome.setGrassColor(color)");
         return this;
     }
 
@@ -41,7 +42,6 @@ public class CustomBiome {
     }
 
     public CustomBiome setSkyColor(int color) {
-        InnerCoreServer.useNotCurrentSupport("CustomBiome.setSkyColor(color)");
         return this;
     }
 
@@ -51,7 +51,6 @@ public class CustomBiome {
     }
 
     public CustomBiome setFoliageColor(int color) {
-        InnerCoreServer.useNotCurrentSupport("CustomBiome.setFoliageColor(color)");
         return this;
     }
 
@@ -61,7 +60,6 @@ public class CustomBiome {
     }
 
     public CustomBiome setWaterColor(int color) {
-        InnerCoreServer.useNotCurrentSupport("CustomBiome.setWaterColor(color)");
         return this;
     }
 
@@ -121,12 +119,13 @@ public class CustomBiome {
     }
 
     public CustomBiome setClientJson(String json) {
-        try {
-            new JSONObject(json);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("failed to parse biome client json: " + e.getMessage(), e);
-        }
-        InnerCoreServer.useNotCurrentSupport("CustomBiome.setClientJson(json)");
         return this;
+    }
+
+    private static long nativeRegister(String name){
+        return BiomesMethods.nativeRegister(name);
+    }
+    private static int nativeGetId(long pointer){
+        return BiomesMethods.nativeGetId(pointer);
     }
 }

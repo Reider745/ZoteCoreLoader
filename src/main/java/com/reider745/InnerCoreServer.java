@@ -10,6 +10,7 @@ import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
+import com.reider745.hooks.BiomesHooks;
 import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
 
@@ -199,6 +200,7 @@ public class InnerCoreServer {
         final long startupMillis = System.currentTimeMillis();
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");
+        BiomesHooks.init();
 
         dataPath = server.getDataPath();
         final File dataFolderFile = new File(dataPath);

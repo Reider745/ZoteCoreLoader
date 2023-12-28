@@ -287,6 +287,31 @@ public class NativeICRender {
         }
     }
 
+    /*
+    Условие из будующего обновление иннера
+     */
+    public static class BlockState extends CONDITION {
+        private int x, y, z, state, value;
+
+        public BlockState(int x, int y, int z, int state, int value){
+            super(0);
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.state = state;
+            this.value = value;
+        }
+
+        public BlockState(int state, int value){
+            this(0, 0, 0, state, value);
+        }
+
+        @Override
+        public String toString() {
+            return "BLOCK ["+ x + " " + y + " " + z + " " + state + " " + value + "]";
+        }
+    }
+
     public static class RANDOM extends CONDITION {
         private int seed;
         private int max;

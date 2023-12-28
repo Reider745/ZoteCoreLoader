@@ -2,6 +2,7 @@ package com.reider745.api.pointers;
 
 import com.reider745.api.pointers.pointer_gen.IBasePointerGen;
 import com.reider745.api.pointers.pointer_gen.PointerGenSlowest;
+import com.reider745.world.BiomesMethods;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -20,17 +21,21 @@ public class PointersStorage<T> {
 
     private final INewPointer newPointer;
 
-    public PointersStorage(String type, final IBasePointerGen pointerGen, final INewPointer<T> newPointer){
+    public PointersStorage(String type, final IBasePointerGen pointerGen, final INewPointer<T> newPointer, boolean clear){
         System.out.println("Loaded pointer storage, type - "+type);
         this.pointerGen = pointerGen;
         storages.put(type, this);
 
-        new ThreadCheckToClear<T>(this);
+        if(clear) new ThreadCheckToClear<T>(this);
         this.newPointer = newPointer;
     }
 
+    public PointersStorage(String type, final IBasePointerGen pointerGen, boolean clear){
+        this(type, pointerGen, ClassPointer::new, clear);
+    }
+
     public PointersStorage(String type, final IBasePointerGen pointerGen){
-        this(type, pointerGen, ClassPointer::new);
+        this(type, pointerGen, ClassPointer::new, true);
     }
 
     public PointersStorage(String type){
@@ -38,7 +43,7 @@ public class PointersStorage<T> {
     }
 
     public PointersStorage(String type, final INewPointer<T> newPointer){
-        this(type, new PointerGenSlowest(), newPointer);
+        this(type, new PointerGenSlowest(), newPointer, true);
     }
 
     public final long addPointer(T pointerClass){

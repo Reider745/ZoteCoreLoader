@@ -76,6 +76,7 @@ public class Main {
         loader.registerHooksInitializationForClass(ItemUtils.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
         loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
+        loader.registerHooksInitializationForClass(BiomesHooks.class);
 
         //bug fix
         loader.registerHooksInitializationForClass(EntityItemHooks.class);
