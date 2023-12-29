@@ -2,6 +2,8 @@ package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+
+import org.apache.commons.math3.exception.NullArgumentException;
 import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -68,6 +70,8 @@ public class WorldDataScopeRegistry {
             Object data = json.opt(key);
             try {
                 entry.getValue().readJson(data);
+            } catch (NullArgumentException err) {
+                // Data does not exists in json, skipping
             } catch (Throwable err) {
                 errorHandler.handle(key, err);
             }
