@@ -166,8 +166,8 @@ public class AdaptedScriptAPI extends API {
     }
 
     @JSStaticFunction
-    public static boolean isServer(){
-        return false;
+    public static boolean isDedicatedServer(){
+        return true;
     }
 
     @APIStaticModule
