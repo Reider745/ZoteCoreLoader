@@ -280,7 +280,7 @@ public class InnerCoreServer {
         NativeCallback.onFinalInitComplete();
 
         JSONObject object = new JSONObject();
-        object.put("fix", server.getPropertyBoolean("inner_core.legacy_inventory", true));
+        object.put("fix", getPropertyBoolean("use-legacy-inventory", true));
         Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v, v1) -> {
             // legacy inner core for mod ServerFixed
         });

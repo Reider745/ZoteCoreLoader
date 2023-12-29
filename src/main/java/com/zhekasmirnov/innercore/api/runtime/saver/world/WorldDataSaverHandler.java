@@ -29,7 +29,7 @@ public class WorldDataSaverHandler {
         final int auto_save_period = InnerCoreServer.getAutoSavePeriod();
 
         setParams(
-                auto_save_period > 10,
+                auto_save_period >= 20,
                 InnerCoreServer.canAutoSaveWorld(),
                 auto_save_period * 1000
         );
