@@ -5,6 +5,7 @@ import cn.nukkit.item.ItemBlock;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 
 import java.util.ArrayList;
 
@@ -79,11 +80,11 @@ public class ItemMethod {
     public static String getNameForId(int id, int data, long extra){
         CustomManager manager = CustomBlock.getBlockManager(id);
         if(manager != null)
-            return CustomBlock.getVariants(manager).get(data);
+            return NameTranslation.translate(CustomBlock.getVariants(manager).get(data));
 
         manager = getCustomManager(id);
         if(manager != null)
-            return manager.get(PropertiesNames.NAME);
+            return NameTranslation.translate(manager.get(PropertiesNames.NAME));
         return Item.get(id, data).getName();
     }
 

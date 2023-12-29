@@ -23,6 +23,8 @@ import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
 
+import java.util.Arrays;
+
 public class EntityMethod {
     public static Entity getEntityToLong(long ent){
         for (Level level : Server.getInstance().getLevels().values())
@@ -337,10 +339,12 @@ public class EntityMethod {
     public static void getVelocity(long unwrapEntity, float[] pos) {
         Entity entity = getEntityToLong(unwrapEntity);
         if(entity != null){
-            Vector3 motion = entity.getMotion();
-            pos[0] = (float) motion.x;
-            pos[1] = (float) motion.y;
-            pos[1] = (float) motion.z;
+            if(entity.lastX == 0 || entity.lastY == 0 || entity.lastZ == 0)
+                return;
+
+            pos[0] = (float) (entity.x - entity.lastX);
+            pos[1] = (float) (entity.y - entity.lastY);
+            pos[2] = (float) (entity.z - entity.lastZ);
         }
     }
 
