@@ -158,4 +158,9 @@ public class PlayerActorMethods {
         if(pointer == null || !pointer.isValid()) return 0;
         return pointer.getInventory().getItemInHand().getMaxDurability();
     }
+
+    public static boolean isOperator(Player pointer) {
+        if(pointer == null || !pointer.isValid()) return false;
+        return Server.getInstance().isOp(pointer.getName());
+    }
 }

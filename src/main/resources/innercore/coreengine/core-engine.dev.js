@@ -460,6 +460,9 @@ var SaverAPI = {
     }
 };
 var GameAPI = {
+    isServer: function(){
+        return isServer();
+    },
     prevent: function() {
         preventDefault();
     },

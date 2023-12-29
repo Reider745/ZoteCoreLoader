@@ -165,6 +165,11 @@ public class AdaptedScriptAPI extends API {
         NativeAPI.explode((float) x, (float) y, (float) z, (float) power, onFire);
     }
 
+    @JSStaticFunction
+    public static boolean isServer(){
+        return false;
+    }
+
     @APIStaticModule
     public static class Logger {
         @JSStaticFunction

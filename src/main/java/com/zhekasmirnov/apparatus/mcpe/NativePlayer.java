@@ -154,4 +154,8 @@ public class NativePlayer {
     public float getItemUseStartupProgress() {
         return PlayerActorMethods.getItemUseStartupProgress(pointer);
     }
+
+    public boolean isOperator(){
+        return PlayerActorMethods.isOperator(pointer);
+    }
 }
