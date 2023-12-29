@@ -3,8 +3,7 @@ package com.zhekasmirnov.apparatus.multiplayer.socket;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannelFactory;
-import com.zhekasmirnov.innercore.api.log.ICLog;
-
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -46,7 +45,12 @@ public class SocketServer {
 
                      try {
                          int protocol = socket.getInputStream().read();
-                         DataChannel channel = DataChannelFactory.newDataChannel(socket, protocol);
+                         DataChannel channel = DataChannelFactory.newDataChannelViaSupportedProtocol(socket, protocol);
+
+                         if (channel == null) {
+                            isRunning = false;
+                            return;
+                         }
 
                          boolean isChannelManaged = false;
                          for (IClientConnectListener listener : clientConnectListeners) {
@@ -55,13 +59,13 @@ public class SocketServer {
                              }
                          }
                      } catch (IOException exception) {
-                         ICLog.e("socket server error", "error in creating channel", exception);
-                         exception.printStackTrace();
+                         Logger.error("socket server error", "error in creating channel", exception);
                          try {
                              socket.close();
                          } catch (IOException e) {
                              e.printStackTrace();
                          }
+                         isRunning = false;
                      }
                  }
             }).start();
@@ -81,5 +85,4 @@ public class SocketServer {
             }
         }
     }
-
 }
