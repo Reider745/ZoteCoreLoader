@@ -10,7 +10,7 @@ pack-version-code: 152
 
 # Use vanilla crafting table interface, instead of custom one.
 # Attention: currently not supported and custom recipes will not be dislayed.
-# use-legacy-workbench-override: off
+# use-legacy-workbench-override: on
 
 # Disabling inventory fix for connected clients, outdated versions do not
 # work properly with it, not allowing moving items around inventory.
@@ -28,3 +28,17 @@ pack-version-code: 152
 # Developer mode allows you to receive additional information
 # about engine operation, as well as profiling of methods.
 # developer-mode: on
+
+# Период сохранения данных inner core
+# auto-save-period: 60
+
+# Обновлять вместе с сохранениями inner core сохранения мира
+# auto-save-world: on
+
+
+# Состояние сокет сервера
+# Для сокета сервера требуется дополнительный порт, подключение через сокет серверы более стабильное
+# socket-server-enable: on
+
+# Порт сокет сервера
+# socket-port: 2304

@@ -10,7 +10,7 @@ public class NukkitIdConvertor {
         add(351, 4, 821, 0);//lapis fix
 
         add(325, 10, 843, 0);//lava bucket fix
-        add(235, 5, 850, 0);//water bucket fix
+        add(325, 8, 850, 0);//water bucket fix
     }
 
     public static class EntryItem {
@@ -32,6 +32,14 @@ public class NukkitIdConvertor {
         @Override
         public int hashCode() {
             return Objects.hash(id, data);
+        }
+
+        @Override
+        public String toString() {
+            return "EntryItem{" +
+                    "id=" + id +
+                    ", data=" + data +
+                    '}';
         }
     }
 

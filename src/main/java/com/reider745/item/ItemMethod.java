@@ -47,8 +47,8 @@ public class ItemMethod {
         return 0;
     }
 
-    public static void setMaxDamage(CustomManager manager, int id){
-        manager.put(PropertiesNames.MAX_DAMAGE, id);
+    public static void setMaxDamage(CustomManager manager, int damage){
+        manager.put(PropertiesNames.MAX_DAMAGE, damage);
     }
 
     public static void setMaxStackSize(CustomManager manager, int stack){
@@ -122,7 +122,7 @@ public class ItemMethod {
     }
 
     public static void setArmorDamageable(CustomManager ptr, boolean value) {
-        ptr.put(PropertiesNames.ARMOR_DAMAGEABLE, value);
+        ptr.put(PropertiesNames.ARMOR_DAMAGEABLE, !value);
     }
 
     public static void addRepairItemId(CustomManager ptr, int id) {

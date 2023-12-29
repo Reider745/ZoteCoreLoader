@@ -4,6 +4,7 @@ package com.zhekasmirnov.innercore.mod.build;
  * Created by zheka on 15.08.2017.
  */
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.utils.FileTools;
@@ -117,6 +118,8 @@ public class Config {
     }
 
     public boolean getBool(String name) {
+        if (name.equals("gameplay.use_legacy_workbench_override"))
+            return InnerCoreServer.isLegacyWorkbench();
         Object val = get(name);
         if (val instanceof Boolean) {
             return (boolean) val;

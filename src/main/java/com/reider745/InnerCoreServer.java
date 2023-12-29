@@ -18,6 +18,7 @@ import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConvertor;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
+import com.zhekasmirnov.apparatus.multiplayer.NetworkConfig;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeCallback;
@@ -198,6 +199,7 @@ public class InnerCoreServer {
 
     public void preload(Server server) throws Exception {
         final long startupMillis = System.currentTimeMillis();
+
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");
         BiomesHooks.init();
@@ -219,6 +221,10 @@ public class InnerCoreServer {
         plugin.saveDefaultConfig();
         plugin.onLoad();
         plugin.setEnabled();
+
+        NetworkConfig config = Network.getSingleton().getConfig();
+        config.setDefaultPort(singleton.getPropertyInt("socket-port", config.getDefaultPort()));
+        config.setSocketConnectionAllowed(singleton.getPropertyBoolean("socket-server-enable", config.isSocketConnectionAllowed()));
 
         final File innerCoreDirectory = new File(dataPath, "innercore");
         if (!innerCoreDirectory.exists()) {
@@ -268,7 +274,6 @@ public class InnerCoreServer {
         innerCore.load();
         innerCore.build();
         LoadingStage.setStage(LoadingStage.STAGE_MCPE_STARTING);
-        InnerCoreConfig.set("gameplay.use_legacy_workbench_override", isLegacyWorkbench());
         LoadingStage.setStage(LoadingStage.STAGE_MCPE_INITIALIZING);
         LoadingUI.setTextAndProgressBar("Initializing Minecraft...", 0.55f);
         NativeCallback.onFinalInitStarted();
@@ -444,11 +449,11 @@ public class InnerCoreServer {
     }
 
     public static String getVersionName() {
-        return singleton.getPropertyString("pack-version", "2.3.1b115 test");
+        return singleton.getPropertyString("pack-version", "2.3.1b116 test");
     }
 
     public static int getVersionCode() {
-        return singleton.getPropertyInt("pack-version-code", 152);
+        return singleton.getPropertyInt("pack-version-code", 153);
     }
 
     private static void handleUnsupportedMethod(String message) {

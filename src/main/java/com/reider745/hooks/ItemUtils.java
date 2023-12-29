@@ -182,7 +182,6 @@ public class ItemUtils implements HookClass {
 
             ItemExtraDataProvider provider = (ItemExtraDataProvider) items_pointers.getInstance(extra.getValue());
             provider.apply(item);
-            items_pointers.replace(items_pointers.getPointerForInstance(item), provider);
         }
         return item;
     }

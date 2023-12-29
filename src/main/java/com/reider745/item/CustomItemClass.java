@@ -40,7 +40,7 @@ public class CustomItemClass extends Item {
         this.slot = parameters.get(PropertiesNames.Armors.SLOT, -1);
         this.defense = parameters.get(PropertiesNames.Armors.DEFENSE, 0);
         this.knockbackResist = parameters.get(PropertiesNames.Armors.KNOCKBACK_RESIST, 0f);
-        this.ARMOR_DAMAGEABLE = !parameters.get(PropertiesNames.ARMOR_DAMAGEABLE, true);
+        this.ARMOR_DAMAGEABLE = parameters.get(PropertiesNames.ARMOR_DAMAGEABLE, false);
 
         CompoundTag tag = getOrCreateNamedTag();
         CompoundTag components = tag.getCompound("components");
@@ -66,6 +66,7 @@ public class CustomItemClass extends Item {
 
     @Override
     public boolean isUnbreakable() {
+        System.out.println(ARMOR_DAMAGEABLE);
         return ARMOR_DAMAGEABLE;
     }
 

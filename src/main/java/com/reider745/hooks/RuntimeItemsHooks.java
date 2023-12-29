@@ -70,6 +70,8 @@ public class RuntimeItemsHooks implements HookClass {
             int legacyId = id;
             int runtimeId = id;
             int damage = ItemMethod.getMaxDamageForId(id, 0);
+            if(damage == 0)
+                damage = Integer.MAX_VALUE;//Медведев я тебе поздравляю максимальное количество рюкзаков 32кE(это кнч дохуя, но костыль уровня школьника), ахуенный костыль! Нет бы блять в ItemExtraData хранить, нет нахуй нкжно обязательно блять с помощью даты
             boolean hasData = damage <= 0;
 
             runtimeId2Name.put(runtimeId, name);

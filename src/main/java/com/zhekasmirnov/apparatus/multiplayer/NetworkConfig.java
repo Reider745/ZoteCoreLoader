@@ -77,6 +77,6 @@ public class NetworkConfig {
         // instead of direct channel, use native protocol for local client-server connection
         setLocalNativeProtocolForced(EngineConfig.getBoolean("network.local_native_protocol_forced", false));
         // enable socket server
-        setSocketConnectionAllowed(EngineConfig.getBoolean("network.enable_socket_server", true));
+        //setSocketConnectionAllowed(EngineConfig.getBoolean("network.enable_socket_server", true));
     }
 }
