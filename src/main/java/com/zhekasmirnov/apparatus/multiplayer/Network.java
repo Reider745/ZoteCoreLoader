@@ -1,12 +1,10 @@
 package com.zhekasmirnov.apparatus.multiplayer;
 
-import cn.nukkit.Player;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.job.InstantJobExecutor;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.job.MainThreadJobExecutor;
-//import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannelFactory;
@@ -15,7 +13,6 @@ import com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.multiplayer.server.ModdedServer;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import org.json.JSONObject;
 
@@ -76,12 +73,7 @@ public class Network {
         });
 
         server.addOnClientDisconnectedListener((ConnectedClient client, String reason) -> {
-            Logger.debug("client disconnected, reason: " + reason);
-            if (EngineConfig.isDeveloperMode()) {
-                Logger.debug("server: client disconnected player=" + client.getPlayerUid() + " reason=" + reason);
-            } else {
-                Logger.debug("server: client disconnected reason=" + reason);
-            }
+            Logger.debug("server: client disconnected player=" + client.getPlayerUid() + " reason=" + reason);
         });
     }
 
@@ -123,7 +115,7 @@ public class Network {
         Socket socket = new Socket(address, port);
         int protocolId = config.getClientProtocolId();
         socket.getOutputStream().write(protocolId);
-        return DataChannelFactory.newDataChannel(socket, protocolId);
+        return DataChannelFactory.newDataChannelViaSupportedProtocol(socket, protocolId);
     }
 
     private DataChannel tryOpenClientToServerNativeDataChannel(int timeout) throws IOException {
@@ -150,7 +142,7 @@ public class Network {
                 channel = tryOpenClientToServerNativeDataChannel(getConfig().getNativeChannelPingPongTimeout());
             } catch (IOException e) {
                 if (EngineConfig.isDeveloperMode()) {
-                    //UserDialog.toast("failed to connect via native protocol, trying socket connection");
+                    Logger.info("failed to connect via native protocol, trying socket connection");
                 }
                 channel = tryOpenClientToServerSocketDataChannel(address, port);
             }
@@ -159,26 +151,29 @@ public class Network {
                 channel = tryOpenClientToServerSocketDataChannel(address, port);
             } catch (IOException e) {
                 if (EngineConfig.isDeveloperMode()) {
-                   // UserDialog.toast("failed to connect via socket, trying native protocol");
+                    Logger.info("failed to connect via socket, trying native protocol");
                 }
                 channel = tryOpenClientToServerNativeDataChannel(getConfig().getNativeChannelPingPongTimeout());
             }
         }
+        if (channel == null) {
+            return;
+        }
 
         if (channel instanceof NativeDataChannel) {
-            //UserDialog.toast("connected to " + address + " via native protocol");
+            Logger.info("connected to " + address + " via native protocol");
         } else {
-            //UserDialog.toast("connected to " + address + " via socket at port " + port);
+            Logger.info("connected to " + address + " via socket at port " + port);
         }
 
         client.start(channel);
 
         if (!client.awaitAllInitializationPackets(config.getInitializationTimeout())) {
-            //UserDialog.dialog("Connection Error", "Failed to connect to server - not all initialization packets were sent to client");
+            Logger.info("Connection Error", "Failed to connect to server - not all initialization packets were sent to client");
             handler.stop();
             shutdown();
         } else {
-            //UserDialog.toast("successfully started client");
+            Logger.info("successfully started client");
         }
 
         handler.stop();
@@ -201,7 +196,7 @@ public class Network {
 
         if (!client.awaitAllInitializationPackets(config.getInitializationTimeout())) {
             if (!client.isRunning()) {
-                ICLog.i("LAN Server Error", "Failed to startup LAN server - not all initialization packets were sent to client");
+                Logger.info("LAN Server Error", "Failed to startup LAN server - not all initialization packets were sent to client");
             }
             handler.stop();
             shutdown();

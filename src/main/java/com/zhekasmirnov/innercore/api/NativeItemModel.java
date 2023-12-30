@@ -460,7 +460,7 @@ public class NativeItemModel {
     }
 
     public NativeItemModel setItemTexturePath(String path) {
-        if (!path.endsWith(".png")) {
+        if (path != null && !path.endsWith(".png")) {
             path += ".png";
         }
         mItemTexturePath = path;

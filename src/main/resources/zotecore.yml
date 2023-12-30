@@ -1,11 +1,11 @@
 # Change resolution of pack that client should have to log into server.
 # However, no deprecated or unimplemented methods will be added.
 pack: Inner Core Test
-pack-version: 2.3.0b115 test
-pack-version-code: 152
+pack-version: 2.3.0b116 test
+pack-version-code: 153
 
 # Sets the list of mods and configs to load, you can specify
-# folder name of a modpack from /modpacks or a path.
+# name, folder name of a modpack from /modpacks or a path.
 # modpack: StoneBlock
 
 # Use vanilla crafting table interface, instead of custom one.
@@ -29,16 +29,17 @@ pack-version-code: 152
 # about engine operation, as well as profiling of methods.
 # developer-mode: on
 
-# Период сохранения данных inner core
-# auto-save-period: 60
+# Time in seconds between auto-saving data of mods (any value above 20),
+# as well as the world if it is included in another option.
+# auto-save-period: 180
 
-# Обновлять вместе с сохранениями inner core сохранения мира
-# auto-save-world: on
+# Whether to save worlds in addition to mod data.
+# auto-save-world: off
 
+# Whether socket server enabled or not.
+# Server socket requires an additional port, connection
+# through server sockets is more stable.
+# socket-server-enable: off
 
-# Состояние сокет сервера
-# Для сокета сервера требуется дополнительный порт, подключение через сокет серверы более стабильное
-# socket-server-enable: on
-
-# Порт сокет сервера
-# socket-port: 2304
+# Server socket port, usually should be between 10000 and 24999.
+# socket-port: 19131
