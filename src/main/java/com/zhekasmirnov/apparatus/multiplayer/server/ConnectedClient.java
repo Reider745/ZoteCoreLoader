@@ -196,7 +196,7 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     public void send(String name, Object data) {
         try{
-            if(!channel.isClosed() && getClientState() == ClientState.OPEN)
+            if(!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed") || getClientState() == ClientState.OPEN))
                 channel.send(name, data);
         }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
