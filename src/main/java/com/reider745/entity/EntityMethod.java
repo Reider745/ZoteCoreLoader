@@ -22,6 +22,7 @@ import cn.nukkit.potion.Effect;
 import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
+import io.netty.util.collection.LongObjectHashMap;
 
 import java.util.Arrays;
 
@@ -337,14 +338,15 @@ public class EntityMethod {
     }
 
     public static void getVelocity(long unwrapEntity, float[] pos) {
-        Entity entity = getEntityToLong(unwrapEntity);
+        final Entity entity = getEntityToLong(unwrapEntity);
         if(entity != null){
-            if(entity.lastX == 0 || entity.lastY == 0 || entity.lastZ == 0)
-                return;
+            final double[] velocity = EntityMotion.getVelocity(entity);
 
-            pos[0] = (float) (entity.x - entity.lastX);
-            pos[1] = (float) (entity.y - entity.lastY);
-            pos[2] = (float) (entity.z - entity.lastZ);
+            pos[0] = (float) velocity[0];
+            pos[1] = (float) velocity[1];
+            pos[2] = (float) velocity[2];
+
+            System.out.println(Arrays.toString(pos));
         }
     }
 

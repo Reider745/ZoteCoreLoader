@@ -35,6 +35,7 @@ import cn.nukkit.math.Vector3;
 
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
+import com.reider745.entity.EntityMotion;
 import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
@@ -145,6 +146,8 @@ public class EventListener implements Listener {
     public void onEntitySpawn(EntitySpawnEvent event) {
         final Entity entity = event.getEntity();
 
+        EntityMotion.added(entity);
+
         if (entity instanceof EntityXPOrb xpOrb) {
             NativeCallback.onExpOrbsSpawned(entity.getLevel(), xpOrb.getExp(), (float) entity.x, (float) entity.y,
                     (float) entity.z, entity.getId());
@@ -154,7 +157,10 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDespawn(EntityDespawnEvent event) {
-        NativeCallback.onEntityRemoved(event.getEntity().getId());
+        final Entity entity = event.getEntity();
+
+        EntityMotion.remove(entity);
+        NativeCallback.onEntityRemoved(entity.getId());
     }
 
     private static int convertDamageCauseToEnum(DamageCause cause) {

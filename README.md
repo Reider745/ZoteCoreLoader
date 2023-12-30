@@ -69,6 +69,15 @@ socket-server-enable: on
 socket-port: 2304
 ```
 
+## Консольные команды
+
++ custom_items - вывводит список кастумных предметов
++ custom_blocks - вывводит список кастумных блоков
++ mods - вывводит список модификаций на сервере
++ inner_core_network - вывводит список игроков подключенных к иннеру на сервере
++ state - вывводит state блока по runtimeId
++ player_info - вывводит доп информацию об игроке
+
 ## Лицензия
 
 ![Licensing](/.github/license.jpg)
