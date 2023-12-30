@@ -1,161 +1,181 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
 import cn.nukkit.Player;
-import cn.nukkit.item.Item;
 import com.reider745.entity.PlayerActorMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 public class NativePlayer {
-    private final Player pointer;
-    private Player player;
+    private final Player player;
 
     public NativePlayer(long entity) {
-        pointer = PlayerActorMethods.constructNew(entity);
+        player = PlayerActorMethods.fetchOnline(entity);
     }
 
-    public Player getPointer() {
-        return pointer;
+    public Player getPlayer() {
+        return player;
     }
 
     public boolean isValid() {
-        try {
-            return PlayerActorMethods.isValid(pointer);
-        } catch (NoSuchMethodError e) {
-            return pointer != null && pointer.isValid();
-        }
+        return PlayerActorMethods.isValid(player, true);
     }
 
-    public void invokeUseItemNoTarget(int id, int count, int data, NativeItemInstanceExtra extra){
-        PlayerActorMethods.invokeUseItemNoTarget(pointer, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
-    }
-    
-    public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra, boolean dropLeft){
-        PlayerActorMethods.addItemToInventory(pointer, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra), dropLeft);
+    public void invokeUseItemNoTarget(int id, int count, int data, NativeItemInstanceExtra extra) {
+        PlayerActorMethods.invokeUseItemNoTarget(player, id, count, data,
+                NativeItemInstanceExtra.getValueOrNullPtr(extra));
     }
 
-    public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra){
+    public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra, boolean dropLeft) {
+        PlayerActorMethods.addItemToInventory(player, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra),
+                dropLeft);
+    }
+
+    public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra) {
         addItemToInventory(id, count, data, extra, true);
     }
 
-    public void addItemToInventory(int id, int count, int data){
+    public void addItemToInventory(int id, int count, int data) {
         addItemToInventory(id, count, data, null, true);
     }
-    
-    public void addItemToInventoryPtr(long itemStack, boolean dropLeft){
-        PlayerActorMethods.addItemToInventoryPtr(pointer, itemStack, dropLeft);
+
+    public void addItemToInventoryPtr(long itemStack, boolean dropLeft) {
+        PlayerActorMethods.addItemToInventoryPtr(player, itemStack, dropLeft);
     }
-    
-    public void addExperience(int amount){
-        PlayerActorMethods.addExperience(pointer, amount);
+
+    public void addExperience(int amount) {
+        PlayerActorMethods.addExperience(player, amount);
     }
-    
-    public int getDimension(){
-        return PlayerActorMethods.getDimension(pointer);
+
+    public int getDimension() {
+        return PlayerActorMethods.getDimension(player);
     }
-    
-    public int getGameMode(){
-        return PlayerActorMethods.getGameMode(pointer);
+
+    public int getGameMode() {
+        return PlayerActorMethods.getGameMode(player);
     }
-    
-    public ItemStack getInventorySlot(int slot){
-        return ItemStack.fromPtr(PlayerActorMethods.getInventorySlot(pointer, slot));
+
+    public ItemStack getInventorySlot(int slot) {
+        return ItemStack.fromPtr(PlayerActorMethods.getInventorySlot(player, slot));
     }
-    
-    public ItemStack getArmor(int slot){
-        return ItemStack.fromPtr(PlayerActorMethods.getArmor(pointer, slot));
+
+    public ItemStack getArmor(int slot) {
+        return ItemStack.fromPtr(PlayerActorMethods.getArmor(player, slot));
     }
-    
-    public float getExhaustion(){
-        return PlayerActorMethods.getExhaustion(pointer);
+
+    public float getExhaustion() {
+        return PlayerActorMethods.getExhaustion(player);
     }
-    
-    public float getExperience(){
-        return PlayerActorMethods.getExperience(pointer);
+
+    public float getExperience() {
+        return PlayerActorMethods.getExperience(player);
     }
-    
-    public float getHunger(){
-        return PlayerActorMethods.getHunger(pointer);
+
+    public float getHunger() {
+        return PlayerActorMethods.getHunger(player);
     }
-    
-    public float getLevel(){
-        return PlayerActorMethods.getLevel(pointer);
+
+    public float getLevel() {
+        return PlayerActorMethods.getLevel(player);
     }
-    
-    public float getSaturation(){
-        return PlayerActorMethods.getSaturation(pointer);
+
+    public float getSaturation() {
+        return PlayerActorMethods.getSaturation(player);
     }
-    
-    public int getScore(){
-        return PlayerActorMethods.getScore(pointer);
+
+    public int getScore() {
+        return PlayerActorMethods.getScore(player);
     }
-    
-    public int getSelectedSlot(){
-        return PlayerActorMethods.getSelectedSlot(pointer);
+
+    public int getSelectedSlot() {
+        return PlayerActorMethods.getSelectedSlot(player);
     }
-    
-    public void setInventorySlot(int slot, int id, int count, int data, NativeItemInstanceExtra extra){
-        PlayerActorMethods.setInventorySlot(pointer, slot, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
+
+    public void setInventorySlot(int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+        PlayerActorMethods.setInventorySlot(player, slot, id, count, data,
+                NativeItemInstanceExtra.getValueOrNullPtr(extra));
     }
-    
-    public void setArmor(int slot, int id, int count, int data, NativeItemInstanceExtra extra){
-        PlayerActorMethods.setArmor(pointer, slot, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
+
+    public void setArmor(int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+        PlayerActorMethods.setArmor(player, slot, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
     }
-        
-    public void setExhaustion(float value){
-        PlayerActorMethods.setExhaustion(pointer, value);
+
+    public void setExhaustion(float value) {
+        PlayerActorMethods.setExhaustion(player, value);
     }
-    
-    public void setExperience(float value){
-        PlayerActorMethods.setExperience(pointer, value);
+
+    public void setExperience(float value) {
+        PlayerActorMethods.setExperience(player, value);
     }
-    
-    public void setHunger(float value){
-        PlayerActorMethods.setHunger(pointer, value);
+
+    public void setHunger(float value) {
+        PlayerActorMethods.setHunger(player, value);
     }
-    
-    public void setLevel(float value){
-        PlayerActorMethods.setLevel(pointer, value);
+
+    public void setLevel(float value) {
+        PlayerActorMethods.setLevel(player, value);
     }
-    
-    public void setSaturation(float value){
-        PlayerActorMethods.setSaturation(pointer, value);
+
+    public void setSaturation(float value) {
+        PlayerActorMethods.setSaturation(player, value);
     }
-    
-    public void setSelectedSlot(int slot){
-        PlayerActorMethods.setSelectedSlot(pointer, slot);
+
+    public void setSelectedSlot(int slot) {
+        PlayerActorMethods.setSelectedSlot(player, slot);
     }
-    
-    public void setRespawnCoords(int x, int y, int z){
-        PlayerActorMethods.setRespawnCoords(pointer, x, y, z);
+
+    public void setRespawnCoords(int x, int y, int z) {
+        PlayerActorMethods.setRespawnCoords(player, x, y, z);
     }
-    
-    public void spawnExpOrbs(float x, float y, float z, int amount){
-        PlayerActorMethods.spawnExpOrbs(pointer, x, y, z, amount);
+
+    public void spawnExpOrbs(float x, float y, float z, int amount) {
+        PlayerActorMethods.spawnExpOrbs(player, x, y, z, amount);
     }
-    
-    public boolean isSneaking(){
-        return PlayerActorMethods.isSneaking(pointer);
+
+    public boolean isSneaking() {
+        return PlayerActorMethods.isSneaking(player);
     }
-    
-    public void setSneaking(boolean sneaking){
-        PlayerActorMethods.setSneaking(pointer, sneaking);
+
+    public void setSneaking(boolean sneaking) {
+        PlayerActorMethods.setSneaking(player, sneaking);
     }
 
     public int getItemUseDuration() {
-        return PlayerActorMethods.getItemUseDuration(pointer);
+        return PlayerActorMethods.getItemUseDuration(player);
     }
 
     public float getItemUseIntervalProgress() {
-        return PlayerActorMethods.getItemUseIntervalProgress(pointer);
+        return PlayerActorMethods.getItemUseIntervalProgress(player);
     }
 
     public float getItemUseStartupProgress() {
-        return PlayerActorMethods.getItemUseStartupProgress(pointer);
+        return PlayerActorMethods.getItemUseStartupProgress(player);
     }
 
-    public boolean isOperator(){
-        return PlayerActorMethods.isOperator(pointer);
+    public boolean isOperator() {
+        return PlayerActorMethods.isOperator(player);
+    }
+
+    public void setCanFly(boolean canFly) {
+        PlayerActorMethods.setCanFly(player, canFly);
+    }
+
+    public void setCanFly() {
+        setCanFly(true);
+    }
+
+    public boolean canFly() {
+        return PlayerActorMethods.canFly(player);
+    }
+
+    public void setFlying(boolean flying) {
+        PlayerActorMethods.setFlying(player, flying);
+    }
+
+    public void setFlying() {
+        setFlying(true);
+    }
+
+    public boolean isFlying() {
+        return PlayerActorMethods.isFlying(player);
     }
 }
