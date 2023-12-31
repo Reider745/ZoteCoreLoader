@@ -48,6 +48,11 @@ public class SocketServer {
                          DataChannel channel = DataChannelFactory.newDataChannelViaSupportedProtocol(socket, protocol);
 
                          if (channel == null) {
+                            try {
+                                socket.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             isRunning = false;
                             return;
                          }
