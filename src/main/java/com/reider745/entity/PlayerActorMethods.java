@@ -37,7 +37,7 @@ public class PlayerActorMethods {
         if (checkOnline) {
             return fetchOnline(player.getId()) != null;
         }
-        return false;
+        return true;
     }
 
     public static void invokeUseItemNoTarget(Player player, int id, int count, int data, long extra) {
