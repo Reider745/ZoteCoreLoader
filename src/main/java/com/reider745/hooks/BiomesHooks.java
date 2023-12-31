@@ -61,9 +61,13 @@ public class BiomesHooks implements HookClass {
     @Inject(className = "cn.nukkit.level.generator.Normal")
     public static Biome pickBiome(Normal self, int x, int z) {
         final Biome[][] biomes_override = threads_biomes_replace.get(Thread.currentThread().getId());
+        if(biomes_override == null)
+            return ((BiomeSelector) ReflectHelper.getField(self, "selector")).pickBiome(x, z);
+
         final Biome biome = biomes_override[Math.abs(x % 16)][Math.abs(z % 16)];
         if(biome != null)
             return biome;
+
         return ((BiomeSelector) ReflectHelper.getField(self, "selector")).pickBiome(x, z);
     }
 

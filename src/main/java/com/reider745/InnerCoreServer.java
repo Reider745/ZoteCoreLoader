@@ -1,13 +1,10 @@
 package com.reider745;
 
 import cn.nukkit.Server;
-import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginDescription;
-import cn.nukkit.plugin.PluginLoader;
 import cn.nukkit.plugin.PluginManager;
 
 import com.google.common.base.Preconditions;
-import com.koshakmine.antivpn.KoshakAntiVPN;
 import com.reider745.api.CallbackHelper;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
@@ -23,7 +20,6 @@ import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkConfig;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
@@ -51,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -299,21 +294,6 @@ public class InnerCoreServer {
     }
 
     public void afterload() {
-        if(getPropertyBoolean("KoshakAntiVPN", true)){
-            HashMap<String, Object> description = new HashMap<>();
-            description.put("name", "KoshakAntiVPN");
-            description.put("version", "SNAPSHOT");
-            description.put("main", InnerCorePlugin.class.getName());
-            description.put("api", new ArrayList<String>());
-
-            final File dataFolderFile = new File(dataPath);
-            KoshakAntiVPN koshakAntiVPN = new KoshakAntiVPN();
-            koshakAntiVPN.init(null, Server.getInstance(), new PluginDescription(description), dataFolderFile, dataFolderFile);
-            koshakAntiVPN.saveDefaultConfig();
-            koshakAntiVPN.onLoad();
-            koshakAntiVPN.setEnabled();
-        }
-
         Server.getInstance().getLogger().info("Registering Nukkit-MOT containment...");
         PluginManager pluginManager = Server.getInstance().getPluginManager();
         pluginManager.getPlugins().put(plugin.getDescription().getName(), plugin);
