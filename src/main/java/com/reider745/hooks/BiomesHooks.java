@@ -37,12 +37,11 @@ public class BiomesHooks implements HookClass {
         String name = field.getName();
         if (name.equals("biomes")) {
             field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
-
         }
     }
 
     public static void init() throws NoSuchFieldException {
-        ReflectHelper.setField(Biome.class, "biomes", new Biome[MAX_ID]);
+        //ReflectHelper.setField(Biome.class, "biomes", new Biome[MAX_ID]);
     }
 
     @Inject(className = "cn.nukkit.network.protocol.BiomeDefinitionListPacket", type = TypeHook.BEFORE_REPLACE)
