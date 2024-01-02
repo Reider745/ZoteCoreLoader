@@ -6,22 +6,24 @@ import com.reider745.api.CustomManager;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
 
-
 public class CustomItemsCommands extends Command {
     public CustomItemsCommands() {
-        super("custom_items", "get list custom items");
+        super("custom_items", "Gets list of defined custom items");
     }
 
     @Override
-    public boolean execute(CommandSender commandSender, String s, String[] strings) {
-        if(!commandSender.isOp()) return false;
+    public boolean execute(CommandSender commandSender, String commandLabel, String[] args) {
+        if (!commandSender.isOp())
+            return false;
 
-        String message = "===CustomItems===";
-        for(Integer id : CustomItem.items.keySet()) {
+        StringBuilder list = new StringBuilder();
+        for (Integer id : CustomItem.items.keySet()) {
             CustomManager manager = CustomItem.getItemManager(id);
-            message += "\n"+manager.get(ItemMethod.PropertiesNames.NAME)+", id: "+id+", texId: "+CustomItem.getTextIdForNumber(id);
+            list.append("\n" + manager.get(ItemMethod.PropertiesNames.NAME) + " -> " + id + " (textId="
+                    + CustomItem.getTextIdForNumber(id) + ")");
         }
-        commandSender.sendMessage(message);
+
+        commandSender.sendMessage("Custom items (" + CustomItem.items.size() + "):");
         return true;
     }
 }

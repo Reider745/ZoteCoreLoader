@@ -1,37 +1,47 @@
 package com.reider745.commands;
 
+import cn.nukkit.Player;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.command.data.CommandParamType;
-import cn.nukkit.command.data.CommandParameter;
-import com.reider745.block.BlockStateRegisters;
-import com.reider745.block.CustomBlock;
-import com.reider745.item.ItemMethod;
+import cn.nukkit.utils.TextFormat;
+
+import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
+import com.zhekasmirnov.apparatus.multiplayer.server.ModdedServer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class InnerCoreNetworkCommand extends Command {
     public InnerCoreNetworkCommand() {
-        super("inner_core_network", "debug network command");
+        super("inner_core_network", "Returns connected and initializing clients");
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        if(!commandSender.isOp()) return false;
+        if (!commandSender.isOp())
+            return false;
 
-        StringBuilder message = new StringBuilder("===Network===");
-        List<ConnectedClient> clients = Network.getSingleton().getServer().getConnectedClients();
-        for(ConnectedClient client : clients)
-            message.append("\n"+client.getPlayerUid()+" "+client.getClientState().name());
+        StringBuilder list = new StringBuilder();
+        ModdedServer server = Network.getSingleton().getServer();
+        ArrayList<ConnectedClient> clients = new ArrayList<>();
+        clients.addAll(server.getInitializingClients());
+        clients.addAll(server.getConnectedClients());
 
-        clients = Network.getSingleton().getServer().getInitializingClients();
-        for(ConnectedClient client : clients)
-            message.append("\n"+client.getPlayerUid()+" "+client.getClientState().name());
+        for (ConnectedClient client : clients) {
+            list.append("\n");
+            switch (client.getClientState()) {
+                case OPEN -> list.append(TextFormat.GREEN);
+                case CREATED, INITIALIZING -> list.append(TextFormat.YELLOW);
+                case INIT_FAILED, CLOSED -> list.append(TextFormat.RED);
+            }
+            Player player = EntityMethod.getPlayerById(client.getPlayerUid());
+            list.append("\n" + (player != null ? player.getName() : "...") + " -> " + client.getPlayerUid()
+                    + " (state=" + client.getClientState().toString() + ", protocolId="
+                    + client.getChannelInterface().getChannel().getProtocolId() + ")");
+        }
 
-        commandSender.sendMessage(message.toString());
+        commandSender.sendMessage("Clients (" + clients.size() + "):" + list.toString());
         return true;
     }
 }
