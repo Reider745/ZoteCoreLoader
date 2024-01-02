@@ -187,7 +187,7 @@ public class NativeAPI {
     }
 
     public static void dealDamage(long unwrapEntity, int damage, int cause, long l, boolean b1, boolean b2) {
-        EntityMethod.dealDamage(unwrapEntity, damage, l, b1, b2);
+        EntityMethod.dealDamage(unwrapEntity, damage, cause, l, b1, b2);
     }
 
     public static void destroyBlock(int x, int y, int z, boolean drop) {
@@ -324,8 +324,7 @@ public class NativeAPI {
     }
 
     public static String getEntityTypeName(long entity) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityTypeName(entity)");
-        return "";
+        return EntityMethod.getEntityTypeName(entity);
     }
 
     @Deprecated
@@ -553,7 +552,7 @@ public class NativeAPI {
     }
 
     public static boolean isValidEntity(long entity) {
-        return EntityMethod.isValidEntity(entity);
+        return EntityMethod.isValid(EntityMethod.getEntityById(entity));
     }
 
     @Deprecated

@@ -201,7 +201,7 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
 
-            final Player player = EntityMethod.getPlayerToLong(playerUid);
+            final Player player = EntityMethod.getPlayerById(playerUid);
             if(player != null)
                 player.kick();
             else
@@ -216,7 +216,7 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
 
-            final Player player = EntityMethod.getPlayerToLong(playerUid);
+            final Player player = EntityMethod.getPlayerById(playerUid);
             if(player != null)
                 player.kick();
             else

@@ -4,402 +4,396 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.BaseEntity;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityAgeable;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.entity.EntityRideable;
 import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.entity.projectile.EntityProjectile;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
-import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
+import cn.nukkit.utils.Identifier;
+
 import com.reider745.api.ReflectHelper;
+import com.reider745.event.EventListener;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
-import io.netty.util.collection.LongObjectHashMap;
+import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 
-import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class EntityMethod {
-    public static Entity getEntityToLong(long ent){
-        for (Level level : Server.getInstance().getLevels().values())
-            for (Entity entity : level.getEntities())
-                if(entity.getId() == ent)
-                    return entity;
+
+    public static Entity getEntityById(long entityUid) {
+        Map<Integer, Level> levels = Server.getInstance().getLevels();
+        for (Level level : levels.values()) {
+            Entity entity = level.getEntity(entityUid);
+            if (entity != null) {
+                return entity;
+            }
+        }
         return null;
     }
 
-    public static Player getPlayerToLong(long ent){
-        for (Level level : Server.getInstance().getLevels().values())
-            for (Player entity : level.getPlayers().values())
-                if(entity.getId() == ent)
-                    return entity;
+    public static Player getPlayerById(long entityUid) {
+        Map<Integer, Level> levels = Server.getInstance().getLevels();
+        for (Level level : levels.values()) {
+            Map<Long, Player> players = level.getPlayers();
+            Player player = players.containsKey(entityUid) ? players.get(entityUid) : null;
+            if (player != null) {
+                return player;
+            }
+        }
         return null;
     }
 
-    public static EntityHuman getEntityHumanToLong(long ent){
-        for (Level level : Server.getInstance().getLevels().values())
-            for (Entity entity : level.getEntities())
-                if(entity.getId() == ent && entity instanceof EntityHuman)
-                    return (EntityHuman) entity;
-        return null;
+    public static boolean isValid(Entity entity) {
+        return entity != null && entity.isValid() && !entity.isClosed();
     }
 
-    public static int getEntityDimension(long entity){
-        Entity ent = getEntityToLong(entity);
-        if(ent != null)
-            return ent.getLevel().getDimension();
-        return -1;
+    private static <T> T validateThen(long entityUid, Function<Entity, T> then, T defaultValue) {
+        Entity entity = getEntityById(entityUid);
+        if (isValid(entity)) {
+            return then.apply(entity);
+        }
+        return defaultValue;
     }
 
-    public static void getPosition(long entity, float[] pos){
-        Entity ent = getEntityToLong(entity);
-        if(ent == null) return;
-        Position position = ent.getPosition();
-        pos[0] = (float) position.x;
-        pos[1] = (float) position.y;
-        pos[2] = (float) position.z;
-    }
-
-    public static void setPosition(long entity, float x, float y, float z){
-        Entity ent = getEntityToLong(entity);
-        if(ent == null) return;
-        ent.setPosition(new Vector3(x, y, z));
-    }
-
-    public static void setPositionAxis(long entity, float axis, float val){
-        Entity ent = getEntityToLong(entity);
-        if(ent == null) return;
-
-    }
-
-
-    public static int getHealth(long entity){
-        Entity ent = getEntityToLong(entity);
-        if(ent != null)
-            return (int) ent.getHealth();
-        return 0;
-    }
-
-    public static int getMaxHealth(long entity){
-        Entity ent = getEntityToLong(entity);
-        if(ent != null)
-            return ent.getMaxHealth();
-        return 0;
-    }
-
-    private static Item validItem(Item item){
-        if(item == null)
-            return Item.get(0).clone();
-        return item;
-    }
-
-    public static Item getEntityCarriedItem(long entity){
-        EntityHuman ent = getEntityHumanToLong(entity);
-        if(ent == null)
-            return Item.get(0).clone();
-        return validItem(ent.getInventory().getItemInHand());
-    }
-
-    public static Item getEntityOffhandItem(long entity){
-        EntityHuman ent = getEntityHumanToLong(entity);
-        if(ent == null) return Item.get(0).clone();
-        return ent.getOffhandInventory().getItem(0);
-    }
-    public static Item getEntityArmor(long entity, int armor){
-        EntityHuman ent = getEntityHumanToLong(entity);
-        if(ent == null) return Item.get(0).clone();
-        return ent.getInventory().getArmorItem(armor);
-    }
-
-    public static void setEntityArmor(long entity, int slot, int id, int count, int data, long extra){
-        EntityHuman ent = getEntityHumanToLong(entity);
-        if(ent == null) return;
-        ent.getInventory().setArmorItem(slot, ItemUtils.get(id, count, data, extra));
-    }
-
-    public static boolean isValidEntity(long ent){
-        for (Level level : Server.getInstance().getLevels().values())
-            for (Entity entity : level.getEntities())
-                if(entity.getId() == ent)
-                    return true;
-        return false;
-    }
-
-    public static void setHealth(long unwrapEntity, int health) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            ent.setHealth(health);
-    }
-
-    public static void setMaxHealth(long unwrapEntity, int health) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            ent.setMaxHealth(health);
-    }
-
-    public static int getFireTicks(long unwrapEntity) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            return 0;
-        return 0;
-    }
-
-    public static void setFireTicks(long unwrapEntity, int ticks, boolean force) {
-    }
-
-    public static boolean isImmobile(long unwrapEntity) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            return ent.isImmobile();
-        return false;
-    }
-
-    public static void setImmobile(long unwrapEntity, boolean val) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            ent.setImmobile(val);
-    }
-
-    public static boolean isSneaking(long unwrapEntity) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            return ent.isSneaking();
-        return false;
-    }
-
-    public static void setSneaking(long unwrapEntity, boolean val) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            ent.setSneaking(val);
-    }
-
-    public static String getNameTag(long unwrapEntity) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            return ent.getNameTag();
-        return "";
-    }
-
-    public static void setNameTag(long unwrapEntity, String tag) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent != null)
-            ent.setNameTag(tag);
-    }
-
-    public static Item getItemFromDrop(long unwrapEntity) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent instanceof EntityItem entItem)
-            return entItem.getItem();
-        return Item.get(0).clone();
-    }
-
-    public static Item getItemFromProjectile(long unwrapEntity) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent instanceof EntityProjectile entItem)
-            return NBTIO.getItemHelper(entItem.namedTag.getCompound("ItemIc"));
-        return Item.get(0).clone();
-    }
-
-    public static void setItemToDrop(long unwrapEntity, int id, int count, int data, long unwrapValue) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent instanceof EntityItem entItem)
-            ReflectHelper.setField(entItem, "item", ItemUtils.get(id, count, data, unwrapValue));
-    }
-
-    public static void setEntityCarriedItem(long unwrapEntity, int id, int count, int data, long unwrapValue) {
-        EntityHuman ent = getEntityHumanToLong(unwrapEntity);
-        if(ent != null)
-            ent.getInventory().setItemInHand(ItemUtils.get(id, count, data, unwrapValue));
-    }
-
-    public static void setEntityOffhandItem(long unwrapEntity, int id, int count, int data, long unwrapValue) {
-        EntityHuman ent = getEntityHumanToLong(unwrapEntity);
-        if(ent != null)
-            ent.getOffhandInventory().setItem(0, ItemUtils.get(id, count, data, unwrapValue));
-    }
-
-    public static void removeEntity(long unwrapEntity) {
-        for (Level level : Server.getInstance().getLevels().values())
-            for (Entity entity : level.getEntities())
-                if(entity.getId() == unwrapEntity)
-                    level.removeEntity(entity);
-    }
-
-    public static void addEffect(long unwrapEntity, int effect, int duration, int level, boolean b1, boolean b2, boolean effectAnimation) {
-        EntityHuman ent = getEntityHumanToLong(unwrapEntity);
-        if(ent != null) {
-            Effect effectInstance = Effect.getEffect(effect).clone();
-            effectInstance.setDuration(duration);
-            effectInstance.setAmplifier(level);
-            effectInstance.setAmbient(b1);
-            effectInstance.setVisible(b2);
-            ent.addEffect(effectInstance);
+    private static void validateThen(long entityUid, Consumer<Entity> then) {
+        Entity entity = getEntityById(entityUid);
+        if (isValid(entity)) {
+            then.accept(entity);
         }
     }
 
-    public static int getEffectLevel(long unwrapEntity, int effect) {
-        EntityHuman ent = getEntityHumanToLong(unwrapEntity);
-        if(ent != null) {
-            Effect effectInstance = ent.getEffect(effect);
-            if(effectInstance != null)
-                return effectInstance.getAmplifier();
-        }
-        return 0;
+    public static int getEntityDimension(long entityUid) {
+        return validateThen(entityUid, entity -> entity.getLevel().getDimension(), -1);
     }
 
-    public static int getEffectDuration(long unwrapEntity, int effect) {
-        EntityHuman ent = getEntityHumanToLong(unwrapEntity);
-        if(ent != null) {
-            Effect effectInstance = ent.getEffect(effect);
-            if(effectInstance != null)
-                return effectInstance.getDuration();
-        }
-        return 0;
+    public static void getPosition(long entityUid, float[] position) {
+        validateThen(entityUid, entity -> {
+            Position entityPosition = entity.getPosition();
+            position[0] = (float) entityPosition.x;
+            position[1] = (float) entityPosition.y;
+            position[2] = (float) entityPosition.z;
+        });
     }
 
-    public static void removeEffect(long unwrapEntity, int effect) {
-        EntityHuman ent = getEntityHumanToLong(unwrapEntity);
-        if(ent != null)
-            ent.removeEffect(effect);
+    public static void setPosition(long entityUid, float x, float y, float z) {
+        validateThen(entityUid, entity -> entity.setPosition(new Vector3(x, y, z)));
     }
 
-    public static void removeAllEffects(long unwrapEntity) {
-        EntityHuman ent = getEntityHumanToLong(unwrapEntity);
-        if(ent != null)
-            ent.removeAllEffects();
+    public static void setPositionAxis(long entityUid, int axis, float val) {
+        validateThen(entityUid, entity -> {
+            switch (axis) {
+                case 0 -> entity.setPosition(new Vector3(val, entity.y, entity.x));
+                case 1 -> entity.setPosition(new Vector3(entity.x, val, entity.x));
+                case 2 -> entity.setPosition(new Vector3(entity.x, entity.y, val));
+            }
+        });
     }
 
-    public static void rideAnimal(long unwrapEntity, long unwrapEntity1) {
-        Entity ent = getEntityToLong(unwrapEntity);
-        if(ent instanceof EntityRideable rideable)
-            rideable.mountEntity(getEntityToLong(unwrapEntity1));
+    public static int getHealth(long entityUid) {
+        return validateThen(entityUid, entity -> (int) entity.getHealth(), -1);
     }
 
-    public static long getRider(long unwrapEntity) {
-        return 0;
+    public static int getMaxHealth(long entityUid) {
+        return validateThen(entityUid, entity -> entity.getMaxHealth(), -1);
     }
 
-    public static long getRiding(long unwrapEntity) {
-        return 0;
+    public static Item getEntityCarriedItem(long entityUid) {
+        // TODO: Human actually player, there is no way to check/replace
+        // TODO: regular entity, properties hardcoded at spawn.
+        Item item = validateThen(entityUid,
+                entity -> entity instanceof EntityHuman human ? human.getInventory().getItemInHand() : null, null);
+        return item != null ? item : Item.AIR_ITEM.clone();
     }
 
-    public static long getTarget(long unwrapEntity) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity instanceof BaseEntity base)
-            return base.getTarget().getId();
-        return 0;
+    public static Item getEntityOffhandItem(long entityUid) {
+        // TODO: Human actually player, there is no way to check/replace
+        // TODO: regular entity, properties hardcoded at spawn.
+        Item item = validateThen(entityUid,
+                entity -> entity instanceof EntityHuman human ? human.getOffhandInventory().getItem(0) : null, null);
+        return item != null ? item : Item.AIR_ITEM.clone();
     }
 
-    public static void setTarget(long unwrapEntity, long unwrapEntity1) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity instanceof BaseEntity base)
-            base.setTarget(getEntityToLong(unwrapEntity1));
+    public static Item getEntityArmor(long entityUid, int slot) {
+        // TODO: Human actually player, there is no way to check/replace
+        // TODO: regular entity, properties hardcoded at spawn.
+        Item item = validateThen(entityUid,
+                entity -> entity instanceof EntityHuman human ? human.getInventory().getArmorItem(slot) : null, null);
+        return item != null ? item : Item.AIR_ITEM.clone();
     }
 
-    public static int getEntityType(long unwrapEntity) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            return entity.getNetworkId();
-        return -1;
+    public static void setEntityCarriedItem(long entityUid, int id, int count, int data, long extra) {
+        // TODO: Human actually player, there is no way to check/replace
+        // TODO: regular entity, properties hardcoded at spawn.
+        validateThen(entityUid, entity -> {
+            if (entity instanceof EntityHuman human) {
+                human.getInventory().setItemInHand(ItemUtils.get(id, count, data, extra));
+            }
+        });
     }
 
-    public static CompoundTag getEntityCompoundTag(long unwrapEntity) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            return entity.namedTag;
-        return null;
+    public static void setEntityOffhandItem(long entityUid, int id, int count, int data, long extra) {
+        // TODO: Human actually player, there is no way to check/replace
+        // TODO: regular entity, properties hardcoded at spawn.
+        validateThen(entityUid, entity -> {
+            if (entity instanceof EntityHuman human) {
+                human.getOffhandInventory().setItem(0, ItemUtils.get(id, count, data, extra));
+            }
+        });
     }
 
-    public static void setEntityCompoundTag(long unwrapEntity, CompoundTag pointer) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            entity.namedTag = pointer;
+    public static void setEntityArmor(long entityUid, int slot, int id, int count, int data, long extra) {
+        // TODO: Human actually player, there is no way to check/replace
+        // TODO: regular entity, properties hardcoded at spawn.
+        validateThen(entityUid, entity -> {
+            if (entity instanceof EntityHuman human) {
+                human.getInventory().setArmorItem(slot, ItemUtils.get(id, count, data, extra));
+            }
+        });
     }
 
-    public static void getRotation(long unwrapEntity, float[] pos) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null){
+    public static void setHealth(long entityUid, int health) {
+        validateThen(entityUid, entity -> entity.setHealth(health));
+    }
+
+    public static void setMaxHealth(long entityUid, int health) {
+        validateThen(entityUid, entity -> entity.setMaxHealth(health));
+    }
+
+    public static int getFireTicks(long entityUid) {
+        return validateThen(entityUid, entity -> entity.fireTicks, -1);
+    }
+
+    public static void setFireTicks(long entityUid, int ticks, boolean force) {
+        validateThen(entityUid, entity -> {
+            entity.fireTicks = ticks;
+            if (ticks <= 0 && force) {
+                entity.extinguish();
+            }
+        });
+    }
+
+    public static boolean isImmobile(long entityUid) {
+        return validateThen(entityUid, entity -> entity.isImmobile(), false);
+    }
+
+    public static void setImmobile(long entityUid, boolean val) {
+        validateThen(entityUid, entity -> entity.setImmobile(val));
+    }
+
+    public static boolean isSneaking(long entityUid) {
+        return validateThen(entityUid, entity -> entity.isSneaking(), false);
+    }
+
+    public static void setSneaking(long entityUid, boolean val) {
+        validateThen(entityUid, entity -> entity.setSneaking(val));
+    }
+
+    public static String getNameTag(long entityUid) {
+        return validateThen(entityUid, entity -> entity.getNameTag(), "");
+    }
+
+    public static void setNameTag(long entityUid, String tag) {
+        validateThen(entityUid, entity -> entity.setNameTag(tag));
+    }
+
+    public static Item getItemFromDrop(long entityUid) {
+        Item item = validateThen(entityUid, entity -> entity instanceof EntityItem drop ? drop.getItem() : null, null);
+        return item != null ? item.clone() : Item.AIR_ITEM.clone();
+    }
+
+    public static Item getItemFromProjectile(long entityUid) {
+        Item item = validateThen(entityUid,
+                entity -> entity instanceof EntityProjectile projectile
+                        ? NBTIO.getItemHelper(projectile.namedTag.getCompound("ItemIc"))
+                        : null,
+                null);
+        return item != null ? item : Item.AIR_ITEM.clone();
+    }
+
+    public static void setItemToDrop(long entityUid, int id, int count, int data, long extra) {
+        // TODO: It will actually doesn't update item, hardcode again.
+        validateThen(entityUid, entity -> {
+            if (entity instanceof EntityItem drop) {
+                ReflectHelper.setField(drop, "item", ItemUtils.get(id, count, data, extra));
+            }
+        });
+    }
+
+    public static void removeEntity(long entityUid) {
+        validateThen(entityUid, entity -> entity.getLevel().removeEntity(entity));
+    }
+
+    public static void addEffect(long entityUid, int effectId, int duration, int level, boolean b1, boolean b2,
+            boolean effectAnimation) {
+        validateThen(entityUid, entity -> entity.addEffect(
+                Effect.getEffect(effectId).setDuration(duration).setAmplifier(level).setAmbient(b1).setVisible(b2)));
+    }
+
+    public static int getEffectLevel(long entityUid, int effectId) {
+        return validateThen(entityUid, entity -> {
+            Effect effect = entity.getEffect(effectId);
+            return effect != null ? effect.getAmplifier() : 0;
+        }, -1);
+    }
+
+    public static int getEffectDuration(long entityUid, int effectId) {
+        return validateThen(entityUid, entity -> {
+            Effect effect = entity.getEffect(effectId);
+            return effect != null ? effect.getDuration() : 0;
+        }, -1);
+    }
+
+    public static void removeEffect(long entityUid, int effectId) {
+        validateThen(entityUid, entity -> entity.removeEffect(effectId));
+    }
+
+    public static void removeAllEffects(long entityUid) {
+        validateThen(entityUid, entity -> entity.removeAllEffects());
+    }
+
+    public static void rideAnimal(long entityUid, long riderUid) {
+        validateThen(entityUid, entity -> {
+            if (entity instanceof EntityRideable rideable) {
+                validateThen(riderUid, rider -> rideable.mountEntity(rider));
+            }
+        });
+    }
+
+    public static long getRider(long entityUid) {
+        Entity passenger = validateThen(entityUid, entity -> entity.getPassenger(), null);
+        return passenger != null ? passenger.getId() : -1;
+    }
+
+    public static long getRiding(long entityUid) {
+        Entity riding = validateThen(entityUid, entity -> entity.getRiding(), null);
+        return riding != null ? riding.getId() : -1;
+    }
+
+    public static long getTarget(long entityUid) {
+        Entity target = validateThen(entityUid,
+                entity -> entity instanceof BaseEntity attacker ? attacker.getTarget() : null, null);
+        return target != null ? target.getId() : -1;
+    }
+
+    public static void setTarget(long entityUid, long targetUid) {
+        validateThen(entityUid, entity -> {
+            if (entity instanceof BaseEntity attacker) {
+                validateThen(targetUid, target -> attacker.setTarget(target));
+            }
+        });
+    }
+
+    public static int getEntityType(long entityUid) {
+        return validateThen(entityUid, entity -> {
+            int networkId = entity.getNetworkId();
+            if (networkId == -1) {
+                Identifier identifier = entity.getIdentifier();
+                if (identifier != null) {
+                    networkId = GameEnums.getInt(GameEnums.getSingleton().getEnum("entity_type", identifier.getPath()));
+                }
+            }
+            return networkId;
+        }, -1);
+    }
+
+    public static String getEntityTypeName(long entityUid) {
+        return validateThen(entityUid, entity -> {
+            Identifier identifier = entity.getIdentifier();
+            return identifier != null ? identifier + "<>" : null;
+        }, null);
+    }
+
+    public static CompoundTag getEntityCompoundTag(long entityUid) {
+        return validateThen(entityUid, entity -> entity.namedTag, null);
+    }
+
+    public static void setEntityCompoundTag(long entityUid, CompoundTag tag) {
+        // TODO: Update properties, which also not implemented in
+        // TODO: Nukkit-MOT, use Entity.init(chunk, nbt) for example.
+        validateThen(entityUid, entity -> entity.namedTag = tag);
+    }
+
+    public static void getRotation(long entityUid, float[] pos) {
+        validateThen(entityUid, entity -> {
             pos[0] = (float) entity.getYaw();
             pos[1] = (float) entity.getPitch();
-        }
+        });
     }
 
-    public static void setRotation(long unwrapEntity, float x, float y) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            entity.setRotation(x, y);
+    public static void setRotation(long entityUid, float x, float y) {
+        validateThen(entityUid, entity -> entity.setRotation(x, y));
     }
 
-    public static void getVelocity(long unwrapEntity, float[] pos) {
-        final Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null){
-            final double[] velocity = EntityMotion.getVelocity(entity);
-
-            pos[0] = (float) velocity[0];
-            pos[1] = (float) velocity[1];
-            pos[2] = (float) velocity[2];
-
-            System.out.println(Arrays.toString(pos));
-        }
+    public static void getVelocity(long entityUid, float[] velocity) {
+        validateThen(entityUid, entity -> {
+            final double[] entityOffset = EntityMotion.getVelocity(entity);
+            velocity[0] = (float) entityOffset[0];
+            velocity[1] = (float) entityOffset[1];
+            velocity[2] = (float) entityOffset[2];
+        });
     }
 
-    public static void setVelocity(long unwrapEntity, float x, float y, float z) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            entity.setMotion(new Vector3(x, y, z));
+    public static void setVelocity(long entityUid, float x, float y, float z) {
+        validateThen(entityUid, entity -> entity.setMotion(new Vector3(x, y, z)));
     }
 
-    public static int getAge(long unwrapEntity) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            return entity.age;
-        return 0;
+    public static int getAge(long entityUid) {
+        return validateThen(entityUid,
+                entity -> entity instanceof EntityAgeable ageable && ageable.isBaby() ? entity.age : 0, null);
     }
 
-    public static void setAge(long unwrapEntity, int age) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            entity.age = age;
+    public static void setAge(long entityUid, int age) {
+        validateThen(entityUid, entity -> {
+            if (entity instanceof EntityAgeable ageable) {
+                entity.age = age;
+                ageable.setBaby(age > 0);
+            }
+        });
     }
 
-    public static void setCollisionSize(long unwrapEntity, float w, float h) {
-
-
+    public static void setCollisionSize(long entityUid, float w, float h) {
+        // TODO: Nukkit-MOT hardcoded getWidth() and getHeight().
     }
 
-    public static void dealDamage(long unwrapEntity, int damage, long l, boolean b1, boolean b2) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null){
-            if(l == -1)
-                entity.attack(new EntityDamageEvent(entity, EntityDamageEvent.DamageCause.MAGIC, damage));
-            else
-                entity.attack(damage);
-        }
+    public static void dealDamage(long entityUid, int damage, int cause, long attackerUid, boolean b1, boolean b2) {
+        validateThen(entityUid, entity -> {
+            Entity attacker = getEntityById(attackerUid);
+            if (isValid(attacker)) {
+                entity.attack(new EntityDamageByEntityEvent(attacker, entity,
+                        EventListener.convertEnumToDamageCause(cause), damage));
+            } else {
+                entity.attack(new EntityDamageEvent(entity, EventListener.convertEnumToDamageCause(cause), damage));
+            }
+        });
     }
 
-    public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side, float vx, float vy, float vz, long unwrapEntity) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            entity.getLevel().useItemOn(new Vector3(x, y, z), ItemUtils.get(id, count, data, unwrapValue), BlockFace.fromHorizontalIndex(side), vx, vy, vz, (Player) entity);
+    public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side,
+            float vx, float vy, float vz, long entityUid) {
+        validateThen(entityUid,
+                entity -> entity.getLevel().useItemOn(new Vector3(x, y, z), ItemUtils.get(id, count, data, unwrapValue),
+                        BlockFace.fromHorizontalIndex(side), vx, vy, vz, (Player) entity));
     }
 
-    public static void transferToDimension(long unwrapEntity, int dimension) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity != null)
-            entity.teleport(Location.fromObject(entity.getPosition(), BlockSourceMethods.getLevelForDimension(dimension)));
+    public static void transferToDimension(long entityUid, int dimension) {
+        validateThen(entityUid, entity -> entity
+                .setPosition(entity.getPosition().setLevel(BlockSourceMethods.getLevelForDimension(dimension))));
     }
 
-    public static int getExperienceOrbValue(long unwrapEntity) {
-        Entity entity = getEntityToLong(unwrapEntity);
-        if(entity instanceof EntityXPOrb xp)
-            return xp.getExp();
-        return 0;
+    public static int getExperienceOrbValue(long entityUid) {
+        return validateThen(entityUid, entity -> entity instanceof EntityXPOrb orb ? orb.getExp() : 0, -1);
     }
 }

@@ -31,7 +31,7 @@ public class PlayerActorMethods {
     }
 
     public static boolean isValid(Player player, boolean checkOnline) {
-        if (player == null || !player.isValid()) {
+        if (!EntityMethod.isValid(player)) {
             return false;
         }
         if (checkOnline) {

@@ -1,7 +1,6 @@
 package com.reider745.event;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;
@@ -29,7 +28,6 @@ import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
-import cn.nukkit.level.biome.Biome;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 
@@ -163,7 +161,7 @@ public class EventListener implements Listener {
         NativeCallback.onEntityRemoved(entity.getId());
     }
 
-    private static int convertDamageCauseToEnum(DamageCause cause) {
+    public static int convertDamageCauseToEnum(DamageCause cause) {
         return switch (cause) {
             case CONTACT -> 1;
             case ENTITY_ATTACK -> 2;
@@ -184,6 +182,30 @@ public class EventListener implements Listener {
             case MAGMA -> 22;
             case LIGHTNING -> 24;
             default -> 0;
+        };
+    }
+
+    public static DamageCause convertEnumToDamageCause(int cause) {
+        return switch (cause) {
+            case 1 -> DamageCause.CONTACT;
+            case 2 -> DamageCause.ENTITY_ATTACK;
+            case 4 -> DamageCause.SUFFOCATION;
+            case 5 -> DamageCause.FALL;
+            case 6 -> DamageCause.HOT_FLOOR;
+            case 7 -> DamageCause.FIRE_TICK;
+            case 8 -> DamageCause.LAVA;
+            case 9 -> DamageCause.DROWNING;
+            case 10 -> DamageCause.BLOCK_EXPLOSION;
+            case 11 -> DamageCause.ENTITY_EXPLOSION;
+            case 12 -> DamageCause.VOID;
+            case 13 -> DamageCause.CUSTOM;
+            case 14 -> DamageCause.MAGIC;
+            case 16 -> DamageCause.HUNGER;
+            case 18 -> DamageCause.THORNS;
+            case 19 -> DamageCause.PROJECTILE;
+            case 22 -> DamageCause.MAGMA;
+            case 24 -> DamageCause.LIGHTNING;
+            default -> DamageCause.SUICIDE;
         };
     }
 
