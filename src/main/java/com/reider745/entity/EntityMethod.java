@@ -27,6 +27,7 @@ import com.reider745.event.EventListener;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
+import com.zhekasmirnov.innercore.api.constants.EntityType;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -301,9 +302,14 @@ public class EntityMethod {
         return validateThen(entityUid, entity -> {
             int networkId = entity.getNetworkId();
             if (networkId == -1) {
-                Identifier identifier = entity.getIdentifier();
-                if (identifier != null) {
-                    networkId = GameEnums.getInt(GameEnums.getSingleton().getEnum("entity_type", identifier.getPath()));
+                if (entity.isPlayer) {
+                    networkId = EntityType.PLAYER;
+                }
+                if (networkId == -1) {
+                    Identifier identifier = entity.getIdentifier();
+                    if (identifier != null) {
+                        networkId = GameEnums.getInt(GameEnums.getSingleton().getEnum("entity_type", identifier.getPath()));
+                    }
                 }
             }
             return networkId;
@@ -313,6 +319,9 @@ public class EntityMethod {
     public static String getEntityTypeName(long entityUid) {
         return validateThen(entityUid, entity -> {
             Identifier identifier = entity.getIdentifier();
+            if (identifier == null && entity.isPlayer) {
+                identifier = Identifier.of("minecraft", "player");
+            }
             return identifier != null ? identifier + "<>" : null;
         }, null);
     }

@@ -11,7 +11,6 @@ import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
 import com.reider745.hooks.BiomesHooks;
-import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
@@ -300,7 +299,7 @@ public class InnerCoreServer {
 
         Logger.info("Registering ZoteCore events...");
         pluginManager.registerEvents(new EventListener(), plugin);
-        pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
+        // pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
 
         CustomBlock.init();
         CustomItem.postInit();
@@ -319,7 +318,7 @@ public class InnerCoreServer {
         PluginManager pluginManager = Server.getInstance().getPluginManager();
         pluginManager.getPlugins().put(plugin.getDescription().getName(), plugin);
         pluginManager.registerEvents(new EventListener(), plugin);
-        pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
+        // pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
     }
 
     public void start() {
@@ -448,11 +447,11 @@ public class InnerCoreServer {
     }
 
     public static String getVersionName() {
-        return singleton.getPropertyString("pack-version", "2.3.1b116 test");
+        return singleton.getPropertyString("pack-version", "2.3.1b115 test");
     }
 
     public static int getVersionCode() {
-        return singleton.getPropertyInt("pack-version-code", 153);
+        return singleton.getPropertyInt("pack-version-code", 152);
     }
 
     private static void handleUnsupportedMethod(String message) {

@@ -75,11 +75,11 @@ public class Main {
         loader.registerHooksInitializationForClass(LevelHooks.class);
         loader.registerHooksInitializationForClass(ItemUtils.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
-        //loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
-        //loader.registerHooksInitializationForClass(BiomesHooks.class);
+        // loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
+        // loader.registerHooksInitializationForClass(BiomesHooks.class);
         loader.registerHooksInitializationForClass(GlobalBanList.class);
 
-        //bug fix
+        // bug fix
         loader.registerHooksInitializationForClass(EntityItemHooks.class);
 
         loader.init();
