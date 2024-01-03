@@ -13,6 +13,8 @@ import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItem;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -65,10 +67,15 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     public static void init(){
         blocks.forEach((id, value) -> {
-            CustomManager manager = getBlockManager(id);
-            ArrayList<String> variants = getVariants(manager);
-            for(int data = 0;data < variants.size();data++)
-                registerBlock(id, data, new CustomBlock(id, data, manager, variants.get(data)));
+            final CustomManager manager = getBlockManager(id);
+            final ArrayList<String> variants = getVariants(manager);
+            try {
+                final Constructor<?> constructor = manager.getClazz().getDeclaredConstructor(int.class, int.class, CustomManager.class, String.class);
+                for(int data = 0;data < variants.size();data++)
+                    registerBlock(id, data, (Block) constructor.newInstance(id, data, manager, variants.get(data)));
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -119,6 +126,13 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     public static CustomManager registerBlock(String textId, int id, String name){
         return registerBlock(textId, id, name, CustomBlock.class);
+    }
+
+    public static CustomManager registerBlock(String textId, int id, String name, int tick_rate, boolean isRenewable){
+        CustomManager manager = registerBlock(textId, id, name, CustomBlockLiquid.class);
+        manager.put("tick_rate", tick_rate);
+        manager.put("isRenewable", isRenewable);
+        return manager;
     }
 
     private CustomManager manager;

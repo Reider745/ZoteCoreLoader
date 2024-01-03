@@ -4,6 +4,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.BlockMethods;
 import com.reider745.block.CustomBlock;
+import com.reider745.block.CustomBlockLiquid;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
@@ -70,8 +71,8 @@ public class NativeBlock {
     public static NativeBlock[] createLiquidBlock(int id1, String nameId1, int id2, String nameId2, String name,
             int materialBase, int tickDelay, boolean isRenewable) {
         name = NameTranslation.fixUnicodeIfRequired("block." + nameId1, name);
-        CustomManager liquidStill = CustomBlock.registerBlock(nameId1, id1, name);
-        CustomManager liquidFlowing = CustomBlock.registerBlock(nameId2, id2, name);
+        CustomManager liquidStill = CustomBlock.registerBlock(nameId1, id1, name, tickDelay, isRenewable);
+        CustomManager liquidFlowing = CustomBlock.registerBlock(nameId2, id2, name, tickDelay, isRenewable);
         return new NativeBlock[] { new NativeBlock(liquidStill, id1, nameId1, name),
                 new NativeBlock(liquidFlowing, id2, nameId2, name) };
     }
