@@ -36,15 +36,10 @@ public class BlockSourceMethods {
     }
 
     public static Level getLevelForDimension(int dimension) {
-        if (dimension >= 0 && dimension <= 2) {
-            return Server.getInstance().getLevelByName(switch (dimension) {
-                case 0 -> "world";
-                case 1 -> "nether";
-                case 2 -> "the_end";
-                default -> throw new UnsupportedOperationException();
-            });
-        }
-        return Server.getInstance().getLevel(dimension);
+        for(Level level : Server.getInstance().getLevels().values())
+            if (level.getDimension() == dimension)
+                return level;
+        return null;
     }
 
     public static void destroyBlock(Level pointer, int x, int y, int z, boolean drop, int updateType,

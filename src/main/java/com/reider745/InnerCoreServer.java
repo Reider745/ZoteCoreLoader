@@ -15,6 +15,7 @@ import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConvertor;
+import com.reider745.world.DimensionsMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkConfig;
@@ -207,6 +208,7 @@ public class InnerCoreServer {
 
         CallbackHelper.init();
         NukkitIdConvertor.init();
+        DimensionsMethods.init();
 
         HashMap<String, Object> description = new HashMap<>();
         description.put("name", "ZoteCore");

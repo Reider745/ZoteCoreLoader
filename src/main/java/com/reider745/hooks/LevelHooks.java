@@ -10,6 +10,7 @@ import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.format.generic.BaseLevelProvider;
 import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.level.particle.ItemBreakParticle;
 import cn.nukkit.math.BlockFace;
@@ -22,10 +23,12 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.event.EventListener;
+import com.reider745.world.DimensionsMethods;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Hooks(className = "cn.nukkit.level.Level")
@@ -190,5 +193,30 @@ public class LevelHooks implements HookClass {
         }
 
         return item;
+    }
+
+    @Inject(className = "cn.nukkit.level.EnumLevel")
+    public static void initLevels(){
+        DimensionsMethods.initLevels();
+    }
+
+    @Inject
+    public static void initLevel(Level level){
+        DimensionsMethods.initLevel(level);
+    }
+
+    @Inject(className = "cn.nukkit.level.format.generic.BaseLevelProvider")
+    public static Map<String, Object> getGeneratorOptions(BaseLevelProvider provider) {
+        return new HashMap<>() {
+            {
+                final String name = provider.getName();
+                put("preset", provider.getLevelData().getString("generatorOptions"));
+                DimensionsMethods.CustomDimensionDescription description = DimensionsMethods.descriptions.get(name);
+                if(description != null){
+                    put("id", description.getId());
+                    put("name", name);
+                }
+            }
+        };
     }
 }

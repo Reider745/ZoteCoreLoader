@@ -23,7 +23,7 @@ public class CustomItemsCommands extends Command {
                     + CustomItem.getTextIdForNumber(id) + ")");
         }
 
-        commandSender.sendMessage("Custom items (" + CustomItem.items.size() + "):");
+        commandSender.sendMessage("Custom items (" + CustomItem.items.size() + "):\n"+list);
         return true;
     }
 }
