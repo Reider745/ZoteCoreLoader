@@ -423,6 +423,10 @@ public class InnerCoreServer {
         return singleton.getPropertyBoolean("allow-unsafe-scripting", true);
     }
 
+    public static boolean isDebugInnerCoreNetwork(){
+        return singleton.getPropertyBoolean("network-debug", false);
+    }
+
     public static boolean isDeveloperMode() {
         return singleton.getPropertyBoolean("developer-mode", false);
     }

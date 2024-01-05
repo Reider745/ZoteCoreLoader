@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.multiplayer.socket;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannelFactory;
@@ -43,7 +44,8 @@ public class SocketServer {
                          continue;
                      }
 
-                     Logger.debug("New socket connection "+socket.getInetAddress());
+                     if(InnerCoreServer.isDebugInnerCoreNetwork())
+                        Logger.debug("New socket connection "+socket.getInetAddress());
 
                      try {
                          int protocol = socket.getInputStream().read();

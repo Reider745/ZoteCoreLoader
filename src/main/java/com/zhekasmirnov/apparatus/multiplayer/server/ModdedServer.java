@@ -1,6 +1,7 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import android.util.Pair;
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkConfig;
@@ -146,12 +147,16 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         }
 
         for (String name : initializationPacketListenerMap.keySet()) {
+            if(InnerCoreServer.isDebugInnerCoreNetwork())
+                Logger.debug("Initialization packet received "+name);
             for (ConnectedClient.InitializationPacketListener listener : initializationPacketListenerMap.get(name)) {
                 client.addInitializationPacketListener(name, listener);
             }
         }
 
         client.getChannelInterface().addListener((String name, Object data, Class<?> dataType) -> {
+            if(InnerCoreServer.isDebugInnerCoreNetwork())
+                Logger.debug("Packet received "+name);
             int separatorIndex = name.indexOf('#');
             String meta = null;
             if (separatorIndex != -1) {

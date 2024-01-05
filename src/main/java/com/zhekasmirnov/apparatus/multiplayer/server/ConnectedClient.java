@@ -196,6 +196,8 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     public void send(String name, Object data) {
         try{
+            if(InnerCoreServer.isDebugInnerCoreNetwork())
+                Logger.debug("Send packet "+name+", state: "+getClientState().name());
             if(!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed") || getClientState() == ClientState.OPEN))
                 channel.send(name, data);
         }catch (Throwable e){
@@ -211,7 +213,9 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     public<T> void send(String name, T data, Class<T> dataType) {
         try{
-            if(!channel.isClosed())
+            if(InnerCoreServer.isDebugInnerCoreNetwork())
+                Logger.debug("Send packet "+name+", state: "+getClientState().name());
+            if(!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed") || getClientState() == ClientState.OPEN))
                 channel.send(name, data, dataType);
         }catch (Throwable e){
             ICLog.e("Network", "error send "+playerUid, e);
