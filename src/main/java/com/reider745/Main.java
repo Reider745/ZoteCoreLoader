@@ -75,7 +75,11 @@ public class Main {
         loader.registerHooksInitializationForClass(LevelHooks.class);
         loader.registerHooksInitializationForClass(ItemUtils.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
-        // loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
+
+        for(String arg : args)
+            if(arg.equals("-snowfall_everywhere"))
+                loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
+
         // loader.registerHooksInitializationForClass(BiomesHooks.class);
         loader.registerHooksInitializationForClass(GlobalBanList.class);
 

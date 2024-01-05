@@ -43,9 +43,7 @@ public class GlobalBanList implements HookClass {
 
                 list = new JSONArray(result);
             }
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-        }
+        } catch (Exception ignored) {}
 
         final String[] banListGit = new String[list.length()];
         for(int i = 0;i < banListGit.length;i++)
@@ -55,12 +53,9 @@ public class GlobalBanList implements HookClass {
 
     @Inject
     public static boolean isBanned(BanList self, String name){
-        final String file = ReflectHelper.getField(self, "file");
-
-        if(file != null && file.endsWith("banned-ips.json"))
-            for(final String ip : banList)
-                if(ip.equals(name))
-                    return true;
+        for(final String ip : banList)
+            if(ip.equals(name))
+                return true;
 
         if (!self.isEnable() || name == null)
             return false;

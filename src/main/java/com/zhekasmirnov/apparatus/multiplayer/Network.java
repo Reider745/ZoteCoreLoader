@@ -187,7 +187,7 @@ public class Network {
         //shutdown();
 
         NativeNetworking.NetworkLoopHandler handler = new NativeNetworking.NetworkLoopHandler(
-                NativeNetworking.NetworkLoopHandler.GLOBAL_HANDLER | NativeNetworking.NetworkLoopHandler.SERVER_HANDLER | NativeNetworking.NetworkLoopHandler.CLIENT_HANDLER
+                NativeNetworking.NetworkLoopHandler.GLOBAL_HANDLER | NativeNetworking.NetworkLoopHandler.SERVER_HANDLER
         ).start();
 
         startServer(port);

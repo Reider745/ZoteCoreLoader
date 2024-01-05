@@ -43,6 +43,8 @@ public class SocketServer {
                          continue;
                      }
 
+                     Logger.debug("New socket connection "+socket.getInetAddress());
+
                      try {
                          int protocol = socket.getInputStream().read();
                          DataChannel channel = DataChannelFactory.newDataChannelViaSupportedProtocol(socket, protocol);
@@ -53,8 +55,7 @@ public class SocketServer {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            isRunning = false;
-                            return;
+                            continue;
                          }
 
                          boolean isChannelManaged = false;
@@ -70,7 +71,6 @@ public class SocketServer {
                          } catch (IOException e) {
                              e.printStackTrace();
                          }
-                         isRunning = false;
                      }
                  }
             }).start();
