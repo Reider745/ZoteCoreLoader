@@ -3,6 +3,8 @@ package com.reider745;
 import cn.nukkit.Server;
 import cn.nukkit.network.Network;
 
+import java.util.Arrays;
+
 import com.reider745.api.hooks.JarEditor;
 import com.reider745.hooks.*;
 import com.reider745.hooks.bugfix.EntityItemHooks;
@@ -76,9 +78,9 @@ public class Main {
         loader.registerHooksInitializationForClass(ItemUtils.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
 
-        for(String arg : args)
-            if(arg.equals("-snowfall_everywhere"))
-                loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
+        if (Arrays.stream(args).anyMatch("--snowfall-everywhere"::equals)) {
+            loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
+        }
 
         // loader.registerHooksInitializationForClass(BiomesHooks.class);
         loader.registerHooksInitializationForClass(GlobalBanList.class);

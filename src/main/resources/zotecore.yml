@@ -42,5 +42,5 @@ pack-version-code: 152
 # socket-server-enable: off
 
 # Server socket port, usually should be between 10000 and 24999.
-# use 2304, since this is the default port on the client
-# socket-port: 2304
+# But keep in mind that the client uses port 2304 by default.
+# socket-port: 19131

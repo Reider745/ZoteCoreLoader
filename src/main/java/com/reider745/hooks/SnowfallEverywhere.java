@@ -26,14 +26,20 @@ import cn.nukkit.utils.ThreadCache;
 import java.nio.ByteOrder;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import javassist.CtClass;
 
 /**
  * Special christmas adaptation, do not use anywhere else.
  */
-@Hooks
+@Hooks(className = "cn.nukkit.level.format.generic.serializer.NetworkChunkSerializer")
 public class SnowfallEverywhere implements HookClass, Listener {
+	public static boolean isActive = false;
 
-	@Inject(className = "cn.nukkit.level.format.generic.serializer.NetworkChunkSerializer")
+	public void init(CtClass clazz) {
+		isActive = true;
+	}
+
+	@Inject
 	public static void serialize(IntSet protocols, BaseChunk chunk,
 			Consumer<NetworkChunkSerializer.NetworkChunkSerializerCallback> callback, DimensionData dimensionData) {
 		for (int protocolId : protocols) {
@@ -55,7 +61,7 @@ public class SnowfallEverywhere implements HookClass, Listener {
 
 			BinaryStream stream = ThreadCache.binaryStream.get().reset();
 			for (int i = 0; i < subChunkCount; i++) {
-				sections[i].writeTo(protocolId, stream);
+				sections[i].writeTo(protocolId, stream, false);
 			}
 
 			stream.put(toSnowfallBiomeIdArray(chunk.getBiomeIdArray()));
