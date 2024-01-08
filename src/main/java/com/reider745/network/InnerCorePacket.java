@@ -2,10 +2,17 @@ package com.reider745.network;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.network.Network;
+import cn.nukkit.network.protocol.BatchPacket;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.EmptyByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.SwappedByteBuf;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public class InnerCorePacket extends BasePacket {
@@ -41,11 +48,13 @@ public class InnerCorePacket extends BasePacket {
         }
     }
 
+    public static InnerCorePacket sendInfo;
+
     public void reciveLogic(){
         try{
-            InetSocketAddress address = this.player.getSocketAddress();
+            final InetSocketAddress address = this.player.getSocketAddress();
+            final String client = address.getAddress().toString();
 
-            String client = address.getAddress().toString();
             addressHashMap.put(client, address);
             playerHashMap.put(client, player);
 
@@ -54,6 +63,14 @@ public class InnerCorePacket extends BasePacket {
         }catch (Exception e){
             Logger.error(e.getMessage());
         }
+    }
+
+    public static void closePlayer(Player player){
+        final InetSocketAddress address = player.getSocketAddress();
+        final String client = address.getAddress().toString();
+
+        addressHashMap.remove(client);
+        playerHashMap.remove(client);
     }
 
     @Override

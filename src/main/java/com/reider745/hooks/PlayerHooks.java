@@ -1,11 +1,15 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.lang.TextContainer;
+import cn.nukkit.network.protocol.DataPacket;
+import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
+import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import java.util.List;
@@ -44,11 +48,18 @@ public class PlayerHooks implements HookClass {
 
     @Inject
     public static void close(Player player, TextContainer message, String reason, boolean notify) {
+        InnerCorePacket.closePlayer(player);
         ConnectedClient client = getForPlayer(player);
         try {
             if (client != null)
                 client.disconnect();
         } catch (Exception ignore) {
         }
+    }
+
+    @Inject
+    public static void dataPacket(Player self, DataPacket packet){
+        if(InnerCoreServer.isDebugInnerCoreNetwork())
+            System.out.println("Send packet: "+packet.pid());
     }
 }

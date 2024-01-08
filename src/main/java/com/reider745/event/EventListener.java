@@ -328,8 +328,6 @@ public class EventListener implements Listener {
 
     // TODO: onBlockEventEntityStepOn
 
-    // TODO: onBlockEventNeighbourChange
-
     // TODO: onItemUsedNoTarget (not only custom items)
 
     // TODO: onItemUseReleased (not only custom items)

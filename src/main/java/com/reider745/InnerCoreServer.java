@@ -15,6 +15,7 @@ import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConvertor;
+import com.reider745.network.InnerCorePacket;
 import com.reider745.world.DimensionsMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
@@ -226,6 +227,20 @@ public class InnerCoreServer {
         config.setDefaultPort(singleton.getPropertyInt("socket-port", config.getDefaultPort()));
         config.setSocketConnectionAllowed(singleton.getPropertyBoolean("socket-server-enable", config.isSocketConnectionAllowed()));
 
+        JSONObject json = new JSONObject();
+        json.put("server", true);
+        json.put("socket_port", config.getDefaultPort());
+
+        InnerCorePacket packet = new InnerCorePacket();
+        packet.name = "system.server_detection";
+        packet.format_id = 0;
+
+        byte[] bytes = json.toString().getBytes();
+        packet.bytes_length = bytes.length;
+        packet.bytes = bytes;
+        packet.encode();
+        InnerCorePacket.sendInfo = packet;
+
         final File innerCoreDirectory = new File(dataPath, "innercore");
         if (!innerCoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
@@ -283,9 +298,6 @@ public class InnerCoreServer {
         object.put("fix", getPropertyBoolean("use-legacy-inventory", true));
         Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v, v1) -> {
             // legacy inner core for mod ServerFixed
-        });
-        Network.getSingleton().addServerInitializationPacket("system.dedicated_server", (client) -> object, (v, v1) -> {
-            // for new inner core
         });
 
         NativeCallback.onLocalServerStarted();

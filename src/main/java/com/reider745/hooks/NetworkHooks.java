@@ -8,12 +8,15 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.VarInt;
+import com.reider745.InnerCoreServer;
 import com.reider745.Main;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
+import com.reider745.network.InnerCorePacket;
+
 import java.io.ByteArrayInputStream;
 import java.net.ProtocolException;
 import java.util.Collection;
@@ -66,7 +69,13 @@ public class NetworkHooks implements HookClass {
                         packetId = header & 0x3FF;
                         break;
                 }
-                log.debug("read packet: " + packetId);
+                // 1 - the very first package
+                if(packetId == 1)
+                    player.dataPacket(InnerCorePacket.sendInfo);
+
+                if(InnerCoreServer.isDebugInnerCoreNetwork())
+                    System.out.println("Batch packet: "+packetId);
+
                 DataPacket pk = self.getPacket(packetId);
 
                 if (pk != null) {
