@@ -42,7 +42,11 @@ public class ModsListCommand extends Command {
             }
         }
 
-        commandSender.sendMessage("Mods (" + mods.size() + "): " + list.toString());
+        if (list.length() == 0) {
+            commandSender.sendMessage(TextFormat.YELLOW + "There are no mods, check if correct modpack is selected.");
+        } else {
+            commandSender.sendMessage("Mods (" + mods.size() + "): " + list.toString());
+        }
         return true;
     }
 }

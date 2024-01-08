@@ -37,11 +37,15 @@ public class InnerCoreNetworkCommand extends Command {
             }
             Player player = EntityMethod.getPlayerById(client.getPlayerUid());
             list.append("\n" + (player != null ? player.getName() : "...") + " -> " + client.getPlayerUid()
-                    + " (state=" + client.getClientState().toString() + ", protocolId="
+                    + " (state=" + client.getClientState().toString() + ", protocol="
                     + client.getChannelInterface().getChannel().getProtocolId() + ")");
         }
 
-        commandSender.sendMessage("Clients (" + clients.size() + "):" + list.toString());
+        if (list.length() == 0) {
+            commandSender.sendMessage(TextFormat.YELLOW + "There are no clients.");
+        } else {
+            commandSender.sendMessage("Clients (" + clients.size() + "):" + list.toString());
+        }
         return true;
     }
 }
