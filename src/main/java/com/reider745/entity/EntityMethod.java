@@ -298,22 +298,24 @@ public class EntityMethod {
         });
     }
 
-    public static int getEntityType(long entityUid) {
-        return validateThen(entityUid, entity -> {
-            int networkId = entity.getNetworkId();
+    public static int getEntityTypeDirect(Entity entity) {
+        int networkId = entity.getNetworkId();
+        if (networkId == -1) {
+            if (entity.isPlayer) {
+                networkId = EntityType.PLAYER;
+            }
             if (networkId == -1) {
-                if (entity.isPlayer) {
-                    networkId = EntityType.PLAYER;
-                }
-                if (networkId == -1) {
-                    Identifier identifier = entity.getIdentifier();
-                    if (identifier != null) {
-                        networkId = GameEnums.getInt(GameEnums.getSingleton().getEnum("entity_type", identifier.getPath()));
-                    }
+                Identifier identifier = entity.getIdentifier();
+                if (identifier != null) {
+                    networkId = GameEnums.getInt(GameEnums.getSingleton().getEnum("entity_type", identifier.getPath()));
                 }
             }
-            return networkId;
-        }, -1);
+        }
+        return networkId;
+    }
+
+    public static int getEntityType(long entityUid) {
+        return validateThen(entityUid, entity -> getEntityTypeDirect(entity), -1);
     }
 
     public static String getEntityTypeName(long entityUid) {
@@ -327,7 +329,10 @@ public class EntityMethod {
     }
 
     public static CompoundTag getEntityCompoundTag(long entityUid) {
-        return validateThen(entityUid, entity -> entity.namedTag, null);
+        return validateThen(entityUid, entity -> {
+            entity.saveNBT();
+            return entity.namedTag;
+        }, null);
     }
 
     public static void setEntityCompoundTag(long entityUid, CompoundTag tag) {
@@ -361,14 +366,13 @@ public class EntityMethod {
     }
 
     public static int getAge(long entityUid) {
-        return validateThen(entityUid,
-                entity -> entity instanceof EntityAgeable ageable && ageable.isBaby() ? entity.age : 0, null);
+        return validateThen(entityUid, entity -> entity.age, null);
     }
 
     public static void setAge(long entityUid, int age) {
         validateThen(entityUid, entity -> {
+            entity.age = age;
             if (entity instanceof EntityAgeable ageable) {
-                entity.age = age;
                 ageable.setBaby(age > 0);
             }
         });
