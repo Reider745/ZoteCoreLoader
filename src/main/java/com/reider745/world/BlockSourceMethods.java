@@ -18,6 +18,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
+import com.reider745.event.EventListener;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.ItemUtils;
 
@@ -177,7 +178,12 @@ public class BlockSourceMethods {
         final Block block = level.getBlock((int) x, (int) y, (int) z);
         final BlockExplosionPrimeEvent event = new BlockExplosionPrimeEvent(block, power, 0d);
         event.setIncendiary(fire);
-        Server.getInstance().getPluginManager().callEvent(event);
+
+        synchronized (EventListener.DEALING_LOCK) {
+            EventListener.dealingEvent = event;
+            Server.getInstance().getPluginManager().callEvent(event);
+            EventListener.dealingEvent = null;
+        }
 
         if (event.isCancelled()) {
             return;

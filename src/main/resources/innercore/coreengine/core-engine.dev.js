@@ -2918,12 +2918,12 @@ var ToolAPI = {
             }
             var damage = toolData.damage + toolData.toolMaterial.damage;
             damage = Math.floor(damage) + (Math.random() < damage - Math.floor(damage) ? 1 : 0);
+            this.LastAttackTime = worldTime;
             EntityAPI.damageEntity(victim, damage, 2, {
                 attacker: attacker,
                 bool1: true
             });
             Entity.setCarriedItem(attacker, item.id, item.count, item.data, item.extra);
-            this.LastAttackTime = worldTime;
         }
     },
     resetEngine: function() {

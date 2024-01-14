@@ -795,7 +795,8 @@ public class NativeCallback {
     }
 
     public static void onThrowableHit(long projectile, float hitX, float hitY, float hitZ, long entity, int blockX,
-            int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData, long itemExtra) {
+            int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData, long itemExtra,
+            long hitEntity) {
         Callback.invokeAPICallback("ProjectileHit", projectile,
                 new ItemInstance(itemId, itemCount, itemData, NativeItemInstanceExtra.getExtraOrNull(itemExtra)),
                 new ScriptableParams(
@@ -805,7 +806,8 @@ public class NativeCallback {
                         new Pair<String, Object>("entity", entity),
                         new Pair<String, Object>("coords",
                                 blockX == 0 && blockY == 0 && blockZ == 0 && blockSide == 0 ? null
-                                        : new Coords(blockX, blockY, blockZ, blockSide))));
+                                        : new Coords(blockX, blockY, blockZ, blockSide)),
+                        new Pair<String, Object>("hitEntity", hitEntity)));
     }
 
     public static void onPathNavigationDone(long entity, int result) {

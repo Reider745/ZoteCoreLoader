@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;
-import cn.nukkit.entity.projectile.EntitySnowball;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -27,6 +26,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
@@ -41,6 +41,8 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 
 public class EventListener implements Listener {
+    public static final Object DEALING_LOCK = new Object();
+    public static Object dealingEvent = null;
 
     public static void consumeEvent(Event event, CallbackHelper.ICallbackApply apply, boolean isPrevent) {
         CallbackHelper.apply(event, apply, isPrevent);
@@ -52,6 +54,10 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
+        if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
+            return;
+        }
+
         final Vector3 pos = event.getTouchVector();
         final Block block = event.getBlock();
         final Player player = event.getPlayer();
@@ -96,16 +102,16 @@ public class EventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onProjectileHit(ProjectileHitEvent event) {
         final Entity entity = event.getEntity();
-        if (entity instanceof EntitySnowball) { // TODO?
-            final Vector3 pos = entity.getPosition();
-            final Block block = entity.getLevelBlock();
-            final Item item = EntityMethod.getItemFromProjectile(entity.getId());
-            final NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
+        final Vector3 hit = entity.getPosition();
+        final Block block = entity.getLevelBlock();
+        final MovingObjectPosition mop = event.getMovingObjectPosition();
+        final Item item = EntityMethod.getItemFromProjectile(entity.getId());
+        final NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
 
-            NativeCallback.onThrowableHit(event.getEntity().getId(), (float) pos.x, (float) pos.y, (float) pos.z,
-                    entity.getId(), (int) block.x, (int) block.y, (int) block.z, block.getDamage(),
-                    item.getId(), item.count, item.getDamage(), extra != null ? extra.getValue() : 0);
-        }
+        NativeCallback.onThrowableHit(event.getEntity().getId(), (float) hit.x, (float) hit.y, (float) hit.z,
+                entity.getId(), (int) block.x, (int) block.y, (int) block.z, mop != null ? mop.sideHit : -1,
+                item.getId(), item.count, item.getDamage(), extra != null ? extra.getValue() : 0,
+                mop != null && mop.entityHit != null ? mop.entityHit.getId() : 0);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -217,6 +223,10 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
+        if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
+            return;
+        }
+
         final Entity entity = event.getEntity();
         final Entity attacker = event instanceof EntityDamageByEntityEvent damageByEntity
                 ? damageByEntity.getDamager()
@@ -259,6 +269,10 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockExplosion(BlockExplosionPrimeEvent event) {
+        if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
+            return;
+        }
+
         final Location pos = event.getBlock().getLocation();
 
         consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
@@ -267,6 +281,10 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplosion(EntityExplosionPrimeEvent event) {
+        if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
+            return;
+        }
+
         final Entity entity = event.getEntity();
         final Position pos = entity.getPosition();
 

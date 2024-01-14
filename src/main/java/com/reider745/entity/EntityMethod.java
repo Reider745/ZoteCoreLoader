@@ -385,20 +385,33 @@ public class EntityMethod {
     public static void dealDamage(long entityUid, int damage, int cause, long attackerUid, boolean b1, boolean b2) {
         validateThen(entityUid, entity -> {
             Entity attacker = getEntityById(attackerUid);
+
+            EntityDamageEvent event;
             if (isValid(attacker)) {
-                entity.attack(new EntityDamageByEntityEvent(attacker, entity,
-                        EventListener.convertEnumToDamageCause(cause), damage));
+                event = new EntityDamageByEntityEvent(attacker, entity, EventListener.convertEnumToDamageCause(cause),
+                        damage);
             } else {
-                entity.attack(new EntityDamageEvent(entity, EventListener.convertEnumToDamageCause(cause), damage));
+                event = new EntityDamageEvent(entity, EventListener.convertEnumToDamageCause(cause), damage);
+            }
+
+            synchronized (EventListener.DEALING_LOCK) {
+                EventListener.dealingEvent = event;
+                entity.attack(event);
+                EventListener.dealingEvent = null;
             }
         });
     }
 
     public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side,
             float vx, float vy, float vz, long entityUid) {
-        validateThen(entityUid,
-                entity -> entity.getLevel().useItemOn(new Vector3(x, y, z), ItemUtils.get(id, count, data, unwrapValue),
-                        BlockFace.fromHorizontalIndex(side), vx, vy, vz, (Player) entity));
+        validateThen(entityUid, entity -> {
+            synchronized (EventListener.DEALING_LOCK) {
+                EventListener.dealingEvent = true;
+                entity.getLevel().useItemOn(new Vector3(x, y, z), ItemUtils.get(id, count, data, unwrapValue),
+                        BlockFace.fromHorizontalIndex(side), vx, vy, vz, (Player) entity);
+                EventListener.dealingEvent = false;
+            }
+        });
     }
 
     public static void transferToDimension(long entityUid, int dimension) {

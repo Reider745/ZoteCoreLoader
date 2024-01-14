@@ -14,6 +14,7 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.event.EventListener;
 import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
@@ -63,7 +64,12 @@ public class PlayerActorMethods {
 
         PlayerInteractEvent interactEvent = new PlayerInteractEvent(player, item, directionVector,
                 player.getDirection());
-        Server.getInstance().getPluginManager().callEvent(interactEvent);
+
+        synchronized (EventListener.DEALING_LOCK) {
+            EventListener.dealingEvent = interactEvent;
+            Server.getInstance().getPluginManager().callEvent(interactEvent);
+            EventListener.dealingEvent = null;
+        }
 
         if (interactEvent.isCancelled()) {
             player.getInventory().sendHeldItem(player);
