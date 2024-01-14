@@ -1,5 +1,7 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game;
 
+import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
+
 /*import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
@@ -51,11 +53,11 @@ public class Minecraft {
         isLeaveGamePosted = false;
         if (isServer && state == GameState.HOST_WORLD) {
             state = GameState.NON_WORLD;
-           // LevelInfo.onLeft();
+            LevelInfo.onLeft();
         }
         if (!isServer && state == GameState.REMOTE_WORLD) {
             state = GameState.NON_WORLD;
-          //  LevelInfo.onLeft();
+            LevelInfo.onLeft();
         }
     }
 

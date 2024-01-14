@@ -47,66 +47,66 @@ public class NativeListTag {
 
     public int getValueType(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getValueType(key): " + key);
-        }
-        return NativeCompoundTag.getNbtTypeFromClass(childrenTag.getClass());
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getValueType(key): " + key);
+        // }
+        return childrenTag != null ? NativeCompoundTag.getNbtTypeFromClass(childrenTag.getClass()) : NbtDataType.TYPE_END_TAG;
     }
 
     public int getByte(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getByte(key): " + key);
-        }
-        return (int) tag.get(key).parseValue();
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getByte(key): " + key);
+        // }
+        return childrenTag != null ? (int) childrenTag.parseValue() : 0x0;
     }
 
     public int getShort(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getShort(key): " + key);
-        }
-        return (int) tag.get(key).parseValue();
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getShort(key): " + key);
+        // }
+        return childrenTag != null ? (int) childrenTag.parseValue() : 0;
     }
 
     public int getInt(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getInt(key): " + key);
-        }
-        return (int) tag.get(key).parseValue();
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getInt(key): " + key);
+        // }
+        return childrenTag != null ? (int) childrenTag.parseValue() : 0;
     }
 
     public long getInt64(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getInt64(key): " + key);
-        }
-        return (long) tag.get(key).parseValue();
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getInt64(key): " + key);
+        // }
+        return childrenTag != null ? (long) childrenTag.parseValue() : 0L;
     }
 
     public float getFloat(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getFloat(key): " + key);
-        }
-        return (float) tag.get(key).parseValue();
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getFloat(key): " + key);
+        // }
+        return childrenTag != null ? (float) childrenTag.parseValue() : 0.0f;
     }
 
     public double getDouble(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getFloat(key): " + key);
-        }
-        return (double) tag.get(key).parseValue();
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getDouble(key): " + key);
+        // }
+        return childrenTag != null ? (double) childrenTag.parseValue() : 0.0d;
     }
 
     public String getString(int key) {
         Tag childrenTag = tag.get(key);
-        if (childrenTag == null) {
-            throw new IndexOutOfBoundsException("NativeListTag.getFloat(key): " + key);
-        }
-        return (String) tag.get(key).parseValue();
+        // if (childrenTag == null) {
+        //     throw new IndexOutOfBoundsException("NativeListTag.getString(key): " + key);
+        // }
+        return childrenTag != null ? (String) childrenTag.parseValue() : null;
     }
 
     public NativeCompoundTag getCompoundTagNoClone(int key) {

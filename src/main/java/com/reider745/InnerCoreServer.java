@@ -227,8 +227,9 @@ public class InnerCoreServer {
         plugin.setEnabled();
 
         NetworkConfig config = Network.getSingleton().getConfig();
-        config.setDefaultPort(singleton.getPropertyInt("socket-port", config.getDefaultPort()));
-        config.setSocketConnectionAllowed(singleton.getPropertyBoolean("socket-server-enable", config.isSocketConnectionAllowed()));
+        config.setDefaultPort(getPropertyInt("socket-port", config.getDefaultPort()));
+        config.setSocketConnectionAllowed(
+                getPropertyBoolean("socket-server-enable", config.isSocketConnectionAllowed()));
 
         JSONObject json = new JSONObject();
         json.put("server", true);
@@ -347,38 +348,40 @@ public class InnerCoreServer {
     public void start() {
     }
 
-    public Object getProperty(String variable) {
+    public static Object getProperty(String variable) {
         return getProperty(variable, (Object) null);
     }
 
-    public Object getProperty(String variable, Object defaultValue) {
-        return plugin.getConfig().exists(variable) ? plugin.getConfig().get(variable) : defaultValue;
+    public static Object getProperty(String variable, Object defaultValue) {
+        return plugin != null && plugin.getConfig().exists(variable) ? plugin.getConfig().get(variable) : defaultValue;
     }
 
-    public String getPropertyString(String key) {
+    public static String getPropertyString(String key) {
         return getPropertyString(key, (String) null);
     }
 
-    public String getPropertyString(String key, String defaultValue) {
-        return plugin.getConfig().exists(key) ? String.valueOf(plugin.getConfig().get(key)) : defaultValue;
+    public static String getPropertyString(String key, String defaultValue) {
+        return plugin != null && plugin.getConfig().exists(key) ? String.valueOf(plugin.getConfig().get(key))
+                : defaultValue;
     }
 
-    public int getPropertyInt(String variable) {
+    public static int getPropertyInt(String variable) {
         return getPropertyInt(variable, (Integer) null);
     }
 
-    public int getPropertyInt(String variable, Integer defaultValue) {
-        return plugin.getConfig().exists(variable) ? (!plugin.getConfig().get(variable).equals("")
+    public static int getPropertyInt(String variable, Integer defaultValue) {
+        return plugin != null && plugin.getConfig().exists(variable) ? (!plugin.getConfig().get(variable).equals("")
                 ? Integer.parseInt(String.valueOf(plugin.getConfig().get(variable)))
                 : defaultValue) : defaultValue;
     }
 
-    public boolean getPropertyBoolean(String variable) {
+    public static boolean getPropertyBoolean(String variable) {
         return getPropertyBoolean(variable, (Object) null);
     }
 
-    public boolean getPropertyBoolean(String variable, Object defaultValue) {
-        Object value = plugin.getConfig().exists(variable) ? plugin.getConfig().get(variable) : defaultValue;
+    public static boolean getPropertyBoolean(String variable, Object defaultValue) {
+        Object value = plugin != null && plugin.getConfig().exists(variable) ? plugin.getConfig().get(variable)
+                : defaultValue;
         if (value instanceof Boolean) {
             return (Boolean) value;
         } else {
@@ -437,48 +440,48 @@ public class InnerCoreServer {
     }
 
     public static boolean isLegacyWorkbench() {
-        return singleton.getPropertyBoolean("use-legacy-workbench-override", true);
+        return getPropertyBoolean("use-legacy-workbench-override", true);
     }
 
     public static boolean isUnsafeScriptingAllowed() {
-        return singleton.getPropertyBoolean("allow-unsafe-scripting", true);
+        return getPropertyBoolean("allow-unsafe-scripting", true);
     }
 
-    public static boolean isDebugInnerCoreNetwork(){
-        return singleton.getPropertyBoolean("network-debug", false);
+    public static boolean isDebugInnerCoreNetwork() {
+        return getPropertyBoolean("network-debug", false);
     }
 
     public static boolean isDeveloperMode() {
-        return singleton.getPropertyBoolean("developer-mode", false);
+        return getPropertyBoolean("developer-mode", false);
     }
 
     public static int getAutoSavePeriod() {
-        return singleton.getPropertyInt("auto-save-period", 60);
+        return getPropertyInt("auto-save-period", 60);
     }
 
     public static boolean canAutoSaveWorld() {
-        return singleton.getPropertyBoolean("auto-save-world", true);
+        return getPropertyBoolean("auto-save-world", true);
     }
 
     public static MethodHandling getUnsupportedMethodHandling() {
         try {
             return MethodHandling
-                    .valueOf(singleton.getPropertyString("unsupported-method-handling", "debug").toUpperCase());
+                    .valueOf(getPropertyString("unsupported-method-handling", "debug").toUpperCase());
         } catch (IllegalArgumentException exc) {
             return MethodHandling.DEBUG;
         }
     }
 
     public static String getName() {
-        return singleton.getPropertyString("pack", "Inner Core Test");
+        return getPropertyString("pack", "Inner Core Test");
     }
 
     public static String getVersionName() {
-        return singleton.getPropertyString("pack-version", "2.3.1b115 test");
+        return getPropertyString("pack-version", "2.3.1b115 test");
     }
 
     public static int getVersionCode() {
-        return singleton.getPropertyInt("pack-version-code", 152);
+        return getPropertyInt("pack-version-code", 152);
     }
 
     private static void handleUnsupportedMethod(String message) {

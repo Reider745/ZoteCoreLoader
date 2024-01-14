@@ -26,7 +26,8 @@ public class ServerHooks implements HookClass {
 
     @Inject
     public static int getPropertyInt(Server server, String variable, Integer defaultValue) {
-        if (variable.equals("multiversion-min-protocol") || variable.equals("multiversion-max-protocol"))
+        if (!InnerCoreServer.isDebugInnerCoreNetwork()
+                && (variable.equals("multiversion-min-protocol") || variable.equals("multiversion-max-protocol")))
             return InnerCoreServer.PROTOCOL;
 
         Config properties = server.getProperties();
@@ -38,7 +39,8 @@ public class ServerHooks implements HookClass {
 
     @Inject
     public static boolean getPropertyBoolean(Server server, String variable, Object defaultValue) {
-        if (variable.equals("xbox-auth") || variable.equals("save-player-data-by-uuid"))
+        if (!InnerCoreServer.isDebugInnerCoreNetwork()
+                && (variable.equals("xbox-auth") || variable.equals("save-player-data-by-uuid")))
             return false;
 
         Config properties = server.getProperties();

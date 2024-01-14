@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.api.Client;
 import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 
@@ -24,7 +23,7 @@ public class CustomDimension {
         }
         this.id = prefferedId;
         this.name = name;
-        this.pointer = nativeConstruct(id, name);
+        this.pointer = DimensionsMethods.nativeConstruct(id, name);
         dimensionById.put(id, this);
         dimensionByName.put(name, this);
     }
@@ -32,7 +31,7 @@ public class CustomDimension {
     private CustomDimensionGenerator generator;
 
     public CustomDimension setGenerator(CustomDimensionGenerator generator) {
-        nativeSetGenerator(pointer, generator != null ? generator.pointer : 0);
+        DimensionsMethods.nativeSetGenerator(pointer, generator != null ? generator.pointer : 0);
         this.generator = generator;
         return this;
     }
@@ -93,7 +92,7 @@ public class CustomDimension {
     }
 
     public static void setCustomGeneratorForVanillaDimension(int id, CustomDimensionGenerator generator) {
-        nativeOverrideVanillaGenerator(id, generator.pointer);
+        DimensionsMethods.nativeOverrideVanillaGenerator(id, generator.pointer);
     }
 
     public static CustomDimension getDimensionByName(String name) {
@@ -108,41 +107,4 @@ public class CustomDimension {
         InnerCoreServer.useNotCurrentSupport("CustomDimension.isLimboId(id)");
         return false;
     }
-
-    private static long nativeConstruct(int id, String name){
-        return DimensionsMethods.nativeConstruct(id, name);
-    }
-    @Deprecated
-    private static native long nativeGetCustomDimensionById(int id);
-    @Deprecated
-    private static native boolean nativeIsLimboDimensionId(int id);
-    private static void nativeOverrideVanillaGenerator(int id, long generator){
-        DimensionsMethods.nativeOverrideVanillaGenerator(id, generator);
-    }
-    private static void nativeSetGenerator(long ptr, long generator){
-        DimensionsMethods.nativeSetGenerator(ptr, generator);
-    }
-    @Client
-    private static native void nativeSetHasSkyLight(long ptr, boolean value);
-    @Client
-    private static native void nativeSetSkyColor(long ptr, float r, float g, float b);
-    @Client
-    private static native void nativeResetSkyColor(long ptr);
-    @Client
-    private static native void nativeSetFogColor(long ptr, float r, float g, float b);
-    @Client
-    private static native void nativeResetFogColor(long ptr);
-    @Client
-    private static native void nativeSetCloudColor(long ptr, float r, float g, float b);
-    @Client
-    private static native void nativeResetCloudColor(long ptr);
-    @Client
-    private static native void nativeSetSunsetColor(long ptr, float r, float g, float b);
-    @Client
-    private static native void nativeResetSunsetColor(long ptr);
-    @Client
-    private static native void nativeSetFogDistance(long ptr, float start, float end);
-    @Client
-    private static native void nativeResetFogDistance(long ptr);
-
 }
