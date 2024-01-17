@@ -38,7 +38,7 @@ pack-version-code: 152
 
 # Whether socket server enabled or not.
 # Server socket requires an additional port, connection
-# through server sockets is more stable.
+# through server sockets is more unstable.
 # socket-server-enable: off
 
 # Server socket port, usually should be between 10000 and 24999.

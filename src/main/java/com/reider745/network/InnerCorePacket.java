@@ -35,23 +35,22 @@ public class InnerCorePacket extends BasePacket {
 
     @Override
     public void decode() {
-        try{
+        try {
             name = this.getString();
             format_id = this.getVarInt();
             bytes_length = this.getVarInt();
             bytes = this.get();
             reciveLogic();
-        }catch (Exception e){
-            final String message = "Error native protocol InnerCore";
-            Server.getInstance().getLogger().warning(message);
-            player.kick(message);
+        } catch (Exception e) {
+            Server.getInstance().getLogger().warning("Native protocol decoding error!", e);
+            player.kick(e.getMessage());
         }
     }
 
     public static InnerCorePacket sendInfo;
 
-    public void reciveLogic(){
-        try{
+    public void reciveLogic() {
+        try {
             final InetSocketAddress address = this.player.getSocketAddress();
             final String client = address.getAddress().toString();
 
@@ -60,12 +59,12 @@ public class InnerCorePacket extends BasePacket {
 
             bytes_cache = bytes;
             NativeNetworking.onServerPacketReceived(client, name, format_id);
-        }catch (Exception e){
+        } catch (Exception e) {
             Logger.error(e.getMessage());
         }
     }
 
-    public static void closePlayer(Player player){
+    public static void closePlayer(Player player) {
         final InetSocketAddress address = player.getSocketAddress();
         final String client = address.getAddress().toString();
 
@@ -83,15 +82,15 @@ public class InnerCorePacket extends BasePacket {
         this.put(bytes);
     }
 
-    public static byte[] getCurrentNativePacketBytes(){
+    public static byte[] getCurrentNativePacketBytes() {
         return bytes_cache;
     }
 
-    public static Player getPlayerForId(String client){
+    public static Player getPlayerForId(String client) {
         return playerHashMap.get(client);
     }
 
-    public static void sendPacketToClient(String client, String name, int format_id, byte[] data){
+    public static void sendPacketToClient(String client, String name, int format_id, byte[] data) {
         InnerCorePacket packet = new InnerCorePacket();
         packet.name = name;
         packet.format_id = format_id;
@@ -102,7 +101,7 @@ public class InnerCorePacket extends BasePacket {
         playerHashMap.get(client).dataPacket(packet);
     }
 
-    public static void sendPacketToServer(String name, int format_id, byte[] data){
+    public static void sendPacketToServer(String name, int format_id, byte[] data) {
         InnerCorePacket packet = new InnerCorePacket();
         packet.name = name;
         packet.format_id = format_id;
