@@ -92,8 +92,8 @@ public class InnerCoreServer {
     }
 
     public void left() {
-        NativeCallback.onGameStopped(true);
         NativeCallback.onMinecraftAppSuspended();
+        NativeCallback.onGameStopped(true);
         singleton = null;
     }
 
@@ -461,6 +461,10 @@ public class InnerCoreServer {
 
     public static boolean canAutoSaveWorld() {
         return getPropertyBoolean("auto-save-world", true);
+    }
+
+    public static boolean isUnsupportedOptionsAllowed() {
+        return getPropertyBoolean("allow-unsupported-options", false);
     }
 
     public static MethodHandling getUnsupportedMethodHandling() {

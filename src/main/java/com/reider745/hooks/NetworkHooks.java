@@ -69,12 +69,13 @@ public class NetworkHooks implements HookClass {
                         packetId = header & 0x3FF;
                         break;
                 }
-                // 1 - the very first package
-                if(packetId == 1)
-                    player.dataPacket(InnerCorePacket.sendInfo);
 
-                if(InnerCoreServer.isDebugInnerCoreNetwork())
-                    System.out.println("Batch packet: "+packetId);
+                if (InnerCoreServer.isDebugInnerCoreNetwork())
+                    System.out.println("received batch packet id=" + packetId);
+
+                // 1 - the very first package
+                if (packetId == 1)
+                    player.dataPacket(InnerCorePacket.sendInfo);
 
                 DataPacket pk = self.getPacket(packetId);
 

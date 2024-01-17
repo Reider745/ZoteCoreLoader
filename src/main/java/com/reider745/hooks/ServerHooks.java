@@ -1,7 +1,10 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Server;
+import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.Utils;
+
 import com.reider745.InnerCoreServer;
 import com.reider745.Main;
 import com.reider745.api.hooks.HookClass;
@@ -13,6 +16,7 @@ import com.zhekasmirnov.innercore.api.NativeCallback;
 
 @Hooks(className = "cn.nukkit.Server")
 public class ServerHooks implements HookClass {
+
     @Inject
     public static void start(Server self) throws Exception {
         Main.LoadingStages.afterload(self);
@@ -26,7 +30,7 @@ public class ServerHooks implements HookClass {
 
     @Inject
     public static int getPropertyInt(Server server, String variable, Integer defaultValue) {
-        if (!InnerCoreServer.isDebugInnerCoreNetwork()
+        if (!InnerCoreServer.isUnsupportedOptionsAllowed()
                 && (variable.equals("multiversion-min-protocol") || variable.equals("multiversion-max-protocol")))
             return InnerCoreServer.PROTOCOL;
 
@@ -39,7 +43,7 @@ public class ServerHooks implements HookClass {
 
     @Inject
     public static boolean getPropertyBoolean(Server server, String variable, Object defaultValue) {
-        if (!InnerCoreServer.isDebugInnerCoreNetwork()
+        if (!InnerCoreServer.isUnsupportedOptionsAllowed()
                 && (variable.equals("xbox-auth") || variable.equals("save-player-data-by-uuid")))
             return false;
 
@@ -69,5 +73,10 @@ public class ServerHooks implements HookClass {
     @Inject(type = TypeHook.AFTER)
     public static void reload(Server server) {
         InnerCoreServer.singleton.reload();
+    }
+
+    @Inject
+    public static String getVersion(Server server) {
+        return 'v' + Utils.getVersionByProtocol(ProtocolInfo.v1_16_200);
     }
 }

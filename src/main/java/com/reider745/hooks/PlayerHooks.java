@@ -1,7 +1,6 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.network.protocol.DataPacket;
 import com.reider745.InnerCoreServer;
@@ -53,13 +52,14 @@ public class PlayerHooks implements HookClass {
         try {
             if (client != null)
                 client.disconnect();
-        } catch (Exception ignore) {
+        } catch (Throwable ignore) {
         }
     }
 
     @Inject
-    public static void dataPacket(Player self, DataPacket packet){
-        if(InnerCoreServer.isDebugInnerCoreNetwork())
-            System.out.println("Send packet: "+packet.pid());
+    public static void dataPacket(Player self, DataPacket packet) {
+        if (InnerCoreServer.isDebugInnerCoreNetwork() && !self.isOnline())
+            System.out.println("sending packet id=" + packet.packetId() + " pid=" + packet.pid() + " channel="
+                    + packet.getChannel());
     }
 }

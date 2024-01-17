@@ -1,19 +1,13 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import cn.nukkit.Player;
-import cn.nukkit.network.protocol.SetLocalPlayerAsInitializedPacket;
 import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
-import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -42,7 +36,8 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
     private InitializationPacketException initializationPacketFailureCause = null;
 
     public interface InitializationPacketListener {
-        void onPacketReceived(ConnectedClient client, Object data, Class<?> dataType) throws InitializationPacketException;
+        void onPacketReceived(ConnectedClient client, Object data, Class<?> dataType)
+                throws InitializationPacketException;
     }
 
     public interface OnDisconnectListener {
@@ -58,14 +53,14 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         this.channel = new ChannelInterface(channel);
         this.channel.addListener(this);
 
-
-        this.addInitializationPacketListener("system.player_entity", (ConnectedClient cl, Object data, Class<?> dataType) -> {
-            try {
-                playerUid = Long.parseLong(data.toString());
-            } catch (NumberFormatException e) {
-                throw new InitializationPacketException("invalid player packet data: " + data, e);
-            }
-        });
+        this.addInitializationPacketListener("system.player_entity",
+                (ConnectedClient cl, Object data, Class<?> dataType) -> {
+                    try {
+                        playerUid = Long.parseLong(data.toString());
+                    } catch (NumberFormatException e) {
+                        throw new InitializationPacketException("invalid player packet data: " + data, e);
+                    }
+                });
     }
 
     public void setClientState(ClientState state) {
@@ -85,7 +80,6 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         return state == ClientState.CLOSED;
     }
 
-
     public void setDisconnectListener(OnDisconnectListener disconnectListener) {
         this.disconnectListener = disconnectListener;
     }
@@ -95,11 +89,11 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
     }
 
     public void addInitializationPacketListener(String name, InitializationPacketListener listener) {
-        List<InitializationPacketListener> listeners = Java8BackComp.computeIfAbsent(initializationPacketListenerMap, name, (String key) -> new ArrayList<>());
+        List<InitializationPacketListener> listeners = Java8BackComp.computeIfAbsent(initializationPacketListenerMap,
+                name, (String key) -> new ArrayList<>());
         remainingInitializationPackets.add(name + "$" + listeners.size());
         listeners.add(listener);
     }
-
 
     @Override
     public void onPacketReceived(String name, Object data, Class<?> dataType) {
@@ -131,7 +125,6 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         }
     }
 
-    
     @Override
     public void run() {
         ThreadTypeMarker.markThreadAs(ThreadTypeMarker.Mark.SERVER);
@@ -146,7 +139,8 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         server.addWatchdogAction(server.getConfig().getInitializationTimeout(), () -> {
             if (!remainingInitializationPackets.isEmpty() && !isClosed()) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("client initialization ").append(remainingInitializationPackets.size()).append(" packets timed out: ");
+                sb.append("client initialization ").append(remainingInitializationPackets.size())
+                        .append(" packets timed out: ");
                 for (String remainingInitPacket : remainingInitializationPackets) {
                     sb.append(remainingInitPacket).append(" ");
                 }
@@ -161,17 +155,20 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         });
 
         send("system.client_awaiting_init", "");
-        try{
-            channel.listenerLoop();
-        }catch (Exception ignore){}
 
+        try {
+            channel.listenerLoop();
+        } catch (Throwable ignore) {
+        }
         setClientState(ClientState.CLOSED);
 
+        if (!channel.isClosed()) {
+            channel.close();
+        }
         if (disconnectListener != null) {
             disconnectListener.onDisconnect(this, disconnectPacket, disconnectCause);
         }
     }
-
 
     public long getPlayerUid() {
         return playerUid;
@@ -193,38 +190,41 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         return initializationPacketFailureCause;
     }
 
-
     public void send(String name, Object data) {
-        try{
-            if(InnerCoreServer.isDebugInnerCoreNetwork())
-                Logger.debug("Send packet "+name+", state: "+getClientState().name());
-            if(!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed") || getClientState() == ClientState.OPEN))
+        try {
+            if (InnerCoreServer.isDebugInnerCoreNetwork())
+                System.out.println(
+                        "sending packet player=" + playerUid + " name=" + name + " state=" + getClientState().name());
+            if (!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed")
+                    || getClientState() == ClientState.OPEN))
                 channel.send(name, data);
-        }catch (Throwable e){
-            ICLog.e("Network", "error send "+playerUid, e);
+        } catch (Throwable e) {
+            ICLog.e("Network", "cannot send packet to player=" + playerUid, e);
 
             final Player player = EntityMethod.getPlayerById(playerUid);
-            if(player != null)
+            if (player != null)
                 player.kick();
             else
-                ICLog.i("Network", "error kick player");
+                ICLog.i("Network", "cannot kick from server player=" + playerUid);
         }
     }
 
-    public<T> void send(String name, T data, Class<T> dataType) {
-        try{
-            if(InnerCoreServer.isDebugInnerCoreNetwork())
-                Logger.debug("Send packet "+name+", state: "+getClientState().name());
-            if(!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed") || getClientState() == ClientState.OPEN))
+    public <T> void send(String name, T data, Class<T> dataType) {
+        try {
+            if (InnerCoreServer.isDebugInnerCoreNetwork())
+                System.out.println(
+                        "sending packet player=" + playerUid + " name=" + name + " state=" + getClientState().name());
+            if (!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed")
+                    || getClientState() == ClientState.OPEN))
                 channel.send(name, data, dataType);
-        }catch (Throwable e){
-            ICLog.e("Network", "error send "+playerUid, e);
+        } catch (Throwable e) {
+            ICLog.e("Network", "cannot send packet to player=" + playerUid, e);
 
             final Player player = EntityMethod.getPlayerById(playerUid);
-            if(player != null)
+            if (player != null)
                 player.kick();
             else
-                ICLog.i("Network", "error kick player");
+                ICLog.i("Network", "cannot kick from server player=" + playerUid);
         }
     }
 

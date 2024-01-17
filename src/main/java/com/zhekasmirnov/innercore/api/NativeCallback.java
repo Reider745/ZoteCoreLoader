@@ -13,7 +13,6 @@ import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.ecs.ECS;
-import com.zhekasmirnov.apparatus.ecs.types.LocalTicking;
 import com.zhekasmirnov.apparatus.ecs.types.ServerTicking;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbenchContainer;
@@ -36,7 +35,6 @@ import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegistry;
-import com.zhekasmirnov.innercore.api.mod.ui.window.WindowProvider;
 import com.zhekasmirnov.innercore.api.mod.util.InventorySource;
 import com.zhekasmirnov.innercore.api.runtime.*;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
@@ -69,10 +67,6 @@ public class NativeCallback {
     }
 
     /* TECHNICAL CALLBACKS */
-
-    public static void onNativeGuiLoaded() {
-        // MinecraftActivity.onNativeGuiLoaded();
-    }
 
     public static void onCopyrightCheck() {
         Server.getInstance().getLogger()
@@ -114,8 +108,7 @@ public class NativeCallback {
             // Profiler.setExtremeSignalHandlingEnabled(false);
         }
 
-        // NativeAPI.setDebugDumpDirectory(InnerCoreConfig.getBool("create_debug_dump")
-        // ? FileTools.DIR_HORIZON + "logs/" : null);
+        // NativeAPI.setDebugDumpDirectory(InnerCoreConfig.getBool("create_debug_dump") ? FileTools.DIR_HORIZON + "logs/" : null);
 
         NameTranslation.loadBuiltinTranslations();
     }
@@ -132,21 +125,10 @@ public class NativeCallback {
         Callback.invokeAPICallback("AppSuspended");
     }
 
-    @Deprecated
-    public static void onKeyEventDispatched(int key, int state) {
-        Callback.invokeAPICallback("SystemKeyEventDispatched", key, state);
-        if (key == 0 && state == 1) {
-            Callback.invokeAPICallback("NavigationBackPressed");
-            if (!NativeAPI.isDefaultPrevented()) {
-                WindowProvider.instance.onBackPressed();
-            }
-        }
-    }
-
     /* LEVEL CALLBACKS */
 
-    // called before entering the world, when directory is known, but nothing was
-    // loaded yet
+    // called before entering the world, when directory is known,
+    // but nothing was loaded yet
     public static void onLocalServerStarted() {
         // reset server thread
         isFirstServerTick = true;
@@ -189,8 +171,6 @@ public class NativeCallback {
     private static boolean isServerTickDisabledDueToError = false;
     private static int globalServerTickCounter = 0;
 
-    private static int currentPlayerDimension = 0;
-
     // this is called, when ServerLevel is constructed
     public static void onLevelCreated() {
         // reset server tick
@@ -198,21 +178,6 @@ public class NativeCallback {
 
         // invoke callback
         Callback.invokeAPICallback("LevelCreated");
-    }
-
-    private static boolean isLevelDisplayed = false;
-
-    public static boolean isLevelDisplayed() {
-        return isLevelDisplayed;
-    }
-
-    @Deprecated // this is called, when level renderer is set up
-    public static void onLevelDisplayed() {
-        isLevelDisplayed = true;
-        Callback.invokeAPICallback("LevelDisplayed");
-
-        // TODO: remove this filth
-        Minecraft.onLevelDisplayed();
     }
 
     // read config and setup thread priorities
@@ -235,28 +200,27 @@ public class NativeCallback {
         }
     }
 
-    // called before first server tick for local world and when connected to remote
-    // world
+    // called before first server tick for local world
+    // and when connected to remote world
     private static void onLevelPostLoaded(boolean isServer) {
+        if (!isServer) {
+            InnerCoreServer.useClientMethod("NativeCallback.onLevelPostLoaded(isServer)");
+            return;
+        }
+
         // clear queues
         MainThreadQueue.localThread.clearQueue();
         MainThreadQueue.serverThread.clearQueue();
 
         // run pre-loaded callback
         Callback.invokeAPICallback("LevelPreLoaded", isServer);
-        if (isServer) {
-            Callback.invokeAPICallback("ServerLevelPreLoaded");
-        } else {
-            Callback.invokeAPICallback("RemoteLevelPreLoaded");
-        }
+        Callback.invokeAPICallback("ServerLevelPreLoaded");
 
         // initialize data saver
         WorldDataSaverHandler.getInstance().onLevelLoading();
 
         // if this is local world, start server
-        if (isServer) {
-            Network.getSingleton().startLanServer();
-        }
+        Network.getSingleton().startLanServer();
 
         // setup name overrides (mostly translations)
         NameTranslation.refresh(true);
@@ -266,39 +230,23 @@ public class NativeCallback {
 
         // run level loaded callbacks
         Callback.invokeAPICallback("LevelLoaded", isServer);
-        if (isServer) {
-            Callback.invokeAPICallback("ServerLevelLoaded");
-        } else {
-            Callback.invokeAPICallback("RemoteLevelLoaded");
-        }
+        Callback.invokeAPICallback("ServerLevelLoaded");
 
         // setup server tick priority
         setupThreadPriorityFromConfig();
     }
 
-    @Deprecated // this is local callback!
-    public static void onDimensionChanged(int current, int last) {
-        if (current != last) {
-            Callback.invokeAPICallback("DimensionUnloaded", last);
-        }
-        currentPlayerDimension = current;
-        Callback.invokeAPICallback("DimensionLoaded", current, last);
-        ICLog.d(LOGGER_TAG, "player entered dimension " + current + " from " + last);
-    }
-
     public static void onGameStopped(boolean isServer) {
-        // reset ticking
-        if (isServer) {
-            // reset server tick
-            globalServerTickCounter = 0;
-            isFirstServerTick = true;
-            isServerTickDisabledDueToError = false;
-        } else {
+        if (!isServer) {
             // reset local tick
-            isFirstLocalTick = true;
-            isLocalTickDisabledDueToError = false;
-            isLevelDisplayed = false;
+            InnerCoreServer.useClientMethod("NativeCallback.onGameStopped(isServer)");
+            return;
         }
+
+        // reset server ticking
+        globalServerTickCounter = 0;
+        isFirstServerTick = true;
+        isServerTickDisabledDueToError = false;
 
         // check, if we are required to call legacy callback: if we are the server, call
         // it for server leave game, otherwise call for client
@@ -314,26 +262,16 @@ public class NativeCallback {
         }
 
         // new pre-left callback
-        if (isServer) {
-            Callback.invokeAPICallback("ServerLevelPreLeft");
-        } else {
-            Callback.invokeAPICallback("LocalLevelPreLeft");
-        }
+        Callback.invokeAPICallback("ServerLevelPreLeft");
 
         // reset networking
-        if (isServer) {
-            Network.getSingleton().shutdownServer();
-        } else {
-            Network.getSingleton().shutdownClient();
-        }
+        Network.getSingleton().shutdownServer();
         NativeNetworking.onLevelLeft(isServer);
         NetworkPlayerRegistry.getSingleton().onGameLeft(isServer);
         // NativeIdPlaceholderGenerator.clearAll();
 
         // on server side save all data
-        if (isServer) {
-            WorldDataSaverHandler.getInstance().onLevelLeft();
-        }
+        WorldDataSaverHandler.getInstance().onLevelLeft();
 
         // legacy callback for server left
         if (callLegacyCallback) {
@@ -341,46 +279,30 @@ public class NativeCallback {
             Callback.invokeAPICallback("GameLeft", isServer);
         }
 
-        // main callback
-        if (isServer) {
-            // new callback for server left
-            Callback.invokeAPICallback("ServerLevelLeft");
-        } else {
-            // DimensionLoaded and DimensionUnloaded are client callbacks
-            Callback.invokeAPICallback("DimensionUnloaded", currentPlayerDimension);
-            // new callback for server left
-            Callback.invokeAPICallback("LocalLevelLeft");
-        }
+        // new callback for server left
+        Callback.invokeAPICallback("ServerLevelLeft");
 
         // change state to non-world
         // this will also call LevelInfo.onLeft() to reset it on right thread
         Minecraft.onGameStopped(isServer);
 
         // cleanup updatables
-        if (isServer) {
-            Updatable.getForServer().cleanUp();
-        } else {
-            Updatable.getForClient().cleanUp();
-        }
+        Updatable.getForServer().cleanUp();
 
         // clear legacy entity array
-        if (isServer) {
-            allEntities.clear();
-        }
+        allEntities.clear();
 
         // reset more server side native modules
-        if (isServer) {
-            // path navigation module for entities
-            NativePathNavigation.cleanup();
+        // path navigation module for entities
+        NativePathNavigation.cleanup();
 
-            // block source by dimension cache for server ticking thread
-            NativeBlockSource.resetDefaultBlockSources();
+        // block source by dimension cache for server ticking thread
+        NativeBlockSource.resetDefaultBlockSources();
 
-            // id conversion map - it will be cleared on next level load or connection
-            // anyway, so clear it only on server side to not fuck up last server tick
-            // NativeIdConversionMap.clearAll();
-            IdConversionMap.getSingleton().clearLocalIdMap();
-        }
+        // id conversion map - it will be cleared on next level load or connection
+        // anyway, so clear it only on server side to not fuck up last server tick
+        // TODO: NativeIdConversionMap.clearAll();
+        IdConversionMap.getSingleton().clearLocalIdMap();
     }
 
     static {
@@ -394,75 +316,6 @@ public class NativeCallback {
         Updatable.setPreferences(updatableMode,
                 updatableMode == Updatable.MODE_COUNT_BASED ? InnerCoreConfig.getInt("performance.max_update_count")
                         : InnerCoreConfig.getInt("performance.max_update_time"));
-    }
-
-    private static boolean isLocalTickDisabledDueToError = false;
-    private static boolean isFirstLocalTick = true;
-
-    public static boolean isLocalTickDisabledDueToError() {
-        return isLocalTickDisabledDueToError;
-    }
-
-    private static final EntitySystem localTickingSystem = new EntitySystem.Of1<LocalTicking>(LocalTicking.class,
-            "tag:world") {
-        public void accept(int entity, LocalTicking c1) {
-            c1.tick(queue);
-        }
-    };
-
-    @Deprecated
-    public static void onLocalTick() {
-        // run for first local tick
-        if (isFirstLocalTick) {
-            isFirstLocalTick = false;
-            // setup thread check
-            ThreadTypeMarker.markThreadAs(ThreadTypeMarker.Mark.CLIENT);
-
-            // set local player uid for network client
-            Network.getSingleton().getClient().setPlayerUid(NativeAPI.getLocalPlayer());
-
-            // invoke callback
-            Callback.invokeAPICallback("LocalLevelLoaded");
-
-            // call dimension change on first open
-            int dimension = NativeAPI.getEntityDimension(NativeAPI.getLocalPlayer());
-            onDimensionChanged(dimension, dimension);
-        } else {
-            // check for dimension change
-            int dimension = NativeAPI.getEntityDimension(NativeAPI.getLocalPlayer());
-            if (dimension != currentPlayerDimension) {
-                onDimensionChanged(dimension, currentPlayerDimension);
-            }
-        }
-
-        // update inventory for UI
-        // if (!NativeAPI.isLocalServerRunning()) {
-        // TODO: InventorySource.tick();
-        // }
-
-        // update local player handler
-        NetworkPlayerRegistry.getSingleton().onLocalTick();
-
-        if (!isLocalTickDisabledDueToError) {
-            // call normal tick
-            try {
-                // callback
-                Callback.invokeAPICallbackUnsafe("LocalTick", EMPTY_ARGS);
-
-                // updatables
-                Updatable.getForClient().onTickSingleThreaded();
-
-                // ecs
-                localTickingSystem.run(ECS.getEntityManager());
-            } catch (Throwable e) {
-                // report error if needed
-                ICLog.e("INNERCORE-CALLBACK", "error occurred in local tick callback", e);
-                isLocalTickDisabledDueToError = true;
-            }
-        }
-
-        // execute local tick queue
-        MainThreadQueue.localThread.executeQueue();
     }
 
     public static boolean isServerTickDisabledDueToError() {
@@ -533,11 +386,6 @@ public class NativeCallback {
         globalServerTickCounter++;
     }
 
-    @Deprecated
-    public static void onConnectToHost(int port) {
-        InnerCoreServer.useNotSupport("NativeCallback.onConnectToHost(port)");
-    }
-
     private static boolean isDestroyBlockCallbackInProgress = false;
 
     public static void onBlockDestroyed(int x, int y, int z, int side, long player) {
@@ -594,21 +442,6 @@ public class NativeCallback {
         isDestroyBlockCallbackInProgress = false;
     }
 
-    @Deprecated
-    public static void onBlockDestroyStarted(int x, int y, int z, int side) {
-        InnerCoreServer.useNotSupport("NativeCallback.onBlockDestroyStarted(x, y, z, side)");
-    }
-
-    @Deprecated // fix callback
-    public static void _onBlockDestroyStarted(int x, int y, int z, int side) {
-        InnerCoreServer.useNotSupport("NativeCallback._onBlockDestroyStarted(x, y, z, side)");
-    }
-
-    @Deprecated
-    public static void onBlockDestroyContinued(int x, int y, int z, int side, float progress) {
-        InnerCoreServer.useNotSupport("NativeCallback.onBlockDestroyContinued(x, y, z, side, progress)");
-    }
-
     public static void onBlockBuild(int x, int y, int z, int side, long player) {
         Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), new FullBlock(player, x, y, z), player);
     }
@@ -627,23 +460,21 @@ public class NativeCallback {
 
     public static void onItemUsed(int x, int y, int z, int side, float fx, float fy, float fz, boolean isServer,
             boolean isExternal, long player) {
+        if (!isServer) {
+            // call client callback
+            InnerCoreServer.useClientMethod("NativeCallback.onItemUsed(x, y, z, side, fx, fy, fz, isServer, isExternal, player)");
+            return;
+        }
+
         // initialize coordinates
         Coords coords = new Coords(x, y, z, side);
         coords.put("vec", coords, new Coords(fx, fy, fz));
 
-        if (isServer) {
-            // call server callback
-            ItemInstance item = new ItemInstance(EntityMethod.getEntityCarriedItem(player));
-            FullBlock block = new FullBlock(player, x, y, z);
-            Callback.invokeAPICallback("ItemUse", coords, item, block, isExternal, player);
-            Callback.invokeAPICallback("ItemUseServer", coords, item, block, player);
-        } else {
-            // call client callback
-            ItemInstance item = new ItemInstance(EntityMethod.getEntityCarriedItem(player));
-            FullBlock block = new FullBlock(NativeBlockSource.getCurrentClientRegion(), x, y, z);
-            Callback.invokeAPICallback("ItemUseLocal", coords, item, block, player);
-            Callback.invokeAPICallback("ItemUseLocalServer", coords, item, block, false, player);
-        }
+        // call server callback
+        ItemInstance item = new ItemInstance(EntityMethod.getEntityCarriedItem(player));
+        FullBlock block = new FullBlock(player, x, y, z);
+        Callback.invokeAPICallback("ItemUse", coords, item, block, isExternal, player);
+        Callback.invokeAPICallback("ItemUseServer", coords, item, block, player);
     }
 
     public static void onExplode(float x, float y, float z, float power, long entity, boolean b1, boolean b2,
@@ -674,8 +505,7 @@ public class NativeCallback {
 
     @Deprecated
     public static void onCommandExec() {
-        String command = getStringParam("command");
-        Callback.invokeAPICallback("NativeCommand", command == null ? null : command.trim());
+        InnerCoreServer.useClientMethod("NativeCallback.onCommandExec()");
     }
 
     /* ENTITY CALLBACKS */
@@ -689,9 +519,8 @@ public class NativeCallback {
     }
 
     // handling legacy block breaking logic, that manually drops items and
-    // experience into world by intercepting
-    // new dropped items & orbs and instantly removing them, adding them to drop
-    // result
+    // experience into world by intercepting new dropped items & orbs and
+    // instantly removing them, adding them to drop result
     // note: this is not thread safe, so it needs to be synchronized from
     // startOverrideBlockBreakResult to endOverrideBlockBreakResult
 
@@ -734,11 +563,6 @@ public class NativeCallback {
         Callback.invokeAPICallback("EntityAdded", entity);
     }
 
-    @Deprecated
-    public static void onLocalEntityAdded(long entity) {
-        Callback.invokeAPICallback("EntityAddedLocal", entity);
-    }
-
     public static void onEntityRemoved(long entity) {
         // when handling breaking block with legacy mod logic, ignore all dropped items
         // and experience orbs
@@ -755,11 +579,6 @@ public class NativeCallback {
 
         // remove from allEntities set
         allEntities.remove(entity);
-    }
-
-    @Deprecated
-    public static void onLocalEntityRemoved(long entity) {
-        Callback.invokeAPICallback("EntityRemovedLocal", entity);
     }
 
     public static void onEntityPickUpDrop(long entity, long dropEntity, int count) {
@@ -789,8 +608,7 @@ public class NativeCallback {
                 someBool2);
 
         // if (entity == NativeAPI.getPlayer()) {
-        // ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1,
-        // someBool2);
+        //     ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1, someBool2);
         // }
     }
 
@@ -877,48 +695,7 @@ public class NativeCallback {
                 new FullBlock(blockSource, x, y, z), new Coords(changedX, changedY, changedZ), blockSource);
     }
 
-    @Deprecated
-    public static void onCustomTessellation(long tessellator, int x, int y, int z, int id, int data, boolean b) {
-        NativeBlockRenderer.onRenderCall(new NativeBlockRenderer.RenderAPI(tessellator), new Coords(x, y, z),
-                new FullBlock(id, data), b);
-    }
-
     /* ITEM CALLBACKS */
-
-    @Deprecated
-    public static void onItemIconOverride(int id, int count, int data, int extra) {
-        synchronized (NativeItem.DYNAMIC_ICON_LOCK) {
-            Callback.invokeAPICallback("ItemIconOverride",
-                    new ItemInstance(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra)), false);
-        }
-    }
-
-    @Deprecated
-    public static void onItemModelOverride(long modelPtr, int id, int count, int data, long extra) {
-        NativeItemModel model = NativeItemModel.getByPointer(modelPtr);
-        if (model != null) {
-            try {
-                NativeItemModel override = model.getModelForItemInstance(id, count, data,
-                        NativeItemInstanceExtra.getExtraOrNull(extra));
-                if (override != model) {
-                    NativeAPI.overrideItemModel(override != null ? override.pointer : 0);
-                }
-            } catch (Throwable err) {
-                ICLog.e("INNERCORE-CALLBACK", "error occurred in model override callback", err);
-            }
-        }
-    }
-
-    @Deprecated
-    public static void onItemNameOverride(int id, int count, int data, int extra) {
-        String name = getStringParam("name");
-        String translated = NameTranslation.translate(name);
-        synchronized (NativeItem.DYNAMIC_NAME_LOCK) {
-            NativeAPI.overrideItemName(translated);
-            Callback.invokeAPICallback("ItemNameOverride",
-                    new ItemInstance(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra)), translated, name);
-        }
-    }
 
     public static void onItemUsedNoTarget(long player) {
         Callback.invokeAPICallback("ItemUseNoTarget", new ItemInstance(EntityMethod.getEntityCarriedItem(player)),
@@ -1063,25 +840,6 @@ public class NativeCallback {
         }
     }
 
-    /* OTHER CALLBACKS */
-
-    @Deprecated
-    public static void onScreenChanged(boolean isPushEvent) {
-        // get screen name
-        String name = getStringParam("screen_name");
-        String lastName = getStringParam("last_screen_name");
-        Logger.debug("screen changed: " + lastName + " -> " + name + (isPushEvent ? " (pushed)" : " (popped)"));
-
-        // auto-save if this is pause screen
-        if (name.equals("leave_level_screen") || name.equals("pause_screen")
-                || name.startsWith("world_loading_progress_screen")) {
-            WorldDataSaverHandler.getInstance().onPauseScreenOpened();
-        }
-
-        // call js callback
-        Callback.invokeAPICallback("NativeGuiChanged", name, lastName, isPushEvent);
-    }
-
     /* WORLD GENERATION CALLBACKS */
 
     public static void onPreChunkPostProcessed(int x, int z) {
@@ -1119,5 +877,99 @@ public class NativeCallback {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /* LOCAL CALLBACKS, WHICH IS DISABLED ON SERVER */
+
+    @Deprecated
+    public static void onNativeGuiLoaded() {
+        InnerCoreServer.useClientMethod("NativeCallback.onNativeGuiLoaded()");
+    }
+
+    @Deprecated
+    public static void onKeyEventDispatched(int key, int state) {
+        InnerCoreServer.useClientMethod("NativeCallback.onKeyEventDispatched(key, state)");
+    }
+
+    @Deprecated
+    public static boolean isLevelDisplayed() {
+        InnerCoreServer.useClientMethod("NativeCallback.isLevelDisplayed()");
+        return false;
+    }
+
+    @Deprecated // this is called, when level renderer is set up
+    public static void onLevelDisplayed() {
+        InnerCoreServer.useClientMethod("NativeCallback.onLevelDisplayed()");
+    }
+
+    @Deprecated // this is local callback!
+    public static void onDimensionChanged(int current, int last) {
+        InnerCoreServer.useClientMethod("NativeCallback.onDimensionChanged(current, last)");
+    }
+
+    @Deprecated
+    public static boolean isLocalTickDisabledDueToError() {
+        InnerCoreServer.useClientMethod("NativeCallback.isLocalTickDisabledDueToError()");
+        return false;
+    }
+
+    @Deprecated
+    public static void onLocalTick() {
+        InnerCoreServer.useClientMethod("NativeCallback.onLocalTick()");
+    }
+
+    @Deprecated
+    public static void onConnectToHost(int port) {
+        InnerCoreServer.useNotSupport("NativeCallback.onConnectToHost(port)");
+    }
+
+    @Deprecated
+    public static void onBlockDestroyStarted(int x, int y, int z, int side) {
+        InnerCoreServer.useClientMethod("NativeCallback.onBlockDestroyStarted(x, y, z, side)");
+    }
+
+    @Deprecated // fix callback
+    public static void _onBlockDestroyStarted(int x, int y, int z, int side) {
+        InnerCoreServer.useClientMethod("NativeCallback._onBlockDestroyStarted(x, y, z, side)");
+    }
+
+    @Deprecated
+    public static void onBlockDestroyContinued(int x, int y, int z, int side, float progress) {
+        InnerCoreServer.useClientMethod("NativeCallback.onBlockDestroyContinued(x, y, z, side, progress)");
+    }
+
+    @Deprecated
+    public static void onLocalEntityAdded(long entity) {
+        Callback.invokeAPICallback("EntityAddedLocal", entity);
+    }
+
+    @Deprecated
+    public static void onLocalEntityRemoved(long entity) {
+        Callback.invokeAPICallback("EntityRemovedLocal", entity);
+    }
+
+    @Deprecated
+    public static void onCustomTessellation(long tessellator, int x, int y, int z, int id, int data, boolean b) {
+        InnerCoreServer.useClientMethod("NativeCallback.onCustomTessellation(tessellator, x, y, z, id, data, b)");
+    }
+
+    @Deprecated
+    public static void onItemIconOverride(int id, int count, int data, int extra) {
+        InnerCoreServer.useClientMethod("NativeCallback.onItemIconOverride(id, count, data, extra)");
+    }
+
+    @Deprecated
+    public static void onItemModelOverride(long modelPtr, int id, int count, int data, long extra) {
+        InnerCoreServer.useClientMethod("NativeCallback.onItemModelOverride(modelPtr, id, count, data, extra)");
+    }
+
+    @Deprecated
+    public static void onItemNameOverride(int id, int count, int data, int extra) {
+        InnerCoreServer.useClientMethod("NativeCallback.onItemNameOverride(id, count, data, extra)");
+    }
+
+    @Deprecated
+    public static void onScreenChanged(boolean isPushEvent) {
+        InnerCoreServer.useClientMethod("NativeCallback.onScreenChanged(isPushEvent)");
     }
 }

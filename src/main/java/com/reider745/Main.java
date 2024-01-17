@@ -72,7 +72,6 @@ public class Main {
         loader.registerHooksInitializationForClass(ServerHooks.class);
         loader.registerHooksInitializationForClass(Other.class);
         loader.registerHooksInitializationForClass(PlayerHooks.class);
-        loader.registerHooksInitializationForClass(CallbackHooks.class);
         loader.registerHooksInitializationForClass(RuntimeItemsHooks.class);
         loader.registerHooksInitializationForClass(BlocksHooks.class);
         loader.registerHooksInitializationForClass(LevelHooks.class);

@@ -66,6 +66,7 @@ public abstract class DataChannel {
                 closeImpl();
             } catch (IOException e) {
                 Logger.info(e.getMessage());
+                Logger.debug(Logger.getStackTrace(e));
             }
         }
     }
@@ -89,13 +90,8 @@ public abstract class DataChannel {
             return;
         }
         isPanic = true;
-        if (exception != null) {
-            //exception.printStackTrace();
-        }
-        if (!isClosed) {
-            if (EngineConfig.isDeveloperMode()) {
-                ICLog.e("channel broke, panic", "", exception);
-            }
+        if (!isClosed && EngineConfig.isDeveloperMode()) {
+            ICLog.e("channel broke, panic", "", exception);
         }
         if (brokenChannelListener != null) {
             brokenChannelListener.onBroke(exception);

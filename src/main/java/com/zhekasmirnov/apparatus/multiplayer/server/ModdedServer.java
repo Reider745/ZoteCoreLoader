@@ -67,7 +67,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
 
     public ModdedServer(NetworkConfig config) {
         this.config = config;
-        socketServer = new SocketServer();
+        socketServer = new SocketServer(this);
         socketServer.addClientConnectListener(this);
     }
 
@@ -148,15 +148,15 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
 
         for (String name : initializationPacketListenerMap.keySet()) {
             if(InnerCoreServer.isDebugInnerCoreNetwork())
-                Logger.debug("Initialization packet received "+name);
+                System.out.println("received initialization packet player=" + client.getPlayerUid() + " name="+name);
             for (ConnectedClient.InitializationPacketListener listener : initializationPacketListenerMap.get(name)) {
                 client.addInitializationPacketListener(name, listener);
             }
         }
 
         client.getChannelInterface().addListener((String name, Object data, Class<?> dataType) -> {
-            if(InnerCoreServer.isDebugInnerCoreNetwork())
-                Logger.debug("Packet received "+name);
+            if (InnerCoreServer.isDebugInnerCoreNetwork())
+                System.out.println("received packet player=" + client.getPlayerUid() + " name="+name);
             int separatorIndex = name.indexOf('#');
             String meta = null;
             if (separatorIndex != -1) {

@@ -1,6 +1,8 @@
 package com.zhekasmirnov.apparatus.adapter.innercore;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
+
 public class EngineConfig {
     public interface PropertyValidator<T> {
         T validate(T input);
@@ -11,26 +13,26 @@ public class EngineConfig {
     }
 
     public static boolean isDeveloperMode() {
-        return InnerCoreConfig.getBool("developer_mode");
+        return InnerCoreServer.isDeveloperMode() || InnerCoreServer.isDebugInnerCoreNetwork();
     }
 
-    public static<T> T get(String name, Class<T> type, PropertyValidator<T> validator) {
+    public static <T> T get(String name, Class<T> type, PropertyValidator<T> validator) {
         Object data = InnerCoreConfig.get(name);
         try {
-            //noinspection unchecked
+            // noinspection unchecked
             return validator != null ? validator.validate((T) data) : (T) data;
         } catch (ClassCastException e) {
-            //noinspection ConstantConditions
+            // noinspection ConstantConditions
             return validator != null ? validator.validate(null) : null;
         }
     }
 
-    public static String getString(String name, String fallback){
+    public static String getString(String name, String fallback) {
         return get(name, String.class, value -> (value != null ? value : fallback));
     }
 
     public static boolean getBoolean(String name, boolean fallback) {
-        //noinspection ConstantConditions
+        // noinspection ConstantConditions
         return get(name, Boolean.class, value -> (value != null ? value : fallback));
     }
 
