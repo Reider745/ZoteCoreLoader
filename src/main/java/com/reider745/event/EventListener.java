@@ -2,6 +2,7 @@ package com.reider745.event;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.event.Event;
@@ -21,7 +22,10 @@ import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerExperienceChangeEvent;
 import cn.nukkit.event.player.PlayerInteractEntityEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.event.player.PlayerLoginEvent;
+import cn.nukkit.event.player.PlayerPreLoginEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
+import cn.nukkit.event.server.ServerCommandEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
@@ -31,10 +35,14 @@ import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 
+import java.util.ArrayList;
+
 import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.entity.EntityMotion;
 import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.PlayerHooks;
+import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -343,11 +351,54 @@ public class EventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCustomDimensionTransfer(EntityTeleportEvent event){
+    public void onEntityTeleport(EntityTeleportEvent event) {
         final int from = event.getFrom().level.getDimension();
         final int to = event.getFrom().level.getDimension();
-        if(CustomDimension.getDimensionById(to) != null || CustomDimension.getDimensionById(from) != null)
+
+        if (CustomDimension.getDimensionById(to) != null || CustomDimension.getDimensionById(from) != null)
             NativeCallback.onCustomDimensionTransfer(event.getEntity().getId(), from, to);
+    }
+
+    public void onServerCommand(ServerCommandEvent event) {
+        final CommandSender sender = event.getSender();
+        final Position position = sender.getPosition();
+        final long entityUid = sender.isEntity() ? sender.asEntity().getId() : 0;
+
+        consumeEvent(event, () -> NativeCallback.onServerCommand(event.getCommand(), (float) position.x,
+                (float) position.y, (float) position.z, entityUid));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPreLoginEvent(PlayerPreLoginEvent event) {
+        final Player player = event.getPlayer();
+        for (Player p : new ArrayList<>(player.getServer().getOnlinePlayers().values())) {
+            final String username = p.getName();
+            if (p != player && username != null) {
+                if (username.equalsIgnoreCase(player.getName()) || player.getUniqueId().equals(p.getUniqueId())) {
+                    event.setKickMessage("disconnectionScreen.loggedinOtherLocation");
+                    event.setCancelled();
+                    break;
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onLoginEvent(PlayerLoginEvent event) {
+        ConnectedClient client = PlayerHooks.getForPlayer(event.getPlayer());
+        if (client == null) {
+            event.setKickMessage("You are should connect via Inner Core!");
+            event.setCancelled();
+            return;
+        }
+
+        final String username = event.getPlayer().getName();
+        consumeEvent(event, () -> NativeCallback.onPlayerLogin(client, username, (message) -> {
+            if (message != null) {
+                event.setKickMessage(message);
+            }
+            event.setCancelled();
+        }));
     }
 
     // TODO: onPathNavigationDone
@@ -357,6 +408,8 @@ public class EventListener implements Listener {
     // TODO: onBlockEventEntityInside
 
     // TODO: onBlockEventEntityStepOn
+
+    // TODO: onBlockEventNeighbourChange (not only custom blocks)
 
     // TODO: onItemUsedNoTarget (not only custom items)
 

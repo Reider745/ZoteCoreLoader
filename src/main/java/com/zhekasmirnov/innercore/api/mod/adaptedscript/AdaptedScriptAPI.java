@@ -22,6 +22,7 @@ import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.annotations.*;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
+import com.zhekasmirnov.innercore.api.constants.EntityType;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
 import com.zhekasmirnov.innercore.api.entities.NativeAttributeInstance;
 import com.zhekasmirnov.innercore.api.entities.NativePathNavigation;
@@ -76,6 +77,7 @@ import java.util.List;
  */
 
 public class AdaptedScriptAPI extends API {
+
     @Override
     public String getName() {
         return "AdaptedScript";
@@ -143,19 +145,19 @@ public class AdaptedScriptAPI extends API {
     }
 
     @JSStaticFunction
-    @SuppressWarnings("deprecation")
+    @Deprecated
     public static long getPlayerEnt() {
         return NativeAPI.getPlayer();
     }
 
     @JSStaticFunction
-    @SuppressWarnings("deprecation")
+    @Deprecated
     public static void clientMessage(String message) {
         NativeAPI.clientMessage(message);
     }
 
     @JSStaticFunction
-    @SuppressWarnings("deprecation")
+    @Deprecated
     public static void tipMessage(String message) {
         NativeAPI.tipMessage(message);
     }
@@ -738,14 +740,12 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static int getAnimalAge(Object entity) {
-            logDeprecation("Entity.getAnimalAge");
             return NativeAPI.getAge(unwrapEntity(entity));
         }
 
         @JSStaticFunction
         public static void setAnimalAge(Object entity, int age) {
             NativeAPI.setAge(unwrapEntity(entity), age);
-            logDeprecation("Entity.setAnimalAge");
         }
 
         @JSStaticFunction
@@ -887,7 +887,7 @@ public class AdaptedScriptAPI extends API {
         // other
 
         @JSStaticFunction
-        @SuppressWarnings("deprecation")
+        @Deprecated
         public static long getPlayerEnt() {
             return NativeAPI.getPlayer();
         }
@@ -1029,29 +1029,30 @@ public class AdaptedScriptAPI extends API {
     @APIStaticModule
     public static class Player {
         @JSStaticFunction
-        @SuppressWarnings("deprecation")
+        @Deprecated
         public static long get() {
             return NativeAPI.getPlayer();
         }
 
         @JSStaticFunction
-        @SuppressWarnings("deprecation")
+        @Deprecated
         public static long getServer() {
             return NativeAPI.getServerPlayer();
         }
 
         @JSStaticFunction
-        @SuppressWarnings("deprecation")
+        @Deprecated
         public static long getLocal() {
             return NativeAPI.getLocalPlayer();
         }
 
         @JSStaticFunction
         public static boolean isPlayer(Object entity) {
-            return NativeAPI.getEntityType(Entity.unwrapEntity(entity)) == 1;
+            return NativeAPI.getEntityType(Entity.unwrapEntity(entity)) == EntityType.PLAYER;
         }
 
         @JSStaticFunction
+        @Deprecated
         public static ScriptableObject getPointed() {
             int[] pos = new int[4];
             float[] vec = new float[3];
@@ -1076,6 +1077,7 @@ public class AdaptedScriptAPI extends API {
         // inventory
 
         @JSStaticFunction
+        @Deprecated
         public static void addItemInventory(int id, int count, int data, boolean preventDropThatLeft, Object extra) {
             NativeAPI.addItemToInventory(id, count, data, NativeItemInstanceExtra.unwrapValue(extra),
                     !preventDropThatLeft);
@@ -1087,51 +1089,61 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated
         public static ItemInstance getInventorySlot(int slot) {
             return new ItemInstance(new NativeItemInstance(NativeAPI.getInventorySlot(slot)));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setInventorySlot(int slot, int id, int count, int data, Object extra) {
             NativeAPI.setInventorySlot(slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static ItemInstance getArmorSlot(int slot) {
             return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityArmor(get(), slot)));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setArmorSlot(int slot, int id, int count, int data, Object extra) {
             EntityMethod.setEntityArmor(get(), slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static ItemInstance getCarriedItem() {
             return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityCarriedItem(get())));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static ItemInstance getOffhandItem() {
             return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityOffhandItem(get())));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setCarriedItem(int id, int count, int data, Object extra) {
             EntityMethod.setEntityCarriedItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setOffhandItem(int id, int count, int data, Object extra) {
             EntityMethod.setEntityOffhandItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static int getSelectedSlotId() {
             return NativeAPI.getPlayerSelectedSlot();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setSelectedSlotId(int slot) {
             NativeAPI.setPlayerSelectedSlot(slot);
         }
@@ -1139,146 +1151,175 @@ public class AdaptedScriptAPI extends API {
         // properties
 
         @JSStaticFunction
+        @Deprecated
         public static double getHunger() {
             return NativeAPI.getPlayerHunger();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setHunger(double val) {
             NativeAPI.setPlayerHunger((float) val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getSaturation() {
             return NativeAPI.getPlayerSaturation();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setSaturation(double val) {
             NativeAPI.setPlayerSaturation((float) val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getExhaustion() {
             return NativeAPI.getPlayerExhaustion();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setExhaustion(double val) {
             NativeAPI.setPlayerExhaustion((float) val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void addExperience(int val) {
             NativeAPI.addPlayerExperience(val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void addExp(int val) {
             NativeAPI.addPlayerExperience(val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getExperience() {
             return NativeAPI.getPlayerExperience();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getExp() {
             return NativeAPI.getPlayerExperience();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setExperience(double val) {
             NativeAPI.setPlayerExperience((float) val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setExp(double val) {
             NativeAPI.setPlayerExperience((float) val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getLevel() {
             return NativeAPI.getPlayerLevel();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setLevel(double val) {
             NativeAPI.setPlayerLevel((float) val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static int getScore() {
             return NativeAPI.getPlayerScore();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static boolean isFlying() {
             return NativeAPI.isPlayerFlying();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setFlying(boolean val) {
             NativeAPI.setPlayerFlying(val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static boolean canFly() {
             return NativeAPI.canPlayerFly();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setCanFly(boolean val) {
             NativeAPI.setPlayerCanFly(val);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getX() {
             return Entity.getX(get());
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getY() {
             return Entity.getY(get());
         }
 
         @JSStaticFunction
+        @Deprecated
         public static double getZ() {
             return Entity.getY(get());
         }
 
         @JSStaticFunction
+        @Deprecated
         public static float[] getPosition() {
             return Entity.getPosition(get());
         }
 
         @JSStaticFunction
+        @Deprecated
         public static int getDimension() {
             return NativeAPI.getDimension();
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setFov(double fov) {
             NativeAPI.nativeSetFov((float) fov);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void resetFov() {
             NativeAPI.nativeSetFov(-1);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setCameraEntity(Object entity) {
             NativeAPI.nativeSetCameraEntity(Entity.unwrapEntity(entity));
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void resetCamera() {
             NativeAPI.nativeSetCameraEntity(0);
         }
 
         @JSStaticFunction
+        @Deprecated
         public static void setAbility(String ability, Object value) {
             if (!NativeAPI.isValidAbility(ability)) {
                 throw new IllegalArgumentException("Invalid ability name: " + ability);
@@ -1292,6 +1333,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated
         public static float getFloatAbility(String ability) {
             if (NativeAPI.isValidAbility(ability)) {
                 return NativeAPI.getPlayerFloatAbility(ability);
@@ -1300,6 +1342,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated
         public static boolean getBooleanAbility(String ability) {
             if (NativeAPI.isValidAbility(ability)) {
                 return NativeAPI.getPlayerBooleanAbility(ability);

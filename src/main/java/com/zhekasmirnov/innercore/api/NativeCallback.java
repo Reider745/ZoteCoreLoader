@@ -24,6 +24,7 @@ import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
+import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.ecs.core.EntitySystem;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.commontypes.Coords;
@@ -32,10 +33,12 @@ import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
 import com.zhekasmirnov.innercore.api.entities.NativePathNavigation;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegistry;
 import com.zhekasmirnov.innercore.api.mod.util.InventorySource;
+import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.runtime.*;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.runtime.other.WorldGen;
@@ -45,6 +48,10 @@ import com.zhekasmirnov.innercore.utils.UIUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
 
 /**
  * Created by zheka on 25.06.2017.
@@ -108,7 +115,8 @@ public class NativeCallback {
             // Profiler.setExtremeSignalHandlingEnabled(false);
         }
 
-        // NativeAPI.setDebugDumpDirectory(InnerCoreConfig.getBool("create_debug_dump") ? FileTools.DIR_HORIZON + "logs/" : null);
+        // NativeAPI.setDebugDumpDirectory(InnerCoreConfig.getBool("create_debug_dump")
+        // ? FileTools.DIR_HORIZON + "logs/" : null);
 
         NameTranslation.loadBuiltinTranslations();
     }
@@ -462,7 +470,8 @@ public class NativeCallback {
             boolean isExternal, long player) {
         if (!isServer) {
             // call client callback
-            InnerCoreServer.useClientMethod("NativeCallback.onItemUsed(x, y, z, side, fx, fy, fz, isServer, isExternal, player)");
+            InnerCoreServer.useClientMethod(
+                    "NativeCallback.onItemUsed(x, y, z, side, fx, fy, fz, isServer, isExternal, player)");
             return;
         }
 
@@ -488,6 +497,10 @@ public class NativeCallback {
                         new Pair<String, Object>("someFloat", anotherFloat)));
     }
 
+    public static void onServerCommand(String command, float x, float y, float z, long entity) {
+        Callback.invokeAPICallback("ServerCommand", command, new Coords(x, y, z), entity);
+    }
+
     /* PLAYER CALLBACKS */
 
     public static void onPlayerEat(int food, float ratio, long player) {
@@ -506,6 +519,18 @@ public class NativeCallback {
     @Deprecated
     public static void onCommandExec() {
         InnerCoreServer.useClientMethod("NativeCallback.onCommandExec()");
+    }
+
+    public static void onPlayerLogin(ConnectedClient client, String username, Consumer<String> acceptor) {
+        Callback.invokeAPICallback("ServerPlayerLogin",
+                Context.javaToJS(client, ScriptableObjectHelper.getDefaultScope()), username,
+                new ScriptableFunctionImpl() {
+                    @Override
+                    public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                        acceptor.accept(args.length > 0 ? (String) args[0] : null);
+                        return null;
+                    }
+                });
     }
 
     /* ENTITY CALLBACKS */

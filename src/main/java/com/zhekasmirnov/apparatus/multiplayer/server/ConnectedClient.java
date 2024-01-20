@@ -7,7 +7,7 @@ import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
-import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import java.io.IOException;
 import java.util.*;
 
@@ -190,42 +190,31 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         return initializationPacketFailureCause;
     }
 
-    public void send(String name, Object data) {
+    private void acceptChannelIfAvailable(String name, Runnable action) {
         try {
             if (InnerCoreServer.isDebugInnerCoreNetwork())
                 System.out.println(
-                        "sending packet player=" + playerUid + " name=" + name + " state=" + getClientState().name());
+                        "sending packet player=" + playerUid + ", name=" + name + ", state=" + getClientState().name());
             if (!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed")
                     || getClientState() == ClientState.OPEN))
-                channel.send(name, data);
+                action.run();
         } catch (Throwable e) {
-            ICLog.e("Network", "cannot send packet to player=" + playerUid, e);
+            Player player;
+            if ((player = EntityMethod.getPlayerById(playerUid)) == null) {
+                return;
+            }
 
-            final Player player = EntityMethod.getPlayerById(playerUid);
-            if (player != null)
-                player.kick();
-            else
-                ICLog.i("Network", "cannot kick from server player=" + playerUid);
+            Logger.error("cannot send packet to player=" + playerUid + ", name=" + name, e);
+            player.kick(e.getMessage());
         }
     }
 
-    public <T> void send(String name, T data, Class<T> dataType) {
-        try {
-            if (InnerCoreServer.isDebugInnerCoreNetwork())
-                System.out.println(
-                        "sending packet player=" + playerUid + " name=" + name + " state=" + getClientState().name());
-            if (!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed")
-                    || getClientState() == ClientState.OPEN))
-                channel.send(name, data, dataType);
-        } catch (Throwable e) {
-            ICLog.e("Network", "cannot send packet to player=" + playerUid, e);
+    public void send(String name, Object data) {
+        acceptChannelIfAvailable(name, () -> channel.send(name, data));
+    }
 
-            final Player player = EntityMethod.getPlayerById(playerUid);
-            if (player != null)
-                player.kick();
-            else
-                ICLog.i("Network", "cannot kick from server player=" + playerUid);
-        }
+    public <T> void send(String name, T data, Class<T> dataType) {
+        acceptChannelIfAvailable(name, () -> channel.send(name, data, dataType));
     }
 
     public void sendMessage(String message) {
@@ -243,5 +232,4 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
     public void disconnect() {
         disconnect("no further information");
     }
-
 }

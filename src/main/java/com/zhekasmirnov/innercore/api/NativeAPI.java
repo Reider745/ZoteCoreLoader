@@ -452,6 +452,7 @@ public class NativeAPI {
         return 0;
     }
 
+    @Deprecated
     public static long getPointedData(int[] iArr, float[] fArr) {
         InnerCoreServer.useClientMethod("NativeAPI.getPointedData(iArr, fArr)");
         return 0;

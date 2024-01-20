@@ -3,18 +3,20 @@ package com.reider745.hooks;
 import cn.nukkit.Player;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.network.protocol.DataPacket;
+
 import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.HookClass;
-import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
+
 import java.util.List;
 
 @Hooks(className = "cn.nukkit.Player")
 public class PlayerHooks implements HookClass {
+
     private static boolean isAddress(String address1, String address2) {
         String[] protocol1 = address1.split(":", 2);
         String[] protocol2 = address2.split(":", 2);
@@ -37,12 +39,6 @@ public class PlayerHooks implements HookClass {
                 return client;
 
         return null;
-    }
-
-    @Inject(type = TypeHook.AFTER)
-    public static void completeLoginSequence(Player player) {
-        if (getForPlayer(player) == null)
-            player.kick("Failed to connection Inner Core 1.16.201");
     }
 
     @Inject
