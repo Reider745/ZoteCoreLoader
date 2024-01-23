@@ -4,7 +4,6 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.BlockMethods;
 import com.reider745.block.CustomBlock;
-import com.reider745.block.CustomBlockLiquid;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
@@ -260,8 +259,9 @@ public class NativeBlock {
         BlockMethods.setCanBeExtraBlock(id, canBeExtraBlock);
     }
 
+    // TODO: Block.recalculateBoundingBox
     public static void setShape(int id, int data, float x1, float y1, float z1, float x2, float y2, float z2) {
-        InnerCoreServer.useClientMethod("NativeBlock.setShape(id, data, x1, y1, z1, x2, y2, z2)");
+        InnerCoreServer.useNotCurrentSupport("NativeBlock.setShape(id, data, x1, y1, z1, x2, y2, z2)");
     }
 
     private static HashMap<Integer, Float> blockDestroyTimes = new HashMap<>();

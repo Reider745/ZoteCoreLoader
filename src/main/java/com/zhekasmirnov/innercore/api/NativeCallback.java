@@ -33,7 +33,6 @@ import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
 import com.zhekasmirnov.innercore.api.entities.NativePathNavigation;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegistry;
@@ -522,15 +521,13 @@ public class NativeCallback {
     }
 
     public static void onPlayerLogin(ConnectedClient client, String username, Consumer<String> acceptor) {
-        Callback.invokeAPICallback("ServerPlayerLogin",
-                Context.javaToJS(client, ScriptableObjectHelper.getDefaultScope()), username,
-                new ScriptableFunctionImpl() {
-                    @Override
-                    public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
-                        acceptor.accept(args.length > 0 ? (String) args[0] : null);
-                        return null;
-                    }
-                });
+        Callback.invokeAPICallback("ServerPlayerLogin", client, username, new ScriptableFunctionImpl() {
+            @Override
+            public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                acceptor.accept(args.length > 0 ? (String) args[0] : null);
+                return null;
+            }
+        });
     }
 
     /* ENTITY CALLBACKS */
@@ -633,7 +630,8 @@ public class NativeCallback {
                 someBool2);
 
         // if (entity == NativeAPI.getPlayer()) {
-        //     ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1, someBool2);
+        // ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1,
+        // someBool2);
         // }
     }
 

@@ -199,11 +199,11 @@ public class NativeAPI {
     }
 
     public static void leaveGame() {
-        InnerCoreServer.useClientMethod("NativeAPI.leaveGame()");
+        Server.getInstance().shutdown();
     }
 
     public static void forceCrash() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.forceCrash()");
+        Server.getInstance().forceShutdown();
     }
 
     public static void forceLevelSave() {
