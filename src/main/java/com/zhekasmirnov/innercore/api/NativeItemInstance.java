@@ -33,7 +33,7 @@ public class NativeItemInstance {
             this.count = item.getCount();
             this.data = item.getAttackDamage() == 0 ? item.getAttackDamage() : item.getDamage();
 
-            NukkitIdConvertor.apply(this);
+            NukkitIdConvertor.convert(this);
 
             this.extra = ItemUtils.getItemInstanceExtra(item);
         }

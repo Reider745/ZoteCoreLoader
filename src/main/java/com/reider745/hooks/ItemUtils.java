@@ -191,6 +191,14 @@ public class ItemUtils implements HookClass {
         return get(id, count, meta, provider == null ? null : provider.extra);
     }
 
+    public static Item get(int id, int count, int meta) {
+        return get(id, count, meta, null);
+    }
+
+    public static Item get(int id, int meta) {
+        return get(id, 1, meta);
+    }
+
     public static NativeItemInstanceExtra getItemInstanceExtra(Item item) {
         CompoundTag tag = item.getOrCreateNamedTag();
         String custom = tag.getString(INNER_CORE_TAG_NAME);
