@@ -9,8 +9,8 @@ pack-version-code: 152
 # modpack: StoneBlock
 
 # Use vanilla crafting table interface, instead of custom one.
-# Attention: currently not supported and custom recipes will not be dislayed.
-# use-legacy-workbench-override: on
+# Attention: currently not recommended and recipes dislayed with bugs.
+# use-legacy-workbench-override: off
 
 # Disabling inventory fix for connected clients, outdated versions do not
 # work properly with it, not allowing moving items around inventory.

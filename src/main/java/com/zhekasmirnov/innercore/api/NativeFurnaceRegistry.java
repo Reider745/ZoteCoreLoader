@@ -4,6 +4,8 @@ import cn.nukkit.Server;
 import cn.nukkit.inventory.CraftingManager;
 import cn.nukkit.inventory.FurnaceRecipe;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.RuntimeItemMapping;
+import cn.nukkit.item.RuntimeItems;
 import cn.nukkit.network.protocol.ProtocolInfo;
 
 import java.util.ArrayList;
@@ -13,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.reider745.InnerCoreServer;
+import com.reider745.hooks.ItemUtils;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 /**
  * Created by zheka on 15.09.2017.
@@ -96,20 +102,41 @@ public class NativeFurnaceRegistry {
     }
 
     public static void init() {
+        RuntimeItemMapping mapping = RuntimeItems.getMapping(InnerCoreServer.PROTOCOL);
         CraftingManager manager = Server.getInstance().getCraftingManager();
+        int outputId, outputData, inputId, inputData;
         for (Map<String, Integer> recipe : recipes) {
-            int type = recipe.get("type");
-            switch (type) {
-                case 0 ->
-                    manager.registerFurnaceRecipe(ProtocolInfo.CURRENT_PROTOCOL, new FurnaceRecipe(
-                            Item.get(recipe.get("outputId"), recipe.get("outputData")),
-                            Item.get(recipe.get("inputId"), recipe.get("inputData"))));
+            inputId = recipe.get("inputId");
+            inputData = recipe.get("inputData");
+            final Item input = ItemUtils.get(inputId, inputData);
+            try {
+                mapping.toRuntime(input.getId(), input.getDamage());
+            } catch (IllegalArgumentException e) {
+                Logger.warning("NativeFurnace",
+                        "Unknown legacy2Runtime mapping: id=" + inputId + ", meta=" + inputData);
+                continue;
+            }
+            switch (recipe.get("type")) {
+                case 0 -> {
+                    outputId = recipe.get("outputId");
+                    outputData = recipe.get("outputData");
+                    Item output = ItemUtils.get(outputId, outputData);
+                    try {
+                        mapping.toRuntime(output.getId(), output.getDamage());
+                    } catch (IllegalArgumentException e) {
+                        Logger.warning("NativeFurnace",
+                                "Unknown legacy2Runtime mapping: id=" + outputId + ", meta=" + outputData
+                                        + " (recipe: id=" + inputId + ", meta=" + inputData + ")");
+                        continue;
+                    }
+                    manager.registerFurnaceRecipe(ProtocolInfo.CURRENT_PROTOCOL, new FurnaceRecipe(output, input));
+                }
                 case 1 -> {
                     AtomicReference<Integer> key = new AtomicReference<>();
                     manager.getFurnaceRecipes(ProtocolInfo.CURRENT_PROTOCOL).forEach((k, v) -> {
                         Item item = v.getInput();
-                        int data = recipe.get("inputData");
-                        if (item.getId() == recipe.get("inputId") || (data == -1 || data == item.getDamage()))
+                        if (item.getId() == input.getId()
+                                || (input.getDamage() == -1 || input.getDamage() == item.getDamage()))
                             key.set(k);
                     });
 
@@ -117,5 +144,7 @@ public class NativeFurnaceRegistry {
                 }
             }
         }
+        recipes.clear();
+        manager.rebuildPacket();
     }
 }

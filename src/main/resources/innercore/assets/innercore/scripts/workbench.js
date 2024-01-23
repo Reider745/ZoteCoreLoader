@@ -1,21 +1,8 @@
 
 var isLegacyWorkbenchEnabled = false;
-Callback.addCallback("CoreConfigured", function(config) {
-	isLegacyWorkbenchEnabled = config.getBool("gameplay.use_legacy_workbench_override");
+Callback.addCallback("CoreConfigured", function() {
+	isLegacyWorkbenchEnabled = com.reider745.InnerCoreServer.isLegacyWorkbench();
 });
-
-function open(player, x, y, z){
-    var position = Entity.getPosition(player);
-	var distanceSqr = Math.pow(position[0] - (x + .5), 2) + Math.pow(position[1] - (y + .5), 2) + Math.pow(position[2] - (z + .5), 2);
-	if (distanceSqr < 15 * 15) {
-		var blockSource = BlockSource.getDefaultForActor(player);
-		if (blockSource != null && blockSource.getBlockId(x || 0, y || 0, z || 0) === 58) {
-		    var client = Network.getClientForPlayer(player);
-			WorkbenchHandler.openFor(client);
-			WorkbenchHandler.handleRebuildRecipeRequest(client);
-		}
-	}
-}
 
 /**
  * Network workbench implementation
@@ -25,12 +12,6 @@ var Network = MCSystem.getNetwork();
 
 var WorkbenchHandler = {
 	containerByEntity: {},
-
-	setupPacketListeners: function() {
-		Network.addServerPacket("sys.workbench.open", function(client, coords) {
-
-		});
-	},
 
 	setupContainerClientSide: function() {
 		ItemContainer.registerScreenFactory("sys.workbench", function (container, name) {
@@ -143,26 +124,22 @@ var WorkbenchHandler = {
 }
 
 WorkbenchHandler.setupContainerClientSide();
-WorkbenchHandler.setupPacketListeners();
-
-/*Callback.addCallback("ItemUseLocalServer", function (coords, item, block, isExternal, player) {
-	if (isLegacyWorkbenchEnabled && block.id === 58) {
-		if (!Entity.isSneaking(player)) {
-			preventDefault();
-			Network.sendToServer("sys.workbench.open", {x: coords.x, y: coords.y, z: coords.z});
-		}
-	}
-});*/
 
 Callback.addCallback("ItemUse", function (coords, item, block, isExternal, player) {
 	if (isLegacyWorkbenchEnabled && block.id === 58) {
 		preventDefault();
-		if(!Entity.isSneaking(player)){
-		    open(Number(player), coords.x, coords.y, coords.z)
+		var position = Entity.getPosition(player);
+		var distanceSqr = Math.pow(position[0] - (coords.x + .5), 2) + Math.pow(position[1] - (coords.y + .5), 2) + Math.pow(position[2] - (coords.z + .5), 2);
+		if (distanceSqr < 15 * 15) {
+			var blockSource = BlockSource.getDefaultForActor(player);
+			if (blockSource != null && blockSource.getBlockId(coords.x || 0, coords.y || 0, coords.z || 0) === 58) {
+				var client = Network.getClientForPlayer(player);
+				WorkbenchHandler.openFor(client);
+				WorkbenchHandler.handleRebuildRecipeRequest(client);
+			}
 		}
 	}
 });
-
 
 Callback.addCallback("LevelLeft", function () {
 	WorkbenchHandler.clearAll();

@@ -211,6 +211,7 @@ public class WorkbenchRecipeRegistry {
         return null;
     }
 
+    @Deprecated
     public static ItemInstance provideRecipe(WorkbenchField field, String prefix) {
         return provideRecipeForPlayer(field, prefix, NativeAPI.getPlayer());
     }
