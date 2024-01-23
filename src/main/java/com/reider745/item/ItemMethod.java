@@ -4,6 +4,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
+import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
@@ -109,7 +110,7 @@ public class ItemMethod {
         if (vanillaMapping != null) {
             return vanillaMapping;
         }
-        Item item = Item.get(id);
+        Item item = ItemUtils.get(id);
         if (item != null) {
             vanillaMapping = item.getNamespaceId();
             if (vanillaMapping != null) {
@@ -121,7 +122,7 @@ public class ItemMethod {
             if (vanillaMapping == null) {
                 vanillaMapping = item.getName();
                 if (vanillaMapping != null) {
-                    vanillaMapping = vanillaMapping.toLowerCase().replace(" ", "");
+                    vanillaMapping = vanillaMapping.toLowerCase().replace(" ", "_");
                 }
             }
             if (vanillaMapping != null) {

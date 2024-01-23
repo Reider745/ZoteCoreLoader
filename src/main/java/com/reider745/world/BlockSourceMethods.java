@@ -13,6 +13,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.math.BlockVector3;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 
@@ -21,8 +22,9 @@ import com.reider745.entity.EntityMethod;
 import com.reider745.event.EventListener;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.ItemUtils;
+import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 public class BlockSourceMethods {
@@ -41,7 +43,8 @@ public class BlockSourceMethods {
     }
 
     public static Level getLevelForDimension(int dimension) {
-        return Server.getInstance().getLevels().values().stream().filter(level -> level.getDimension() == dimension)
+        return Server.getInstance().getLevels().values().stream()
+                .filter(level -> level.getDimension() == dimension)
                 .findFirst().orElse(null);
     }
 
@@ -76,8 +79,7 @@ public class BlockSourceMethods {
         return level.isChunkLoaded(x, z);
     }
 
-    public static long spawnDroppedItem(Level level, float x, float y, float z, int id, int count, int data,
-            long extra) {
+    public static long spawnDroppedItem(Level level, float x, float y, float z, int id, int count, int data, NativeItemInstanceExtra extra) {
         EntityItem item = level.dropAndGetItem(new Vector3(x, y, z), ItemUtils.get(id, count, data, extra));
         if (item == null)
             return 0;
@@ -204,49 +206,28 @@ public class BlockSourceMethods {
         return 0;
     }
 
-    private static long[] convert(ArrayList<Long> list) {
-        final int size = list.size();
-        if (size == 0)
-            return new long[] {};
-
-        long[] result = new long[size];
-        for (int i = 0; i < size; i++)
-            result[i] = list.get(i);
-
-        return result;
+    private static Entity[] fetchEntitiesInAABB(Level level, float x1, float y1, float z1, float x2, float y2,
+            float z2) {
+        return level.getCollidingEntities(
+                new SimpleAxisAlignedBB((double) x1, (double) y1, (double) z1, (double) x2, (double) y2, (double) z2));
     }
 
     public static long[] fetchEntitiesInAABB(Level level, float x1, float y1, float z1, float x2, float y2, float z2,
-            int backCompEntityType, boolean flag) {
-        Entity[] entities = level.getEntities();
-        ArrayList<Long> list = new ArrayList<>();
-
-        for (Entity entity : entities) {
-            Position position = entity.getPosition();
-            if ((flag == (EntityMethod.getEntityTypeDirect(entity) != backCompEntityType))
-                    && (x1 >= position.x && position.x <= x2) && (y1 >= position.y && position.y <= y2)
-                    && (z1 >= position.z && position.z <= z2))
-                list.add(entity.getId());
-        }
-
-        return convert(list);
+            int backCompEntityType, boolean blacklist) {
+        return Arrays.stream(fetchEntitiesInAABB(level, x1, y1, z1, x2, y2, z2))
+                .filter(entity -> {
+                    int entityType = EntityMethod.getEntityTypeDirect(entity);
+                    return !blacklist ? entityType == backCompEntityType : entityType != backCompEntityType;
+                })
+                .mapMultiToLong((entity, consumer) -> entity.getId()).toArray();
     }
 
     public static long[] fetchEntitiesOfTypeInAABB(Level level, float x1, float y1, float z1, float x2, float y2,
             float z2, String namespace, String name) {
-        Entity[] entities = level.getEntities();
-        ArrayList<Long> list = new ArrayList<>();
-
-        for (Entity entity : entities) {
-            Position position = entity.getPosition();
-            // TODO: Quite BETTER name to identifier conversion!
-            if (entity.getName().equalsIgnoreCase(name)
-                    && (x1 >= position.x && position.x <= x2) && (y1 >= position.y && position.y <= y2)
-                    && (z1 >= position.z && position.z <= z2))
-                list.add(entity.getId());
-        }
-
-        return convert(list);
+        // TODO: Quite BETTER name to identifier conversion!
+        return Arrays.stream(fetchEntitiesInAABB(level, x1, y1, z1, x2, y2, z2))
+                .filter(entity -> entity.getName().equalsIgnoreCase(name))
+                .mapMultiToLong((entity, consumer) -> entity.getId()).toArray();
     }
 
     public static long spawnEntity(Level level, int type, float x, float y, float z) {

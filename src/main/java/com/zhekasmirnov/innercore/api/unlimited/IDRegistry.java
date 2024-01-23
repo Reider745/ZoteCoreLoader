@@ -255,7 +255,7 @@ public class IDRegistry {
     }
 
     public static String getStringIdAndTypeForVanillaId(int id) {
-        return vanillaTileById.containsKey(id + 255) ? "block:" + vanillaTileById.get(id + 255) : vanillaNameById.containsKey(id) ? "item:" + vanillaNameById.get(id) : null;
+        return vanillaTileById.containsKey(id) ? "block:" + vanillaTileById.get(id) : vanillaNameById.containsKey(id) ? "item:" + vanillaNameById.get(id) : null;
     }
 
     @JSStaticFunction
