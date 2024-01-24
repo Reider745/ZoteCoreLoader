@@ -1,7 +1,5 @@
 package com.zhekasmirnov.innercore.api.mod.util;
 
-import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -15,15 +13,6 @@ public class InventorySource {
     private static final ScriptableObject[] slots = new ScriptableObject[36];
 
     public static void tick() {
-        if (isUpdating)
-            for (int i = 0; i < 36; i++) {
-                NativeItemInstance itemInstance = new NativeItemInstance(NativeAPI.getInventorySlot(i));
-                ScriptableObject slot = getSource(i);
-                slot.put("id", slot, itemInstance.id);
-                slot.put("count", slot, itemInstance.count);
-                slot.put("data", slot, itemInstance.data);
-                slot.put("extra", slot, itemInstance.extra);
-            }
     }
 
     public static ScriptableObject getSource(int slotId) {

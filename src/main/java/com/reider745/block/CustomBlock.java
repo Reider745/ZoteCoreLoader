@@ -1,6 +1,5 @@
 package com.reider745.block;
 
-import cn.nukkit.Player;
 import cn.nukkit.block.*;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.item.Item;
@@ -21,13 +20,12 @@ import java.util.HashMap;
 public class CustomBlock extends BlockSolidMeta implements RandomTick {
     public static HashMap<Integer, CustomManager> blocks = new HashMap<>();
 
-    public static void registerBlock(int id, Block block){
+    public static void registerBlock(int id, Block block) {
         registerBlock(id, 0, block);
     }
 
-    public static void registerBlock(int id, int data, Block block){
+    public static void registerBlock(int id, int data, Block block) {
         Block.list[id] = block.getClass();
-        //blocks.put(id+":"+data, block);
         int fullId = (id << DATA_BITS) | data;
         Block.fullList[fullId] = block;
         Block.hasMeta[id] = true;
@@ -39,7 +37,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
         boolean[] randomTickBlocks = ReflectHelper.getField(Level.class, "randomTickBlocks");
 
-        if(block instanceof RandomTick randomTick && randomTick.canRandomTickBlocks())
+        if (block instanceof RandomTick randomTick && randomTick.canRandomTickBlocks())
             randomTickBlocks[id] = true;
 
         if (block.isSolid()) {
@@ -57,55 +55,58 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         }
     }
 
-    public static String getTextIdForNumber(int id){
-        for(String texId : customBlocks.keySet())
-            if(customBlocks.get(texId).equals(id))
+    public static String getTextIdForNumber(int id) {
+        for (String texId : customBlocks.keySet())
+            if (customBlocks.get(texId).equals(id))
                 return texId;
         return null;
     }
 
-
-    public static void init(){
+    public static void init() {
         blocks.forEach((id, value) -> {
             final CustomManager manager = getBlockManager(id);
             final ArrayList<String> variants = getVariants(manager);
             try {
-                final Constructor<?> constructor = manager.getClazz().getDeclaredConstructor(int.class, int.class, CustomManager.class, String.class);
-                for(int data = 0;data < variants.size();data++)
+                final Constructor<?> constructor = manager.getClazz().getDeclaredConstructor(int.class, int.class,
+                        CustomManager.class, String.class);
+                for (int data = 0; data < variants.size(); data++)
                     registerBlock(id, data, (Block) constructor.newInstance(id, data, manager, variants.get(data)));
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
+                    | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    public static CustomManager getBlockManager(int id){
+    public static CustomManager getBlockManager(int id) {
         return blocks.get(id);
     }
 
-    public static ArrayList<String> getVariants(int id){
+    public static ArrayList<String> getVariants(int id) {
         return getVariants(getBlockManager(id));
     }
 
-    public static ArrayList<String> getOrgVariants(int id){
+    public static ArrayList<String> getOrgVariants(int id) {
         CustomManager manager = getBlockManager(id);
-        if(manager == null) return new ArrayList<>();
+        if (manager == null)
+            return new ArrayList<>();
         return manager.get("variants", new ArrayList<>());
     }
 
-    public static ArrayList<String> getOrgVariants(CustomManager manager){
-        if(manager == null) return new ArrayList<>();
+    public static ArrayList<String> getOrgVariants(CustomManager manager) {
+        if (manager == null)
+            return new ArrayList<>();
         return manager.get("variants", new ArrayList<>());
     }
 
-    public static ArrayList<String> getVariants(CustomManager manager){
+    public static ArrayList<String> getVariants(CustomManager manager) {
         ArrayList<String> variants = (ArrayList<String>) manager.get("variants", new ArrayList<>()).clone();
-        if(variants.size() >= 16)
+        if (variants.size() >= 16)
             return variants;
 
-        int size = 16-variants.size();
+        int size = 16 - variants.size();
         String name = variants.get(0);
-        for(int i = 0;i < size;i++)
+        for (int i = 0; i < size; i++)
             variants.add(name);
 
         return variants;
@@ -113,22 +114,23 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     public static HashMap<String, Integer> customBlocks = new HashMap<>();
 
-    public static CustomManager registerBlock(String textId, int id, String name, Class<?> item){
+    public static CustomManager registerBlock(String textId, int id, String name, Class<?> item) {
         CustomManager manager = new CustomManager(id, item, "block");
         manager.put("name", name);
 
         blocks.put(id, manager);
-        customBlocks.put("block_"+textId, id);;
+        customBlocks.put("block_" + textId, id);
+
         CustomManager.put(id, manager);
         NativeItem.newNativeItem(id, manager, textId, name);
         return manager;
     }
 
-    public static CustomManager registerBlock(String textId, int id, String name){
+    public static CustomManager registerBlock(String textId, int id, String name) {
         return registerBlock(textId, id, name, CustomBlock.class);
     }
 
-    public static CustomManager registerBlock(String textId, int id, String name, int tick_rate, boolean isRenewable){
+    public static CustomManager registerBlock(String textId, int id, String name, int tick_rate, boolean isRenewable) {
         CustomManager manager = registerBlock(textId, id, name, CustomBlockLiquid.class);
         manager.put("tick_rate", tick_rate);
         manager.put("isRenewable", isRenewable);
@@ -142,7 +144,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     private boolean TickingTile;
     private boolean NeighbourChange;
 
-    protected CustomBlock(int id, int meta){
+    protected CustomBlock(int id, int meta) {
         this(id, meta, getBlockManager(id));
     }
 
@@ -157,7 +159,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         this.id = id;
         this.name = name;
 
-        TickingTile = manager.get("TickingTile:"+meta, false);
+        TickingTile = manager.get("TickingTile:" + meta, false);
         NeighbourChange = manager.get("NeighbourChange", false);
     }
 
@@ -192,19 +194,23 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     @Override
     public Item[] getDrops(Item item) {
-        return new Item[]{Item.get(id, this.getDamage(), 1)};
+        return new Item[] { Item.get(id, this.getDamage(), 1) };
     }
 
     @Override
     public void onNeighborChange(@NotNull BlockFace side) {
-        Block changeBlock = getSide(side);
-        NativeCallback.onBlockEventNeighbourChange((int) x, (int) y, (int) z, (int) changeBlock.x, (int) changeBlock.y, (int) changeBlock.z, level);
+        if (NeighbourChange) {
+            Block changeBlock = getSide(side);
+            NativeCallback.onBlockEventNeighbourChange((int) x, (int) y, (int) z, (int) changeBlock.x, (int) changeBlock.y,
+                    (int) changeBlock.z, level);
+        }
     }
 
     @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_RANDOM) {
-            NativeCallback.onRandomBlockTick((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(), this.level);
+            NativeCallback.onRandomBlockTick((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(),
+                    this.level);
             return type;
         } else if (type == Level.BLOCK_UPDATE_REDSTONE) {
             RedstoneUpdateEvent ev = new RedstoneUpdateEvent(this);

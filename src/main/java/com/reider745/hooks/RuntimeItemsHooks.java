@@ -1,96 +1,68 @@
 package com.reider745.hooks;
 
-import cn.nukkit.Server;
+import cn.nukkit.item.Item;
 import cn.nukkit.item.RuntimeItemMapping;
+import cn.nukkit.item.RuntimeItemMapping.RuntimeEntry;
 import cn.nukkit.item.RuntimeItems;
-import cn.nukkit.network.protocol.ProtocolInfo;
-import cn.nukkit.utils.BinaryStream;
-
 import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
-import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
-import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
+
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Hooks(className = "cn.nukkit.item.RuntimeItemMapping")
 public class RuntimeItemsHooks implements HookClass {
-    @Inject(type = TypeHook.BEFORE_REPLACE)
-    public static void generatePalette(RuntimeItemMapping self) {
-        int protocolId = ReflectHelper.getField(self, "protocolId");
-        List<RuntimeItemMapping.RuntimeEntry> itemPaletteEntries = ReflectHelper.getField(self, "itemPaletteEntries");
 
-        BinaryStream paletteBuffer = new BinaryStream();
-        int size = 0;
-        for (RuntimeItemMapping.RuntimeEntry entry : itemPaletteEntries) {
-            if (entry.isCustomItem()
-                    && (!Server.getInstance().enableExperimentMode || protocolId < ProtocolInfo.v1_16_100)) {
-                break;
-            }
-            size++;
-        }
-        paletteBuffer.putUnsignedVarInt(size + CustomItem.customItems.size() + CustomBlock.customBlocks.size() * 16);
-        for (RuntimeItemMapping.RuntimeEntry entry : itemPaletteEntries) {
-            if (entry.isCustomItem()) {
-                if (Server.getInstance().enableExperimentMode && protocolId >= ProtocolInfo.v1_16_100) {
-                    paletteBuffer.putString(entry.getIdentifier());
-                    paletteBuffer.putLShort(entry.getRuntimeId());
-                    paletteBuffer.putBoolean(true); // Component item
-                }
-            } else {
-                paletteBuffer.putString(entry.getIdentifier());
-                paletteBuffer.putLShort(entry.getRuntimeId());
-                if (protocolId >= ProtocolInfo.v1_16_100) {
-                    paletteBuffer.putBoolean(false); // Component item
-                }
-            }
-        }
+    public static void register(int protocolId) {
+        final Map<String, Integer> legacyString2LegacyInt = ReflectHelper.getField(RuntimeItems.class,
+                "legacyString2LegacyInt");
+        final RuntimeItemMapping mapping = RuntimeItems.getMapping(protocolId);
 
-        final Int2ObjectMap<String> runtimeId2Name = ReflectHelper.getField(self, "runtimeId2Name");
-        final Map<String, RuntimeItemMapping.LegacyEntry> identifier2Legacy = ReflectHelper.getField(self,
+        final Int2ObjectMap<String> runtimeId2Name = ReflectHelper.getField(mapping, "runtimeId2Name");
+        final Map<String, RuntimeItemMapping.LegacyEntry> identifier2Legacy = ReflectHelper.getField(mapping,
                 "identifier2Legacy");
-        final Object2IntMap<String> name2RuntimeId = ReflectHelper.getField(self, "name2RuntimeId");
-        final Int2ObjectMap<RuntimeItemMapping.LegacyEntry> runtime2Legacy = ReflectHelper.getField(self,
+        final Object2IntMap<String> name2RuntimeId = ReflectHelper.getField(mapping, "name2RuntimeId");
+        final Int2ObjectMap<RuntimeItemMapping.LegacyEntry> runtime2Legacy = ReflectHelper.getField(mapping,
                 "runtime2Legacy");
-        final Int2ObjectMap<RuntimeItemMapping.RuntimeEntry> legacy2Runtime = ReflectHelper.getField(self,
+        final Int2ObjectMap<RuntimeItemMapping.RuntimeEntry> legacy2Runtime = ReflectHelper.getField(mapping,
                 "legacy2Runtime");
+        final List<RuntimeEntry> itemPaletteEntries = ReflectHelper.getField(mapping, "itemPaletteEntries");
 
         CustomItem.customItems.forEach((name, id) -> {
-            paletteBuffer.putString(name);
-            paletteBuffer.putLShort(id);
-            paletteBuffer.putBoolean(true); // Component item
-
             int fullId = RuntimeItems.getFullId(id, 0);
             int legacyId = id;
             int runtimeId = id;
             int damage = ItemMethod.getMaxDamageForId(id, 0);
-            if(damage == 0)
-                damage = Integer.MAX_VALUE;//Медведев я тебе поздравляю максимальное количество рюкзаков 32кE(это кнч дохуя, но костыль уровня школьника), ахуенный костыль! Нет бы блять в ItemExtraData хранить, нет нахуй нкжно обязательно блять с помощью даты
-            boolean hasData = damage <= 0;
 
             runtimeId2Name.put(runtimeId, name);
             name2RuntimeId.put(name, runtimeId);
 
-            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, hasData, damage);
+            RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false);
+            legacy2Runtime.put(fullId, runtimeEntry);
+            itemPaletteEntries.add(runtimeEntry);
 
+            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, damage);
             runtime2Legacy.put(runtimeId, legacyEntry);
             identifier2Legacy.put(name, legacyEntry);
 
-            legacy2Runtime.put(fullId, new RuntimeItemMapping.RuntimeEntry(name, runtimeId, hasData));
+            legacyString2LegacyInt.put(name, id);
+
+            Item item = Item.get(legacyId, 0);
+            if (item.getId() != 0) {
+                Item.NAMESPACED_ID_ITEM.put(name, () -> item);
+            }
         });
 
         CustomBlock.customBlocks.forEach((name, id) -> {
             for (int data = 0; data < 16; data++) {
-                paletteBuffer.putString(name);
-                paletteBuffer.putLShort(id);
-                paletteBuffer.putBoolean(false); // Component item
-
                 int fullId = RuntimeItems.getFullId(id, data);
                 int legacyId = id;
                 int runtimeId = id;
@@ -98,23 +70,50 @@ public class RuntimeItemsHooks implements HookClass {
                 runtimeId2Name.put(runtimeId, name);
                 name2RuntimeId.put(name, runtimeId);
 
-                RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, data);
+                RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false);
+                legacy2Runtime.put(fullId, runtimeEntry);
+                itemPaletteEntries.add(runtimeEntry);
 
+                RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, data);
                 runtime2Legacy.put(runtimeId, legacyEntry);
                 identifier2Legacy.put(name, legacyEntry);
+            }
 
-                legacy2Runtime.put(fullId, new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false));
+            legacyString2LegacyInt.put(name, id);
+
+            Item item = Item.get(id, 0);
+            if (item.getId() != 0) {
+                Item.NAMESPACED_ID_ITEM.put(name, () -> item);
             }
         });
-        ReflectHelper.setField(self, "itemPalette", paletteBuffer.getBuffer());
+
+        try {
+            Method generatePalette = RuntimeItemMapping.class.getDeclaredMethod("generatePalette", new Class[0]);
+            generatePalette.setAccessible(true);
+            generatePalette.invoke(mapping, new Object[0]);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+                | SecurityException e) {
+            throw new UnsupportedOperationException(e);
+        }
     }
 
-    @Inject(className = "cn.nukkit.item.RuntimeItems")
-    public static void init() {
-        final Map<String, Integer> legacyString2LegacyInt = ReflectHelper.getField(RuntimeItems.class,
-                "legacyString2LegacyInt");
-
-        CustomItem.customItems.forEach((name, id) -> legacyString2LegacyInt.put(name, id));
-        CustomBlock.customBlocks.forEach((name, id) -> legacyString2LegacyInt.put(name, id));
+    public static void register() {
+        register(361);
+        register(419);
+        register(440);
+        register(448);
+        register(475);
+        register(486);
+        register(503);
+        register(527);
+        register(534);
+        register(560);
+        register(567);
+        register(575);
+        register(582);
+        register(589);
+        register(594);
+        register(618);
+        register(630);
     }
 }

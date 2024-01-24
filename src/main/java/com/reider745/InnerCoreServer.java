@@ -11,6 +11,8 @@ import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
 import com.reider745.hooks.BiomesHooks;
+import com.reider745.hooks.GlobalBlockPalette;
+import com.reider745.hooks.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.hooks.bugfix.DimensionsFix;
 import com.reider745.item.CustomEnchantMethods;
@@ -323,8 +325,14 @@ public class InnerCoreServer {
         }
 
         DimensionsFix.init();
+        GlobalBlockPalette.init();
+        RuntimeItemsHooks.register();
         CustomBlock.init();
-        CustomItem.postInit();
+        CustomItem.init();
+        CustomItem.addCreativeItemsBuild();
+        CustomItem.addCreativeItemsWeapons();
+        CustomItem.addCreativeItems();
+        CustomItem.addCreativeItemsNature();
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
         CommandsHelper.init();

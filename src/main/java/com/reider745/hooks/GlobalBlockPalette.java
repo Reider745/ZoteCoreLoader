@@ -17,7 +17,6 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.*;
 
 @Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
@@ -54,7 +53,6 @@ public class GlobalBlockPalette implements HookClass {
         return assignedRuntimeIds;
     }
 
-    @Inject
     public static void init() {
         MainLogger log = Server.getInstance().getLogger();
         log.info("Loading runtime blocks...");

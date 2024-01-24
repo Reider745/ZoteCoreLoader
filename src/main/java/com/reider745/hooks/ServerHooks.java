@@ -23,9 +23,13 @@ public class ServerHooks implements HookClass {
         Main.LoadingStages.start(self);
     }
 
-    @Inject
-    public static void registerEntities() throws Exception {
-        Main.LoadingStages.preload(Server.getInstance());
+    @Inject(className = "cn.nukkit.dispenser.DispenseBehaviorRegister", type = TypeHook.AFTER)
+    public static void init() {
+        try {
+			Main.LoadingStages.preload(Server.getInstance());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
     }
 
     @Inject

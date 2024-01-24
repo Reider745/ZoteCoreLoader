@@ -216,10 +216,14 @@ public class BlockSourceMethods {
             int backCompEntityType, boolean blacklist) {
         return Arrays.stream(fetchEntitiesInAABB(level, x1, y1, z1, x2, y2, z2))
                 .filter(entity -> {
+                    if (backCompEntityType == 256) {
+                        return true;
+                    }
                     int entityType = EntityMethod.getEntityTypeDirect(entity);
                     return !blacklist ? entityType == backCompEntityType : entityType != backCompEntityType;
                 })
-                .mapMultiToLong((entity, consumer) -> entity.getId()).toArray();
+                .mapMultiToLong((entity, consumer) -> consumer.accept(entity.getId()))
+                .toArray();
     }
 
     public static long[] fetchEntitiesOfTypeInAABB(Level level, float x1, float y1, float z1, float x2, float y2,
@@ -227,7 +231,8 @@ public class BlockSourceMethods {
         // TODO: Quite BETTER name to identifier conversion!
         return Arrays.stream(fetchEntitiesInAABB(level, x1, y1, z1, x2, y2, z2))
                 .filter(entity -> entity.getName().equalsIgnoreCase(name))
-                .mapMultiToLong((entity, consumer) -> entity.getId()).toArray();
+                .mapMultiToLong((entity, consumer) -> consumer.accept(entity.getId()))
+                .toArray();
     }
 
     public static long spawnEntity(Level level, int type, float x, float y, float z) {
