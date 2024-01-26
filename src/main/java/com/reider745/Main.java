@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import com.reider745.api.hooks.JarEditor;
 import com.reider745.hooks.*;
+import com.reider745.hooks.bugfix.DimensionsFix;
 import com.reider745.hooks.bugfix.EntityItemHooks;
 import com.reider745.network.InnerCorePacket;
 
@@ -87,6 +88,7 @@ public class Main {
 
         // bug fix
         loader.registerHooksInitializationForClass(EntityItemHooks.class);
+        loader.registerHooksInitializationForClass(DimensionsFix.class);
 
         loader.init();
         loader.run("cn.nukkit.Nukkit", args);

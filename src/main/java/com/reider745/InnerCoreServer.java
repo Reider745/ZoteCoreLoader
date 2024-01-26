@@ -12,6 +12,7 @@ import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
 import com.reider745.hooks.BiomesHooks;
 import com.reider745.hooks.SnowfallEverywhere;
+import com.reider745.hooks.bugfix.DimensionsFix;
 import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
@@ -318,6 +319,7 @@ public class InnerCoreServer {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
 
+        DimensionsFix.init();
         CustomBlock.init();
         CustomItem.postInit();
         NativeWorkbench.init();
