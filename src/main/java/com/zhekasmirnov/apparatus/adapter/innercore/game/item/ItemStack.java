@@ -42,8 +42,7 @@ public class ItemStack {
                 ScriptableObjectHelper.getIntProperty(scriptable, "id", 0),
                 ScriptableObjectHelper.getIntProperty(scriptable, "count", 0),
                 ScriptableObjectHelper.getIntProperty(scriptable, "data", 0),
-                NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null))
-        );
+                NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null)));
     }
 
     public static ItemStack fromPtr(long ptr) {
@@ -77,7 +76,7 @@ public class ItemStack {
             } catch (JSONException e) {
                 return null;
             }
-            return new ItemStack(json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0),null /*NativeItemInstanceExtra.fromJson(json.optJSONObject("extra"))*/);
+            return new ItemStack(json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0), NativeItemInstanceExtra.fromJson(json.optJSONObject("extra")));
         } else if (obj instanceof NativeItemInstance) {
             return new ItemStack((NativeItemInstance) obj);
         } else if (obj instanceof Item) {
@@ -91,7 +90,7 @@ public class ItemStack {
         object.put("id", object, id);
         object.put("count", object, count);
         object.put("data", object, data);
-        object.put("extra", object, null);
+        object.put("extra", object, extra);
         return object;
     }
 
@@ -101,56 +100,48 @@ public class ItemStack {
             json.put("id", id);
             json.put("count", count);
             json.put("data", data);
-            /*if (extra != null) {
+            if (extra != null) {
                 JSONObject extraJson = extra.asJson();
                 if (extraJson != null) {
                     json.put("extra", extraJson);
                 }
-            }*/
-        } catch (JSONException ignore) { }
+            }
+        } catch (JSONException ignore) {
+        }
         return json;
     }
 
     public boolean isEmpty() {
-        return id == 0 && count == 0 && data == 0 ;//&& extra == null;
+        return id == 0 && count == 0 && data == 0 && extra == null;
     }
 
     public long getExtraPtr() {
-        return 0;
-       // return NativeItemInstanceExtra.getValueOrNullPtr(extra);
+        return NativeItemInstanceExtra.getValueOrNullPtr(extra);
     }
 
     public int getMaxStackSize() {
-        return 1;
-        //return NativeItem.getMaxStackForId(id, data);
+        return NativeItem.getMaxStackForId(id, data);
     }
 
     public int getMaxDamage() {
-        return 0;
-        //return NativeItem.getMaxDamageForId(id, data);
+        return NativeItem.getMaxDamageForId(id, data);
     }
 
     public String getItemName() {
-        return "";
-        //return NativeItem.getNameForId(id, data, getExtraPtr());
+        return NativeItem.getNameForId(id, data, getExtraPtr());
     }
 
     public boolean isGlint() {
-        return false;
-       // return NativeItem.isGlintItemInstance(id, data, extra);
+        return NativeItem.isGlintItemInstance(id, data, extra);
     }
 
-    /*public NativeItemModel getItemModel() {
+    public NativeItemModel getItemModel() {
         return NativeItemModel.getForWithFallback(id, data);
-    }*/
+    }
 
     @Override
     public String toString() {
-        return "ItemStack{" +
-                "id=" + id +
-                ", count=" + count +
-                ", data=" + data +
-               // (extra != null ? ", extra=" + extra : "") +
-                '}';
+        return "ItemStack{" + "id=" + id + ", count=" + count + ", data=" + data
+                + (extra != null ? ", extra=" + extra : "") + '}';
     }
 }

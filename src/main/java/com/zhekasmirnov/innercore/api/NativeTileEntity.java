@@ -174,7 +174,11 @@ public class NativeTileEntity {
     }
 
     public static CompoundTag getCompoundTag(BlockEntity blockEntity) {
-        return blockEntity != null ? blockEntity.namedTag : null;
+        if (blockEntity == null) {
+            return null;
+        }
+        blockEntity.saveNBT();
+        return blockEntity.namedTag;
     }
 
     public static void setCompoundTag(BlockEntity blockEntity, CompoundTag tag) {
