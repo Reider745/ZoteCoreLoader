@@ -38,6 +38,7 @@ import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 
 public class EventListener implements Listener {
 
@@ -131,8 +132,13 @@ public class EventListener implements Listener {
                 }
 
                 case Level.DIMENSION_THE_END -> {
-                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, applyPost);
                     CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_END, level, applyPre);
+                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, applyPost);
+                }
+
+                default -> {
+                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_CUSTOM, level, applyPost);
+                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_CUSTOM, level, applyPre);
                 }
             }
         } catch (Exception e) {
@@ -318,6 +324,14 @@ public class EventListener implements Listener {
                         newBlock.getFullId(), block.getLevel()));
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCustomDimensionTransfer(EntityTeleportEvent event){
+        final int from = event.getFrom().level.getDimension();
+        final int to = event.getFrom().level.getDimension();
+        if(CustomDimension.getDimensionById(to) != null || CustomDimension.getDimensionById(from) != null)
+            NativeCallback.onCustomDimensionTransfer(event.getEntity().getId(), from, to);
+    }
+
     // TODO: onPathNavigationDone
 
     // TODO: onAnimateBlockTick
@@ -340,6 +354,4 @@ public class EventListener implements Listener {
     // onEnchantGetProtectionBonus
 
     // TODO: onWorkbenchCraft
-
-    // TODO: onCustomDimensionTransfer
 }
