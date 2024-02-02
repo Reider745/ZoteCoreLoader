@@ -3,6 +3,7 @@ package com.zhekasmirnov.innercore.api.dimensions;
 import java.util.HashMap;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.world.dimensions.NoiseOctaveMethods;
 
 public class NoiseOctave {
     private static final HashMap<String, Integer> octaveTypeMap = new HashMap<>();
@@ -30,9 +31,10 @@ public class NoiseOctave {
         return octaveTypeMap.get(name);
     }
 
-    public final long pointer = 0;
+    public final long pointer;
 
     public NoiseOctave(int type) {
+        pointer = nativeConstruct(type);
     }
 
     public NoiseOctave(String type) {
@@ -44,27 +46,46 @@ public class NoiseOctave {
     }
 
     public NoiseOctave setTranslate(float x, float y, float z) {
-        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setTranslate(x, y, z)");
+        nativeSetTranslate(pointer, x, y, z);
         return this;
     }
 
     public NoiseOctave setScale(float x, float y, float z) {
-        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setScale(x, y, z)");
+        nativeSetScale(pointer, x, y, z);
         return this;
     }
 
     public NoiseOctave setWeight(float w) {
-        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setWeight(w)");
+        nativeSetWeight(pointer, w);
         return this;
     }
 
     public NoiseOctave setSeed(int seed) {
-        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setSeed(seed)");
+        nativeSetSeed(pointer, seed);
         return this;
     }
 
     public NoiseOctave setConversion(NoiseConversion conversion) {
-        InnerCoreServer.useNotCurrentSupport("NoiseOctave.setConversion(conversion)");
+        nativeSetConversion(pointer, conversion != null ? conversion.pointer : 0);
         return this;
+    }
+
+    private static long nativeConstruct(int type){
+        return NoiseOctaveMethods.nativeConstruct(type);
+    }
+    private static void nativeSetTranslate(long ptr, float x, float y, float z){
+        NoiseOctaveMethods.nativeSetTranslate(ptr, x, y, z);
+    }
+    private static void nativeSetScale(long ptr, float x, float y, float z){
+        NoiseOctaveMethods.nativeSetScale(ptr, x, y, z);
+    }
+    private static void nativeSetWeight(long ptr, float w){
+        NoiseOctaveMethods.nativeSetWeight(ptr, w);
+    }
+    private static void nativeSetSeed(long ptr, int seed){
+        NoiseOctaveMethods.nativeSetSeed(ptr, seed);
+    }
+    private static void nativeSetConversion(long ptr, long conversion){
+        NoiseOctaveMethods.nativeSetConversion(ptr, conversion);
     }
 }

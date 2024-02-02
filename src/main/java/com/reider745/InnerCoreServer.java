@@ -18,7 +18,7 @@ import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConvertor;
 import com.reider745.network.InnerCorePacket;
-import com.reider745.world.DimensionsMethods;
+import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkConfig;

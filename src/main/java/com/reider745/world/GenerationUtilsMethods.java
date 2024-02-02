@@ -8,11 +8,9 @@ import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
 import com.reider745.api.CallbackHelper;
-import com.reider745.api.FastNoiseLite;
+import com.reider745.world.dimensions.Noise;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GenerationUtilsMethods {
     public static boolean isTerrainBlock(int id){
@@ -121,21 +119,14 @@ public class GenerationUtilsMethods {
         }
     }
 
-    private static Map<String, FastNoiseLite> noises = new HashMap<>();
-
-    private static FastNoiseLite getFor(int seed, float scale,  int octaves){
-        final String key = scale+":"+seed+":"+octaves;
-        FastNoiseLite noise = noises.get(key);
-        if(noise == null){
-            noise = new FastNoiseLite(seed);
-            noise.SetFractalOctaves(octaves);
-            //TODO: Надо добавть поддержку scale
-            noises.put(key, noise);
-        }
-        return noise;
-    }
-
     public static float nativeGetPerlinNoise(float x, float y, float z, int seed, float scale, int numOctaves){
-        return getFor(seed, scale, numOctaves).GetNoise(x, y, z);
+        float result = 0;
+        float mul = 2 * ((1 << numOctaves) - 1) / (float) (1 << numOctaves);
+        for (int i = 0; i < numOctaves; i++) {
+            result += Noise.noise_value(null, x * scale, y * scale, z * scale, seed) / mul;
+            mul *= 2;
+            scale *= 2;
+        }
+        return result;
     }
 }

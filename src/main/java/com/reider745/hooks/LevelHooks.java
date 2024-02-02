@@ -23,7 +23,7 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.event.EventListener;
-import com.reider745.world.DimensionsMethods;
+import com.reider745.world.dimensions.DimensionsMethods;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;

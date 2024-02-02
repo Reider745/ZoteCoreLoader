@@ -1,5 +1,6 @@
 package com.reider745.api.pointers;
 
+import com.reider745.InnerCoreServer;
 import com.reider745.api.pointers.pointer_gen.IBasePointerGen;
 import com.reider745.api.pointers.pointer_gen.PointerGenSlowest;
 import com.reider745.world.BiomesMethods;
@@ -24,6 +25,9 @@ public class PointersStorage<T> {
     public PointersStorage(String type, final IBasePointerGen pointerGen, final INewPointer<T> newPointer, boolean clear){
         System.out.println("Loaded pointer storage, type - "+type);
         this.pointerGen = pointerGen;
+
+        if(storages.containsKey(type))
+            throw new RuntimeException("Error loaded storage pointers " + type);
         storages.put(type, this);
 
         if(clear) new ThreadCheckToClear<T>(this);

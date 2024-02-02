@@ -1,7 +1,8 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.world.DimensionsMethods;
+import com.reider745.api.Client;
+import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class CustomDimension {
     private CustomDimensionGenerator generator;
 
     public CustomDimension setGenerator(CustomDimensionGenerator generator) {
-        InnerCoreServer.useNotCurrentSupport("CustomDimension.setGenerator(generator)");
+        nativeSetGenerator(pointer, generator != null ? generator.pointer : 0);
         this.generator = generator;
         return this;
     }
@@ -92,7 +93,7 @@ public class CustomDimension {
     }
 
     public static void setCustomGeneratorForVanillaDimension(int id, CustomDimensionGenerator generator) {
-        InnerCoreServer.useNotCurrentSupport("CustomDimension.setCustomGeneratorForVanillaDimension(id, generator)");
+        nativeOverrideVanillaGenerator(id, generator.pointer);
     }
 
     public static CustomDimension getDimensionByName(String name) {
@@ -111,20 +112,37 @@ public class CustomDimension {
     private static long nativeConstruct(int id, String name){
         return DimensionsMethods.nativeConstruct(id, name);
     }
+    @Deprecated
     private static native long nativeGetCustomDimensionById(int id);
+    @Deprecated
     private static native boolean nativeIsLimboDimensionId(int id);
-    private static native void nativeOverrideVanillaGenerator(int id, long generator);
-    private static native void nativeSetGenerator(long ptr, long generator);
+    private static void nativeOverrideVanillaGenerator(int id, long generator){
+        DimensionsMethods.nativeOverrideVanillaGenerator(id, generator);
+    }
+    private static void nativeSetGenerator(long ptr, long generator){
+        DimensionsMethods.nativeSetGenerator(ptr, generator);
+    }
+    @Client
     private static native void nativeSetHasSkyLight(long ptr, boolean value);
+    @Client
     private static native void nativeSetSkyColor(long ptr, float r, float g, float b);
+    @Client
     private static native void nativeResetSkyColor(long ptr);
+    @Client
     private static native void nativeSetFogColor(long ptr, float r, float g, float b);
+    @Client
     private static native void nativeResetFogColor(long ptr);
+    @Client
     private static native void nativeSetCloudColor(long ptr, float r, float g, float b);
+    @Client
     private static native void nativeResetCloudColor(long ptr);
+    @Client
     private static native void nativeSetSunsetColor(long ptr, float r, float g, float b);
+    @Client
     private static native void nativeResetSunsetColor(long ptr);
+    @Client
     private static native void nativeSetFogDistance(long ptr, float start, float end);
+    @Client
     private static native void nativeResetFogDistance(long ptr);
 
 }

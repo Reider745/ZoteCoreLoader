@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.world.dimensions.TerrainMaterialMethods;
 
 public class TerrainMaterial {
     public final long pointer;
@@ -10,27 +11,45 @@ public class TerrainMaterial {
     }
 
     public TerrainMaterial setBase(int id, int data) {
-        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setBase(id, data)");
+        nativeSetBase(pointer, id, data);
         return this;
     }
 
     public TerrainMaterial setCover(int id, int data) {
-        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setCover(id, data)");
+        nativeSetCover(pointer, id, data);
         return this;
     }
 
     public TerrainMaterial setSurface(int width, int id, int data) {
-        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setSurface(width, id, data)");
+        nativeSetSurface(pointer, width, id, data);
         return this;
     }
 
     public TerrainMaterial setFilling(int width, int id, int data) {
-        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setFilling(width, id, data)");
+        nativeSetFilling(pointer, width, id, data);
         return this;
     }
 
     public TerrainMaterial setDiffuse(float value) {
-        InnerCoreServer.useNotCurrentSupport("TerrainMaterial.setDiffuse(value)");
+        nativeSetDiffuse(pointer, value);
         return this;
     }
+
+
+    private static void nativeSetBase(long pointer, int id, int data){
+        TerrainMaterialMethods.nativeSetBase(pointer, id, data);
+    }
+    private static void nativeSetCover(long pointer, int id, int data){
+        TerrainMaterialMethods.nativeSetCover(pointer, id, data);
+    }
+    private static void nativeSetSurface(long pointer, int width, int id, int data){
+        TerrainMaterialMethods.nativeSetSurface(pointer, width, id, data);
+    }
+    private static void nativeSetFilling(long pointer, int width, int id, int data){
+        TerrainMaterialMethods.nativeSetFilling(pointer, width, id, data);
+    }
+    private static void nativeSetDiffuse(long pointer, float diffuse){
+        TerrainMaterialMethods.nativeSetDiffuse(pointer, diffuse);
+    }
+
 }
