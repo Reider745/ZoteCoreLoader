@@ -13,15 +13,11 @@ import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
-import com.reider745.api.pointers.PointersStorage;
-import com.reider745.item.CustomItem;
-import com.reider745.item.ItemExtraDataProvider;
 import com.reider745.item.NukkitIdConvertor;
 import com.reider745.item.Repairs;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.OptionalInt;
@@ -31,8 +27,6 @@ import java.util.regex.Pattern;
 
 @Hooks(className = "cn.nukkit.item.Item")
 public class ItemUtils implements HookClass {
-    public static final PointersStorage<Item> items_pointers = new PointersStorage<>("items",
-            ItemExtraDataProvider::new);
 
     @Inject(signature = "(ILjava/lang/Integer;I[B)Lcn/nukkit/item/Item;")
     public static Item get(int id, Integer meta, int count, byte[] tags) {
@@ -54,7 +48,7 @@ public class ItemUtils implements HookClass {
                 } else {
                     item = new ItemBlock(Block.get(id), meta, count);
                 }
-            } else if (id > 2000) {
+            } else if (id >= IDRegistry.ITEM_ID_OFFSET) {
                 item = ((Item) c.getConstructor(int.class, Integer.class, int.class).newInstance(id, meta, count));
             } else {
                 item = ((Item) c.getConstructor(Integer.class, int.class).newInstance(meta, count));
@@ -152,11 +146,6 @@ public class ItemUtils implements HookClass {
         return Item.get(id, meta.orElse(0));
     }
 
-    @Inject
-    public static void initCreativeItems(){
-        CustomItem.init();
-    }
-
     @Inject(signature = "()Ljava/lang/Short;", type = TypeHook.BEFORE)
     public static void getFuelTime(HookController controller) {
         short fuel = NativeFurnaceRegistry.getBurnTime(controller.getSelf());
@@ -169,50 +158,44 @@ public class ItemUtils implements HookClass {
     public static final String INNER_CORE_TAG_NAME = "$mod";
 
     public static Item get(int id, int count, int meta, NativeItemInstanceExtra extra) {
-        NukkitIdConvertor.EntryItem entry = NukkitIdConvertor.getNukkitForInnerCore(id, meta);
-        Item item = Item.get(entry.id, entry.data, count, new byte[] {});
+        Item item = get(id, count, meta, extra != null ? extra.getValue() : null);
         if (extra != null) {
-            CompoundTag tag = item.getOrCreateNamedTag();
-
-            JSONObject custom = extra.getCustomDataJSON();
-            if (custom != null)
-                tag.putString(INNER_CORE_TAG_NAME, custom.toString());
-
-            item.setCompoundTag(tag);
-
-            ItemExtraDataProvider provider = (ItemExtraDataProvider) items_pointers.getInstance(extra.getValue());
-            provider.apply(item);
+            extra.bind(item);
         }
         return item;
     }
 
-    public static Item get(int id, int count, int meta, long extra) {
-        ItemExtraDataProvider provider = (ItemExtraDataProvider) items_pointers.getInstance(extra);
-        return get(id, count, meta, provider == null ? null : provider.extra);
+    public static Item get(int id, int count, int meta, Item extra) {
+        Item item = get(id, count, meta);
+        if (extra != null) {
+            CompoundTag custom = extra.getNamedTag();
+            if (custom != null) {
+                item.setNamedTag(custom);
+                // Logger.info("get(" + id + ":" + meta + ")=" + item.getOrCreateNamedTag().getString(INNER_CORE_TAG_NAME));
+            }
+        }
+        return item;
     }
 
     public static Item get(int id, int count, int meta) {
-        return get(id, count, meta, null);
+        NukkitIdConvertor.EntryItem entry = NukkitIdConvertor.getNukkitForInnerCore(id, meta);
+        return Item.get(entry.id, entry.data, count);
     }
 
     public static Item get(int id, int meta) {
         return get(id, 1, meta);
     }
 
-    public static NativeItemInstanceExtra getItemInstanceExtra(Item item) {
-        CompoundTag tag = item.getOrCreateNamedTag();
-        String custom = tag.getString(INNER_CORE_TAG_NAME);
-        if (!custom.equals("")) {
-            NativeItemInstanceExtra extra = new NativeItemInstanceExtra();
-            extra.getExtraProvider().apply(item);
-            extra.setAllCustomData(custom);
-            return extra;
-        }
-        return null;
+    public static Item get(int id) {
+        return get(id, 0);
     }
 
-    public static void removePointer(long ptr) {
-        items_pointers.removePointer(ptr);
+    public static NativeItemInstanceExtra getItemInstanceExtra(Item item) {
+        CompoundTag tag = item.getNamedTag();
+        if (tag != null) {
+            return new NativeItemInstanceExtra(item);
+        }
+        return null;
     }
 
     @Inject(className = "cn.nukkit.inventory.transaction.RepairItemTransaction", type = TypeHook.BEFORE, signature = "()Z")
@@ -221,21 +204,5 @@ public class ItemUtils implements HookClass {
         if (repairs != null)
             controller.setResult(repairs.contains(self.getOutputItem().getId()));
         controller.setReplace(false);
-    }
-
-    @Inject
-    public static void addCreativeItem(int protocol, Item item){
-        if(protocol == 407){
-            int id = item.getId();
-            int damage = item.getDamage();
-            if(id == BlockID.PLANKS && damage == 0)
-                CustomItem.addCreativeItemsBuild();
-            else if(id == ItemID.ARROW && damage == 0)
-                CustomItem.addCreativeItemsWeapons();
-            else if(id == ItemID.STICK)
-                CustomItem.addCreativeItems();
-            else if(id == BlockID.BLOCK_NETHER_WART_BLOCK)
-                CustomItem.addCreativeItemsNature();
-        }
     }
 }

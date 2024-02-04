@@ -1,8 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
-import com.reider745.api.pointers.ClassPointer;
 import com.reider745.hooks.ItemUtils;
-import com.reider745.item.ItemExtraDataProvider;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
@@ -105,57 +103,41 @@ public class NativeItemInstanceExtra {
         // forces class to load
     }
 
-    private long ptr;
-    private ItemExtraDataProvider extraProvider;
+    private Item item;
 
     public boolean isFinalizableInstance() {
-        return true;
+        return false;
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
-    protected void finalize() throws Throwable {
-        super.finalize();
-        if (isFinalizableInstance()) {
-            ItemUtils.removePointer(ptr);
-        }
-    }
-
+    @Deprecated
     public NativeItemInstanceExtra(long extra) {
+        throw new UnsupportedOperationException();
+    }
+
+    public NativeItemInstanceExtra(Item item) {
         ObjectSaverRegistry.registerObject(this, saverId);
 
-        if (extra != 0) {
-            this.ptr = extra;
+        if (item != null) {
+            this.item = item;
         } else {
-            this.ptr = constructNew();
+            this.item = constructNew();
         }
-
-        ItemExtraDataProvider extraProvider = (ItemExtraDataProvider) ItemUtils.items_pointers.getInstance(ptr);
-        extraProvider.extra = this;
-        this.extraProvider = extraProvider;
     }
 
     public NativeItemInstanceExtra() {
         ObjectSaverRegistry.registerObject(this, saverId);
-        this.ptr = constructNew();
-        ItemExtraDataProvider extraProvider = (ItemExtraDataProvider) ItemUtils.items_pointers.getInstance(ptr);
-        extraProvider.extra = this;
-        this.extraProvider = extraProvider;
+        this.item = constructNew();
     }
 
     public NativeItemInstanceExtra(NativeItemInstanceExtra extra) {
         ObjectSaverRegistry.registerObject(this, saverId);
 
-        long val = getValueOrNullPtr(extra);
-        if (val != 0) {
-            this.ptr = constructClone(val);
+        Item item = getValueOrNullPtr(extra);
+        if (item != null) {
+            this.item = constructClone(item);
         } else {
-            this.ptr = constructNew();
+            this.item = constructNew();
         }
-
-        ItemExtraDataProvider extraProvider = (ItemExtraDataProvider) ItemUtils.items_pointers.getInstance(ptr);
-        extraProvider.extra = this;
-        this.extraProvider = extraProvider;
     }
 
     public JSONObject asJson() {
@@ -194,16 +176,18 @@ public class NativeItemInstanceExtra {
         return new NativeItemInstanceExtra(this);
     }
 
-    public long getValue() {
-        return ptr;
+    public Item getValue() {
+        return item;
     }
 
-    public ItemExtraDataProvider getExtraProvider() {
-        return extraProvider;
+    public void bind(Item item) {
+        this.item = item;
+        this.customData = null;
+        this.customDataLoaded = false;
     }
 
     public boolean isEmpty() {
-        return getValue() == 0;
+        return item != null ? !item.hasCompoundTag() : true;
     }
 
     public void applyTo(Scriptable item) {
@@ -213,7 +197,6 @@ public class NativeItemInstanceExtra {
     }
 
     public boolean isEnchanted() {
-        Item item = extraProvider.get();
         return item != null ? item.hasEnchantments() : false;
     }
 
@@ -223,7 +206,6 @@ public class NativeItemInstanceExtra {
             Logger.error("NativeItemInstanceExtra", "Unknown enchantment with id " + type);
             return;
         }
-        Item item = extraProvider.get();
         if (item != null) {
             enchantment = Enchantment.getEnchantment(type);
             enchantment.setLevel(level, false);
@@ -232,12 +214,10 @@ public class NativeItemInstanceExtra {
     }
 
     public int getEnchantLevel(int type) {
-        Item item = extraProvider.get();
         return item != null ? item.getEnchantmentLevel(type) : 0;
     }
 
     public void removeEnchant(int type) {
-        Item item = extraProvider.get();
         if (item != null && item.hasEnchantments()) {
             ListTag<CompoundTag> ench = item.getNamedTag().getList("ench", CompoundTag.class);
             for (int i = 0, l = ench.size(); i < l; i++) {
@@ -250,14 +230,12 @@ public class NativeItemInstanceExtra {
     }
 
     public void removeAllEnchants() {
-        Item item = extraProvider.get();
         if (item != null && item.hasEnchantments()) {
             item.getNamedTag().remove("ench");
         }
     }
 
     public int getEnchantCount() {
-        Item item = extraProvider.get();
         if (item != null && item.hasEnchantments()) {
             Enchantment[] enchantments = item.getEnchantments();
             return enchantments.length;
@@ -266,7 +244,6 @@ public class NativeItemInstanceExtra {
     }
 
     public String getEnchantName(int id, int lvl) {
-        Item item = extraProvider.get();
         Enchantment enchantment = item != null ? item.getEnchantment(id) : null;
         if (enchantment == null) {
             enchantment = Enchantment.get(id);
@@ -282,7 +259,6 @@ public class NativeItemInstanceExtra {
     }
 
     public int[][] getRawEnchants() {
-        Item item = extraProvider.get();
         if (item == null) {
             return new int[0][0];
         }
@@ -331,40 +307,54 @@ public class NativeItemInstanceExtra {
     }
 
     public String getAllCustomData() {
-        Item item = extraProvider.get();
-        return item != null ? item.getNamedTag().getString(ItemUtils.INNER_CORE_TAG_NAME) : null;
+        if (item != null) {
+            CompoundTag tag = item.getNamedTag();
+            return tag != null ? tag.getString(ItemUtils.INNER_CORE_TAG_NAME) : null;
+        }
+        return null;
     }
 
     public void setAllCustomData(String extra) {
         customData = new JSONObject(extra);
+        if (item != null) {
+            String dataJson = customData.toString();
+            CompoundTag tag = item.getOrCreateNamedTag();
+            if (!customData.isEmpty()) {
+                tag.putString(ItemUtils.INNER_CORE_TAG_NAME, dataJson);
+            } else {
+                tag.remove(ItemUtils.INNER_CORE_TAG_NAME);
+            }
+            item.setNamedTag(tag);
+            // Logger.info("setAllCustomData(" + item.getId() + ":" + item.getDamage() + ")=" + dataJson);
+        }
     }
 
     public String getCustomName() {
-        Item item = extraProvider.get();
         return item != null ? item.getCustomName() : "";
     }
 
     public void setCustomName(String name) {
-        Item item = extraProvider.get();
         if (item != null) {
             item.setCustomName(name);
         }
     }
 
     public NativeCompoundTag getCompoundTag() {
-        CompoundTag tag = extraProvider.getCompoundTag();
+        CompoundTag tag = item != null ? item.getNamedTag() : null;
         return tag != null ? new NativeCompoundTag(tag) : null;
     }
 
     public void setCompoundTag(NativeCompoundTag tag) {
-        extraProvider.setCompoundTag(tag != null ? tag.tag : null);
+        if (item != null) {
+            item.setNamedTag(tag.tag);
+            applyCustomDataJSON();
+        }
     }
 
     private JSONObject customData = null;
     private boolean customDataLoaded = false;
 
-    // Method is private in Inner Core
-    public JSONObject getCustomDataJSON() {
+    private JSONObject getCustomDataJSON() {
         if (!customDataLoaded) {
             String raw = getAllCustomData();
             if (raw != null) {
@@ -432,6 +422,11 @@ public class NativeItemInstanceExtra {
             return data.optString(name, fallback);
         }
         return fallback;
+    }
+
+    public boolean contains(String name) {
+        JSONObject data = getCustomDataJSON();
+        return data.opt(name) != null;
     }
 
     public String getString(String name) {
@@ -509,20 +504,22 @@ public class NativeItemInstanceExtra {
         return "ItemExtra{json=" + asJson() + "}";
     }
 
-    private static long constructNew() {
-        ItemExtraDataProvider extraProvider = new ItemExtraDataProvider(null);
-        return ItemUtils.items_pointers.addPointer(extraProvider);
+    private static Item constructNew() {
+        return Item.AIR_ITEM.clone();
     }
 
+    @Deprecated
     public static long constructClone(long ptr) {
-        ClassPointer<Item> pointer = ItemUtils.items_pointers.getInstance(ptr);
-        if (pointer == null) {
+        throw new UnsupportedOperationException();
+    }
+
+    public static Item constructClone(Item item) {
+        if (item == null) {
             Logger.error("NativeItemInstanceExtra",
-                    "Unavailable pointer " + pointer + ", new extra will be constructed");
-            return constructNew();
+                    "Received null instead of item, new extra will be constructed");
+            return Item.AIR_ITEM.clone();
         }
-        ItemExtraDataProvider extraProvider = new ItemExtraDataProvider(pointer.getReference());
-        return ItemUtils.items_pointers.addPointer(extraProvider);
+        return item.clone();
     }
 
     public static NativeItemInstanceExtra unwrapObject(Object extra) {
@@ -532,12 +529,15 @@ public class NativeItemInstanceExtra {
         if (extra instanceof NativeItemInstanceExtra) {
             return (NativeItemInstanceExtra) extra;
         }
+        if (extra instanceof Item) {
+            return new NativeItemInstanceExtra((Item) extra);
+        }
         return null;
     }
 
-    public static long unwrapValue(Object extra) {
+    public static Item unwrapValue(Object extra) {
         if (extra == null) {
-            return 0;
+            return null;
         }
         if (extra instanceof Wrapper) {
             extra = ((Wrapper) extra).unwrap();
@@ -545,23 +545,28 @@ public class NativeItemInstanceExtra {
         if (extra instanceof NativeItemInstanceExtra) {
             return ((NativeItemInstanceExtra) extra).getValue();
         }
-        if (extra instanceof Number) {
-            return ((Number) extra).intValue();
+        if (extra instanceof Item) {
+            return (Item) extra;
         }
-        return 0;
+        return null;
     }
 
-    public static long getValueOrNullPtr(NativeItemInstanceExtra extra) {
-        return extra != null ? extra.getValue() : 0;
+    public static Item getValueOrNullPtr(NativeItemInstanceExtra extra) {
+        return extra != null ? extra.getValue() : null;
     }
 
+    @Deprecated
     public static NativeItemInstanceExtra getExtraOrNull(long extra) {
-        return extra != 0 ? new NativeItemInstanceExtra(extra) : null;
+        throw new UnsupportedOperationException();
+    }
+
+    public static NativeItemInstanceExtra getExtraOrNull(Item extra) {
+        return extra != null ? new NativeItemInstanceExtra(extra) : null;
     }
 
     public static NativeItemInstanceExtra cloneExtra(NativeItemInstanceExtra extra) {
-        long value = getValueOrNullPtr(extra);
-        return value != 0 ? new NativeItemInstanceExtra(constructClone(value)) : null;
+        Item item = getValueOrNullPtr(extra);
+        return item != null ? new NativeItemInstanceExtra(constructClone(item)) : null;
     }
 
     public static NativeItemInstanceExtra fromJson(JSONObject json) {

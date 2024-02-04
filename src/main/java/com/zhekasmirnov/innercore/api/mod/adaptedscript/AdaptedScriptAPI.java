@@ -352,13 +352,12 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static long dropItem(double x, double y, double z, int placeholder, int id, int count, int data,
-                Object extra) {
+        public static long dropItem(double x, double y, double z, int placeholder, int id, int count, int data, Object extra) {
             if (id == 0) {
                 return -1;
             }
             return NativeAPI.spawnDroppedItem((float) x, (float) y, (float) z, id, count, data,
-                    NativeItemInstanceExtra.unwrapValue(extra));
+                    NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -837,7 +836,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Indev
         public static void setDroppedItem(Object entity, int id, int count, int data, Object extra) {
-            NativeAPI.setItemToDrop(unwrapEntity(entity), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            NativeAPI.setItemToDrop(unwrapEntity(entity), id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -853,13 +852,13 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         public static void setCarriedItem(Object entity, int id, int count, int data, Object extra) {
             NativeAPI.setEntityCarriedItem(unwrapEntity(entity), id, count, data,
-                    NativeItemInstanceExtra.unwrapValue(extra));
+                    NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         public static void setOffhandItem(Object entity, int id, int count, int data, Object extra) {
             NativeAPI.setEntityOffhandItem(unwrapEntity(entity), id, count, data,
-                    NativeItemInstanceExtra.unwrapValue(extra));
+                    NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -870,7 +869,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         public static void setArmor(Object entity, int slot, int id, int count, int data, Object extra) {
             NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data,
-                    NativeItemInstanceExtra.unwrapValue(extra));
+                    NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -881,7 +880,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         public static void setArmorSlot(Object entity, int slot, int id, int count, int data, Object extra) {
             NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data,
-                    NativeItemInstanceExtra.unwrapValue(extra));
+                    NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         // other
@@ -1079,8 +1078,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Deprecated
         public static void addItemInventory(int id, int count, int data, boolean preventDropThatLeft, Object extra) {
-            NativeAPI.addItemToInventory(id, count, data, NativeItemInstanceExtra.unwrapValue(extra),
-                    !preventDropThatLeft);
+            NativeAPI.addItemToInventory(id, count, data, 0, !preventDropThatLeft);
         }
 
         @JSStaticFunction
@@ -1097,7 +1095,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Deprecated
         public static void setInventorySlot(int slot, int id, int count, int data, Object extra) {
-            NativeAPI.setInventorySlot(slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            NativeAPI.setInventorySlot(slot, id, count, data, 0);
         }
 
         @JSStaticFunction
@@ -1109,7 +1107,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Deprecated
         public static void setArmorSlot(int slot, int id, int count, int data, Object extra) {
-            EntityMethod.setEntityArmor(get(), slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            EntityMethod.setEntityArmor(get(), slot, id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -1127,13 +1125,13 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Deprecated
         public static void setCarriedItem(int id, int count, int data, Object extra) {
-            EntityMethod.setEntityCarriedItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            EntityMethod.setEntityCarriedItem(get(), id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         @Deprecated
         public static void setOffhandItem(int id, int count, int data, Object extra) {
-            EntityMethod.setEntityOffhandItem(get(), id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            EntityMethod.setEntityOffhandItem(get(), id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -1560,7 +1558,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static String getName(int id, int data, Object extra) {
-            return getNameForId(id, data, NativeItemInstanceExtra.unwrapValue(extra));
+            return getNameForId(id, data, NativeItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -1591,12 +1589,12 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         public static void invokeItemUseOn(int id, int count, int data, Object extra, int x, int y, int z, int side,
                 double vx, double vy, double vz, Object entity) {
-            NativeAPI.invokeUseItemOn(id, count, data, NativeItemInstanceExtra.unwrapValue(extra), x, y, z, side,
+            NativeAPI.invokeUseItemOn(id, count, data, NativeItemInstanceExtra.unwrapObject(extra), x, y, z, side,
                     (float) vx, (float) vy, (float) vz, Entity.unwrapEntity(entity));
         }
 
         public static void invokeItemUseNoTarget(int id, int count, int data, Object extra) {
-            NativeAPI.invokeUseItemNoTarget(id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+            NativeAPI.invokeUseItemNoTarget(id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
         }
     }
 
@@ -1618,8 +1616,8 @@ public class AdaptedScriptAPI extends API {
     }
 
     public static class ItemExtraData extends NativeItemInstanceExtra {
-        public ItemExtraData(long extra) {
-            super(extra != 0 ? constructClone(extra) : 0);
+        public ItemExtraData(cn.nukkit.item.Item extra) {
+            super(extra != null ? constructClone(extra) : null);
         }
 
         public ItemExtraData(NativeItemInstanceExtra extra) {
@@ -1628,11 +1626,6 @@ public class AdaptedScriptAPI extends API {
 
         public ItemExtraData() {
             super();
-        }
-
-        @Override
-        protected void finalize() throws Throwable {
-            super.finalize();
         }
     }
 

@@ -59,7 +59,7 @@ public class ItemInstance extends ScriptableObject {
         return NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(this, "extra", null));
     }
 
-    public long getExtraValue() {
+    public Item getExtraValue() {
         return NativeItemInstanceExtra.unwrapValue(ScriptableObjectHelper.getProperty(this, "extra", null));
     }
 }

@@ -442,8 +442,7 @@ public class NativeBlockSource {
 
     public long spawnDroppedItem(float x, float y, float z, int id, int count, int data,
             NativeItemInstanceExtra extra) {
-        return BlockSourceMethods.spawnDroppedItem(level, x, y, z, id, count, data,
-                NativeItemInstanceExtra.getValueOrNullPtr(extra));
+        return BlockSourceMethods.spawnDroppedItem(level, x, y, z, id, count, data, extra);
     }
 
     public long spawnDroppedItem(float x, float y, float z, int id, int count, int data) {

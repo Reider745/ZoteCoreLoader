@@ -21,13 +21,11 @@ public class NativePlayer {
     }
 
     public void invokeUseItemNoTarget(int id, int count, int data, NativeItemInstanceExtra extra) {
-        PlayerActorMethods.invokeUseItemNoTarget(player, id, count, data,
-                NativeItemInstanceExtra.getValueOrNullPtr(extra));
+        PlayerActorMethods.invokeUseItemNoTarget(player, id, count, data, extra);
     }
 
     public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra, boolean dropLeft) {
-        PlayerActorMethods.addItemToInventory(player, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra),
-                dropLeft);
+        PlayerActorMethods.addItemToInventory(player, id, count, data, extra, dropLeft);
     }
 
     public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra) {
@@ -91,12 +89,11 @@ public class NativePlayer {
     }
 
     public void setInventorySlot(int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
-        PlayerActorMethods.setInventorySlot(player, slot, id, count, data,
-                NativeItemInstanceExtra.getValueOrNullPtr(extra));
+        PlayerActorMethods.setInventorySlot(player, slot, id, count, data, extra);
     }
 
     public void setArmor(int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
-        PlayerActorMethods.setArmor(player, slot, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
+        PlayerActorMethods.setArmor(player, slot, id, count, data, extra);
     }
 
     public void setExhaustion(float value) {

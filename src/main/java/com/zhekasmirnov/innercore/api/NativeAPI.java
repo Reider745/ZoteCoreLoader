@@ -1,6 +1,8 @@
 package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.Server;
+import cn.nukkit.item.Item;
+
 import java.lang.reflect.Field;
 
 import com.reider745.InnerCoreServer;
@@ -15,6 +17,7 @@ import com.zhekasmirnov.innercore.api.constants.PlayerAbility;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 
 public class NativeAPI {
+
     public static boolean isLocalServerRunning() {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.isLocalServerRunning()");
         return false;
@@ -114,11 +117,20 @@ public class NativeAPI {
         setNativeBehaviorPacksPathOverride(path);
     }
 
-    public static void invokeUseItemNoTarget(int id, int count, int data, long extra) {
+    public static void invokeUseItemNoTarget(int id, int count, int data, Item extra) {
+        invokeUseItemNoTarget(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void invokeUseItemNoTarget(int id, int count, int data, NativeItemInstanceExtra extra) {
         InnerCoreServer.useClientMethod("NativeAPI.invokeUseItemNoTarget(id, count, data, extra)");
     }
 
-    public static void invokeUseItemOn(int id, int count, int data, long extra, int x, int y, int z, int side, float vx,
+    public static void invokeUseItemOn(int id, int count, int data, Item extra, int x, int y, int z, int side, float vx,
+            float vy, float vz, long entity) {
+        invokeUseItemOn(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz, entity);
+    }
+
+    public static void invokeUseItemOn(int id, int count, int data, NativeItemInstanceExtra extra, int x, int y, int z, int side, float vx,
             float vy, float vz, long entity) {
         EntityMethod.invokeUseItemOn(id, count, data, extra, x, y, z, side, vx, vy, vz, entity);
     }
@@ -520,10 +532,14 @@ public class NativeAPI {
     }
 
     public static boolean isGlintItemInstance(int id, int data) {
-        return isGlintItemInstance(id, data, 0);
+        return isGlintItemInstance(id, data, (NativeItemInstanceExtra) null);
     }
 
-    public static boolean isGlintItemInstance(int id, int data, long extra) {
+    public static boolean isGlintItemInstance(int id, int data, Item extra) {
+        return isGlintItemInstance(id, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static boolean isGlintItemInstance(int id, int data, NativeItemInstanceExtra extra) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.isGlintItemInstance(id, data, extra)");
         return false;
     }
@@ -632,15 +648,27 @@ public class NativeAPI {
         WorldMethod.setDifficulty(difficulty);
     }
 
-    public static void setEntityArmor(long entity, int slot, int id, int count, int data, long extra) {
+    public static void setEntityArmor(long entity, int slot, int id, int count, int data, Item extra) {
+        setEntityArmor(entity, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setEntityArmor(long entity, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
         EntityMethod.setEntityArmor(entity, slot, id, count, data, extra);
     }
 
-    public static void setEntityCarriedItem(long entity, int id, int count, int data, long extra) {
+    public static void setEntityCarriedItem(long entity, int id, int count, int data, Item extra) {
+        setEntityCarriedItem(entity, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setEntityCarriedItem(long entity, int id, int count, int data, NativeItemInstanceExtra extra) {
         EntityMethod.setEntityCarriedItem(entity, id, count, data, extra);
     }
 
-    public static void setEntityOffhandItem(long entity, int id, int count, int data, long extra) {
+    public static void setEntityOffhandItem(long entity, int id, int count, int data, Item extra) {
+        setEntityOffhandItem(entity, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setEntityOffhandItem(long entity, int id, int count, int data, NativeItemInstanceExtra extra) {
         EntityMethod.setEntityOffhandItem(entity, id, count, data, extra);
     }
 
@@ -675,7 +703,11 @@ public class NativeAPI {
     public static void setItemRequiresIconOverride(int id, boolean enabled) {
     }
 
-    public static void setItemToDrop(long entity, int id, int count, int data, long extra) {
+    public static void setItemToDrop(long entity, int id, int count, int data, Item extra) {
+        setItemToDrop(entity, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setItemToDrop(long entity, int id, int count, int data, NativeItemInstanceExtra extra) {
         EntityMethod.setItemToDrop(entity, id, count, data, extra);
     }
 
@@ -863,11 +895,14 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setVelocityAxis(entity, axis, value)");
     }
 
-    public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, long extra) {
+    public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, Item extra) {
+        return spawnDroppedItem(x, y, z, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, NativeItemInstanceExtra extra) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
-            return BlockSourceMethods.spawnDroppedItem(CallbackHelper.getForCurrentThread(), x, y, z, id, count, data,
-                    extra);
+            return BlockSourceMethods.spawnDroppedItem(CallbackHelper.getForCurrentThread(), x, y, z, id, count, data, extra);
         return 0;
     }
 

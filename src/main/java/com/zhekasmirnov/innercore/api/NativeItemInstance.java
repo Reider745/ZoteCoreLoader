@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.item.Item;
+import cn.nukkit.nbt.tag.CompoundTag;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
@@ -24,14 +25,14 @@ public class NativeItemInstance {
 
     public NativeItemInstance(Item item) {
         if (item == null) {
-            this.item = Item.get(0).clone();
+            this.item = Item.AIR_ITEM.clone();
             this.id = this.count = this.data = 0;
             this.extra = null;
         } else {
             this.item = item;
             this.id = item.getId();
             this.count = item.getCount();
-            this.data = item.getAttackDamage() == 0 ? item.getAttackDamage() : item.getDamage();
+            this.data = item.hasMeta() ? item.getDamage() : 0;
 
             NukkitIdConvertor.convert(this);
 
@@ -42,7 +43,7 @@ public class NativeItemInstance {
     }
 
     public NativeItemInstance(int id, int count, int data) {
-        this.item = Item.get(id, count, data);
+        this.item = ItemUtils.get(id, count, data);
         this.id = id;
         this.count = count;
         this.data = data;
@@ -58,7 +59,7 @@ public class NativeItemInstance {
     public Item getItem() {
         if (item != null) {
             if (item.getId() != id) {
-                InnerCoreServer.useNotCurrentSupport("NativeItemInstance.id");
+                return (item = ItemUtils.get(id, count, data, extra));
             }
             if (item.getCount() != count) {
                 item.setCount(count);
@@ -66,10 +67,14 @@ public class NativeItemInstance {
             if (item.getDamage() != data) {
                 item.setDamage(data);
             }
-            long extra = getExtra(item);
-            if (this.extra != null ? extra != this.extra.getValue() : extra != 0) {
-                InnerCoreServer.useNotCurrentSupport("NativeItemInstance.extra");
+            CompoundTag tag = item.getOrCreateNamedTag();
+            if (extra != null && !extra.isEmpty()) {
+                tag = extra.getValue().getNamedTag();
+                extra.bind(item);
+            } else {
+                tag.remove(ItemUtils.INNER_CORE_TAG_NAME);
             }
+            item.setNamedTag(tag);
         }
         return item;
     }
@@ -112,12 +117,12 @@ public class NativeItemInstance {
         return 0;
     }
 
-    public static long getExtra(Item item) {
+    public static Item getExtra(Item item) {
         if (item == null) {
-            return 0;
+            return null;
         }
         NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
-        return extra != null ? extra.getValue() : 0;
+        return extra != null ? extra.getValue() : null;
     }
 
     public static long getExtra(long ptr) {

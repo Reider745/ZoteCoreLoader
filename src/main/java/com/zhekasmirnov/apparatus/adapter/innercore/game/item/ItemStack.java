@@ -115,7 +115,7 @@ public class ItemStack {
         return id == 0 && count == 0 && data == 0 && extra == null;
     }
 
-    public long getExtraPtr() {
+    public Item getExtraPtr() {
         return NativeItemInstanceExtra.getValueOrNullPtr(extra);
     }
 
@@ -128,7 +128,7 @@ public class ItemStack {
     }
 
     public String getItemName() {
-        return NativeItem.getNameForId(id, data, getExtraPtr());
+        return NativeItem.getNameForId(id, data, extra);
     }
 
     public boolean isGlint() {

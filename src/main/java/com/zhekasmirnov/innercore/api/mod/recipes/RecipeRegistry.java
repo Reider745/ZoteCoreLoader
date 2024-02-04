@@ -26,7 +26,7 @@ public class RecipeRegistry {
         int id = result.getId();
         String name = IDRegistry.getNameByID(id);
         name = name != null ? name : Integer.toString(id);
-        return result.getCount() + "x " + name + "#" + result.getData() + (result.getExtraValue() != 0 ? "[+extra]" : "");
+        return result.getCount() + "x " + name + "#" + result.getData() + (result.getExtraValue() != null ? "[+extra]" : "");
     }
 
     private static void reportComponentArrayError(Object[] components, String errorPrefix) {

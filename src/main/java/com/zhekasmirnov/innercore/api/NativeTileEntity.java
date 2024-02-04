@@ -57,13 +57,13 @@ public class NativeTileEntity {
     public void setSlot(int slot, int id, int count, int data, Object extra) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot(blockEntity, slot, id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+        setSlot(blockEntity, slot, id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
     }
 
     public void setSlot(int slot, int id, int count, int data) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot(blockEntity, slot, id, count, data, 0);
+        setSlot(blockEntity, slot, id, count, data, (NativeItemInstanceExtra) null);
     }
 
     public void setSlot(int slot, NativeItemInstance item) {
@@ -156,7 +156,11 @@ public class NativeTileEntity {
         return null;
     }
 
-    public static void setSlot(BlockEntity blockEntity, int slot, int id, int count, int data, long extra) {
+    public static void setSlot(BlockEntity blockEntity, int slot, int id, int count, int data, Item extra) {
+        setSlot(blockEntity, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setSlot(BlockEntity blockEntity, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
         Item item = ItemUtils.get(id, count, data, extra);
         if (blockEntity instanceof InventoryHolder holder) {
             holder.getInventory().setItem(slot, item);

@@ -12,6 +12,7 @@ import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
@@ -27,6 +28,7 @@ import com.reider745.event.EventListener;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
+import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.constants.EntityType;
 
 import java.util.Map;
@@ -116,7 +118,7 @@ public class EntityMethod {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         Item item = validateThen(entityUid,
-                entity -> entity instanceof EntityHuman human ? human.getInventory().getItemInHand() : null, null);
+                entity -> entity instanceof EntityHuman human ? human.getInventory().getItemInHandFast() : null, null);
         return item != null ? item : Item.AIR_ITEM.clone();
     }
 
@@ -124,19 +126,30 @@ public class EntityMethod {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         Item item = validateThen(entityUid,
-                entity -> entity instanceof EntityHuman human ? human.getOffhandInventory().getItem(0) : null, null);
+                entity -> entity instanceof EntityHuman human ? human.getOffhandInventory().getItemFast(0) : null, null);
         return item != null ? item : Item.AIR_ITEM.clone();
     }
 
     public static Item getEntityArmor(long entityUid, int slot) {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
-        Item item = validateThen(entityUid,
-                entity -> entity instanceof EntityHuman human ? human.getInventory().getArmorItem(slot) : null, null);
+        Item item = validateThen(entityUid, entity -> {
+            if (entity instanceof EntityHuman human) {
+                PlayerInventory inventory = human.getInventory();
+                return inventory.getItemFast(inventory.getSize() + slot);
+            }
+            return null;
+        }, null);
         return item != null ? item : Item.AIR_ITEM.clone();
     }
 
-    public static void setEntityCarriedItem(long entityUid, int id, int count, int data, long extra) {
+    public static void setEntityCarriedItem(long entityUid, int id, int count, int data,
+            Item extra) {
+        setEntityCarriedItem(entityUid, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setEntityCarriedItem(long entityUid, int id, int count, int data,
+            NativeItemInstanceExtra extra) {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         validateThen(entityUid, entity -> {
@@ -146,7 +159,13 @@ public class EntityMethod {
         });
     }
 
-    public static void setEntityOffhandItem(long entityUid, int id, int count, int data, long extra) {
+    public static void setEntityOffhandItem(long entityUid, int id, int count, int data,
+            Item extra) {
+        setEntityOffhandItem(entityUid, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setEntityOffhandItem(long entityUid, int id, int count, int data,
+            NativeItemInstanceExtra extra) {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         validateThen(entityUid, entity -> {
@@ -156,7 +175,13 @@ public class EntityMethod {
         });
     }
 
-    public static void setEntityArmor(long entityUid, int slot, int id, int count, int data, long extra) {
+    public static void setEntityArmor(long entityUid, int slot, int id, int count, int data,
+            Item extra) {
+        setEntityArmor(entityUid, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setEntityArmor(long entityUid, int slot, int id, int count, int data,
+            NativeItemInstanceExtra extra) {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         validateThen(entityUid, entity -> {
@@ -213,7 +238,7 @@ public class EntityMethod {
 
     public static Item getItemFromDrop(long entityUid) {
         Item item = validateThen(entityUid, entity -> entity instanceof EntityItem drop ? drop.getItem() : null, null);
-        return item != null ? item.clone() : Item.AIR_ITEM.clone();
+        return item != null ? item : Item.AIR_ITEM.clone();
     }
 
     public static Item getItemFromProjectile(long entityUid) {
@@ -225,7 +250,11 @@ public class EntityMethod {
         return item != null ? item : Item.AIR_ITEM.clone();
     }
 
-    public static void setItemToDrop(long entityUid, int id, int count, int data, long extra) {
+    public static void setItemToDrop(long entityUid, int id, int count, int data, Item extra) {
+        setItemToDrop(entityUid, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setItemToDrop(long entityUid, int id, int count, int data, NativeItemInstanceExtra extra) {
         // TODO: It will actually doesn't update item, hardcode again.
         validateThen(entityUid, entity -> {
             if (entity instanceof EntityItem drop) {
@@ -384,9 +413,12 @@ public class EntityMethod {
 
     public static void dealDamage(long entityUid, int damage, int cause, long attackerUid, boolean b1, boolean b2) {
         validateThen(entityUid, entity -> {
-            Entity attacker = getEntityById(attackerUid);
+            if (entity instanceof Player player && !(player.isSurvival() || player.isAdventure())) {
+                return;
+            }
 
             EntityDamageEvent event;
+            Entity attacker = getEntityById(attackerUid);
             if (isValid(attacker)) {
                 event = new EntityDamageByEntityEvent(attacker, entity, EventListener.convertEnumToDamageCause(cause),
                         damage);
@@ -402,12 +434,17 @@ public class EntityMethod {
         });
     }
 
-    public static void invokeUseItemOn(int id, int count, int data, long unwrapValue, int x, int y, int z, int side,
-            float vx, float vy, float vz, long entityUid) {
+    public static void invokeUseItemOn(int id, int count, int data, Item extra, int x, int y, int z,
+            int side, float vx, float vy, float vz, long entityUid) {
+        invokeUseItemOn(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz, entityUid);
+    }
+
+    public static void invokeUseItemOn(int id, int count, int data, NativeItemInstanceExtra extra, int x, int y, int z,
+            int side, float vx, float vy, float vz, long entityUid) {
         validateThen(entityUid, entity -> {
             synchronized (EventListener.DEALING_LOCK) {
                 EventListener.dealingEvent = true;
-                entity.getLevel().useItemOn(new Vector3(x, y, z), ItemUtils.get(id, count, data, unwrapValue),
+                entity.getLevel().useItemOn(new Vector3(x, y, z), ItemUtils.get(id, count, data, extra),
                         BlockFace.fromHorizontalIndex(side), vx, vy, vz, (Player) entity);
                 EventListener.dealingEvent = false;
             }

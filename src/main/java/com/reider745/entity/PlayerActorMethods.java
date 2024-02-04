@@ -7,6 +7,7 @@ import cn.nukkit.Server;
 import cn.nukkit.AdventureSettings.Type;
 import cn.nukkit.entity.Attribute;
 import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemCrossbow;
 import cn.nukkit.level.Level;
@@ -41,19 +42,15 @@ public class PlayerActorMethods {
         return true;
     }
 
-    public static void invokeUseItemNoTarget(Player player, int id, int count, int data, long extra) {
+    public static void invokeUseItemNoTarget(Player player, int id, int count, int data, Item extra) {
+        invokeUseItemNoTarget(player, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void invokeUseItemNoTarget(Player player, int id, int count, int data, NativeItemInstanceExtra extra) {
         if (!isValid(player, false)) {
             return;
         }
-        Item item = Item.get(id, count, data);
-
-        NativeItemInstanceExtra instanceExtra = NativeItemInstanceExtra.getExtraOrNull(extra);
-        if (instanceExtra != null) {
-            CompoundTag tag = instanceExtra.getExtraProvider().getCompoundTag();
-            if (tag != null) {
-                item.writeCompoundTag(tag);
-            }
-        }
+        Item item = ItemUtils.get(id, count, data, extra);
 
         Vector3 directionVector = player.getDirectionVector();
         if (item instanceof ItemCrossbow) {
@@ -78,12 +75,12 @@ public class PlayerActorMethods {
 
         if (item.onClickAir(player, directionVector)) {
             if (player.isSurvival() || player.isAdventure()) {
-                if (item.getId() == 0 || player.getInventory().getItemInHand().getId() == item.getId()) {
+                if (item.getId() == 0 || player.getInventory().getItemInHandFast().getId() == item.getId()) {
                     player.getInventory().setItemInHand(item);
                 } else {
                     Server.getInstance().getLogger()
                             .debug("Tried to set item " + item.getId() + " but " + player.getName() + " had item "
-                                    + player.getInventory().getItemInHand().getId() + " in their hand slot");
+                                    + player.getInventory().getItemInHandFast().getId() + " in their hand slot");
                 }
             }
 
@@ -101,7 +98,11 @@ public class PlayerActorMethods {
         }
     }
 
-    public static void addItemToInventory(Player player, int id, int count, int data, long extra, boolean dropLeft) {
+    public static void addItemToInventory(Player player, int id, int count, int data, Item extra, boolean dropLeft) {
+        addItemToInventory(player, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), dropLeft);
+    }
+
+    public static void addItemToInventory(Player player, int id, int count, int data, NativeItemInstanceExtra extra, boolean dropLeft) {
         if (!isValid(player, false)) {
             return;
         }
@@ -147,16 +148,17 @@ public class PlayerActorMethods {
 
     public static Item getInventorySlot(Player player, int slot) {
         if (!isValid(player, false)) {
-            return Item.AIR_ITEM;
+            return Item.AIR_ITEM.clone();
         }
-        return player.getInventory().getItem(slot);
+        return player.getInventory().getItemFast(slot);
     }
 
     public static Item getArmor(Player player, int slot) {
         if (!isValid(player, false)) {
-            return Item.AIR_ITEM;
+            return Item.AIR_ITEM.clone();
         }
-        return player.getInventory().getArmorItem(slot);
+        PlayerInventory inventory = player.getInventory();
+        return inventory.getItemFast(inventory.getSize() + slot);
     }
 
     public static float getExhaustion(Player player) {
@@ -218,14 +220,22 @@ public class PlayerActorMethods {
         return player.getInventory().getHeldItemSlot();
     }
 
-    public static void setInventorySlot(Player player, int slot, int id, int count, int data, long extra) {
+    public static void setInventorySlot(Player player, int slot, int id, int count, int data, Item extra) {
+        setInventorySlot(player, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setInventorySlot(Player player, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
         if (!isValid(player, false)) {
             return;
         }
         player.getInventory().setItem(slot, ItemUtils.get(id, count, data, extra));
     }
 
-    public static void setArmor(Player player, int slot, int id, int count, int data, long extra) {
+    public static void setArmor(Player player, int slot, int id, int count, int data, Item extra) {
+        setArmor(player, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void setArmor(Player player, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
         if (!isValid(player, false)) {
             return;
         }
@@ -318,7 +328,7 @@ public class PlayerActorMethods {
         if (!isValid(player, false)) {
             return -1;
         }
-        CompoundTag tag = player.getInventory().getItemInHand().getNamedTag();
+        CompoundTag tag = player.getInventory().getItemInHandFast().getNamedTag();
         if (tag != null && tag.contains("components", CompoundTag.class)) {
             tag = tag.getCompound("components");
             if (tag != null && tag.contains("item_properties", CompoundTag.class)) {

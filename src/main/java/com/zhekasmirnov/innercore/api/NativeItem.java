@@ -4,6 +4,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
+import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
@@ -15,6 +16,8 @@ import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
+
+import cn.nukkit.item.Item;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -189,7 +192,7 @@ public class NativeItem {
 
     @JSStaticFunction
     public static boolean isGlintItemInstance(int id, int data, Object extra) {
-        return NativeAPI.isGlintItemInstance(id, data, NativeItemInstanceExtra.unwrapValue(extra));
+        return NativeAPI.isGlintItemInstance(id, data, NativeItemInstanceExtra.unwrapObject(extra));
     }
 
     /*
@@ -276,7 +279,11 @@ public class NativeItem {
         return ItemMethod.getMaxDamageForId(id, data);
     }
 
-    public static String getNameForId(int id, int data, long extra) {
+    public static String getNameForId(int id, int data, Item extra) {
+        return ItemMethod.getNameForId(id, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static String getNameForId(int id, int data, NativeItemInstanceExtra extra) {
         return ItemMethod.getNameForId(id, data, extra);
     }
 
@@ -285,7 +292,7 @@ public class NativeItem {
     }
 
     public static String getNameForId(int id, int data) {
-        return getNameForId(id, data, 0);
+        return getNameForId(id, data, (NativeItemInstanceExtra) null);
     }
 
     @JSStaticFunction
@@ -293,7 +300,11 @@ public class NativeItem {
         return NativeAPI.getStringIdAndTypeForIntegerId(id) != null;
     }
 
-    public static void addToCreativeInternal(int id, int count, int data, long extra) {
+    public static void addToCreativeInternal(int id, int count, int data, Item extra) {
+        CustomItem.addCreative(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    public static void addToCreativeInternal(int id, int count, int data, NativeItemInstanceExtra extra) {
         CustomItem.addCreative(id, count, data, extra);
     }
 
@@ -304,7 +315,7 @@ public class NativeItem {
 
     @JSStaticFunction
     public static void addToCreative(int id, int count, int data, Object extra) {
-        addToCreativeInternal(id, count, data, NativeItemInstanceExtra.unwrapValue(extra));
+        addToCreativeInternal(id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
     }
 
     @JSStaticFunction

@@ -23,7 +23,7 @@ public class CustomBlocksCommands extends Command {
         for (Integer id : CustomBlock.blocks.keySet()) {
             ArrayList<String> variants = CustomBlock.getOrgVariants(id);
             for (int data = 0; data < variants.size(); data++)
-                list.append("\n" + ItemMethod.getNameForId(id, data, 0) + " -> " + id + ":" + data
+                list.append("\n" + ItemMethod.getNameForId(id, data, null) + " -> " + id + ":" + data
                         + " (runtime=" + BlockStateRegisters.getStateFor(id, data) + ", named="
                         + CustomBlock.getTextIdForNumber(id) + ")");
         }

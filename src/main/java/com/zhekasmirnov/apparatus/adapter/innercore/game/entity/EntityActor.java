@@ -44,6 +44,6 @@ public class EntityActor {
     }
 
     public void setArmorSlot(int slot, ItemStack stack) {
-        NativeAPI.setEntityArmor(uid, slot, stack.id, stack.count, stack.data, stack.getExtraPtr());
+        NativeAPI.setEntityArmor(uid, slot, stack.id, stack.count, stack.data, stack.extra);
     }
 }

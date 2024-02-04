@@ -6,6 +6,7 @@ import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
 import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 
@@ -47,7 +48,7 @@ public class ItemMethod {
 
     public static int getMaxDamageForId(int id, int data) {
         if (isPostLoad)
-            return Item.get(id, data).getMaxDurability();
+            return ItemUtils.get(id, data).getMaxDurability();
         CustomManager manager = getCustomManager(id);
         if (manager != null)
             return manager.get(PropertiesNames.MAX_DAMAGE, 0);
@@ -76,14 +77,14 @@ public class ItemMethod {
 
     public static int getMaxStackForId(int id, int data) {
         if (isPostLoad)
-            return Item.get(id, data).getMaxStackSize();
+            return ItemUtils.get(id, data).getMaxStackSize();
         CustomManager manager = getCustomManager(id);
         if (manager != null)
             return manager.get(PropertiesNames.MAX_STACK, 64);
         return 64;
     }
 
-    public static String getNameForId(int id, int data, long extra) {
+    public static String getNameForId(int id, int data, NativeItemInstanceExtra extra) {
         CustomManager manager = CustomBlock.getBlockManager(id);
         if (manager != null)
             return NameTranslation.translate(CustomBlock.getVariants(manager).get(data));
@@ -91,7 +92,7 @@ public class ItemMethod {
         manager = getCustomManager(id);
         if (manager != null)
             return NameTranslation.translate(manager.get(PropertiesNames.NAME));
-        return Item.get(id, data).getName();
+        return ItemUtils.get(id, data).getName();
     }
 
     public static String getStringIdAndTypeForIntegerId(int id) {

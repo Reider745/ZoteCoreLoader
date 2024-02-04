@@ -52,6 +52,6 @@ public class StaticEntity {
 
 
     public static EntityActor newDroppedItem(float x, float y, float z, int id, int count, int data, NativeItemInstanceExtra extra) {
-        return new EntityActor(NativeAPI.spawnDroppedItem(x, y, z, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra)));
+        return new EntityActor(NativeAPI.spawnDroppedItem(x, y, z, id, count, data, extra));
     }
 }

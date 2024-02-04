@@ -37,7 +37,6 @@ public class InventorySource {
     }
 
     public static void setSource(int slotId, int id, int count, int data, NativeItemInstanceExtra extra) {
-        NativeAPI.setInventorySlot(slotId, id, count, data, NativeItemInstanceExtra.getValueOrNullPtr(extra));
         ScriptableObject slot = getSource(slotId);
         slot.put("id", slot, id);
         slot.put("count", slot, count);

@@ -3,6 +3,9 @@ package com.zhekasmirnov.innercore.api.mod.ui.container;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+
+import cn.nukkit.item.Item;
+
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -69,7 +72,7 @@ public class Slot extends ScriptableObject implements AbstractSlot {
         int id = getInt("id");
         int count = getInt("count");
         if (id != 0 && count > 0) {
-            NativeAPI.spawnDroppedItem(x, y, z, id, count, getData(), getExtraValue());
+            NativeAPI.spawnDroppedItem(x, y, z, id, count, getData(), getExtra());
         }
         set(0, 0, 0, null);
     }
@@ -90,7 +93,7 @@ public class Slot extends ScriptableObject implements AbstractSlot {
         return getInt("data");
     }
 
-    public long getExtraValue() {
+    public Item getExtraValue() {
         return NativeItemInstanceExtra.unwrapValue(ScriptableObjectHelper.getProperty(target, "extra", null));
     }
 

@@ -742,7 +742,7 @@ public class NativeCallback {
                 .useNotSupport("NativeCallback.onItemDispensed(x, y, z, side, id, count, data, extra, region, slot)");
     }
 
-    public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data, long extra,
+    public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data, NativeItemInstanceExtra extra,
             Level level, int slot) {
         int rx = (int) Math.floor(x);
         int ry = (int) Math.floor(y);
@@ -773,7 +773,7 @@ public class NativeCallback {
         coords.put("vec", coords, new Coords(x, y, z));
         coords.setSide(side);
         Callback.invokeAPICallback("ItemDispensed", coords,
-                new ItemInstance(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra)),
+                new ItemInstance(id, count, data, extra),
                 NativeBlockSource.getFromServerCallbackPointer(level), slot);
     }
 
@@ -791,7 +791,7 @@ public class NativeCallback {
         }
     }
 
-    public static void onEnchantPostHurt(int enchantId, int itemId, int itemCount, int itemData, long itemExtraPtr,
+    public static void onEnchantPostHurt(int enchantId, int itemId, int itemCount, int itemData, NativeItemInstanceExtra itemExtra,
             int damage, long actor1, long actor2) {
         NativeItemInstanceExtra itemExtra = new NativeItemInstanceExtra(itemExtraPtr);
         ItemStack item = new ItemStack(itemId, itemCount, itemData, itemExtra);
