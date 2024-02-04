@@ -1,44 +1,36 @@
 package com.reider745.workbench;
 
-import cn.nukkit.Player;
-import cn.nukkit.event.inventory.CraftItemEvent;
-import cn.nukkit.inventory.CraftingGrid;
-import cn.nukkit.inventory.PlayerUIInventory;
+import cn.nukkit.inventory.Inventory;
+import cn.nukkit.inventory.PlayerInventory;
+import cn.nukkit.inventory.transaction.CraftingTransaction;
+import cn.nukkit.inventory.transaction.action.InventoryAction;
 import cn.nukkit.inventory.transaction.action.SlotChangeAction;
-import cn.nukkit.item.Item;
-import com.reider745.api.hooks.HookController;
+import cn.nukkit.network.protocol.ProtocolInfo;
 
-import java.util.concurrent.ConcurrentHashMap;
+import com.reider745.api.hooks.HookClass;
+import com.reider745.api.hooks.TypeHook;
+import com.reider745.api.hooks.annotation.Hooks;
+import com.reider745.api.hooks.annotation.Inject;
 
-public class Workbench {
-    private static ConcurrentHashMap<Player, CraftItemEvent> playerCrafts = new ConcurrentHashMap<>();
+@Hooks(className = "cn.nukkit.inventory.transaction.CraftingTransaction")
+public class Workbench implements HookClass {
 
-    public static void addCraft(CraftItemEvent event){
-        playerCrafts.put(event.getPlayer(), event);
-    }
-
-    public static void slotChange(HookController controller, SlotChangeAction self, Player player){
-        if(self.getInventory() instanceof PlayerUIInventory playerUIInventory){
-            CraftItemEvent event = playerCrafts.get(player);
-            if(event == null){
-                controller.setReplace(false);
-                return;
+    @Inject(type = TypeHook.BEFORE_REPLACE)
+    public static void sendInventories(CraftingTransaction transaction) {
+        if (transaction.getSource().protocol >= ProtocolInfo.v1_16_0) {
+            for (InventoryAction action : transaction.getActionList()) {
+                if (action instanceof SlotChangeAction) {
+                    SlotChangeAction sca = (SlotChangeAction) action;
+                    sca.getInventory().sendSlot(sca.getSlot(), transaction.getSource());
+                }
             }
-            playerCrafts.remove(player);
-            CraftingGrid grid = player.getCraftingGrid();
-
-            System.out.println(grid.getClass());
-            System.out.println(grid.getSize());
-            System.out.println(self.getSlot());
-
-            Item item = playerUIInventory.getItem(self.getSlot());
-            System.out.println(item);
-            item.setCount(item.getCount()*2);
-            playerUIInventory.setItem(self.getSlot(), item);
-
-            controller.setResult(true);
-            controller.setReplace(true);
+        } else {
+            for (Inventory inventory : transaction.getInventories()) {
+                inventory.sendContents(transaction.getSource());
+                if (inventory instanceof PlayerInventory) {
+                    ((PlayerInventory) inventory).sendArmorContents(transaction.getSource());
+                }
+            }
         }
-        controller.setReplace(false);
     }
 }

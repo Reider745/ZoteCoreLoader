@@ -5,6 +5,8 @@ import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
+import cn.nukkit.item.Item;
+
 public class NativeWorkbenchContainerSlot extends ItemContainerSlot {
     public int id, count, data;
     public NativeItemInstanceExtra extra;
@@ -48,7 +50,7 @@ public class NativeWorkbenchContainerSlot extends ItemContainerSlot {
         return extra;
     }
 
-    public long getExtraPtr() {
+    public Item getExtraPtr() {
         return NativeItemInstanceExtra.getValueOrNullPtr(extra);
     }
 

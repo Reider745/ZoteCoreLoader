@@ -1,6 +1,6 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
-import cn.nukkit.item.Item;
+import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
@@ -11,23 +11,23 @@ import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchField;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegistry;
+
+import cn.nukkit.inventory.CraftingGrid;
 import org.mozilla.javascript.Scriptable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 public class NativeWorkbenchContainer implements WorkbenchField {
-    public final long pointer;
+    public final CraftingGrid pointer;
     public final int size;
     public final long owningPlayer;
 
     private final NativeWorkbenchContainerSlot[] slots;
     private final Map<Integer, NativeWorkbenchContainerSlot> slotPlaceholders = new HashMap<>();
 
-    public NativeWorkbenchContainer(long pointer, int size, long owningPlayer) {
+    public NativeWorkbenchContainer(CraftingGrid pointer, int size, long owningPlayer) {
         this.pointer = pointer;
         this.size = size;
         this.slots = new NativeWorkbenchContainerSlot[size * size];
@@ -51,16 +51,17 @@ public class NativeWorkbenchContainer implements WorkbenchField {
 
     public void updateSlots() {
         for (int i = 0; i < slots.length; i++) {
-            slots[i] = new NativeWorkbenchContainerSlot(new NativeItemInstance(getSlot(pointer, i)));
+            slots[i] = new NativeWorkbenchContainerSlot(new NativeItemInstance(pointer.getItem(i)));
         }
     }
 
     public void apply() {
         for (int i = 0; i < slots.length; i++) {
             NativeWorkbenchContainerSlot slot = slots[i];
-            setSlot(pointer, i, slot.id, slot.count, slot.data, slot.getExtraPtr());
+            pointer.setItem(i, ItemUtils.get(slot.id, slot.count, slot.data, slot.getExtra()), false);
         }
-        apply(pointer);
+        // It will be sent in any case by crafting transaction
+        // pointer.sendContents(pointer.getViewers());
     }
 
     @Override
@@ -155,11 +156,4 @@ public class NativeWorkbenchContainer implements WorkbenchField {
     public ItemStack provideRecipe() {
         return provideRecipe("");
     }
-
-
-    // native impl
-
-    private static native Item getSlot(long pointer, int slot);
-    private static native void setSlot(long pointer, int slot, int id, int count, int data, long extra);
-    private static native void apply(long pointer);
 }

@@ -12,6 +12,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import java.util.*;
 
@@ -21,27 +22,27 @@ public class NativeWorkbench {
         public int resultId;
         public int resultCount;
         public int resultData;
-        public long resultExtraPtr;
+        public NativeItemInstanceExtra resultExtra;
         public String[] pattern;
         public HashMap<Character, ItemStack> ingredients;
         public int[] ingredients_;
         public boolean shapeless = false;
 
-        public RecipeRegistry(int resultId, int resultCount, int resultData, long resultExtraPtr, String[] pattern,
+        public RecipeRegistry(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra, String[] pattern,
                 HashMap<Character, ItemStack> ingredients) {
             this.resultId = resultId;
             this.resultCount = resultCount;
             this.resultData = resultData;
-            this.resultExtraPtr = resultExtraPtr;
+            this.resultExtra = resultExtra;
             this.pattern = pattern;
             this.ingredients = ingredients;
         }
 
-        public RecipeRegistry(int resultId, int resultCount, int resultData, long resultExtraPtr, int[] ingredients) {
+        public RecipeRegistry(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra, int[] ingredients) {
             this.resultId = resultId;
             this.resultCount = resultCount;
             this.resultData = resultData;
-            this.resultExtraPtr = resultExtraPtr;
+            this.resultExtra = resultExtra;
             this.ingredients_ = ingredients;
             this.shapeless = true;
         }
@@ -49,7 +50,7 @@ public class NativeWorkbench {
 
     private static ArrayList<RecipeRegistry> recipes = new ArrayList<>();
 
-    private static void addShapedRecipe(int resultId, int resultCount, int resultData, long resultExtraPtr,
+    private static void addShapedRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
             String[] pattern, int[] ingredients) {
         if (resultId == 0) {
             Logger.error("Recipe result id 0");
@@ -59,25 +60,25 @@ public class NativeWorkbench {
         final HashMap<Character, ItemStack> ingredients_ = new HashMap<>();
         for (int i = 0; i < ingredients.length; i += 3)
             ingredients_.put((char) ingredients[i], new ItemStack(ingredients[i + 1], 1, ingredients[i + 2]));
-        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtraPtr, pattern, ingredients_));
+        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtra, pattern, ingredients_));
     }
 
     public static void addShapedRecipe(ItemStack result, String[] pattern, int[] ingredients) {
-        addShapedRecipe(result.id, result.count, result.data, result.getExtraPtr(), pattern, ingredients);
+        addShapedRecipe(result.id, result.count, result.data, result.extra, pattern, ingredients);
     }
 
-    private static void addShapelessRecipe(int resultId, int resultCount, int resultData, long resultExtraPtr,
+    private static void addShapelessRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
             int[] ingredients) {
         if (resultId == 0) {
             Logger.error("Recipe result id 0");
             return;
         }
 
-        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtraPtr, ingredients));
+        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtra, ingredients));
     }
 
     public static void addShapelessRecipe(ItemStack result, int[] ingredients) {
-        addShapelessRecipe(result.id, result.count, result.data, result.getExtraPtr(), ingredients);
+        addShapelessRecipe(result.id, result.count, result.data, result.extra, ingredients);
     }
 
     private static final ArrayList<int[]> removeds = new ArrayList<>();
@@ -104,7 +105,7 @@ public class NativeWorkbench {
             });
         }
         for (RecipeRegistry recipe : recipes) {
-            Item result = ItemUtils.get(recipe.resultId, recipe.resultCount, recipe.resultData, recipe.resultExtraPtr);
+            Item result = ItemUtils.get(recipe.resultId, recipe.resultCount, recipe.resultData, recipe.resultExtra);
             try {
                 mapping.toRuntime(result.getId(), result.getDamage());
             } catch (IllegalArgumentException e) {

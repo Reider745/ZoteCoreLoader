@@ -17,6 +17,7 @@ import cn.nukkit.event.block.BlockGrowEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
+import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
@@ -28,6 +29,7 @@ import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerPreLoginEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.event.server.ServerCommandEvent;
+import cn.nukkit.inventory.CraftingGrid;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
@@ -420,6 +422,15 @@ public class EventListener implements Listener {
             }
             event.setCancelled();
         }));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCraftItem(CraftItemEvent event) {
+        CraftingGrid grid = event.getPlayer().getCraftingGrid();
+        long playerUid = event.getPlayer().getId();
+        int inventorySize = (int) Math.sqrt(grid.getSize());
+
+        consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

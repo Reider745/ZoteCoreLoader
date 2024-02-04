@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api;
 
 import android.util.Pair;
 import cn.nukkit.Server;
+import cn.nukkit.inventory.CraftingGrid;
 import cn.nukkit.level.Level;
 
 import com.reider745.InnerCoreServer;
@@ -828,8 +829,8 @@ public class NativeCallback {
 
     /* WORKBENCH CALLBACKS */
 
-    public static void onWorkbenchCraft(long containerPtr, long player, int size) {
-        NativeWorkbenchContainer container = new NativeWorkbenchContainer(containerPtr, size, player);
+    public static void onWorkbenchCraft(CraftingGrid grid, long player, int size) {
+        NativeWorkbenchContainer container = new NativeWorkbenchContainer(grid, size, player);
 
         // if some changes are done to container in this callback, it must call apply,
         // because it is not guaranteed that apply will be called
