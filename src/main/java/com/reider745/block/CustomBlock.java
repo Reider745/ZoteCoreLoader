@@ -99,6 +99,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         return manager.get("variants", new ArrayList<>());
     }
 
+    @SuppressWarnings("unchecked")
     public static ArrayList<String> getVariants(CustomManager manager) {
         ArrayList<String> variants = (ArrayList<String>) manager.get("variants", new ArrayList<>()).clone();
         if (variants.size() >= 16)
@@ -189,12 +190,19 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     @Override
     public int getToolType() {
-        return ItemTool.TYPE_PICKAXE;
+        return ItemTool.TYPE_NONE;
     }
 
     @Override
     public Item[] getDrops(Item item) {
-        return new Item[] { Item.get(id, this.getDamage(), 1) };
+        // Overriden by Core Engine, should be empty
+        return new Item[0];
+    }
+
+    @Override
+    public boolean canSilkTouch() {
+        // Overriden by Core Engine, should be false
+        return false;
     }
 
     @Override
