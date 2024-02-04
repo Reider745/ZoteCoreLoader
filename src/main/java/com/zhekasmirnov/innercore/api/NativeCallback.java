@@ -636,10 +636,9 @@ public class NativeCallback {
     }
 
     public static void onThrowableHit(long projectile, float hitX, float hitY, float hitZ, long entity, int blockX,
-            int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData, long itemExtra,
-            long hitEntity) {
+            int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData, NativeItemInstanceExtra itemExtra) {
         Callback.invokeAPICallback("ProjectileHit", projectile,
-                new ItemInstance(itemId, itemCount, itemData, NativeItemInstanceExtra.getExtraOrNull(itemExtra)),
+                new ItemInstance(itemId, itemCount, itemData, itemExtra),
                 new ScriptableParams(
                         new Pair<String, Object>("x", hitX),
                         new Pair<String, Object>("y", hitY),
@@ -647,8 +646,7 @@ public class NativeCallback {
                         new Pair<String, Object>("entity", entity),
                         new Pair<String, Object>("coords",
                                 blockX == 0 && blockY == 0 && blockZ == 0 && blockSide == 0 ? null
-                                        : new Coords(blockX, blockY, blockZ, blockSide)),
-                        new Pair<String, Object>("hitEntity", hitEntity)));
+                                        : new Coords(blockX, blockY, blockZ, blockSide))));
     }
 
     public static void onPathNavigationDone(long entity, int result) {
@@ -793,7 +791,6 @@ public class NativeCallback {
 
     public static void onEnchantPostHurt(int enchantId, int itemId, int itemCount, int itemData, NativeItemInstanceExtra itemExtra,
             int damage, long actor1, long actor2) {
-        NativeItemInstanceExtra itemExtra = new NativeItemInstanceExtra(itemExtraPtr);
         ItemStack item = new ItemStack(itemId, itemCount, itemData, itemExtra);
         Callback.invokeAPICallback("EnchantPostHurt", enchantId, item, damage, actor1, actor2);
         if (!NativeAPI.isDefaultPrevented()) {

@@ -4,7 +4,9 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.item.EntityXPOrb;
+import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -38,10 +40,14 @@ import cn.nukkit.math.Vector3;
 import java.util.ArrayList;
 
 import com.reider745.api.CallbackHelper;
+import com.reider745.api.CustomManager;
+import com.reider745.api.ReflectHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.entity.EntityMotion;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.hooks.PlayerHooks;
+import com.reider745.item.NukkitIdConvertor;
+import com.reider745.item.NukkitIdConvertor.EntryItem;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
@@ -51,6 +57,7 @@ import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 public class EventListener implements Listener {
     public static final Object DEALING_LOCK = new Object();
     public static Object dealingEvent = null;
+    private static long projectileHitEntity = -1;
 
     public static void consumeEvent(Event event, CallbackHelper.ICallbackApply apply, boolean isPrevent) {
         CallbackHelper.apply(event, apply, isPrevent);
@@ -109,17 +116,27 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onProjectileHit(ProjectileHitEvent event) {
-        final Entity entity = event.getEntity();
-        final Vector3 hit = entity.getPosition();
-        final Block block = entity.getLevelBlock();
+        final EntityProjectile entity = (EntityProjectile) event.getEntity();
+        // MovingObjectPosition actually always != null, but in plugins case
         final MovingObjectPosition mop = event.getMovingObjectPosition();
+        final Vector3 hit = mop != null ? mop.hitVector : entity.getPosition();
         final Item item = EntityMethod.getItemFromProjectile(entity.getId());
         final NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
 
-        NativeCallback.onThrowableHit(event.getEntity().getId(), (float) hit.x, (float) hit.y, (float) hit.z,
-                entity.getId(), (int) block.x, (int) block.y, (int) block.z, mop != null ? mop.sideHit : -1,
-                item.getId(), item.count, item.getDamage(), extra != null ? extra.getValue() : 0,
-                mop != null && mop.entityHit != null ? mop.entityHit.getId() : 0);
+        consumeEvent(event,
+                () -> NativeCallback.onThrowableHit(entity.getId(), (float) hit.x, (float) hit.y, (float) hit.z,
+                        mop != null && mop.entityHit != null ? mop.entityHit.getId() : 0, mop != null ? mop.blockX : 0,
+                        mop != null ? mop.blockY : 0, mop != null ? mop.blockZ : 0, mop != null ? mop.sideHit : -1,
+                        item.getId(), item.count, item.getDamage(), extra));
+
+        if (event.isCancelled()) {
+            // It actually cannot prevent projectile remove, but cancelling
+            // damage is most common requirement
+            if (mop != null && mop.entityHit != null) {
+                projectileHitEntity = mop.entityHit.getId();
+            }
+            entity.isCollided = entity.isCollidedHorizontally = entity.isCollidedVertically = entity.hadCollision = false;
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -231,6 +248,10 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity().getId() == projectileHitEntity && event.getCause() == DamageCause.PROJECTILE) {
+            projectileHitEntity = -1;
+            return;
+        }
         if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
             return;
         }
