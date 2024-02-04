@@ -213,9 +213,10 @@ public class DimensionsFix implements HookClass {
             }
             self.sendData(self, self.getDataProperties().clone());
 
-            if (!server.checkOpMovement && self.isOp()) {
+            // TODO: Jetpacks! Actually for disabling flight without affecting it.
+            // if (!server.checkOpMovement && self.isOp()) {
                 self.setCheckMovement(false);
-            }
+            // }
 
             if (self.isOp() || self.hasPermission("nukkit.textcolor")) {
                 self.setRemoveFormat(false);
