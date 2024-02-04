@@ -24,6 +24,8 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.event.EventListener;
 import com.reider745.world.dimensions.DimensionsMethods;
+import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
+
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
@@ -39,6 +41,7 @@ public class LevelHooks implements HookClass {
             field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
     }
 
+    @SuppressWarnings("unchecked")
     @Inject
     public static Item useBreakOn(Level level, Vector3 vector, BlockFace face, Item item, Player player,
             boolean createParticles) {
@@ -118,7 +121,8 @@ public class LevelHooks implements HookClass {
             } else if (!player.isOp() && level.isInSpawnRadius(target)) {
                 ev.setCancelled();
                 isNukkitPrevent = true;
-            } else if (!ev.getInstaBreak() && ev.isFastBreak()) {
+            // TODO: There are currently no way to prevent cheats, but it constantly breaks overpowered tools
+            } else if (!ev.getInstaBreak() && ev.isFastBreak() && item.getId() < IDRegistry.ITEM_ID_OFFSET) {
                 ev.setCancelled();
                 isNukkitPrevent = true;
             }
