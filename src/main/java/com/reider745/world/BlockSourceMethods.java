@@ -127,7 +127,7 @@ public class BlockSourceMethods {
             int updateType) {
         Block block = level.getBlock(x, y, z);
         defDestroy(level, block);
-        level.setBlock(x, y, z, Block.get(id, data).clone(), false, allowUpdate);
+        level.setBlock(x, y, z, Block.get(id, data), false, allowUpdate);
         sendBlock(level, x, y, z, 0);
     }
 
@@ -236,9 +236,12 @@ public class BlockSourceMethods {
     }
 
     public static long spawnEntity(Level level, int type, float x, float y, float z) {
-        Entity entity = Entity.createEntity(type, new Position(x, y, z));
-        level.addEntity(entity);
-        return entity.getId();
+        Entity entity = Entity.createEntity(type, new Position(x, y, z, level));
+        if (entity != null) {
+            entity.spawnToAll();
+            return entity.getId();
+        }
+        return -1;
     }
 
     public static long spawnNamespacedEntity(Level level, float x, float y, float z, String str1, String str2,
@@ -248,16 +251,22 @@ public class BlockSourceMethods {
         }
         // TODO: Quite BETTER name to identifier conversion!
         Entity entity = Entity.createEntity(str2.substring(0, 1).toUpperCase() + str2.substring(1).replace("_", ""),
-                new Position(x, y, z));
-        level.addEntity(entity);
-        return entity.getId();
+                new Position(x, y, z, level));
+        if (entity != null) {
+            entity.spawnToAll();
+            return entity.getId();
+        }
+        return -1;
     }
 
     public static long spawnExpOrbs(Level level, float x, float y, float z, int amount) {
         Vector3 source = new Vector3(x, y, z);
         CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3(0, 0, 0));
-        Entity entity = Entity.createEntity("XpOrb", level.getChunk(source.getChunkX(), source.getChunkZ()), nbt);
-        entity.spawnToAll();
-        return entity.getId();
+        Entity entity = Entity.createEntity("XpOrb", new Position(x, y, z, level), nbt);
+        if (entity != null) {
+            entity.spawnToAll();
+            return entity.getId();
+        }
+        return -1;
     }
 }
