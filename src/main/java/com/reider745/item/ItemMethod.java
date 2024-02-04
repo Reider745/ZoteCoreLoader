@@ -29,6 +29,7 @@ public class ItemMethod {
         public static final String ARMOR_DAMAGEABLE = "armor_damageable";
         public static final String REPAIRS = "repairs";
         public static final String CREATIVE_CATEGORY = "creative_category";
+        public static final String FIRE_RESISTANT = "fire_resistant";
 
         public static class Armors {
             public static final String SLOT = "slot";

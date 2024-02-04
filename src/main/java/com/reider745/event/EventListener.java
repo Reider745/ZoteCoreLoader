@@ -401,6 +401,22 @@ public class EventListener implements Listener {
         }));
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onItemSpawn(ItemSpawnEvent event) {
+        EntityItem itemEntity = event.getEntity();
+        Item nukkitItem = itemEntity.getItem();
+
+        if (nukkitItem != null) {
+            EntryItem item = NukkitIdConvertor.getInnerCoreForNukkit(nukkitItem.getId(), nukkitItem.getDamage());
+            CustomManager manager = CustomManager.getFor(item.id);
+            if (manager != null && manager.containsKey("fire_resistant")) {
+                boolean fireproof = manager.get("fire_resistant", false);
+                itemEntity.fireProof = fireproof;
+                ReflectHelper.setField(itemEntity, "floatsInLava", fireproof);
+            }
+        }
+    }
+
     // TODO: onPathNavigationDone
 
     // TODO: onBlockSpawnResources

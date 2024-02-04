@@ -128,6 +128,14 @@ public class NativeItem {
         ItemMethod.setArmorDamageable(itemManager, value);
     }
 
+    public void setFireResistant(boolean resist) {
+        if (resist || (id >= Item.NETHERITE_INGOT && id <= Item.NETHERITE_SCRAP)) {
+            itemManager.put(PropertiesNames.FIRE_RESISTANT, resist);
+        } else {
+            itemManager.remove(PropertiesNames.FIRE_RESISTANT);
+        }
+    }
+
     @JSStaticFunction
     public static NativeItem getItemById(int id) {
         if (id < 0 || id >= MAX_ITEM_ID) {
@@ -287,8 +295,6 @@ public class NativeItem {
 
     public static void addToCreativeInternal(int id, int count, int data, long extra) {
         CustomItem.addCreative(id, count, data, extra);
-
-        // TODO: Item.addCreativeItem(Item.get(id, data, count));
     }
 
     @JSStaticFunction

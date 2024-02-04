@@ -32,6 +32,14 @@ public class CustomManager {
         parameters.put(key, value);
     }
 
+    public boolean containsKey(String key) {
+        return parameters.containsKey(key);
+    }
+
+    public void remove(String key) {
+        parameters.remove(key);
+    }
+
     private static HashMap<Integer, CustomManager> storage = new HashMap<>();
 
     public static CustomManager getFor(int id){

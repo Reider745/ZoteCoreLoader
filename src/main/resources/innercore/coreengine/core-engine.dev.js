@@ -2399,6 +2399,9 @@ var ItemRegistry = {
     setMaxUseDuration: function(id, duration) {
         this.getItemById(id).setMaxUseDuration(duration);
     },
+    setFireResistant: function(id, resist) {
+        this.getItemById(id).setFireResistant(resist);
+    },
     registerUseFunctionForID: function(numericID, useFunc) {
         this.useFunctions[numericID] = useFunc;
         return true;
