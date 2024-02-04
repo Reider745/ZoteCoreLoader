@@ -109,11 +109,12 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRedstoneUpdate(RedstoneUpdateEvent event) {
-        final Block block = event.getBlock();
-        final Level level = event.getBlock().getLevel();
+        Block block = event.getBlock();
+        Level level = event.getBlock().getLevel();
+        int signal = level.isBlockIndirectlyGettingPowered(block);
 
-        NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z, level.getStrongPower(block),
-                true, level);
+        consumeEvent(event, () -> NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z,
+                signal, !event.getBlock().isPowerSource(), level));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
