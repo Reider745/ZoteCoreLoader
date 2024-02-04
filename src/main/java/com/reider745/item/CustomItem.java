@@ -9,6 +9,7 @@ import com.reider745.block.CustomBlock;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -68,7 +69,7 @@ public class CustomItem {
     }
 
     public static void checkAddedItem(int id, int count, int damage, NativeItemInstanceExtra extra) {
-        if (!CustomItem.isCreativeItem(id, damage) && id > 2000) {
+        if (!CustomItem.isCreativeItem(id, damage) && id >= IDRegistry.ITEM_ID_OFFSET) {
             CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, id);
             addFirst(CustomItem.creative, new ItemCreative(id, count, damage, extra));
         }
@@ -76,12 +77,11 @@ public class CustomItem {
 
     public static void addToCreativeGroup(String id, int itemId) {
         ArrayList<Integer> items = groups.get(id);
-        if (items == null)
+        if (items == null) {
             items = new ArrayList<>();
-
+            groups.put(id, items);
+        }
         items.add(itemId);
-
-        groups.put(id, items);
     }
 
     public static ArrayList<Integer> getGroupForElement(int id) {
@@ -119,6 +119,10 @@ public class CustomItem {
         return registerItem(textId, id, name, CustomItemClass.class);
     }
 
+    public static CustomManager registerArmor(String textId, int id, String name) {
+        return registerItem(textId, id, name, CustomArmorItem.class);
+    }
+
     public static CustomManager registerItemFood(String textId, int id, String name, int food) {
         CustomManager manager = registerItem(textId, id, name);
         foods.put(id, food);
@@ -135,7 +139,7 @@ public class CustomItem {
 
     public static CustomManager registerArmorItem(String nameId, int id, String name, int slot, int defense,
             int durability, float knockbackResist) {
-        CustomManager manager = registerItem(nameId, id, name);
+        CustomManager manager = registerArmor(nameId, id, name);
         manager.put(PropertiesNames.Armors.SLOT, slot);
         manager.put(PropertiesNames.Armors.DEFENSE, defense);
         manager.put(PropertiesNames.MAX_DAMAGE, durability);
@@ -182,7 +186,7 @@ public class CustomItem {
 
     public static ArrayList<ItemCreative> sortCreativeItems(int category) {
         ArrayList<ItemCreative> items = category_all.getOrDefault(category, new ArrayList<>());
-        ArrayList<ItemCreative> items_clone = (ArrayList<ItemCreative>) items.clone();
+        ArrayList<ItemCreative> items_clone = new ArrayList<>(items);
         ArrayList<ItemCreative> result = new ArrayList<>();
 
         for (ItemCreative item : items) {

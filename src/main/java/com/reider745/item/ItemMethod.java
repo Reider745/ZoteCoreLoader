@@ -159,7 +159,7 @@ public class ItemMethod {
     }
 
     public static void setArmorDamageable(CustomManager ptr, boolean value) {
-        ptr.put(PropertiesNames.ARMOR_DAMAGEABLE, !value);
+        ptr.put(PropertiesNames.ARMOR_DAMAGEABLE, value);
     }
 
     public static void addRepairItemId(CustomManager ptr, int id) {

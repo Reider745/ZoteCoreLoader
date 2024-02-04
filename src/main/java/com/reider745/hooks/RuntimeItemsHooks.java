@@ -1,6 +1,7 @@
 package com.reider745.hooks;
 
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemDurable;
 import cn.nukkit.item.RuntimeItemMapping;
 import cn.nukkit.item.RuntimeItemMapping.RuntimeEntry;
 import cn.nukkit.item.RuntimeItems;
@@ -10,7 +11,6 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
-
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
@@ -37,51 +37,44 @@ public class RuntimeItemsHooks implements HookClass {
         final List<RuntimeEntry> itemPaletteEntries = ReflectHelper.getField(mapping, "itemPaletteEntries");
 
         CustomItem.customItems.forEach((name, id) -> {
-            int fullId = RuntimeItems.getFullId(id, 0);
-            int legacyId = id;
-            int runtimeId = id;
-            int damage = ItemMethod.getMaxDamageForId(id, 0);
+            runtimeId2Name.put((int) id, name);
+            name2RuntimeId.put(name, (int) id);
 
-            runtimeId2Name.put(runtimeId, name);
-            name2RuntimeId.put(name, runtimeId);
-
-            RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false);
-            legacy2Runtime.put(fullId, runtimeEntry);
-            itemPaletteEntries.add(runtimeEntry);
-
-            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, damage);
-            runtime2Legacy.put(runtimeId, legacyEntry);
-            identifier2Legacy.put(name, legacyEntry);
-
-            legacyString2LegacyInt.put(name, id);
-
-            Item item = Item.get(legacyId, 0);
+            Item item = Item.get(id, 0);
             if (item.getId() != 0) {
                 Item.NAMESPACED_ID_ITEM.put(name, () -> item);
             }
+            boolean hasDamage = item instanceof ItemDurable;
+            int damage = ItemMethod.getMaxDamageForId(id, 0);
+
+            RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, id, hasDamage);
+            legacy2Runtime.put(RuntimeItems.getFullId(id, 0), runtimeEntry);
+            itemPaletteEntries.add(runtimeEntry);
+
+            RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(id, hasDamage, damage);
+            runtime2Legacy.put((int) id, legacyEntry);
+            identifier2Legacy.put(name, legacyEntry);
+
+            legacyString2LegacyInt.put(name, id);
         });
 
-        CustomBlock.customBlocks.forEach((name, id) -> {
-            for (int data = 0; data < 16; data++) {
-                int fullId = RuntimeItems.getFullId(id, data);
-                int legacyId = id;
-                int runtimeId = id;
+        CustomBlock.customBlocks.forEach((name, _id) -> {
+            for (int id = _id, data = 0; data < 16; data++) {
+                runtimeId2Name.put(id, name);
+                name2RuntimeId.put(name, id);
 
-                runtimeId2Name.put(runtimeId, name);
-                name2RuntimeId.put(name, runtimeId);
-
-                RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, runtimeId, false);
-                legacy2Runtime.put(fullId, runtimeEntry);
+                RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, id, false);
+                legacy2Runtime.put(RuntimeItems.getFullId(id, data), runtimeEntry);
                 itemPaletteEntries.add(runtimeEntry);
 
-                RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(legacyId, false, data);
-                runtime2Legacy.put(runtimeId, legacyEntry);
+                RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(id, false, data);
+                runtime2Legacy.put(id, legacyEntry);
                 identifier2Legacy.put(name, legacyEntry);
             }
 
-            legacyString2LegacyInt.put(name, id);
+            legacyString2LegacyInt.put(name, _id);
 
-            Item item = Item.get(id, 0);
+            Item item = Item.get(_id, 0);
             if (item.getId() != 0) {
                 Item.NAMESPACED_ID_ITEM.put(name, () -> item);
             }
