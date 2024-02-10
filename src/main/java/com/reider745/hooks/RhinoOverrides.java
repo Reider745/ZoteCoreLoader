@@ -15,7 +15,7 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 
 @Hooks(className = "org.mozilla.javascript.JavaMembers")
-public class Other implements HookClass {
+public class RhinoOverrides implements HookClass {
     private static final Logger logger = LogManager.getLogger(MainLogger.class);
 
     @Override

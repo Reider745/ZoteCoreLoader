@@ -72,12 +72,13 @@ public class Main {
         loader.registerHooksInitializationForClass(GlobalBlockPalette.class);
         loader.registerHooksInitializationForClass(ServerHooks.class);
         loader.registerHooksInitializationForClass(CraftingTransactionPacket.class);
-        loader.registerHooksInitializationForClass(Other.class);
+        loader.registerHooksInitializationForClass(RhinoOverrides.class);
         loader.registerHooksInitializationForClass(PlayerHooks.class);
         loader.registerHooksInitializationForClass(RuntimeItemsHooks.class);
         loader.registerHooksInitializationForClass(BlocksHooks.class);
         loader.registerHooksInitializationForClass(LevelHooks.class);
         loader.registerHooksInitializationForClass(ItemUtils.class);
+        loader.registerHooksInitializationForClass(EntityOverrides.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
 
         if (Arrays.stream(args).anyMatch("--snowfall-everywhere"::equals)) {
