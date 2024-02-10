@@ -30,7 +30,7 @@ public class ItemStack {
     }
 
     public ItemStack(ItemStack stack) {
-        this(stack.id, stack.count, stack.data, null);
+        this(stack.id, stack.count, stack.data, stack.extra);
     }
 
     public ItemStack(NativeItemInstance itemInstance) {
@@ -76,7 +76,8 @@ public class ItemStack {
             } catch (JSONException e) {
                 return null;
             }
-            return new ItemStack(json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0), NativeItemInstanceExtra.fromJson(json.optJSONObject("extra")));
+            return new ItemStack(json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0),
+                    NativeItemInstanceExtra.fromJson(json.optJSONObject("extra")));
         } else if (obj instanceof NativeItemInstance) {
             return new ItemStack((NativeItemInstance) obj);
         } else if (obj instanceof Item) {

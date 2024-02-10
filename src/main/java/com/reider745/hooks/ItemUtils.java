@@ -171,7 +171,6 @@ public class ItemUtils implements HookClass {
             CompoundTag custom = extra.getNamedTag();
             if (custom != null) {
                 item.setNamedTag(custom);
-                // Logger.info("get(" + id + ":" + meta + ")=" + item.getOrCreateNamedTag().getString(INNER_CORE_TAG_NAME));
             }
         }
         return item;

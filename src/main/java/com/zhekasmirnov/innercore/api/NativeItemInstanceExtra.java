@@ -317,15 +317,13 @@ public class NativeItemInstanceExtra {
     public void setAllCustomData(String extra) {
         customData = new JSONObject(extra);
         if (item != null) {
-            String dataJson = customData.toString();
             CompoundTag tag = item.getOrCreateNamedTag();
             if (!customData.isEmpty()) {
-                tag.putString(ItemUtils.INNER_CORE_TAG_NAME, dataJson);
+                tag.putString(ItemUtils.INNER_CORE_TAG_NAME, customData.toString());
             } else {
                 tag.remove(ItemUtils.INNER_CORE_TAG_NAME);
             }
             item.setNamedTag(tag);
-            // Logger.info("setAllCustomData(" + item.getId() + ":" + item.getDamage() + ")=" + dataJson);
         }
     }
 
