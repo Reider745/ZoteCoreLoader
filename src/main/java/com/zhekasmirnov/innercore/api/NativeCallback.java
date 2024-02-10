@@ -497,8 +497,8 @@ public class NativeCallback {
                         new Pair<String, Object>("someFloat", anotherFloat)));
     }
 
-    public static void onServerCommand(String command, float x, float y, float z, long entity) {
-        Callback.invokeAPICallback("ServerCommand", command, new Coords(x, y, z), entity);
+    public static void onServerCommand(String command, float x, float y, float z, long entity, boolean fromPacket) {
+        Callback.invokeAPICallback("ServerCommand", command, new Coords(x, y, z), entity, fromPacket);
     }
 
     /* PLAYER CALLBACKS */
@@ -631,13 +631,13 @@ public class NativeCallback {
                 someBool2);
 
         // if (entity == NativeAPI.getPlayer()) {
-        // ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1,
-        // someBool2);
+            // ArmorRegistry.onHurt(attacker, damageValue, damageType, someBool1, someBool2);
         // }
     }
 
     public static void onThrowableHit(long projectile, float hitX, float hitY, float hitZ, long entity, int blockX,
-            int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData, NativeItemInstanceExtra itemExtra) {
+            int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData,
+            NativeItemInstanceExtra itemExtra) {
         Callback.invokeAPICallback("ProjectileHit", projectile,
                 new ItemInstance(itemId, itemCount, itemData, itemExtra),
                 new ScriptableParams(
@@ -741,8 +741,8 @@ public class NativeCallback {
                 .useNotSupport("NativeCallback.onItemDispensed(x, y, z, side, id, count, data, extra, region, slot)");
     }
 
-    public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data, NativeItemInstanceExtra extra,
-            Level level, int slot) {
+    public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data,
+            NativeItemInstanceExtra extra, Level level, int slot) {
         int rx = (int) Math.floor(x);
         int ry = (int) Math.floor(y);
         int rz = (int) Math.floor(z);
@@ -790,8 +790,8 @@ public class NativeCallback {
         }
     }
 
-    public static void onEnchantPostHurt(int enchantId, int itemId, int itemCount, int itemData, NativeItemInstanceExtra itemExtra,
-            int damage, long actor1, long actor2) {
+    public static void onEnchantPostHurt(int enchantId, int itemId, int itemCount, int itemData,
+            NativeItemInstanceExtra itemExtra, int damage, long actor1, long actor2) {
         ItemStack item = new ItemStack(itemId, itemCount, itemData, itemExtra);
         Callback.invokeAPICallback("EnchantPostHurt", enchantId, item, damage, actor1, actor2);
         if (!NativeAPI.isDefaultPrevented()) {

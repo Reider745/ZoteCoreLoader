@@ -9,8 +9,8 @@ import com.reider745.api.hooks.JarEditor;
 import com.reider745.hooks.*;
 import com.reider745.hooks.bugfix.DimensionsFix;
 import com.reider745.hooks.bugfix.EntityItemHooks;
+import com.reider745.network.CraftingTransactionPacket;
 import com.reider745.network.InnerCorePacket;
-import com.reider745.workbench.Workbench;
 
 public class Main {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
@@ -71,6 +71,7 @@ public class Main {
         loader.registerHooksInitializationForClass(NetworkHooks.class);
         loader.registerHooksInitializationForClass(GlobalBlockPalette.class);
         loader.registerHooksInitializationForClass(ServerHooks.class);
+        loader.registerHooksInitializationForClass(CraftingTransactionPacket.class);
         loader.registerHooksInitializationForClass(Other.class);
         loader.registerHooksInitializationForClass(PlayerHooks.class);
         loader.registerHooksInitializationForClass(RuntimeItemsHooks.class);
@@ -78,7 +79,6 @@ public class Main {
         loader.registerHooksInitializationForClass(LevelHooks.class);
         loader.registerHooksInitializationForClass(ItemUtils.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
-        loader.registerHooksInitializationForClass(Workbench.class);
 
         if (Arrays.stream(args).anyMatch("--snowfall-everywhere"::equals)) {
             loader.registerHooksInitializationForClass(SnowfallEverywhere.class);

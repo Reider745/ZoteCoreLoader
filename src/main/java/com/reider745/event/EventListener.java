@@ -20,6 +20,7 @@ import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
+import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerExperienceChangeEvent;
@@ -383,13 +384,25 @@ public class EventListener implements Listener {
             NativeCallback.onCustomDimensionTransfer(event.getEntity().getId(), from, to);
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerCommand(ServerCommandEvent event) {
         final CommandSender sender = event.getSender();
         final Position position = sender.getPosition();
         final long entityUid = sender.isEntity() ? sender.asEntity().getId() : 0;
 
-        consumeEvent(event, () -> NativeCallback.onServerCommand(event.getCommand(), (float) position.x,
-                (float) position.y, (float) position.z, entityUid));
+        consumeEvent(event, () -> NativeCallback.onServerCommand(event.getCommand(),
+                (float) position.x, (float) position.y, (float) position.z, entityUid, false));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+        long playerUid = event.getPlayer().getId();
+        Position position = event.getPlayer().getPosition();
+        String command = event.getMessage();
+
+        consumeEvent(event,
+                () -> NativeCallback.onServerCommand(command.charAt(0) == '/' ? command.substring(1) : command,
+                        (float) position.x, (float) position.y, (float) position.z, playerUid, true));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -467,6 +480,4 @@ public class EventListener implements Listener {
     // TODO: onItemUseComplete (not only custom items)
 
     // TODO: onItemDispensed
-
-    // TODO: onWorkbenchCraft
 }

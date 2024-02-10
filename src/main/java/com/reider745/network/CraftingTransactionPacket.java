@@ -1,4 +1,4 @@
-package com.reider745.workbench;
+package com.reider745.network;
 
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.PlayerInventory;
@@ -13,7 +13,7 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 
 @Hooks(className = "cn.nukkit.inventory.transaction.CraftingTransaction")
-public class Workbench implements HookClass {
+public class CraftingTransactionPacket implements HookClass {
 
     @Inject(type = TypeHook.BEFORE_REPLACE)
     public static void sendInventories(CraftingTransaction transaction) {
