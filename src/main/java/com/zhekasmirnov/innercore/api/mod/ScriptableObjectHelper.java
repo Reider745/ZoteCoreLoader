@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJSON;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.List;
@@ -203,5 +204,10 @@ public class ScriptableObjectHelper {
         }
 
         return json;
+    }
+
+    public static String stringify(ScriptableObject obj, Object space) {
+        Context context = Compiler.assureContextForCurrentThread();
+        return (String) NativeJSON.stringify(context, obj.getParentScope(), obj, null, space);
     }
 }

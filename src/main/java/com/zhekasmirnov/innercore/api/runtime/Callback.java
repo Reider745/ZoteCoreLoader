@@ -1,6 +1,8 @@
 package com.zhekasmirnov.innercore.api.runtime;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -9,6 +11,7 @@ import org.mozilla.javascript.Scriptable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by zheka on 09.08.2017.
@@ -26,6 +29,7 @@ public class Callback {
     }
 
     private static HashMap<String, ArrayList<CallbackFunction>> callbacks = new HashMap<>();
+    public static boolean profilingEnabled = false, profilingShowParameters = false;
 
     public static int count(String name) {
         List<CallbackFunction> encounted = callbacks.getOrDefault(name, null);
@@ -50,20 +54,48 @@ public class Callback {
 
     public static void invokeCallbackV(String name, Object[] params) {
         Context ctx = Compiler.assureContextForCurrentThread();
+        boolean isTick = name.contains("tick") || name.contains("Tick");
+        if (profilingShowParameters && !isTick) {
+            try {
+                Logger.debug("Profiling/" + name,
+                        ScriptableObjectHelper.stringify(ScriptableObjectHelper.createArray(params), null));
+            } catch (RuntimeException e) {
+            }
+        }
         ArrayList<CallbackFunction> funcs = callbacks.get(name);
         Scriptable parent;
         if (funcs != null) {
+            long profilingNanos = !profilingEnabled || isTick ? 0 : System.nanoTime();
             for (CallbackFunction callback : funcs) {
                 parent = callback.function.getParentScope();
                 callback.function.call(ctx, parent, parent, params);
+            }
+            if (profilingNanos != 0) {
+                profilingNanos = System.nanoTime() - profilingNanos;
+                Logger.debug("Profiling/" + name,
+                        funcs.size() + " functions in " + (profilingNanos / 1000000f) + "ms.");
             }
         }
     }
 
     public static List<Runnable> getCallbackAsRunnableList(String name, final Object[] params) {
         List<Runnable> result = new ArrayList<Runnable>();
+        boolean isTick = name.contains("tick") || name.contains("Tick");
+        if (profilingShowParameters && !isTick) {
+            result.add(() -> {
+                try {
+                    Logger.debug("Profiling/" + name,
+                            ScriptableObjectHelper.stringify(ScriptableObjectHelper.createArray(params), null));
+                } catch (RuntimeException e) {
+                }
+            });
+        }
         ArrayList<CallbackFunction> funcs = callbacks.get(name);
         if (funcs != null) {
+            AtomicLong profilingNanos = new AtomicLong();
+            if (profilingEnabled && !isTick) {
+                result.add(() -> profilingNanos.set(System.nanoTime()));
+            }
             for (CallbackFunction func0 : funcs) {
                 result.add(new Runnable() {
                     public void run() {
@@ -71,6 +103,10 @@ public class Callback {
                         func0.function.call(Compiler.assureContextForCurrentThread(), parent, parent, params);
                     }
                 });
+            }
+            if (profilingNanos.get() != 0) {
+                result.add(() -> Logger.debug("Profiling/" + name, funcs.size() + " functions in "
+                        + ((System.nanoTime() - profilingNanos.get()) / 1000000f) + "ms."));
             }
         }
         return result;

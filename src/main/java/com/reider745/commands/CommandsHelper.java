@@ -12,5 +12,6 @@ public class CommandsHelper {
         map.register("inner_core", new StateCommand());
         map.register("inner_core", new InnerCoreNetworkCommand());
         map.register("inner_core", new GenChunksCommands());
+        map.register("inner_core", new CallbackProfilingCommand());
     }
 }
