@@ -478,6 +478,4 @@ public class EventListener implements Listener {
     // TODO: onItemUseReleased (not only custom items)
 
     // TODO: onItemUseComplete (not only custom items)
-
-    // TODO: onItemDispensed
 }

@@ -6,6 +6,7 @@ import cn.nukkit.network.Network;
 import java.util.Arrays;
 
 import com.reider745.api.hooks.JarEditor;
+import com.reider745.event.DispenseBehaviorOverrides;
 import com.reider745.hooks.*;
 import com.reider745.hooks.bugfix.DimensionsFix;
 import com.reider745.hooks.bugfix.EntityItemHooks;
@@ -79,6 +80,7 @@ public class Main {
         loader.registerHooksInitializationForClass(LevelHooks.class);
         loader.registerHooksInitializationForClass(ItemUtils.class);
         loader.registerHooksInitializationForClass(EntityOverrides.class);
+        loader.registerHooksInitializationForClass(DispenseBehaviorOverrides.class);
         loader.registerHooksInitializationForClass(AndroidHooks.class);
 
         if (Arrays.stream(args).anyMatch("--snowfall-everywhere"::equals)) {
