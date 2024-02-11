@@ -267,10 +267,10 @@ public class EntityMethod {
         validateThen(entityUid, entity -> entity.getLevel().removeEntity(entity));
     }
 
-    public static void addEffect(long entityUid, int effectId, int duration, int level, boolean b1, boolean b2,
+    public static void addEffect(long entityUid, int effectId, int effectData, int effectTime, boolean ambient, boolean particles,
             boolean effectAnimation) {
         validateThen(entityUid, entity -> entity.addEffect(
-                Effect.getEffect(effectId).setDuration(duration).setAmplifier(level).setAmbient(b1).setVisible(b2)));
+                Effect.getEffect(effectId).setDuration(effectTime).setAmplifier(effectData).setAmbient(ambient).setVisible(particles)));
     }
 
     public static int getEffectLevel(long entityUid, int effectId) {
