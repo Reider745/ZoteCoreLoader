@@ -118,10 +118,10 @@ public class SpecialType {
         NativeBlock.setCanContainLiquid(id, can_contain_liquid);
         NativeBlock.setCanBeExtraBlock(id, can_be_extra_block);
         NativeBlock.setRenderAllFaces(id, renderallfaces);
-        // NativeBlock.setRenderType(id, rendertype);
-        // NativeBlock.setRenderLayer(id, renderlayer);
+        NativeBlock.setRenderType(id, rendertype);
+        NativeBlock.setRenderLayer(id, renderlayer);
         NativeBlock.setLightLevel(id, lightlevel);
-        // NativeBlock.setLightOpacity(id, lightopacity);
+        NativeBlock.setLightOpacity(id, lightopacity);
         NativeBlock.setExplosionResistance(id, explosionres);
         NativeBlock.setFriction(id, friction);
         NativeBlock.setDestroyTime(id, destroytime);

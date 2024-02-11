@@ -1,40 +1,43 @@
 package com.reider745.block;
 
 import cn.nukkit.block.Block;
-
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public class BlockMethods {
-    public static class SpecialType {
-        private boolean solid;
-        private float destroyTime, translucency, explosion_resistance, friction;
-        private int light_opacity, light_level;
+    private static final Int2ObjectOpenHashMap<Byte2ObjectOpenHashMap<Object>> id2typeMap = new Int2ObjectOpenHashMap<>();
+    private static final byte SOLID = 0;
+    private static final byte CAN_CONTAIN_LIQUID = 1;
+    private static final byte DESTROY_TIME = 2;
+    private static final byte TRANSLUCENCY = 3;
+    private static final byte EXPLOSION_RESISTANCE = 4;
+    private static final byte FRICTION = 5;
+    private static final byte LIGHT_LEVEL = 6;
 
-        public SpecialType() {
-            this.solid = true;
-            this.destroyTime = 1;
-            this.translucency = 1;
-            this.explosion_resistance = 1;
-            this.light_level = 0;
-            this.light_opacity = 0;
+    private static Byte2ObjectOpenHashMap<Object> assureId2Type(int id) {
+        Byte2ObjectOpenHashMap<Object> type = id2typeMap.get(id);
+        if (type == null) {
+            type = new Byte2ObjectOpenHashMap<Object>();
+            id2typeMap.put(id, type);
         }
+        return type;
     }
 
-    public static HashMap<Integer, SpecialType> customs = new HashMap<>();
+    private static Object getOrDefault(int id, byte property, Object defaultValue) {
+        Byte2ObjectOpenHashMap<Object> type = id2typeMap.get(id);
+        return type != null ? type.getOrDefault(property, defaultValue) : defaultValue;
+    }
 
     public static int getMaterial(int id) {
         return 0;
     }
 
     public static boolean isSolid(int id) {
-        SpecialType type = customs.get(id);
-        if (type != null)
-            return type.solid;
-        return true;
+        return (boolean) getOrDefault(id, SOLID, true);
     }
 
     public static boolean canContainLiquid(int id) {
-        return false;
+        return (boolean) getOrDefault(id, CAN_CONTAIN_LIQUID, false);
     }
 
     public static boolean canBeExtraBlock(int id) {
@@ -42,38 +45,23 @@ public class BlockMethods {
     }
 
     public static float getDestroyTime(int id) {
-        SpecialType type = customs.get(id);
-        if (type != null)
-            return type.destroyTime;
-        return 1;
+        return (float) getOrDefault(id, DESTROY_TIME, 1f);
     }
 
     public static float getExplosionResistance(int id) {
-        SpecialType type = customs.get(id);
-        if (type != null)
-            return type.explosion_resistance;
-        return 1;
+        return (float) getOrDefault(id, EXPLOSION_RESISTANCE, 1f);
     }
 
     public static float getFriction(int id) {
-        SpecialType type = customs.get(id);
-        if (type != null)
-            return type.friction;
-        return .6f;
+        return (float) getOrDefault(id, FRICTION, 0.6f);
     }
 
     public static float getTranslucency(int id) {
-        SpecialType type = customs.get(id);
-        if (type != null)
-            return type.translucency;
-        return 0f;
+        return (float) getOrDefault(id, TRANSLUCENCY, 0f);
     }
 
     public static int getLightLevel(int id) {
-        SpecialType type = customs.get(id);
-        if (type != null)
-            return type.light_level;
-        return Block.light[id];
+        return (int) getOrDefault(id, LIGHT_LEVEL, Block.light[id]);
     }
 
     public static int getMapColor(int id) {
@@ -90,9 +78,7 @@ public class BlockMethods {
     }
 
     public static void setSolid(int id, boolean solid) {
-        SpecialType type = customs.getOrDefault(id, new SpecialType());
-        type.solid = solid;
-        customs.put(id, type);
+        assureId2Type(id).put(SOLID, Boolean.valueOf(solid));
     }
 
     public static void setRenderAllFaces(int id, boolean val) {
@@ -125,33 +111,23 @@ public class BlockMethods {
     }
 
     public static void setDestroyTime(int id, float val) {
-        SpecialType type = customs.getOrDefault(id, new SpecialType());
-        type.destroyTime = val;
-        customs.put(id, type);
+        assureId2Type(id).put(DESTROY_TIME, Float.valueOf(val));
     }
 
     public static void setExplosionResistance(int id, float val) {
-        SpecialType type = customs.getOrDefault(id, new SpecialType());
-        type.explosion_resistance = val;
-        customs.put(id, type);
+        assureId2Type(id).put(EXPLOSION_RESISTANCE, Float.valueOf(val));
     }
 
     public static void setTranslucency(int id, float val) {
-        SpecialType type = customs.getOrDefault(id, new SpecialType());
-        type.translucency = val;
-        customs.put(id, type);
+        assureId2Type(id).put(TRANSLUCENCY, Float.valueOf(val));
     }
 
     public static void setFriction(int id, float val) {
-        SpecialType type = customs.getOrDefault(id, new SpecialType());
-        type.friction = val;
-        customs.put(id, type);
+        assureId2Type(id).put(FRICTION, Float.valueOf(val));
     }
 
     public static void setLightLevel(int id, int val) {
-        SpecialType type = customs.getOrDefault(id, new SpecialType());
-        type.light_level = val;
-        customs.put(id, type);
+        assureId2Type(id).put(LIGHT_LEVEL, Integer.valueOf(val));
     }
 
     public static void setBlockColorSource(int id, int val) {
@@ -161,6 +137,7 @@ public class BlockMethods {
     }
 
     public static void setCanContainLiquid(int id, boolean canContainLiquid) {
+        assureId2Type(id).put(CAN_CONTAIN_LIQUID, Boolean.valueOf(canContainLiquid));
     }
 
     public static void setCanBeExtraBlock(int id, boolean canBeExtraBlock) {

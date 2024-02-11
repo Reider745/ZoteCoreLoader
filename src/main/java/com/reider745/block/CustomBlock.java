@@ -209,6 +209,11 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     }
 
     @Override
+    public boolean canBeFlowedInto() {
+        return BlockMethods.canContainLiquid(id);
+    }
+
+    @Override
     public double getMinX() {
         BlockShape shape = manager.get("shape" + getDamage());
         if (shape != null) {
