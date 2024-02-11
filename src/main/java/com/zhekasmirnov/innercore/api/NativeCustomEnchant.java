@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.item.CustomEnchantMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
@@ -177,57 +178,82 @@ public class NativeCustomEnchant {
     }
 
     private static long constructNew(int id, String nameId) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.constructNew(id, nameId)");
-        return 0;
+        return CustomEnchantMethods.constructNew(id, nameId);
     }
 
     private static void setDescription(long pointer, String description) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setDescription(pointer, description)");
+        CustomEnchantMethods.setDescription(pointer, description);
     }
 
     private static void setFrequency(long pointer, int frequency) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setFrequency(pointer, frequency)");
+        CustomEnchantMethods.setFrequency(pointer, frequency);
     }
 
     private static void setIsLootable(long pointer, boolean isLootable) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsLootable(pointer, isLootable)");
+        CustomEnchantMethods.setIsLootable(pointer, isLootable);
     }
 
     private static void setIsDiscoverable(long pointer, boolean isDiscoverable) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsDiscoverable(pointer, isDiscoverable)");
+        CustomEnchantMethods.setIsDiscoverable(pointer, isDiscoverable);
     }
 
     private static void setIsTreasure(long pointer, boolean isTreasure) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsTreasure(pointer, isTreasure)");
+        CustomEnchantMethods.setIsTreasure(pointer, isTreasure);
     }
 
     private static void setIsMeleeDamageEnchant(long pointer, boolean value) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsMeleeDamageEnchant(pointer, value)");
+        CustomEnchantMethods.setIsMeleeDamageEnchant(pointer, value);
     }
 
     private static void setIsProtectionEnchant(long pointer, boolean value) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setIsProtectionEnchant(pointer, value)");
+        CustomEnchantMethods.setIsProtectionEnchant(pointer, value);
     }
 
     private static void setMasks(long pointer, int mask1, int mask2) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setMasks(pointer, mask1, mask2)");
+        CustomEnchantMethods.setMasks(pointer, mask1, mask2);
     }
 
     private static void setMinMaxLevel(long pointer, int minLevel, int maxLevel) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.setMinMaxLevel(pointer, minLevel, maxLevel)");
+        CustomEnchantMethods.setMinMaxLevel(pointer, minLevel, maxLevel);
     }
 
     private static void setMinMaxCostPoly(long pointer, float aMin, float bMin, float cMin, float aMax, float bMax,
             float cMax) {
-        InnerCoreServer.useNotCurrentSupport(
-                "NativeCustomEnchant.setMinMaxCostPoly(pointer, aMin, bMin, cMin, aMax, bMax, cMax)");
+        CustomEnchantMethods.setMinMaxCostPoly(pointer, aMin, bMin, cMin, aMax, bMax, cMax);
     }
 
     public static void passCurrentDamageBonus(float bonus) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.passCurrentDamageBonus(bonus)");
+       // CustomEnchantMethods.passCurrentDamageBonus(bonus);
     }
 
     public static void passCurrentProtectionBonus(float bonus) {
-        InnerCoreServer.useNotCurrentSupport("NativeCustomEnchant.passCurrentProtectionBonus(bonus)");
+        //CustomEnchantMethods.passCurrentProtectionBonus(bonus);
     }
 }
+/*
+float simple(float x) {
+    int i;
+    for (i = 1; i < x + 1; i++) {
+
+    }
+    return x;
+}
+void t1() {
+
+}
+int main() {
+    setlocale(LC_ALL, "RU");
+    const int a = 10;
+    int A[a];
+    int g;
+    srand(time(NULL));
+    for (int i = 0; i < a; i++) {
+        A[i] = rand() % 51;
+        cout « A[a];
+    }
+    for (int i = 0; i < a; i++) {
+        g = A[i]++;
+    }
+    cout « g;
+}
+ */

@@ -41,7 +41,7 @@ public class BiomesHooks implements HookClass {
     }
 
     public static void init() throws NoSuchFieldException {
-        //ReflectHelper.setField(Biome.class, "biomes", new Biome[MAX_ID]);
+        ReflectHelper.setField(Biome.class, "biomes", new Biome[MAX_ID]);
     }
 
     @Inject(className = "cn.nukkit.network.protocol.BiomeDefinitionListPacket", type = TypeHook.BEFORE_REPLACE)
@@ -73,7 +73,7 @@ public class BiomesHooks implements HookClass {
     public static void setBiomeMap(int x, int z, int id){
         final Biome[][] biomes_override = threads_biomes_replace.get(Thread.currentThread().getId());
         if(biomes_override != null){
-            biomes_override[Math.abs(x % 16)][Math.abs(z % 16)] = Biome.getBiome(id);
+            biomes_override[x % 16][z % 16] = Biome.getBiome(id);
         }
     }
 }

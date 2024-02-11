@@ -20,21 +20,18 @@ public class CallbackHelper {
         PRE_GENERATION_CHUNK_CUSTOM;
     }
 
-    private static final HashMap<Type, ThreadRegion> types = new HashMap<>();
+    private static final HashMap<Type, ThreadCustomValue<Level>> types = new HashMap<>();
 
     public interface ICallbackApply {
         void apply();
     }
 
-    private static class ThreadRegion extends Thread {
-        private Level region;
+    public static class ThreadCustomValue<T> extends Thread {
+        private T value;
         private final ArrayList<ICallbackApply> applys = new ArrayList<>();
 
-        private final Level getRegion() {
-            if (region == null) {
-                System.out.println("isNull: true");
-            }
-            return region;
+        public final T getValue() {
+            return value;
         }
 
         public void add(ICallbackApply apply) {
@@ -61,7 +58,7 @@ public class CallbackHelper {
     }
 
     public static void registerCallback(Type type) {
-        ThreadRegion threadRegion = new ThreadRegion();
+        ThreadCustomValue<Level> threadRegion = new ThreadCustomValue<>();
         threadRegion.setName(type.name());
         threadRegion.start();
 
@@ -130,8 +127,8 @@ public class CallbackHelper {
     }
 
     public static void applyRegion(Type type, Level level, ICallbackApply apply) {
-        ThreadRegion threadRegion = types.get(type);
-        threadRegion.region = level;
+        ThreadCustomValue<Level> threadRegion = types.get(type);
+        threadRegion.value = level;
         threadRegion.add(apply);
     }
 
@@ -143,6 +140,19 @@ public class CallbackHelper {
         while (thread.isAlive()) {
             java.lang.Thread.yield();
         }
+    }
+
+    public static <T>ThreadCustomValue<T> applyCustomValue(String name, ICallbackApply apply, T def) {
+        ThreadCustomValue<T> thread = new ThreadCustomValue<>();
+        thread.value = def;
+        thread.add(apply);
+        thread.setName(name);
+        thread.start();
+
+        while (thread.isAlive()) {
+            java.lang.Thread.yield();
+        }
+        return thread;
     }
 
     public static void prevent() {
@@ -160,10 +170,16 @@ public class CallbackHelper {
         return false;
     }
 
+    public static <T>void setValueForCurrent(T value){
+        Thread thread = Thread.currentThread();
+        if (thread instanceof ThreadCustomValue)
+            ((ThreadCustomValue<T>) thread).value = value;
+    }
+
     public static Level getForCurrentThread() {
         Thread thread = Thread.currentThread();
-        if (thread instanceof ThreadRegion threadCallback) {
-            return threadCallback.getRegion();
+        if (thread instanceof ThreadCustomValue threadCallback) {
+            return (Level) threadCallback.getValue();
         }
         return null;
     }

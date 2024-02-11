@@ -334,8 +334,6 @@ public class EventListener implements Listener {
 
     // TODO: onPathNavigationDone
 
-    // TODO: onAnimateBlockTick
-
     // TODO: onBlockSpawnResources
 
     // TODO: onBlockEventEntityInside
@@ -349,9 +347,6 @@ public class EventListener implements Listener {
     // TODO: onItemUseComplete (not only custom items)
 
     // TODO: onItemDispensed
-
-    // TODO: onEnchantPostAttack, onEnchantPostHurt, onEnchantGetDamageBonus,
-    // onEnchantGetProtectionBonus
 
     // TODO: onWorkbenchCraft
 }

@@ -83,7 +83,7 @@ public class Main {
             loader.registerHooksInitializationForClass(SnowfallEverywhere.class);
         }
 
-        // loader.registerHooksInitializationForClass(BiomesHooks.class);
+         loader.registerHooksInitializationForClass(BiomesHooks.class);
         loader.registerHooksInitializationForClass(GlobalBanList.class);
 
         // bug fix
