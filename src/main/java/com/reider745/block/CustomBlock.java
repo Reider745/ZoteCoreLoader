@@ -1,6 +1,9 @@
 package com.reider745.block;
 
-import cn.nukkit.block.*;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockIce;
+import cn.nukkit.block.BlockLiquid;
+import cn.nukkit.block.BlockSolidMeta;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
@@ -10,6 +13,8 @@ import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItem;
+import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -179,6 +184,85 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     }
 
     @Override
+    public boolean isSolid() {
+        return BlockMethods.isSolid(id);
+    }
+
+    @Override
+    public double getResistance() {
+        return BlockMethods.getExplosionResistance(id);
+    }
+
+    @Override
+    public double getFrictionFactor() {
+        return BlockMethods.getFriction(id);
+    }
+
+    @Override
+    public int getLightLevel() {
+        return BlockMethods.getLightLevel(id);
+    }
+
+    @Override
+    public boolean isTransparent() {
+        return BlockMethods.getTranslucency(id) >= 1f;
+    }
+
+    @Override
+    public double getMinX() {
+        BlockShape shape = manager.get("shape" + getDamage());
+        if (shape != null) {
+            return x + shape.x1;
+        }
+        return (shape = manager.get("shape")) != null ? x + shape.x1 : x;
+    }
+
+    @Override
+    public double getMinY() {
+        BlockShape shape = manager.get("shape" + getDamage());
+        if (shape != null) {
+            return y + shape.y1;
+        }
+        return (shape = manager.get("shape")) != null ? y + shape.y1 : y;
+    }
+
+    @Override
+    public double getMinZ() {
+        BlockShape shape = manager.get("shape" + getDamage());
+        if (shape != null) {
+            return z + shape.z1;
+        }
+        return (shape = manager.get("shape")) != null ? z + shape.z1 : z;
+    }
+
+    @Override
+    public double getMaxX() {
+        BlockShape shape = manager.get("shape" + getDamage());
+        if (shape != null) {
+            return x + shape.x2;
+        }
+        return (shape = manager.get("shape")) != null ? x + shape.x2 : x + 1d;
+    }
+
+    @Override
+    public double getMaxY() {
+        BlockShape shape = manager.get("shape" + getDamage());
+        if (shape != null) {
+            return y + shape.y2;
+        }
+        return (shape = manager.get("shape")) != null ? y + shape.y2 : y + 1d;
+    }
+
+    @Override
+    public double getMaxZ() {
+        BlockShape shape = manager.get("shape" + getDamage());
+        if (shape != null) {
+            return z + shape.z2;
+        }
+        return (shape = manager.get("shape")) != null ? z + shape.z2 : z + 1d;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -209,8 +293,8 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     public void onNeighborChange(@NotNull BlockFace side) {
         if (NeighbourChange) {
             Block changeBlock = getSide(side);
-            NativeCallback.onBlockEventNeighbourChange((int) x, (int) y, (int) z, (int) changeBlock.x, (int) changeBlock.y,
-                    (int) changeBlock.z, level);
+            NativeCallback.onBlockEventNeighbourChange((int) x, (int) y, (int) z, (int) changeBlock.x,
+                    (int) changeBlock.y, (int) changeBlock.z, level);
         }
     }
 

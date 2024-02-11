@@ -2,15 +2,13 @@ package com.reider745.block;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
-import cn.nukkit.block.BlockWater;
-import cn.nukkit.event.redstone.RedstoneUpdateEvent;
-import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
-import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockFace;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.reider745.api.CustomManager;
 import com.zhekasmirnov.innercore.api.NativeCallback;
-import org.jetbrains.annotations.NotNull;
 
 public class CustomBlockLiquid extends BlockLiquid implements RandomTick {
     private CustomManager manager;
@@ -37,18 +35,13 @@ public class CustomBlockLiquid extends BlockLiquid implements RandomTick {
 
         TickingTile = manager.get("TickingTile:"+meta, false);
         NeighbourChange = manager.get("NeighbourChange", false);
-        tick_rate = manager.get("tick_rate", 5);
+        tick_rate = manager.get("tick_rate", 10);
         isRenewable = manager.get("isRenewable", false);
     }
 
     @Override
     public int tickRate() {
         return tick_rate;
-    }
-
-    @Override
-    public boolean usesWaterLogging() {
-        return false;
     }
 
     @Override
@@ -59,6 +52,21 @@ public class CustomBlockLiquid extends BlockLiquid implements RandomTick {
     @Override
     public boolean canRandomTickBlocks() {
         return TickingTile;
+    }
+
+    @Override
+    public double getFrictionFactor() {
+        return BlockMethods.getFriction(id);
+    }
+
+    @Override
+    public int getLightLevel() {
+        return BlockMethods.getLightLevel(id);
+    }
+
+    @Override
+    public boolean usesWaterLogging() {
+        return isRenewable;
     }
 
     @Override
@@ -73,18 +81,16 @@ public class CustomBlockLiquid extends BlockLiquid implements RandomTick {
 
     @Override
     public int getToolType() {
-        return ItemTool.TYPE_PICKAXE;
+        return ItemTool.TYPE_NONE;
     }
 
     @Override
-    public Item[] getDrops(Item item) {
-        return new Item[]{Item.get(id, this.getDamage(), 1)};
-    }
-
-
-    @Override
-    public int onUpdate(int type) {
-        return super.onUpdate(type);
+    public void onNeighborChange(@NotNull BlockFace side) {
+        if (NeighbourChange) {
+            Block changeBlock = getSide(side);
+            NativeCallback.onBlockEventNeighbourChange((int) x, (int) y, (int) z, (int) changeBlock.x,
+                    (int) changeBlock.y, (int) changeBlock.z, level);
+        }
     }
 
     @Override

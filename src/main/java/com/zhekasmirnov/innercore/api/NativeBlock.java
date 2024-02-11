@@ -11,6 +11,7 @@ import com.zhekasmirnov.apparatus.ecs.types.ECSTags;
 import com.zhekasmirnov.apparatus.ecs.types.block.BlockComponent;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
+import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.mozilla.javascript.Function;
 
@@ -259,9 +260,14 @@ public class NativeBlock {
         BlockMethods.setCanBeExtraBlock(id, canBeExtraBlock);
     }
 
-    // TODO: Block.recalculateBoundingBox
     public static void setShape(int id, int data, float x1, float y1, float z1, float x2, float y2, float z2) {
-        InnerCoreServer.useNotCurrentSupport("NativeBlock.setShape(id, data, x1, y1, z1, x2, y2, z2)");
+        CustomManager manager = CustomManager.getFor(id);
+        String key = data != -1 ? "shape" + data : "shape";
+        BlockShape shape = manager.get(key);
+        if (shape == null) {
+            manager.put(key, shape = new BlockShape());
+        }
+        shape.set(x1, y1, z1, x2, y2, z2);
     }
 
     private static HashMap<Integer, Float> blockDestroyTimes = new HashMap<>();
