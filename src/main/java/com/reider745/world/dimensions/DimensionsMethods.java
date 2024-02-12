@@ -4,7 +4,6 @@ import cn.nukkit.Server;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.DimensionData;
 import cn.nukkit.level.Level;
-import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
@@ -32,7 +31,7 @@ public class DimensionsMethods {
             dimensionId = (int) settings.get("id");
             name = (String) settings.get("name");
             description = descriptions.get(name);
-            data = new DimensionData(dimensionId, 0, 256);
+            data = new DimensionData(dimensionId, 0, 255);
         }
 
         @Override
