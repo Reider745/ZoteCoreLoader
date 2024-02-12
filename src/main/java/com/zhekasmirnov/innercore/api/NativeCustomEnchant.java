@@ -1,10 +1,13 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.item.CustomEnchantMethods;
+import com.reider745.api.Client;
+import com.reider745.item.CustomEnchantment;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
-import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
+
+import cn.nukkit.item.enchantment.Enchantment;
+
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
 import java.util.HashMap;
@@ -14,7 +17,7 @@ public class NativeCustomEnchant {
     private static final Map<Integer, NativeCustomEnchant> enchantById = new HashMap<>();
     private static final Map<String, NativeCustomEnchant> enchantByNameId = new HashMap<>();
 
-    public final long pointer;
+    public final CustomEnchantment pointer;
     public final int id;
     public final String nameId;
 
@@ -23,7 +26,17 @@ public class NativeCustomEnchant {
     private NativeCustomEnchant(int id, String nameId) {
         this.id = id;
         this.nameId = nameId;
-        this.pointer = constructNew(id, nameId);
+        Enchantment enchant = Enchantment.get(id);
+        // TODO: Nukkit-MOT intersecting with vanilla 1.16,
+        // because there is swift_sneak at ID=37.
+        if (id == 37 || enchant.getName().equals("%enchantment.unknown")) {
+            enchant = new CustomEnchantment(id, nameId);
+        }
+        if (!(enchant instanceof CustomEnchantment)) {
+            enchant = CustomEnchantment.inherit(enchant);
+        }
+        this.pointer = (CustomEnchantment) enchant;
+        this.pointer.registerAsEnchantment();
         enchantById.put(id, this);
         enchantByNameId.put(nameId, this);
         setDescription("custom_enchant." + nameId);
@@ -54,40 +67,43 @@ public class NativeCustomEnchant {
         return enchant;
     }
 
+    @Client
     public static void updateAllEnchantsDescriptions() {
         for (NativeCustomEnchant enchant : enchantById.values()) {
             enchant.setDescription(enchant.description);
         }
     }
 
+    @Client
     public NativeCustomEnchant setDescription(String description) {
         this.description = description;
-        setDescription(pointer, NameTranslation.translate(description));
         return this;
     }
 
     public NativeCustomEnchant setFrequency(int frequency) {
-        setFrequency(pointer, frequency);
+        pointer.setWeight(frequency);
         return this;
     }
 
+    // TODO: There is no any structure to spawn or even loot...
     public NativeCustomEnchant setIsLootable(boolean value) {
-        setIsLootable(pointer, value);
+        InnerCoreServer.useNotSupport("NativeCustomEnchant.setIsLootable(value)");
         return this;
     }
 
+    // TODO: There is no working Enchanting Table in Nukkit-MOT...
     public NativeCustomEnchant setIsDiscoverable(boolean value) {
-        setIsDiscoverable(pointer, value);
+        InnerCoreServer.useNotSupport("NativeCustomEnchant.setIsDiscoverable(value)");
         return this;
     }
 
     public NativeCustomEnchant setIsTreasure(boolean value) {
-        setIsTreasure(pointer, value);
+        pointer.setIsTreasure(value);
         return this;
     }
 
     public NativeCustomEnchant setMasks(int mask1, int mask2) {
-        setMasks(pointer, mask1, mask2);
+        pointer.setEnchantingMask(mask1 | mask2);
         return this;
     }
 
@@ -96,12 +112,12 @@ public class NativeCustomEnchant {
     }
 
     public NativeCustomEnchant setMinMaxLevel(int minLevel, int maxLevel) {
-        setMinMaxLevel(pointer, minLevel, maxLevel);
+        pointer.setMinMaxLevel(minLevel, maxLevel);
         return this;
     }
 
     public NativeCustomEnchant setMinMaxCost(float aMin, float bMin, float cMin, float aMax, float bMax, float cMax) {
-        setMinMaxCostPoly(pointer, aMin, bMin, cMin, aMax, bMax, cMax);
+        pointer.setMinMaxCostPoly(aMin, bMin, cMin, aMax, bMax, cMax);
         return this;
     }
 
@@ -124,7 +140,7 @@ public class NativeCustomEnchant {
     }
 
     public NativeCustomEnchant setAttackDamageBonusProvider(AttackDamageBonusProvider provider) {
-        setIsMeleeDamageEnchant(pointer, true);
+        pointer.setIsMeleeDamageEnchant(true);
         attackDamageBonusProvider = provider;
         return this;
     }
@@ -140,7 +156,7 @@ public class NativeCustomEnchant {
     }
 
     public NativeCustomEnchant setPostAttackCallback(DoPostAttackListener listener) {
-        setIsMeleeDamageEnchant(pointer, true);
+        pointer.setIsMeleeDamageEnchant(true);
         doPostAttackListener = listener;
         return this;
     }
@@ -156,7 +172,7 @@ public class NativeCustomEnchant {
     }
 
     public NativeCustomEnchant setProtectionBonusProvider(ProtectionBonusProvider provider) {
-        setIsProtectionEnchant(pointer, true);
+        pointer.setIsProtectionEnchant(true);
         protectionBonusProvider = provider;
         return this;
     }
@@ -172,88 +188,16 @@ public class NativeCustomEnchant {
     }
 
     public NativeCustomEnchant setPostHurtCallback(DoPostHurtListener listener) {
-        setIsProtectionEnchant(pointer, true);
+        pointer.setIsProtectionEnchant(true);
         doPostHurtListener = listener;
         return this;
     }
 
-    private static long constructNew(int id, String nameId) {
-        return CustomEnchantMethods.constructNew(id, nameId);
-    }
-
-    private static void setDescription(long pointer, String description) {
-        CustomEnchantMethods.setDescription(pointer, description);
-    }
-
-    private static void setFrequency(long pointer, int frequency) {
-        CustomEnchantMethods.setFrequency(pointer, frequency);
-    }
-
-    private static void setIsLootable(long pointer, boolean isLootable) {
-        CustomEnchantMethods.setIsLootable(pointer, isLootable);
-    }
-
-    private static void setIsDiscoverable(long pointer, boolean isDiscoverable) {
-        CustomEnchantMethods.setIsDiscoverable(pointer, isDiscoverable);
-    }
-
-    private static void setIsTreasure(long pointer, boolean isTreasure) {
-        CustomEnchantMethods.setIsTreasure(pointer, isTreasure);
-    }
-
-    private static void setIsMeleeDamageEnchant(long pointer, boolean value) {
-        CustomEnchantMethods.setIsMeleeDamageEnchant(pointer, value);
-    }
-
-    private static void setIsProtectionEnchant(long pointer, boolean value) {
-        CustomEnchantMethods.setIsProtectionEnchant(pointer, value);
-    }
-
-    private static void setMasks(long pointer, int mask1, int mask2) {
-        CustomEnchantMethods.setMasks(pointer, mask1, mask2);
-    }
-
-    private static void setMinMaxLevel(long pointer, int minLevel, int maxLevel) {
-        CustomEnchantMethods.setMinMaxLevel(pointer, minLevel, maxLevel);
-    }
-
-    private static void setMinMaxCostPoly(long pointer, float aMin, float bMin, float cMin, float aMax, float bMax,
-            float cMax) {
-        CustomEnchantMethods.setMinMaxCostPoly(pointer, aMin, bMin, cMin, aMax, bMax, cMax);
-    }
-
     public static void passCurrentDamageBonus(float bonus) {
-       // CustomEnchantMethods.passCurrentDamageBonus(bonus);
+        CustomEnchantment.currentDamageBonus = bonus;
     }
 
     public static void passCurrentProtectionBonus(float bonus) {
-        //CustomEnchantMethods.passCurrentProtectionBonus(bonus);
+        CustomEnchantment.currentProtectionBonus = bonus;
     }
 }
-/*
-float simple(float x) {
-    int i;
-    for (i = 1; i < x + 1; i++) {
-
-    }
-    return x;
-}
-void t1() {
-
-}
-int main() {
-    setlocale(LC_ALL, "RU");
-    const int a = 10;
-    int A[a];
-    int g;
-    srand(time(NULL));
-    for (int i = 0; i < a; i++) {
-        A[i] = rand() % 51;
-        cout « A[a];
-    }
-    for (int i = 0; i < a; i++) {
-        g = A[i]++;
-    }
-    cout « g;
-}
- */

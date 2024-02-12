@@ -168,7 +168,6 @@ public class NativeCallback {
 
         // refresh translations
         NameTranslation.refresh(false);
-        NativeCustomEnchant.updateAllEnchantsDescriptions();
 
         // invoke callbacks
         Minecraft.onLevelSelected();

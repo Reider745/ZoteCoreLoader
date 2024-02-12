@@ -421,9 +421,9 @@ public class EntityMethod {
             Entity attacker = getEntityById(attackerUid);
             if (isValid(attacker)) {
                 event = new EntityDamageByEntityEvent(attacker, entity, EventListener.convertEnumToDamageCause(cause),
-                        damage);
+                        damage / 2f);
             } else {
-                event = new EntityDamageEvent(entity, EventListener.convertEnumToDamageCause(cause), damage);
+                event = new EntityDamageEvent(entity, EventListener.convertEnumToDamageCause(cause), damage / 2f);
             }
 
             synchronized (EventListener.DEALING_LOCK) {
