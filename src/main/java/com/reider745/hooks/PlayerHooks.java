@@ -17,25 +17,52 @@ import java.util.List;
 @Hooks(className = "cn.nukkit.Player")
 public class PlayerHooks implements HookClass {
 
-    private static boolean isAddress(String address1, String address2) {
-        String[] protocol1 = address1.split(":", 2);
-        String[] protocol2 = address2.split(":", 2);
-
-        if (protocol1.length == protocol2.length) {
-            return address1.equals(address2);
+    private static boolean equalsAddress(String address1, String address2) {
+        if (address1 == null || address2 == null || address1.isBlank() || address2.isBlank()) {
+            return false;
         }
-        return protocol1[0].equals(protocol2[0]);
+        if (address1.equalsIgnoreCase(address2)) {
+            return true;
+        }
+        int offset;
+        if ((offset = address1.lastIndexOf('/')) != -1) {
+            address1 = address1.substring(offset + 1);
+        }
+        if ((offset = address2.lastIndexOf('/')) != -1) {
+            address2 = address2.substring(offset + 1);
+        }
+        String[] ports = new String[2];
+        if (address1.charAt(address1.length() - 1) != ']' && (offset = address1.lastIndexOf(':')) != -1) {
+            if ((ports[0] = address1.substring(offset + 1)).equals("-1")) {
+                ports[0] = null;
+            }
+            address1 = address1.substring(0, offset);
+        }
+        if (address2.charAt(address2.length() - 1) != ']' && (offset = address2.lastIndexOf(':')) != -1) {
+            if ((ports[1] = address2.substring(offset + 1)).equals("-1")) {
+                ports[1] = null;
+            }
+            address2 = address2.substring(0, offset);
+        }
+        if (address1.charAt(0) == '[' && address1.charAt((offset = address1.length() - 1)) == ']') {
+            address1 = address1.substring(1, offset);
+        }
+        if (address2.charAt(0) == '[' && address2.charAt((offset = address2.length() - 1)) == ']') {
+            address2 = address2.substring(1, offset);
+        }
+        return address1.equalsIgnoreCase(address2)
+                && ((ports[0] == null || ports[1] == null) || ports[0].equalsIgnoreCase(ports[1]));
     }
 
     public static ConnectedClient getForPlayer(Player player) {
         List<ConnectedClient> clients = Network.getSingleton().getServer().getInitializingClients();
         for (ConnectedClient client : clients)
-            if (isAddress(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
+            if (equalsAddress(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
                 return client;
 
         clients = Network.getSingleton().getServer().getConnectedClients();
         for (ConnectedClient client : clients)
-            if (isAddress(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
+            if (equalsAddress(player.getSocketAddress().toString(), client.getChannelInterface().getChannel().getClient()))
                 return client;
 
         return null;
@@ -53,8 +80,8 @@ public class PlayerHooks implements HookClass {
     }
 
     @Inject
-    public static void dataPacket(Player self, DataPacket packet) {
-        if (InnerCoreServer.isDebugInnerCoreNetwork() && !self.isOnline())
+    public static void dataPacket(Player player, DataPacket packet) {
+        if (InnerCoreServer.isDebugInnerCoreNetwork() && !player.isOnline())
             System.out.println("sending packet id=" + packet.packetId() + " pid=" + packet.pid() + " channel="
                     + packet.getChannel());
     }
