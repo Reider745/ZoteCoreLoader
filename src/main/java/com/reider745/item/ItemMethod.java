@@ -24,7 +24,6 @@ public class ItemMethod {
         public static final String LIQUID_CLIP = "liquid_clip";
         public static final String MAX_USE_DURATION = "max_use_duration";
         public static final String STACKED_BY_DATA = "stacked_by_data";
-        public static final String ALLOWED_IN_OFFHAND = "allowed_in_offhand";
         public static final String ENCHANTABILITY_TYPE = "enchantability_type";
         public static final String ENCHANTABILITY_VALUE = "enchantability_value";
         public static final String ARMOR_DAMAGEABLE = "armor_damageable";
@@ -63,14 +62,14 @@ public class ItemMethod {
         manager.put(PropertiesNames.MAX_STACK, stack);
     }
 
-    public static void setCreativeCategory(CustomManager ptr, int val) {
-        ptr.put(PropertiesNames.CREATIVE_CATEGORY, val);
+    public static void setCreativeCategory(CustomManager manager, int val) {
+        manager.put(PropertiesNames.CREATIVE_CATEGORY, val);
     }
 
     public static int getCreativeCategory(int id) {
-        CustomManager ptr = getCustomManager(id);
-        if (ptr != null)
-            return ptr.get(PropertiesNames.CREATIVE_CATEGORY, 1);
+        CustomManager manager = getCustomManager(id);
+        if (manager != null)
+            return manager.get(PropertiesNames.CREATIVE_CATEGORY, 1);
         Logger.warning("not get CreativeCategory " + id);
         return 0;
     }
@@ -134,43 +133,39 @@ public class ItemMethod {
         return null;
     }
 
-    public static void setHandEquipped(CustomManager ptr, boolean val) {
-        ptr.put(PropertiesNames.HAND_EQUIPPED, val);
+    public static void setHandEquipped(CustomManager manager, boolean val) {
+        manager.put(PropertiesNames.HAND_EQUIPPED, val);
     }
 
-    public static void setLiquidClip(CustomManager ptr, boolean val) {
-        ptr.put(PropertiesNames.LIQUID_CLIP, val);
+    public static void setLiquidClip(CustomManager manager, boolean val) {
+        manager.put(PropertiesNames.LIQUID_CLIP, val);
     }
 
-    public static void setMaxUseDuration(CustomManager ptr, int val) {
-        ptr.put(PropertiesNames.MAX_USE_DURATION, val);
+    public static void setMaxUseDuration(CustomManager manager, int val) {
+        manager.put(PropertiesNames.MAX_USE_DURATION, val);
     }
 
-    public static void setStackedByData(CustomManager ptr, boolean val) {
-        ptr.put(PropertiesNames.STACKED_BY_DATA, val);
+    public static void setStackedByData(CustomManager manager, boolean val) {
+        manager.put(PropertiesNames.STACKED_BY_DATA, val);
     }
 
-    public static void setAllowedInOffhand(CustomManager ptr, boolean val) {
-        ptr.put(PropertiesNames.ALLOWED_IN_OFFHAND, val);
+    public static void setEnchantability(CustomManager manager, int type, int value) {
+        int enchantability = manager.get(PropertiesNames.ENCHANTABILITY_TYPE, 0);
+        manager.put(PropertiesNames.ENCHANTABILITY_TYPE, type | enchantability);
+        manager.put(PropertiesNames.ENCHANTABILITY_VALUE, value);
     }
 
-    public static void setEnchantability(CustomManager ptr, int type, int value) {
-        ptr.put(PropertiesNames.ENCHANTABILITY_TYPE, type);
-        ptr.put(PropertiesNames.ENCHANTABILITY_VALUE, value);
+    public static void setArmorDamageable(CustomManager manager, boolean value) {
+        manager.put(PropertiesNames.ARMOR_DAMAGEABLE, value);
     }
 
-    public static void setArmorDamageable(CustomManager ptr, boolean value) {
-        ptr.put(PropertiesNames.ARMOR_DAMAGEABLE, value);
-    }
-
-    public static void addRepairItemId(CustomManager ptr, int id) {
-        ArrayList<Integer> repairs = ptr.get(PropertiesNames.REPAIRS);
-        if (repairs == null)
-            repairs = new ArrayList<>();
-
+    public static void addRepairItemId(CustomManager manager, int id) {
+        ArrayList<Integer> repairs = manager.get(PropertiesNames.REPAIRS);
+        if (repairs == null) {
+            manager.put(PropertiesNames.REPAIRS, repairs = new ArrayList<>());
+        }
         repairs.add(id);
 
-        ptr.put(PropertiesNames.REPAIRS, repairs);
-        Repairs.update(ptr.get(PropertiesNames.ID), repairs);
+        Repairs.update(manager.get(PropertiesNames.ID), repairs);
     }
 }

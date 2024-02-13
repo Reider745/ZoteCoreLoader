@@ -42,30 +42,6 @@ public class Main {
         }
     }
 
-    // @Hooks(className = "org.example.Perlin2D")
-    // public static class TestHook {
-
-    //     @Inject
-    //     public static float lerp(Object perlin, float a, float b, float t) {
-    //         return a + (b - a) * t;
-    //         /*
-    //          * Arguments arguments = controller.getArguments();
-    //          * float a = arguments.arg("a");
-    //          * float b = arguments.arg("b");
-    //          * float t = arguments.arg("t");
-    //          */
-    //     }
-
-    //     @Inject(argumentMap = ArgumentTypes.PARAMETERS)
-    //     public static float lerp(HookController controller) {
-    //         Arguments arguments = controller.getArguments();
-    //         float a = arguments.arg("a");
-    //         float b = arguments.arg("b");
-    //         float t = arguments.arg("t");
-    //         return a + (b - a) * t;
-    //     }
-    // }
-
     public static void main(String[] args) throws Throwable {
         JarEditor loader = new JarEditor();
 

@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.Client;
 import com.reider745.api.CustomManager;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
@@ -63,6 +64,7 @@ public class NativeItem {
         return new NativeItem(id, ptr, nameId, name);
     }
 
+    @Client
     public void setGlint(boolean val) {
     }
 
@@ -74,6 +76,7 @@ public class NativeItem {
         ItemMethod.setLiquidClip(itemManager, val);
     }
 
+    @Client
     public void setUseAnimation(int val) {
     }
 
@@ -93,22 +96,24 @@ public class NativeItem {
         ItemMethod.setStackedByData(itemManager, val);
     }
 
+    @Client
     public void setAllowedInOffhand(boolean val) {
-        ItemMethod.setAllowedInOffhand(itemManager, val);
+        // JIC if something changed, check PlayerOffhandInventory.OFFHAND_ITEMS
     }
 
     public void setCreativeCategory(int val) {
         ItemMethod.setCreativeCategory(itemManager, val);
     }
 
+    @Client
     public void setProperties(String val) {
-        //InnerCoreServer.useNotCurrentSupport("NativeItem.setProperties(val)");
     }
 
     public void setEnchantType(int type, int value) {
-        ItemMethod.setEnchantability(itemManager, type, value);
+        setEnchantability(type, value);
     }
 
+    // TODO: Nukkit-MOT's getEnchantAbility not used anywhere. 
     public void setEnchantability(int type, int value) {
         ItemMethod.setEnchantability(itemManager, type, value);
     }

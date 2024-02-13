@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.Client;
 import com.reider745.api.CustomManager;
 import com.reider745.block.BlockMethods;
 import com.reider745.block.CustomBlock;
@@ -232,16 +233,16 @@ public class NativeBlock {
         BlockMethods.setLightLevel(id, val);
     }
 
+    @Client
     public static void setLightOpacity(int id, int val) {
-        InnerCoreServer.useClientMethod("NativeBlock.setLightOpacity(id, val)");
     }
 
+    @Client
     public static void setRenderLayer(int id, int val) {
-        InnerCoreServer.useClientMethod("NativeBlock.setRenderLayer(id, val)");
     }
 
+    @Client
     public static void setRenderType(int id, int val) {
-        InnerCoreServer.useClientMethod("NativeBlock.setRenderType(id, val)");
     }
 
     public static void setBlockColorSource(int id, int val) {

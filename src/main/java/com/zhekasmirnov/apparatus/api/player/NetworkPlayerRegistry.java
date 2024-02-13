@@ -1,10 +1,9 @@
 package com.zhekasmirnov.apparatus.api.player;
 
+import com.reider745.api.Client;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
-import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
-//import com.zhekasmirnov.innercore.api.runtime.Callback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,19 +17,17 @@ public class NetworkPlayerRegistry {
 
     static {
         Network.getSingleton().getServer().addOnClientConnectedListener(client -> getSingleton().addHandlerFor(client));
-        Network.getSingleton().getServer().addOnClientDisconnectedListener((client, reason) -> getSingleton().removeHandlerFor(client));
+        Network.getSingleton().getServer()
+                .addOnClientDisconnectedListener((client, reason) -> getSingleton().removeHandlerFor(client));
     }
 
     public static void loadClass() {
         // forces class to load and register listeners
     }
 
-
     private final Map<Long, NetworkPlayerHandler> handlerMap = new HashMap<>();
-    private NetworkPlayerHandler localPlayerHandler = null;
 
     private NetworkPlayerRegistry() {
-
     }
 
     private void addHandlerFor(ConnectedClient client) {
@@ -43,7 +40,8 @@ public class NetworkPlayerRegistry {
         synchronized (handlerMap) {
             NetworkPlayerHandler handler = handlerMap.remove(client.getPlayerUid());
             if (handler != null) {
-                Network.getSingleton().getServerThreadJobExecutor().add(() -> Callback.invokeAPICallback("ServerPlayerLeft", handler.getActor().getUid()));
+                Network.getSingleton().getServerThreadJobExecutor()
+                        .add(() -> Callback.invokeAPICallback("ServerPlayerLeft", handler.getActor().getUid()));
             }
         }
     }
@@ -52,8 +50,9 @@ public class NetworkPlayerRegistry {
         return handlerMap.get(uid);
     }
 
+    @Client
     public NetworkPlayerHandler getLocalPlayerHandler() {
-        return localPlayerHandler;
+        return null;
     }
 
     // callbacks
@@ -66,26 +65,15 @@ public class NetworkPlayerRegistry {
         }
     }
 
+    @Client
     public void onLocalTick() {
-        /*if (localPlayerHandler == null) {
-            long player = NativeAPI.getLocalPlayer();
-            if (NativeAPI.getHealth(player) > 0) {
-                localPlayerHandler = new NetworkPlayerHandler(player, true);
-            }
-        }
-        NetworkPlayerHandler handler = localPlayerHandler;
-        if (handler != null) {
-            handler.onTick();
-        }*/
     }
 
     public void onGameLeft(boolean isServer) {
-        if (!isServer) {
-            localPlayerHandler = null;
-        }
     }
 
-    public void onEntityHurt(long entityUid, long attacker, int damageValue, int damageType, boolean bool1, boolean bool2) {
+    public void onEntityHurt(long entityUid, long attacker, int damageValue, int damageType, boolean bool1,
+            boolean bool2) {
         NetworkPlayerHandler handler = handlerMap.get(entityUid);
         if (handler != null) {
             handler.onHurt(attacker, damageValue, damageType, bool1, bool2);

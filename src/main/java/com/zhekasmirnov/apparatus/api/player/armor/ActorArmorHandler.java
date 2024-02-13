@@ -4,7 +4,6 @@ import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
-import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,8 @@ public class ActorArmorHandler {
     }
 
     public interface OnHurtListener {
-        Object onHurt(ItemStack item, int slot, long player, int damageValue, int damageType, long attacker, boolean bool1, boolean bool2);
+        Object onHurt(ItemStack item, int slot, long player, int damageValue, int damageType, long attacker,
+                boolean bool1, boolean bool2);
     }
 
     public interface OnTakeOffListener {
@@ -62,7 +62,6 @@ public class ActorArmorHandler {
         onLocalTakeOffListenerMap.put(id, listener);
     }
 
-
     private final boolean isLocal;
     private final EntityActor actor;
     private final ItemStack[] armorItems = new ItemStack[4];
@@ -86,11 +85,13 @@ public class ActorArmorHandler {
             int finalSlot = slot;
             if (currentArmor.id != lastArmor.id) {
                 instantExecutor.add(() -> {
-                    OnTakeOffListener takeOffListener = (isLocal ? onLocalTakeOffListenerMap : onTakeOffListenerMap).get(lastArmor.id);
+                    OnTakeOffListener takeOffListener = (isLocal ? onLocalTakeOffListenerMap : onTakeOffListenerMap)
+                            .get(lastArmor.id);
                     if (takeOffListener != null) {
                         takeOffListener.onTakeOff(lastArmor, finalSlot, actorUid);
                     }
-                    OnTakeOnListener takeOnListener = (isLocal ? onLocalTakeOnListenerMap : onTakeOnListenerMap).get(currentArmor.id);
+                    OnTakeOnListener takeOnListener = (isLocal ? onLocalTakeOnListenerMap : onTakeOnListenerMap)
+                            .get(currentArmor.id);
                     if (takeOnListener != null) {
                         takeOnListener.onTakeOn(currentArmor, finalSlot, actorUid);
                     }
@@ -103,7 +104,8 @@ public class ActorArmorHandler {
                     Object resultItem = tickListener.onTick(currentArmor, finalSlot, actorUid);
                     if (resultItem != null) {
                         ItemStack resultItemStack = ItemStack.parse(resultItem);
-                        // do not save this item in armorItems, so on next tick callbacks will be triggered in case of id change
+                        // do not save this item in armorItems, so on next tick callbacks will be
+                        // triggered in case of id change
                         if (resultItemStack != null) {
                             actor.setArmorSlot(finalSlot, resultItemStack);
                         }
@@ -116,7 +118,8 @@ public class ActorArmorHandler {
     }
 
     public void onHurt(long attacker, int damageValue, int damageType, boolean bool1, boolean bool2) {
-        if (isLocal) return;
+        if (isLocal)
+            return;
 
         long actorUid = actor.getUid();
         for (int slot = 0; slot < 4; slot++) {
@@ -125,7 +128,8 @@ public class ActorArmorHandler {
             if (listener != null) {
                 int finalSlot = slot;
                 instantExecutor.add(() -> {
-                    Object resultItem = listener.onHurt(armor, finalSlot, actorUid, damageValue, damageType, attacker, bool1, bool2);
+                    Object resultItem = listener.onHurt(armor, finalSlot, actorUid, damageValue, damageType, attacker,
+                            bool1, bool2);
                     if (resultItem != null) {
                         delayedExecutor.add(() -> {
                             if (actor.getHealth() > 0) {

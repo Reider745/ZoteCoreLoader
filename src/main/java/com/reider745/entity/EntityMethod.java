@@ -267,10 +267,14 @@ public class EntityMethod {
         validateThen(entityUid, entity -> entity.getLevel().removeEntity(entity));
     }
 
-    public static void addEffect(long entityUid, int effectId, int effectData, int effectTime, boolean ambient, boolean particles,
-            boolean effectAnimation) {
+    public static void addEffect(long entityUid, int effectId, int effectData, int effectTime,
+            boolean ambient, boolean particles, boolean effectAnimation) {
         validateThen(entityUid, entity -> entity.addEffect(
-                Effect.getEffect(effectId).setDuration(effectTime).setAmplifier(effectData).setAmbient(ambient).setVisible(particles)));
+                Effect.getEffect(effectId)
+                        .setDuration(effectTime)
+                        .setAmplifier(effectData)
+                        .setAmbient(ambient)
+                        .setVisible(particles)));
     }
 
     public static int getEffectLevel(long entityUid, int effectId) {
@@ -421,9 +425,9 @@ public class EntityMethod {
             Entity attacker = getEntityById(attackerUid);
             if (isValid(attacker)) {
                 event = new EntityDamageByEntityEvent(attacker, entity, EventListener.convertEnumToDamageCause(cause),
-                        damage / 2f);
+                        damage);
             } else {
-                event = new EntityDamageEvent(entity, EventListener.convertEnumToDamageCause(cause), damage / 2f);
+                event = new EntityDamageEvent(entity, EventListener.convertEnumToDamageCause(cause), damage);
             }
 
             synchronized (EventListener.DEALING_LOCK) {
