@@ -52,8 +52,28 @@ public class CustomEnchantment extends Enchantment {
 	}
 
 	public void registerAsEnchantment() {
+		if (enchantments[id] != null) {
+			removeCreativeEnchantedBooks(enchantments[id].getMinLevel(), enchantments[id].getMaxLevel());
+		}
 		enchantments[id] = this;
 		customEnchantments.put(new Identifier("minecraft", name), this);
+		addCreativeEnchantedBooks();
+	}
+
+	private void removeCreativeEnchantedBooks(int minLevel, int maxLevel) {
+		for (int i = minLevel; i <= maxLevel; i++) {
+			Item book = Item.get(Item.ENCHANTED_BOOK);
+			book.addEnchantment(Enchantment.get(id).setLevel(i, false));
+			Item.removeCreativeItem(407, book);
+		}
+	}
+
+	private void addCreativeEnchantedBooks() {
+		for (int i = getMinLevel(); i <= getMaxLevel(); i++) {
+			Item book = Item.get(Item.ENCHANTED_BOOK);
+			book.addEnchantment(Enchantment.get(id).setLevel(i, false));
+			Item.addCreativeItem(407, book);
+		}
 	}
 
 	private int weight = -1;
@@ -117,8 +137,10 @@ public class CustomEnchantment extends Enchantment {
 	}
 
 	public void setMinMaxLevel(int min, int max) {
+		removeCreativeEnchantedBooks(getMinLevel(), getMaxLevel());
 		this.minLevel = min;
 		this.maxLevel = max;
+		addCreativeEnchantedBooks();
 	}
 
 	private float[] minMaxCostPoly = new float[0];
@@ -162,10 +184,10 @@ public class CustomEnchantment extends Enchantment {
 		float bonus = 0;
 		if (isMeleeDamageEnchant) {
 			EntityDamageEvent event = entity.getLastDamageCause();
-			int damage = event != null ? (int) (event.getFinalDamage() / 2f) : 0;
+			int damage = event != null ? (int) event.getFinalDamage() : 0;
 			CallbackHelper.applyCustomValue("getDamageBonus",
 					() -> NativeCallback.onEnchantGetDamageBonus(id, damage, entity.getId()), null);
-			bonus = currentDamageBonus / 2f;
+			bonus = currentDamageBonus;
 			currentDamageBonus = 0f;
 		} else if (inheritable != null) {
 			return inheritable.getDamageBonus(entity);
@@ -184,7 +206,7 @@ public class CustomEnchantment extends Enchantment {
 	public void doPostAttack(Entity attacker, Entity entity) {
 		if (isMeleeDamageEnchant) {
 			EntityDamageEvent event = entity.getLastDamageCause();
-			int damage = event != null ? (int) (event.getFinalDamage() / 2f) : 0;
+			int damage = event != null ? (int) event.getFinalDamage() : 0;
 			CallbackHelper.applyCustomValue("doPostAttack",
 					() -> NativeCallback.onEnchantPostAttack(id, damage, attacker.getId(), entity.getId()), null);
 		} else if (inheritable != null) {
@@ -203,14 +225,14 @@ public class CustomEnchantment extends Enchantment {
 	public float getProtectionFactor(EntityDamageEvent event) {
 		float factor = 0;
 		if (isProtectionEnchant) {
-			int damage = (int) (event.getFinalDamage() / 2f);
+			int damage = (int) event.getFinalDamage();
 			int cause = EventListener.convertDamageCauseToEnum(event.getCause());
 			Entity attacker = event instanceof EntityDamageByEntityEvent entityDamageEvent
 					? entityDamageEvent.getDamager()
 					: null;
 			CallbackHelper.applyCustomValue("getProtectionFactor", () -> NativeCallback.onEnchantGetProtectionBonus(id,
 					damage, cause, attacker != null ? attacker.getId() : -1), null);
-			factor = currentProtectionBonus / 2f;
+			factor = currentProtectionBonus;
 			currentProtectionBonus = 0f;
 		} else if (inheritable != null) {
 			return inheritable.getProtectionFactor(event);
@@ -225,7 +247,7 @@ public class CustomEnchantment extends Enchantment {
 			NukkitIdConvertor.EntryItem item = NukkitIdConvertor.getInnerCoreForNukkit(nukkitItem.getId(),
 					nukkitItem.getDamage());
 			EntityDamageEvent event = entity.getLastDamageCause();
-			int damage = event != null ? (int) (event.getFinalDamage() / 2f) : 0;
+			int damage = event != null ? (int) event.getFinalDamage() : 0;
 			CallbackHelper.applyCustomValue("doPostHurt",
 					() -> NativeCallback.onEnchantPostHurt(id, item.id, nukkitItem.getCount(), item.data,
 							ItemUtils.getItemInstanceExtra(nukkitItem), damage, attacker.getId(), entity.getId()),
@@ -294,6 +316,16 @@ public class CustomEnchantment extends Enchantment {
 			return inheritable.isTreasure();
 		}
 		return isTreasure;
+	}
+
+	private boolean isLootable = true;
+
+	public boolean isLootable() {
+		return isLootable;
+	}
+
+	public void setIsLootable(boolean lootable) {
+		this.isLootable = lootable;
 	}
 
 	public void setIsTreasure(boolean treasure) {

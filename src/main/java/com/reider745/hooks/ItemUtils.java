@@ -7,12 +7,17 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.ItemID;
 import cn.nukkit.item.RuntimeItems;
+import cn.nukkit.item.enchantment.Enchantment;
+import cn.nukkit.item.enchantment.EnchantmentType;
+import cn.nukkit.item.randomitem.EnchantmentItemSelector;
 import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
+import com.reider745.item.CustomArmorItem;
+import com.reider745.item.CustomEnchantment;
 import com.reider745.item.NukkitIdConvertor;
 import com.reider745.item.Repairs;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
@@ -20,6 +25,7 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -198,10 +204,43 @@ public class ItemUtils implements HookClass {
     }
 
     @Inject(className = "cn.nukkit.inventory.transaction.RepairItemTransaction", type = TypeHook.BEFORE, signature = "()Z")
-    public static void isMapRecipe(HookController controller, RepairItemTransaction self) {
-        ArrayList<Integer> repairs = Repairs.getRepairs(self.getInputItem().getId());
+    public static void isMapRecipe(HookController controller, RepairItemTransaction transaction) {
+        ArrayList<Integer> repairs = Repairs.getRepairs(transaction.getInputItem().getId());
         if (repairs != null)
-            controller.setResult(repairs.contains(self.getOutputItem().getId()));
+            controller.setResult(repairs.contains(transaction.getOutputItem().getId()));
         controller.setReplace(false);
+    }
+
+    @Inject(className = "cn.nukkit.item.randomitem.EnchantmentItemSelector")
+    public static List<Enchantment> getSupportEnchantments(EnchantmentItemSelector selector, Item item) {
+        ArrayList<Enchantment> enchantments = new ArrayList<>();
+        for (Enchantment enchantment : Enchantment.getEnchantments()) {
+            if (item.getId() == Item.ENCHANTED_BOOK || enchantment.canEnchant(item)) {
+                if (enchantment instanceof CustomEnchantment custom && !custom.isLootable()) {
+                    continue;
+                }
+                enchantments.add(enchantment);
+            }
+        }
+        return enchantments;
+    }
+
+    @Inject(className = "cn.nukkit.item.enchantment.EnchantmentType", type = TypeHook.AFTER, signature = "(Lcn/nukkit/item/Item;)Z")
+    public static void canEnchantItem(HookController controller, EnchantmentType type, Item item) {
+        if (type == EnchantmentType.ALL || (type == EnchantmentType.BREAKABLE && item.getMaxDurability() >= 0)) {
+            return;
+        }
+        if (item instanceof CustomArmorItem) {
+            controller.setReplace(true);
+            if (type == EnchantmentType.WEARABLE || (type == EnchantmentType.ARMOR && item.isArmor())
+                    || (type == EnchantmentType.ARMOR_HEAD && item.isHelmet())
+                    || (type == EnchantmentType.ARMOR_TORSO && item.isChestplate())
+                    || (type == EnchantmentType.ARMOR_LEGS && item.isLeggings())
+                    || (type == EnchantmentType.ARMOR_FEET && item.isBoots())) {
+                controller.setResult(true);
+                return;
+            }
+            controller.setResult(false);
+        }
     }
 }

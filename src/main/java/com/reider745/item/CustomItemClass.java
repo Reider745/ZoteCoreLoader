@@ -2,11 +2,13 @@ package com.reider745.item;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemTool;
 import cn.nukkit.math.Vector3;
 import com.reider745.api.CustomManager;
 
 import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeCallback;
+import com.zhekasmirnov.innercore.api.constants.EnchantType;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 
 public class CustomItemClass extends Item {
@@ -29,7 +31,37 @@ public class CustomItemClass extends Item {
 
     @Override
     public int getTier() {
-        return 6;
+        return ItemTool.TIER_DIAMOND;
+    }
+
+    @Override
+    public boolean isSword() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.weapon) != 0;
+    }
+
+    @Override
+    public boolean isHoe() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.hoe) != 0;
+    }
+
+    @Override
+    public boolean isShears() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.shears) != 0;
+    }
+
+    @Override
+    public boolean isAxe() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.axe) != 0;
+    }
+
+    @Override
+    public boolean isPickaxe() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.pickaxe) != 0;
+    }
+
+    @Override
+    public boolean isShovel() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.shovel) != 0;
     }
 
     @Override

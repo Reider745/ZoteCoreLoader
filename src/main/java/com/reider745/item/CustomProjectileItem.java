@@ -1,12 +1,14 @@
 package com.reider745.item;
 
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemTool;
 import cn.nukkit.item.ProjectileItem;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.api.CustomManager;
 
 import com.reider745.item.ItemMethod.PropertiesNames;
+import com.zhekasmirnov.innercore.api.constants.EnchantType;
 
 public class CustomProjectileItem extends ProjectileItem {
     @Override
@@ -37,6 +39,40 @@ public class CustomProjectileItem extends ProjectileItem {
         this.name = parameters.get(PropertiesNames.NAME, "InnerCore item");
     }
 
+    @Override
+    public int getTier() {
+        return ItemTool.TIER_DIAMOND;
+    }
+
+    @Override
+    public boolean isSword() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.weapon) != 0;
+    }
+
+    @Override
+    public boolean isHoe() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.hoe) != 0;
+    }
+
+    @Override
+    public boolean isShears() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.shears) != 0;
+    }
+
+    @Override
+    public boolean isAxe() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.axe) != 0;
+    }
+
+    @Override
+    public boolean isPickaxe() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.pickaxe) != 0;
+    }
+
+    @Override
+    public boolean isShovel() {
+        return (parameters.get(PropertiesNames.ENCHANTABILITY_TYPE, 0) & EnchantType.shovel) != 0;
+    }
 
     @Override
     public int getMaxDurability() {

@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api;
 
-import com.reider745.InnerCoreServer;
 import com.reider745.api.Client;
 import com.reider745.item.CustomEnchantment;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
@@ -27,8 +26,7 @@ public class NativeCustomEnchant {
         this.id = id;
         this.nameId = nameId;
         Enchantment enchant = Enchantment.get(id);
-        // TODO: Nukkit-MOT intersecting with vanilla 1.16,
-        // because there is swift_sneak at ID=37.
+        // TODO: Nukkit-MOT intersecting with vanilla 1.16, because there is swift_sneak at ID=37.
         if (id == 37 || enchant.getName().equals("%enchantment.unknown")) {
             enchant = new CustomEnchantment(id, nameId);
         }
@@ -85,18 +83,17 @@ public class NativeCustomEnchant {
         return this;
     }
 
-    // TODO: There is no any structure to spawn or even loot...
     public NativeCustomEnchant setIsLootable(boolean value) {
-        InnerCoreServer.useNotSupport("NativeCustomEnchant.setIsLootable(value)");
+        pointer.setIsLootable(value);
         return this;
     }
 
-    // TODO: There is no working Enchanting Table in Nukkit-MOT...
+    @Client
     public NativeCustomEnchant setIsDiscoverable(boolean value) {
-        InnerCoreServer.useNotSupport("NativeCustomEnchant.setIsDiscoverable(value)");
         return this;
     }
 
+    // TODO: Currently unused in Nukkit-MOT, decreases chance to obtain enchantment.
     public NativeCustomEnchant setIsTreasure(boolean value) {
         pointer.setIsTreasure(value);
         return this;
