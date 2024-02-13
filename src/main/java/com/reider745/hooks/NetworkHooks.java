@@ -4,27 +4,33 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.network.CompressionProvider;
 import cn.nukkit.network.Network;
+import cn.nukkit.network.RakNetInterface;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
+import cn.nukkit.utils.Utils;
 import cn.nukkit.utils.VarInt;
 import com.reider745.InnerCoreServer;
 import com.reider745.Main;
+import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.net.ProtocolException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 @Hooks(className = "cn.nukkit.network.Network")
 public class NetworkHooks implements HookClass {
+
     @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
-    public static void processBatch(Network self, byte[] payload, Collection<DataPacket> packets,
+    public static void processBatch(Network network, byte[] payload, Collection<DataPacket> packets,
             CompressionProvider compression, int raknetProtocol, Player player) {
         MainLogger log = Server.getInstance().getLogger();
 
@@ -77,7 +83,7 @@ public class NetworkHooks implements HookClass {
                 if (packetId == 1)
                     player.dataPacket(InnerCorePacket.sendInfo);
 
-                DataPacket pk = self.getPacket(packetId);
+                DataPacket pk = network.getPacket(packetId);
 
                 if (pk != null) {
                     pk.protocol = player == null ? Integer.MAX_VALUE : player.protocol;
@@ -104,12 +110,30 @@ public class NetworkHooks implements HookClass {
                 }
             }
         } catch (Exception e) {
-            log.debug("Error whilst decoding batch packet", e);
+            log.debug("Error while decoding batch packet", e);
         }
     }
 
     @Inject
-    public static void registerPackets(Network self) {
-        Main.LoadingStages.registerPacket(self);
+    public static void registerPackets(Network network) {
+        Main.LoadingStages.registerPacket(network);
+    }
+
+    @Inject(className = "cn.nukkit.network.RakNetInterface", type = TypeHook.AFTER_NOT_REPLACE)
+    public static void setName(RakNetInterface raknet, String name) {
+        Object advertisementObject = ReflectHelper.getField(raknet, "advertisement");
+        if (advertisementObject == null) {
+            Logger.warning("No advertisement in RakNetInterface, version will not be affected.");
+            return;
+        }
+        String advertisement = new String((byte[]) advertisementObject, StandardCharsets.UTF_8);
+        String[] properties = advertisement.split(";");
+        if (properties.length <= 3) {
+            Logger.warning("Invalid advertisement in RakNetInterface, version will not be affected.");
+            return;
+        }
+        properties[2] = Integer.toString(InnerCoreServer.PROTOCOL);
+        properties[3] = Utils.getVersionByProtocol(InnerCoreServer.PROTOCOL);
+        ReflectHelper.setField(raknet, "advertisement", String.join(";", properties).getBytes(StandardCharsets.UTF_8));
     }
 }
