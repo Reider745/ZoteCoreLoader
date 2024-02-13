@@ -14,7 +14,6 @@ import com.zhekasmirnov.apparatus.ecs.types.item.ArmorItemComponent;
 import com.zhekasmirnov.apparatus.ecs.types.item.ItemComponent;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
-import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 
@@ -179,7 +178,7 @@ public class NativeItem {
                 CustomItem.registerArmorItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name),
                         slot, defense, durability, (float) knockbackResist),
                 nameId, name);
-        ArmorRegistry.registerArmor(id, component);
+        // TODO: ArmorRegistry.registerArmor(id, component);
         ECS.getEntityManager().extend(item.entity, armorCC.setValues(component));
         return item;
     }

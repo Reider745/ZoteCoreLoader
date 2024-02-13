@@ -2,7 +2,6 @@ package com.reider745.hooks;
 
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -24,4 +23,13 @@ public class EntityOverrides implements HookClass {
             System.out.println("Nukkit-MOT has been updated and overrides for `EntityArmorStand.onInteract` method are no longer available.");
         }
     }
+
+    // @Inject(className = "cn.nukkit.entity.EntityHumanType", type = TypeHook.BEFORE, signature = "(Lcn/nukkit/item/Item;Lcn/nukkit/entity/Entity;FZLcn/nukkit/event/entity/EntityDamageEvent$DamageCause;)Lcn/nukkit/item/Item;")
+    // public static void damageArmor(HookController controller, EntityHumanType human, Item armor, Entity damager,
+    //         float damage, boolean shield, DamageCause cause) {
+    //     if (armor instanceof CustomArmorItem && armor.getDamage() >= armor.getMaxDurability()) {
+    //         controller.setReplace(true);
+    //         controller.setResult(armor);
+    //     }
+    // }
 }
