@@ -99,4 +99,4 @@ socket-port: 2304
 | Версия протокола | 422 (1.16.200) |
 | Коммит Apparatus | `73194cfd` |
 | Коммит Instant Referrer | `a264591` |
-| Коммит Nukkit-MOT | `005c5feed02df4869d998553cac5e5070e1f4ca0` |
+| Коммит Nukkit-MOT | `9ebdd88` |

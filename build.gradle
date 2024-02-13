@@ -1,30 +1,40 @@
-apply plugin: 'java'
 apply plugin: 'application'
 
-group 'com.reider745'
+group 'ZoteCoreLoader'
 version 'SNAPSHOT'
-mainClassName = 'com.reider745.Main'
+
+application {
+    mainClass = 'com.reider745.Main'
+    applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
+}
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://repo.lanink.cn/repository/maven-public/'
+    }
+    maven {
+        url 'https://repo.opencollab.dev/maven-releases/'
+    }
+    maven {
+        url 'https://repo.opencollab.dev/maven-snapshots/'
+    }
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    // https://repo.lanink.cn/#browse/browse:maven-public:cn/nukkit/Nukkit/MOT-SNAPSHOT
+    implementation (group: 'cn.nukkit', name: 'Nukkit', version: 'MOT-20240213.074103-139') {
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
+    }
+    // https://central.sonatype.com/artifact/com.google.code.gson/gson/versions
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.7'
-
-    // https://mvnrepository.com/artifact/org.mozilla/rhino
+    // https://central.sonatype.com/artifact/org.mozilla/rhino/versions
     implementation group: 'org.mozilla', name: 'rhino', version: '1.7.8'
+    // https://central.sonatype.com/artifact/org.json/json/versions
+    implementation group: 'org.json', name: 'json', version: '20231013'
 
-    implementation fileTree (dir: 'iclibs', include: ['*.jar'])
-    implementation fileTree (dir: 'iclibs/dex2jar', include: ['*.jar'])
-    implementation 'org.json:json:20231013'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-}
-
-test {
-    useJUnitPlatform()
+    implementation fileTree (dir: 'iclibs', include: '*.jar')
+    implementation fileTree (dir: 'iclibs/dex2jar', include: '*.jar')
 }
 
 def targetJavaVersion = 17
@@ -38,17 +48,16 @@ java {
 }
 
 jar {
-    duplicatesStrategy = 'exclude'
+    duplicatesStrategy 'exclude'
     manifest {
-        attributes 'Main-Class': mainClassName
+        attributes 'Main-Class': application.mainClass
     }
     from configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
 run {
-    workingDir = 'target'
-    standardInput = System.in
-    jvmArgs += ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
+    workingDir 'target'
+    standardInput System.in
 }
 
 task rebuildAndroidStubs(type: JavaExec, dependsOn: classes) {
