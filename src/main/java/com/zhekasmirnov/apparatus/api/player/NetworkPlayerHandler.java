@@ -1,9 +1,9 @@
 package com.zhekasmirnov.apparatus.api.player;
 
-//import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
+import com.reider745.entity.EntityMethod;
+import com.reider745.hooks.PlayerHooks;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
-import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.innercore.api.log.ICLog;
@@ -15,12 +15,9 @@ public class NetworkPlayerHandler {
     private final EntityActor actor;
     private final ActorArmorHandler armorHandler;
 
-    private final JobExecutor instantExecutor = Network.getSingleton().getInstantJobExecutor();
-
     private boolean isInitialized = false;
     private boolean isTickCallbackDisabled = false;
     private int dimensionId = 0;
-
 
     public NetworkPlayerHandler(long playerUid, boolean isLocal) {
         this.isLocal = isLocal;
@@ -28,7 +25,6 @@ public class NetworkPlayerHandler {
         this.actor = new EntityActor(playerUid);
         armorHandler = new ActorArmorHandler(actor, isLocal);
     }
-
 
     // callbacks
 
@@ -62,7 +58,10 @@ public class NetworkPlayerHandler {
                 Callback.invokeCallback(isLocal ? "LocalPlayerTick" : "ServerPlayerTick", actor.getUid(), isDead);
             } catch (Throwable err) {
                 isTickCallbackDisabled = true;
-                ICLog.e("FATAL ERROR", "Fatal error occurred in ticking callback for player entity " + actor.getUid() + ", ticking callback will be disabled for this player, until re-entering the world.", err);
+                ICLog.e("FATAL ERROR", "Fatal error occurred in ticking callback for player entity " + actor.getUid()
+                        + ", ticking callback will be disabled for this player, until re-entering the world.", err);
+                PlayerHooks.showExceptionForm(EntityMethod.getPlayerById(actor.getUid()), "FATAL ERROR",
+                        "Fatal error occurred in player ticking callback, it will be disabled until re-entering the world.", err);
             }
         }
 
@@ -77,7 +76,8 @@ public class NetworkPlayerHandler {
 
     public void onChangeDimension(int currentId, int lastId) {
         dimensionId = currentId;
-        Callback.invokeAPICallback(isLocal ? "LocalPlayerChangedDimension" : "PlayerChangedDimension", actor.getUid(), currentId, lastId);
+        Callback.invokeAPICallback(isLocal ? "LocalPlayerChangedDimension" : "PlayerChangedDimension", actor.getUid(),
+                currentId, lastId);
     }
 
     public void onHurt(long attacker, int damageValue, int damageType, boolean bool1, boolean bool2) {

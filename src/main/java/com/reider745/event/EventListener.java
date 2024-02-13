@@ -1,6 +1,7 @@
 package com.reider745.event;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
@@ -24,12 +25,16 @@ import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerEatFoodEvent;
 import cn.nukkit.event.player.PlayerExperienceChangeEvent;
+import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.event.player.PlayerInteractEntityEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerPreLoginEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.event.server.ServerCommandEvent;
+import cn.nukkit.form.response.FormResponse;
+import cn.nukkit.form.response.FormResponseModal;
+import cn.nukkit.form.response.FormResponseSimple;
 import cn.nukkit.inventory.CraftingGrid;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.food.Food;
@@ -39,6 +44,7 @@ import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
+import oshi.hardware.NetworkIF;
 
 import java.util.ArrayList;
 
@@ -61,6 +67,8 @@ public class EventListener implements Listener {
     public static final Object DEALING_LOCK = new Object();
     public static Object dealingEvent = null;
     private static long projectileHitEntity = -1;
+
+    public static final int FORM_REJOIN_EXCEPTION = 2560;
 
     public static void consumeEvent(Event event, CallbackHelper.ICallbackApply apply, boolean isPrevent) {
         CallbackHelper.apply(event, apply, isPrevent);
@@ -152,7 +160,6 @@ public class EventListener implements Listener {
         final int Z = fullChunk.getZ();
 
         final CallbackHelper.ICallbackApply applyPre = () -> NativeCallback.onPreChunkPostProcessed(X, Z);
-        // TODO: onBiomeMapGenerated
         final CallbackHelper.ICallbackApply applyPost = () -> NativeCallback.onChunkPostProcessed(X, Z);
 
         try {
@@ -459,6 +466,33 @@ public class EventListener implements Listener {
                 boolean fireproof = manager.get("fire_resistant", false);
                 itemEntity.fireProof = fireproof;
                 ReflectHelper.setField(itemEntity, "floatsInLava", fireproof);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerFormResponded(PlayerFormRespondedEvent event) {
+        if (event.getFormID() == FORM_REJOIN_EXCEPTION) {
+            FormResponse response = event.getResponse();
+            if ((response instanceof FormResponseModal modal && modal.getClickedButtonId() == 0)
+                    || (response instanceof FormResponseSimple simple && simple.getClickedButtonId() == 0)) {
+                String ip = Server.getInstance().getIp();
+                if (!(ip == null || ip.equals("0.0.0.0"))) {
+                    event.getPlayer().transfer(ip, Server.getInstance().getPort());
+                } else {
+                    for (NetworkIF network : Server.getInstance().getNetwork().getHardWareNetworkInterfaces()) {
+                        if (network.getIfOperStatus() == NetworkIF.IfOperStatus.UP && network.isConnectorPresent()) {
+                            String[] addresses = network.getIPv4addr();
+                            if (addresses.length == 0) {
+                                addresses = network.getIPv6addr();
+                            }
+                            if (addresses.length != 0) {
+                                event.getPlayer().transfer(addresses[0], Server.getInstance().getPort());
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
