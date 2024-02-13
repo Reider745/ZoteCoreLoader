@@ -7,6 +7,7 @@ import cn.nukkit.level.Level;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
+import com.reider745.hooks.PlayerHooks;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
@@ -176,6 +177,7 @@ public class NativeCallback {
 
     private static boolean isFirstServerTick = true;
     private static boolean isServerTickDisabledDueToError = false;
+    private static long serverTickDisabledDueToErrorMillis = 0;
     private static int globalServerTickCounter = 0;
 
     // this is called, when ServerLevel is constructed
@@ -254,6 +256,7 @@ public class NativeCallback {
         globalServerTickCounter = 0;
         isFirstServerTick = true;
         isServerTickDisabledDueToError = false;
+        serverTickDisabledDueToErrorMillis = 0;
 
         // check, if we are required to call legacy callback: if we are the server, call
         // it for server leave game, otherwise call for client
@@ -380,7 +383,21 @@ public class NativeCallback {
             } catch (Throwable e) {
                 isServerTickDisabledDueToError = true;
                 ICLog.e("INNERCORE-CALLBACK", "error occurred in server tick callback", e);
+
+                if (serverTickDisabledDueToErrorMillis
+                        + 15000 >= (serverTickDisabledDueToErrorMillis = System.currentTimeMillis())) {
+                    Server.getInstance().shutdown();
+                } else {
+                    for (long playerUid : Network.getSingleton().getServer().getConnectedPlayers()) {
+                        PlayerHooks.showExceptionForm(EntityMethod.getPlayerById(playerUid), "FATAL ERROR",
+                                "Fatal error occurred in ticking callback, it will be re-enabled in a few minutes.", e);
+                    }
+                }
             }
+        } else if (serverTickDisabledDueToErrorMillis != 0
+                && System.currentTimeMillis() - serverTickDisabledDueToErrorMillis >= 30000) {
+            isServerTickDisabledDueToError = false;
+            serverTickDisabledDueToErrorMillis = System.currentTimeMillis();
         }
 
         // call server player handlers
