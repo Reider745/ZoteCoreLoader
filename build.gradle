@@ -29,7 +29,7 @@ dependencies {
     // https://central.sonatype.com/artifact/com.google.code.gson/gson/versions
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.7'
     // https://central.sonatype.com/artifact/org.mozilla/rhino/versions
-    implementation group: 'org.mozilla', name: 'rhino', version: '1.7.8'
+    implementation group: 'org.mozilla', name: 'rhino', version: '1.7.7'
     // https://central.sonatype.com/artifact/org.json/json/versions
     implementation group: 'org.json', name: 'json', version: '20231013'
 
