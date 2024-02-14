@@ -15,7 +15,6 @@ import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.hooks.bugfix.DimensionsFix;
-import com.reider745.item.CustomEnchantMethods;
 import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
@@ -312,7 +311,6 @@ public class InnerCoreServer {
     }
 
     public void afterload() {
-        CustomEnchantMethods.postInit();
         Server.getInstance().getLogger().info("Registering Nukkit-MOT containment...");
         PluginManager pluginManager = Server.getInstance().getPluginManager();
         pluginManager.getPlugins().put(plugin.getDescription().getName(), plugin);
