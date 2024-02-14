@@ -45,7 +45,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
-import java.nio.file.FileSystem;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Enumeration;
@@ -482,6 +481,14 @@ public class InnerCoreServer {
         } catch (IllegalArgumentException exc) {
             return MethodHandling.DEBUG;
         }
+    }
+
+    public static boolean shouldStoppedOnCriticalTickingError() {
+        return getPropertyBoolean("stop-on-critical-ticking-error", true);
+    }
+
+    public static boolean shouldPlayersReceiveExceptionForms() {
+        return getPropertyBoolean("display-ticking-errors-to-players", true);
     }
 
     public static String getName() {

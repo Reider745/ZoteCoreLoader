@@ -385,7 +385,8 @@ public class NativeCallback {
                 ICLog.e("INNERCORE-CALLBACK", "error occurred in server tick callback", e);
 
                 if (serverTickDisabledDueToErrorMillis
-                        + 15000 >= (serverTickDisabledDueToErrorMillis = System.currentTimeMillis())) {
+                        + 15000 >= (serverTickDisabledDueToErrorMillis = System.currentTimeMillis())
+                        && InnerCoreServer.shouldStoppedOnCriticalTickingError()) {
                     Server.getInstance().shutdown();
                 } else {
                     for (long playerUid : Network.getSingleton().getServer().getConnectedPlayers()) {

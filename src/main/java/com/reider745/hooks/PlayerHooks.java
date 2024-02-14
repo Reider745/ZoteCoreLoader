@@ -98,7 +98,7 @@ public class PlayerHooks implements HookClass {
     }
 
     public static void showExceptionForm(Player player, String title, String message, Throwable exc) {
-        if (!EntityMethod.isValid(player)) {
+        if (!InnerCoreServer.shouldPlayersReceiveExceptionForms() || !EntityMethod.isValid(player)) {
             return;
         }
         FormWindowSimple form = new FormWindowSimple(title, message, Arrays.asList(new ElementButton("Rejoin")));

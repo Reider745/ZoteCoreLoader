@@ -44,3 +44,11 @@ pack-version-code: 152
 # Server socket port, usually should be between 10000 and 24999.
 # But keep in mind that the client uses port 2304 by default.
 # socket-port: 19131
+
+# Sends form to players when ticking exception happens,
+# contains only script stacktrace (without sensitive properties).
+# display-ticking-errors-to-players: false
+
+# If ticking callback interrupts too often, server will be stopped;
+# otherwise it will continue trying restart itself continiously.
+# stop-on-critical-ticking-error: false
