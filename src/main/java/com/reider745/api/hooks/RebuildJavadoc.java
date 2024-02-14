@@ -25,13 +25,15 @@ public class RebuildJavadoc {
     private Set<String> singletonClasses;
     private Set<String> rewrittenSingletonClasses;
     private int offset, length;
+    private boolean requiresProxies;
 
-    public RebuildJavadoc() {
+    public RebuildJavadoc(boolean requiresProxies) {
         if (logger == null) {
             logger = LoggerFactory.getLogger(RebuildJavadoc.class);
         }
-        singletonClasses = null;
-        rewrittenSingletonClasses = null;
+        this.singletonClasses = null;
+        this.rewrittenSingletonClasses = null;
+        this.requiresProxies = requiresProxies;
     }
 
     private static String getStubValue(CtClass retType) {
@@ -84,11 +86,13 @@ public class RebuildJavadoc {
 
     private String getStubReturnForMethod(CtMethod method) throws NotFoundException {
         CtClass returnType = method.getReturnType();
-        if ((method.getModifiers() & AccessFlag.STATIC) == 0 && returnType.equals(method.getDeclaringClass())) {
-            return "this";
-        }
-        if (returnType.getName().contains(".")) {
-            singletonClasses.add(returnType.getName());
+        if (requiresProxies) {
+            if ((method.getModifiers() & AccessFlag.STATIC) == 0 && returnType.equals(method.getDeclaringClass())) {
+                return "this";
+            }
+            if (returnType.getName().contains(".")) {
+                singletonClasses.add(returnType.getName());
+            }
         }
         return getStubValue(returnType);
     }
@@ -177,24 +181,26 @@ public class RebuildJavadoc {
             parameters.append(getStubValue(parameter));
         }
 
-        CtField newInstanceField = new CtField(ctClass, "singletonInternalProxy", ctClass);
-        newInstanceField.setModifiers(AccessFlag.PRIVATE | AccessFlag.STATIC);
-        ctClass.addField(newInstanceField);
-        CtMethod newInstance = new CtMethod(ctClass, "getSingletonInternalProxy", new CtClass[0], ctClass);
-        newInstance.setExceptionTypes(minimumConstructor.getExceptionTypes());
-        newInstance.setModifiers(AccessFlag.PUBLIC | AccessFlag.STATIC);
+        if (requiresProxies) {
+            CtField newInstanceField = new CtField(ctClass, "singletonInternalProxy", ctClass);
+            newInstanceField.setModifiers(AccessFlag.PRIVATE | AccessFlag.STATIC);
+            ctClass.addField(newInstanceField);
+            CtMethod newInstance = new CtMethod(ctClass, "getSingletonInternalProxy", new CtClass[0], ctClass);
+            newInstance.setExceptionTypes(minimumConstructor.getExceptionTypes());
+            newInstance.setModifiers(AccessFlag.PUBLIC | AccessFlag.STATIC);
 
-        StringBuilder bodyBuilder = new StringBuilder();
-        bodyBuilder.append("{ if (singletonInternalProxy == null) { singletonInternalProxy = new ");
-        if (parameters.isEmpty()) {
-            bodyBuilder.append(ctClass.getName() + "()");
-        } else {
-            bodyBuilder.append(ctClass.getName() + "(" + parameters.toString() + ")");
+            StringBuilder bodyBuilder = new StringBuilder();
+            bodyBuilder.append("{ if (singletonInternalProxy == null) { singletonInternalProxy = new ");
+            if (parameters.isEmpty()) {
+                bodyBuilder.append(ctClass.getName() + "()");
+            } else {
+                bodyBuilder.append(ctClass.getName() + "(" + parameters.toString() + ")");
+            }
+            bodyBuilder.append("; } return singletonInternalProxy; }");
+            newInstance.setBody(bodyBuilder.toString());
+
+            ctClass.addMethod(newInstance);
         }
-        bodyBuilder.append("; } return singletonInternalProxy; }");
-        newInstance.setBody(bodyBuilder.toString());
-
-        ctClass.addMethod(newInstance);
     }
 
     private void overrideSingletonsInClass(CtClass ctClass)
@@ -255,8 +261,8 @@ public class RebuildJavadoc {
             }
 
             ClassPool.releaseUnmodifiedClassFile = false;
-            final ClassPool classPool = new ClassPool();
-            classPool.insertClassPath(jarFile.getPath());
+            final ClassPool classPool = new ClassPool(!requiresProxies);
+            classPool.appendClassPath(jarFile.getPath());
 
             singletonClasses = new HashSet<>();
             List<String> classes = ClassLoaderPatch.fetchClassesFromJar(jarFile);
@@ -267,9 +273,13 @@ public class RebuildJavadoc {
             for (String className : classes) {
                 if (!(className.startsWith("java.") || className.startsWith("javax.")
                         || className.startsWith("org.json."))) {
-                    CtClass ctClass = classPool.get(className);
-                    cachedClasses.put(className, ctClass);
-                    overrideClass(ctClass);
+                    try {
+                        CtClass ctClass = classPool.get(className);
+                        overrideClass(ctClass);
+                        cachedClasses.put(className, ctClass);
+                    } catch (Throwable th) {
+                        logger.warn("\r" + className + ": " + th.getLocalizedMessage());
+                    }
                 }
                 if (offset % 100 == 0) {
                     System.out.print(String.format(
@@ -281,7 +291,7 @@ public class RebuildJavadoc {
             }
 
             boolean singletonsRequired = !singletonClasses.isEmpty();
-            if (singletonsRequired) {
+            if (requiresProxies && singletonsRequired) {
                 rewrittenSingletonClasses = new HashSet<>();
                 length += singletonClasses.size();
                 for (String className : singletonClasses) {
@@ -304,11 +314,11 @@ public class RebuildJavadoc {
                 }
             }
 
-            for (String className : classes) {
+            for (String className : cachedClasses.keySet()) {
                 if (!(className.startsWith("java.") || className.startsWith("javax.")
                         || className.startsWith("org.json."))) {
                     CtClass ctClass = cachedClasses.get(className);
-                    if (singletonsRequired) {
+                    if (requiresProxies && singletonsRequired) {
                         overrideSingletonsInClass(ctClass);
                     }
                     ctClass.writeFile(outputDirectoryPath);
@@ -345,8 +355,11 @@ public class RebuildJavadoc {
     }
 
     public static void main(String[] args) {
-        File jarFile = Paths.get(".todo", "android.jar").toAbsolutePath().toFile();
-        File outputJarFile = Paths.get("iclibs", "android.jar").toAbsolutePath().toFile();
-        new RebuildJavadoc().rebuild(jarFile, outputJarFile);
+        if (args.length < 2 || args[0] == null || args[1] == null) {
+            throw new IllegalArgumentException("in == null || out == null");
+        }
+        File jarFile = Path.of(args[0]).toAbsolutePath().toFile();
+        File outputJarFile = Path.of(args[1]).toAbsolutePath().toFile();
+        new RebuildJavadoc(args.length > 2 && args[2] != null ? args[2].equalsIgnoreCase("proxy") : false).rebuild(jarFile, outputJarFile);
     }
 }

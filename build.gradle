@@ -70,4 +70,18 @@ task rebuildAndroidStubs(type: JavaExec, dependsOn: classes) {
 
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.reider745.api.hooks.RebuildJavadoc'
+    args '.todo/android.jar', 'iclibs/android.jar', 'proxy'
+}
+
+task rebuildZoteStubs(type: JavaExec, dependsOn: jar) {
+    javaLauncher = javaToolchains.launcherFor {
+        def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+        if (JavaVersion.current() < javaVersion) {
+            languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        }
+    }
+
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.reider745.api.hooks.RebuildJavadoc'
+    args "build/libs/${project.name}-${project.version}.jar", ".todo/${project.name}-${project.version}.jar"
 }
