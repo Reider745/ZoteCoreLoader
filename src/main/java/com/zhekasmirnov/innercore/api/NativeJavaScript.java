@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+@Deprecated(since = "Zote")
 public class NativeJavaScript {
     private static final int TYPE_BYTE = 0;
     private static final int TYPE_INT = 1;
@@ -180,6 +181,26 @@ public class NativeJavaScript {
             @Override
             public String getClassName() {
                 return "NativeJSModule_" + module;
+            }
+
+            @Override
+            public Object get(String name, Scriptable start) {
+                return new ScriptableFunctionImpl() {
+                    @Override
+                    public String getClassName() {
+                        return "NativeJSModule_" + name;
+                    }
+
+                    @Override
+                    public Scriptable getParentScope() {
+                        return start;
+                    }
+
+                    @Override
+                    public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                        return wrapNativeModule(module);
+                    }
+                };
             }
         };
     }

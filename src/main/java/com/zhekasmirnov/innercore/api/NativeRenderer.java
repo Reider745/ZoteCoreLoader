@@ -12,6 +12,7 @@ import java.util.HashMap;
  * Created by zheka on 26.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class NativeRenderer {
 
     public static class Renderer {
@@ -101,7 +102,6 @@ public class NativeRenderer {
         }
 
         @Override
-        @SuppressWarnings("deprecation")
         protected void finalize() throws Throwable {
             release();
             super.finalize();

@@ -1,6 +1,5 @@
 package com.zhekasmirnov.innercore.api;
 
-import com.reider745.api.Client;
 import com.reider745.item.CustomEnchantment;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
@@ -65,14 +64,14 @@ public class NativeCustomEnchant {
         return enchant;
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public static void updateAllEnchantsDescriptions() {
         for (NativeCustomEnchant enchant : enchantById.values()) {
             enchant.setDescription(enchant.description);
         }
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public NativeCustomEnchant setDescription(String description) {
         this.description = description;
         return this;
@@ -88,7 +87,7 @@ public class NativeCustomEnchant {
         return this;
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public NativeCustomEnchant setIsDiscoverable(boolean value) {
         return this;
     }

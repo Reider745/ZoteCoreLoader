@@ -6,6 +6,7 @@ import android.graphics.*;
  * Created by zheka on 04.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class FrameTexture {
     public static final int SIDE_LEFT = 0;
     public static final int SIDE_RIGHT = 1;

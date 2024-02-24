@@ -18,7 +18,6 @@ public class ThreadTypeMarker {
     }
 
     private ThreadTypeMarker() {
-
     }
 
     static final class SuppliedThreadLocal<T> extends ThreadLocal<T> {

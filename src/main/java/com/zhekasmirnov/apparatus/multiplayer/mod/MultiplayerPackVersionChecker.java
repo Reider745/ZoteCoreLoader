@@ -3,7 +3,6 @@ package com.zhekasmirnov.apparatus.multiplayer.mod;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.InitializationPacketException;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 

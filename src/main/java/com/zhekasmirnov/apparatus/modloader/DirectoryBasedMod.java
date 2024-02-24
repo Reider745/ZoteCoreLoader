@@ -2,10 +2,7 @@ package com.zhekasmirnov.apparatus.modloader;
 
 import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import org.json.JSONException;
-
 import java.io.File;
-import java.io.IOException;
 
 public abstract class DirectoryBasedMod extends ApparatusMod {
     private final File directory;

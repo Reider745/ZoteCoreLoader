@@ -6,7 +6,7 @@ public class MonoBiomeTerrainGenerator extends AbstractTerrainGenerator {
     public final long pointer;
 
     public MonoBiomeTerrainGenerator() {
-        pointer = nativeConstruct();
+        pointer = MonoBiomeTerrainMethods.nativeConstruct();
     }
 
     public long getPointer() {
@@ -14,21 +14,11 @@ public class MonoBiomeTerrainGenerator extends AbstractTerrainGenerator {
     }
 
     public TerrainLayer addTerrainLayer(int minY, int maxY) {
-        return new TerrainLayer(nativeAddLayer(pointer, minY, maxY));
+        return new TerrainLayer(MonoBiomeTerrainMethods.nativeAddLayer(pointer, minY, maxY));
     }
 
     public MonoBiomeTerrainGenerator setBaseBiome(int id) {
-        nativeSetBaseBiome(pointer, id);
-        return this;
-    }
-
-    private static long nativeConstruct(){
-        return MonoBiomeTerrainMethods.nativeConstruct();
-    }
-    private static long nativeAddLayer(long pointer, int minY, int maxY){
-        return MonoBiomeTerrainMethods.nativeAddLayer(pointer, minY, maxY);
-    }
-    private static void nativeSetBaseBiome(long pointer, int id){
         MonoBiomeTerrainMethods.nativeSetBaseBiome(pointer, id);
+        return this;
     }
 }

@@ -19,11 +19,9 @@ import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConvertor;
-import com.reider745.network.InnerCorePacket;
 import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
-import com.zhekasmirnov.apparatus.multiplayer.NetworkConfig;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
@@ -39,7 +37,6 @@ import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.mcpe161.InnerCore;
 
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -226,25 +223,6 @@ public class InnerCoreServer {
         plugin.onLoad();
         plugin.setEnabled();
 
-        NetworkConfig config = Network.getSingleton().getConfig();
-        config.setDefaultPort(getPropertyInt("socket-port", config.getDefaultPort()));
-        config.setSocketConnectionAllowed(
-                getPropertyBoolean("socket-server-enable", config.isSocketConnectionAllowed()));
-
-        JSONObject json = new JSONObject();
-        json.put("server", true);
-        json.put("socket_port", config.getDefaultPort());
-
-        InnerCorePacket packet = new InnerCorePacket();
-        packet.name = "system.server_detection";
-        packet.format_id = 0;
-
-        byte[] bytes = json.toString().getBytes();
-        packet.bytes_length = bytes.length;
-        packet.bytes = bytes;
-        packet.encode();
-        InnerCorePacket.sendInfo = packet;
-
         final File innerCoreDirectory = new File(dataPath, "innercore");
         if (!innerCoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
@@ -276,6 +254,7 @@ public class InnerCoreServer {
         // Required to be called before modpack instantiation
         FileTools.init();
 
+        Network.getSingleton().getConfig().updateFromEngineConfig();
         ModPackContext.getInstance().setCurrentModPack(getModpack());
 
         for (ModPackDirectory directoryWithMods : ModPackContext.getInstance().getCurrentModPack()

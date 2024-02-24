@@ -8,6 +8,7 @@ import org.mozilla.javascript.ScriptableObject;
  */
 
 public class Coords extends ScriptableObject {
+
     @Override
     public String getClassName() {
         return "Coords";

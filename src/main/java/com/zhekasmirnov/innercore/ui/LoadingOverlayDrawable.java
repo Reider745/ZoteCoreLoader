@@ -10,7 +10,9 @@ import android.view.View;
  * Created by zheka on 05.01.2018.
  */
 
+@Deprecated(since = "Zote")
 public class LoadingOverlayDrawable extends Drawable {
+
     public LoadingOverlayDrawable(View parent) {
     }
 

@@ -53,6 +53,7 @@ public class GlobalBlockPalette implements HookClass {
         return assignedRuntimeIds;
     }
 
+    @SuppressWarnings("null")
     public static void init() {
         MainLogger log = Server.getInstance().getLogger();
         log.info("Loading runtime blocks...");

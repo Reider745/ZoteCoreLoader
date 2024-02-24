@@ -78,12 +78,15 @@ public class ArmorRegistry {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void onTick() {
     }
 
+    @Deprecated(since = "Zote")
     public static void onHurt(long attacker, int damage, int type, boolean b1, boolean b2) {
     }
 
+    @Deprecated(since = "Zote")
     public static void registerArmor(int id, ScriptableObject obj) {
         registerArmor(id, new ScriptableArmorCallbacks(obj));
     }
@@ -95,6 +98,7 @@ public class ArmorRegistry {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void registerArmor(int id, IArmorCallback callback) {
         NativeItem item = NativeItem.getItemById(id);
         if (item != null) {

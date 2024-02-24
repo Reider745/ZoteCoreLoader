@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api.entities;
 
 import com.reider745.InnerCoreServer;
 
+@SuppressWarnings("unused")
 public class NativeAttributeInstance {
     private final long entity;
     private final String attribute;

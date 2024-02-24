@@ -10,7 +10,9 @@ import java.util.HashMap;
  * Created by zheka on 22.09.2017.
  */
 
+@Deprecated(since = "Zote")
 public class NativeICRender {
+
     public static long constructICRender() {
         InnerCoreServer.useClientMethod("NativeICRender.constructICRender()");
         return 0;

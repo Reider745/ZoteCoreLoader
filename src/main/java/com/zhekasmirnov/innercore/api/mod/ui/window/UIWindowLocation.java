@@ -11,6 +11,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIWindowLocation {
     public int x, y, width, height;
     public int scrollX, scrollY;

@@ -6,7 +6,7 @@ package com.zhekasmirnov.innercore.api.mod.preloader;
 
 import java.io.File;
 
-// TODO: complete
+@Deprecated(since = "Zote")
 public class TextureFileEntry {
     @SuppressWarnings("unused")
     private File source;

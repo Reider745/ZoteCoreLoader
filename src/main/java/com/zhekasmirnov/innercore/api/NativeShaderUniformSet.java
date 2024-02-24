@@ -2,11 +2,13 @@ package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
 
+@Deprecated(since = "Zote")
 public class NativeShaderUniformSet {
     public final long pointer;
 
     public NativeShaderUniformSet(long pointer) {
         this.pointer = pointer;
+        InnerCoreServer.useClientMethod("NativeShaderUniformSet(pointer)");
     }
 
     public NativeShaderUniformSet lock() {

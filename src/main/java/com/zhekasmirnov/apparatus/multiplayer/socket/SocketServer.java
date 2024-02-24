@@ -21,6 +21,7 @@ public class SocketServer {
 
     private ServerSocket serverSocket = null;
     private boolean isRunning = false;
+    @SuppressWarnings("unused")
     private ModdedServer server;
 
     public SocketServer(ModdedServer server) {

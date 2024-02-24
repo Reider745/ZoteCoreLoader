@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.util;
 
 import android.graphics.Bitmap;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -10,26 +9,29 @@ import org.mozilla.javascript.annotations.JSStaticFunction;
  */
 
 public class DebugAPI extends ScriptableObject {
+
     @Override
     public String getClassName() {
         return "DebugAPI";
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static void dialog(String msg, final String title) {
-        Logger.info("DebugAPI/dialog", title + ": " + msg);
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static void dialog(String msg) {
-        dialog(msg, "");
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static void img(Bitmap bmp, final String prefix) {
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static void img(Bitmap bmp) {
     }
 }

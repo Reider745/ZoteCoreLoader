@@ -4,6 +4,7 @@ package com.zhekasmirnov.innercore.api.mod.ui.memory;
  * Created by zheka on 12.09.2017.
  */
 
+@Deprecated(since = "Zote")
 public class SourceBitmapWrap extends BitmapWrap {
     private String name;
 

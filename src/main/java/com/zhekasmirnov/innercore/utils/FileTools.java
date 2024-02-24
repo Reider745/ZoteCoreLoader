@@ -24,11 +24,9 @@ public class FileTools {
     public static String DIR_ROOT, DIR_PACK, DIR_WORK, DIR_MINECRAFT, DIR_HORIZON;
 
     // static {
-    // DIR_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
-    // DIR_HORIZON = DIR_ROOT + "games/horizon/";
-    // DIR_MINECRAFT =
-    // MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath()
-    // + "/";
+        // DIR_ROOT = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+        // DIR_HORIZON = DIR_ROOT + "games/horizon/";
+        // DIR_MINECRAFT = MinecraftVersions.getCurrent().getMinecraftExternalStoragePath().getAbsolutePath() + "/";
     // }
 
     public static void init() {
@@ -326,8 +324,9 @@ public class FileTools {
             while ((line = reader.readLine()) != null) {
                 text.append(line).append("\n");
             }
-            return text.toString();
+            line = text.toString();
         }
+        return line;
     }
 
     public static void writeFileText(File path, String text) throws IOException {

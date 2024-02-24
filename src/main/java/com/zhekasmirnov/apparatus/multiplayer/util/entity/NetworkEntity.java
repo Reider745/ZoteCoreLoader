@@ -3,11 +3,8 @@ package com.zhekasmirnov.apparatus.multiplayer.util.entity;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
-import com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -70,9 +67,9 @@ public class NetworkEntity {
 
     private boolean isRemoved = false;
 
-    private final ModdedClient clientInstance = Network.getSingleton().getClient();
     private final ConnectedClientList clients = new ConnectedClientList();
 
+    @Deprecated(since = "Zote")
     private JobExecutor clientExecutor = Network.getSingleton().getClientThreadJobExecutor();
     private JobExecutor serverExecutor = Network.getSingleton().getServerThreadJobExecutor();
 
@@ -149,10 +146,12 @@ public class NetworkEntity {
         clients.refresh();
     }
 
+    @Deprecated(since = "Zote")
     public JobExecutor getClientExecutor() {
         return clientExecutor;
     }
 
+    @Deprecated(since = "Zote")
     public void setClientExecutor(JobExecutor clientExecutor) {
         if (clientExecutor == null) {
             throw new NullPointerException("clientExecutor cannot be null");
@@ -179,9 +178,6 @@ public class NetworkEntity {
             if (isServer) {
                 ThreadTypeMarker.assertServerThread();
                 clients.send("system.entity.packet#" + this.name + "#" + name, data);
-            } else {
-                ThreadTypeMarker.assertClientThread();
-                clientInstance.send("system.entity.packet#" + this.name + "#" + name, data);
             }
         }
     }
@@ -220,10 +216,6 @@ public class NetworkEntity {
             isRemoved = true;
             if (isServer) {
                 clients.clear();
-            } else {
-                Network.getSingleton().getInstantJobExecutor().add(() -> {
-                    type.onClientEntityRemovedDueShutdown(this);
-                });
             }
         }
     }

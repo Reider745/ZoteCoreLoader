@@ -11,6 +11,7 @@ import java.util.HashMap;
  * Created by zheka on 05.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class FrameTextureSource {
     private static HashMap<String, FrameTexture> loadedTextures = new HashMap<>();
 

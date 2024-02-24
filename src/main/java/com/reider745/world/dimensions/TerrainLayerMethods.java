@@ -42,9 +42,11 @@ public class TerrainLayerMethods {
 
 
         public final HashMap<Integer, Map.Entry<TerrainMaterialMethods.TerrainMaterialDescription, NoiseGeneratorMethods.NoiseGeneratorDescription>> materials_map = new HashMap<>();
+        @SuppressWarnings("unchecked")
         public Map.Entry<Integer, Map.Entry<TerrainMaterialMethods.TerrainMaterialDescription, NoiseGeneratorMethods.NoiseGeneratorDescription>>[] materials = new Map.Entry[0];
 
 
+        @SuppressWarnings("unchecked")
         public TerrainMaterialMethods.TerrainMaterialDescription addMaterial(NoiseGeneratorMethods.NoiseGeneratorDescription generator, int priority){
             TerrainMaterialMethods.TerrainMaterialDescription des = TerrainMaterialMethods.newMaterial();
             materials_map.put(priority, new AbstractMap.SimpleEntry<>(des, generator));

@@ -18,6 +18,7 @@ import java.util.HashMap;
  * Created by zheka on 01.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class ContentProvider {
     public UIWindow window;
 

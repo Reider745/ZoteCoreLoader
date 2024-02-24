@@ -1,15 +1,11 @@
 package com.zhekasmirnov.apparatus.multiplayer.util.list;
 
-import cn.nukkit.Player;
-import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.common.Vector3;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
-import com.zhekasmirnov.innercore.api.log.ICLog;
-
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Consumer;

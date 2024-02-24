@@ -9,6 +9,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class TouchEvent {
     public float _x, _y, x, y, localX, localY, downX, downY;
 

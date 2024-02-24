@@ -7,7 +7,6 @@ import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.furnace.FurnaceRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.furnace.FurnaceRecipeRegistry;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.*;
-import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import org.mozilla.javascript.*;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -258,6 +257,7 @@ public class RecipeRegistry {
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static ItemInstance provideRecipe(Object field, String prefix) {
         return WorkbenchRecipeRegistry.provideRecipe((WorkbenchField) Context.jsToJava(field, WorkbenchField.class), prefix);
     }
@@ -354,8 +354,9 @@ public class RecipeRegistry {
 
 
 
+    @Deprecated(since = "Zote")
     public static class WorkbenchUIHandler extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchUIHandler {
-        public WorkbenchUIHandler(ScriptableObject target, Container targetCon, WorkbenchField field) {
+        public WorkbenchUIHandler(ScriptableObject target, com.zhekasmirnov.innercore.api.mod.ui.container.Container targetCon, WorkbenchField field) {
             super(target, targetCon, field);
         }
 

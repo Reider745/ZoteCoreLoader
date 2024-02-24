@@ -12,6 +12,7 @@ import java.util.HashMap;
  * Created by zheka on 01.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIStyle {
     public static final UIStyle DEFAULT = new UIStyle((UIStyle) null);
     public static final UIStyle LEGACY = new UIStyle((UIStyle) null);

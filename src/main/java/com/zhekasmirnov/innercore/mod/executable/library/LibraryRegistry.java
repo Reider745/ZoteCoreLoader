@@ -131,7 +131,6 @@ public class LibraryRegistry {
     }
 
     public static void loadAllBuiltInLibraries() {
-
     }
 
     public static void prepareAllLibraries() {

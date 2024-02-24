@@ -136,6 +136,7 @@ public class ItemStack {
         return NativeItem.isGlintItemInstance(id, data, extra);
     }
 
+    @Deprecated(since = "Zote")
     public NativeItemModel getItemModel() {
         return NativeItemModel.getForWithFallback(id, data);
     }

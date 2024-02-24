@@ -7,6 +7,7 @@ import org.mozilla.javascript.Scriptable;
  * Created by zheka on 23.02.2018.
  */
 
+@Deprecated(since = "Zote")
 public class NativeRenderMesh {
     public long getPtr() {
         return 0;

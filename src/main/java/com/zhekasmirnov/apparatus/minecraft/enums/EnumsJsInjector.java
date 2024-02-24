@@ -1,7 +1,6 @@
 package com.zhekasmirnov.apparatus.minecraft.enums;
 
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersion;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;

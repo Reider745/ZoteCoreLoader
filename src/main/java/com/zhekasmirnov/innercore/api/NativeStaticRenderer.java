@@ -6,6 +6,7 @@ import com.reider745.InnerCoreServer;
  * Created by zheka on 26.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class NativeStaticRenderer {
     public static final float HUMANOID_MODEL_OFFSET = 1.62000274658203f;
 

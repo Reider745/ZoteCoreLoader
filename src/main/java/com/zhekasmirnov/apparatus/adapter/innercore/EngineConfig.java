@@ -16,15 +16,15 @@ public class EngineConfig {
         return InnerCoreServer.isDeveloperMode() || InnerCoreServer.isDebugInnerCoreNetwork();
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T get(String name, Class<T> type, PropertyValidator<T> validator) {
+        if (type == null)
+            throw new IllegalArgumentException("type == null");
         Object data = InnerCoreConfig.get(name);
-        try {
-            // noinspection unchecked
+        if (data != null && type.isInstance(data))
             return validator != null ? validator.validate((T) data) : (T) data;
-        } catch (ClassCastException e) {
-            // noinspection ConstantConditions
-            return validator != null ? validator.validate(null) : null;
-        }
+        // noinspection ConstantConditions
+        return validator != null ? validator.validate(null) : null;
     }
 
     public static String getString(String name, String fallback) {

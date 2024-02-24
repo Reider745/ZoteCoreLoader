@@ -3,7 +3,6 @@ package com.zhekasmirnov.apparatus.multiplayer.channel.data;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class SocketDataChannel extends DataChannel {

@@ -3,6 +3,7 @@ package com.reider745.api;
 import cn.nukkit.event.Event;
 import cn.nukkit.level.Level;
 import com.reider745.api.hooks.HookController;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,9 +113,9 @@ public class CallbackHelper {
 
     @SuppressWarnings("unused")
     private static class ThreadCallbackController extends ThreadCallback {
-        protected final HookController event;
+        protected final HookController<Event> event;
 
-        public ThreadCallbackController(HookController event, ICallbackApply apply) {
+        public ThreadCallbackController(HookController<Event> event, ICallbackApply apply) {
             super(apply);
             this.event = event;
         }
@@ -142,7 +143,7 @@ public class CallbackHelper {
         }
     }
 
-    public static <T>ThreadCustomValue<T> applyCustomValue(String name, ICallbackApply apply, T def) {
+    public static <T> ThreadCustomValue<T> applyCustomValue(String name, ICallbackApply apply, T def) {
         ThreadCustomValue<T> thread = new ThreadCustomValue<>();
         thread.value = def;
         thread.add(apply);
@@ -170,15 +171,21 @@ public class CallbackHelper {
         return false;
     }
 
-    public static <T>void setValueForCurrent(T value){
+    @SuppressWarnings("unchecked")
+    public static void setValueForCurrent(Object value) {
         Thread thread = Thread.currentThread();
-        if (thread instanceof ThreadCustomValue)
-            ((ThreadCustomValue<T>) thread).value = value;
+        if (thread instanceof ThreadCustomValue custom) {
+            try {
+                custom.value = value;
+            } catch (ClassCastException e) {
+                Logger.error("Casting to " + custom.getValue() + " cannot be performed, value override failed!");
+            }
+        }
     }
 
     public static Level getForCurrentThread() {
         Thread thread = Thread.currentThread();
-        if (thread instanceof ThreadCustomValue threadCallback) {
+        if (thread instanceof ThreadCustomValue threadCallback && threadCallback.getValue() instanceof Level) {
             return (Level) threadCallback.getValue();
         }
         return null;

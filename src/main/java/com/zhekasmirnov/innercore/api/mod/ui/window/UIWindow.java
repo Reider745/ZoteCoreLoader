@@ -14,6 +14,7 @@ import com.zhekasmirnov.innercore.api.mod.ui.memory.BitmapCache;
 import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.utils.UIUtils;
+
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.HashMap;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIWindow implements IWindow {
     private static final Object LOCK = new Object();
 

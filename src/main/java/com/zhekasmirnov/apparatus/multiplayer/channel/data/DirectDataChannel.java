@@ -3,7 +3,6 @@ package com.zhekasmirnov.apparatus.multiplayer.channel.data;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -16,7 +15,6 @@ public class DirectDataChannel extends DataChannel {
         return new Pair<>(channel1, channel2);
     }
 
-
     public static final int PROTOCOL_ID = 0;
     private static final DataPacket channelClosedPacket = new DataPacket("", 0, null);
 
@@ -24,7 +22,6 @@ public class DirectDataChannel extends DataChannel {
     private DirectDataChannel linkedChannel;
 
     private DirectDataChannel() {
-
     }
 
     private void setLinkedChannel(DirectDataChannel linkedChannel) {

@@ -1,7 +1,6 @@
 package com.zhekasmirnov.apparatus.api.container;
 
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
-import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
@@ -42,7 +41,7 @@ public class ItemContainerSlot implements AbstractSlot {
     }
 
     public ItemContainerSlot(JSONObject json, boolean convert) {
-        this(convert ? IdConversionMap.serverToLocal(json.optInt("id", 0)) : json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0), NativeItemInstanceExtra.fromJson(json.optJSONObject("extra")));
+        this(convert ? json.optInt("id", 0) : json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0), NativeItemInstanceExtra.fromJson(json.optJSONObject("extra")));
     }
 
     void setContainer(ItemContainer container, String name) {

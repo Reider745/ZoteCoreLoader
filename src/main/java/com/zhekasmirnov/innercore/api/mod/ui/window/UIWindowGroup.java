@@ -14,6 +14,7 @@ import java.util.HashMap;
  * Created by zheka on 04.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIWindowGroup implements IWindow {
     private static final Object LOCK = new Object();
 

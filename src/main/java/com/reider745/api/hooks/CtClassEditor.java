@@ -4,7 +4,6 @@ import javassist.CtClass;
 import javassist.Modifier;
 
 import javassist.*;
-import javassist.bytecode.*;
 
 public class CtClassEditor {
     public static final int Static = Modifier.STATIC;
@@ -15,7 +14,7 @@ public class CtClassEditor {
 
     private final CtClass ctClass;
 
-    public CtClassEditor(CtClass ctClass){
+    public CtClassEditor(CtClass ctClass) {
         this.ctClass = ctClass;
     }
 
@@ -23,8 +22,8 @@ public class CtClassEditor {
         return ctClass;
     }
 
-    public final CtField addField(Class<?> type, String name, int modifier, String src){
-        try{
+    public final CtField addField(Class<?> type, String name, int modifier, String src) {
+        try {
             src += ";";
 
             ClassPool pool = ClassPool.getDefault();
@@ -32,7 +31,7 @@ public class CtClassEditor {
             field.setModifiers(modifier);
             ctClass.addField(field, src);
             return field;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

@@ -6,8 +6,6 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataPacket;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.NativeDataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.InnerCoreConfig;
-import com.zhekasmirnov.innercore.mod.build.Config;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -154,9 +152,9 @@ public class NativeNetworking {
         public void send(DataPacket packet) throws IOException{
             // UserDialog.toast("sending " + packet.name + "=" + (packet.data != null ? new String(packet.data) : null) + " to " + client);
             if (client != null) {
-                sendPacketToClient(client, packet.name, packet.formatId, packet.data);
+                InnerCorePacket.sendPacketToClient(client, packet.name, packet.formatId, packet.data);
             } else {
-                sendPacketToServer(packet.name, packet.formatId, packet.data);
+                InnerCorePacket.sendPacketToServer(packet.name, packet.formatId, packet.data);
             }
         }
     }
@@ -164,10 +162,12 @@ public class NativeNetworking {
     private static NativeChannelImpl clientToServerChannel = null;
     private static final Map<String, NativeChannelImpl> serverToClientChannelMap = new HashMap<>();
 
+    @Deprecated(since = "Zote")
     public static NativeChannelImpl getClientToServerChannel() {
         return clientToServerChannel;
     }
 
+    @Deprecated(since = "Zote")
     public static NativeChannelImpl getOrCreateClientToServerChannel() {
         if (clientToServerChannel == null) {
             clientToServerChannel = new NativeChannelImpl(null);
@@ -208,6 +208,7 @@ public class NativeNetworking {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void onClientPacketReceived(String name, int formatId) throws IOException {
         if (clientToServerChannel == null) {
             clientToServerChannel = new NativeChannelImpl(null);
@@ -216,7 +217,8 @@ public class NativeNetworking {
     }
 
     private static byte[] getCurrentNativePacketBytesNonNull() {
-        return getCurrentNativePacketBytes();
+        byte[] bytes = InnerCorePacket.getCurrentNativePacketBytes();
+        return bytes != null ? bytes : new byte[0];
     }
 
 
@@ -285,22 +287,13 @@ public class NativeNetworking {
     // native methods
 
     private static void runServerNetworkEventLoop(boolean b){
-
     }
+
+    @Deprecated(since = "Zote")
     private static void runClientNetworkEventLoop(boolean b){
-
     }
+
     private static void runMinecraftNetworkEventLoop(boolean b){
 
-    }
-
-    private static byte[] getCurrentNativePacketBytes(){
-        return InnerCorePacket.getCurrentNativePacketBytes();
-    }
-    private static void sendPacketToClient(String client, String name, int formatId, byte[] data){
-        InnerCorePacket.sendPacketToClient(client, name, formatId, data);
-    }
-    private static void sendPacketToServer(String name, int formatId, byte[] data){
-        InnerCorePacket.sendPacketToServer(name, formatId, data);
     }
 }

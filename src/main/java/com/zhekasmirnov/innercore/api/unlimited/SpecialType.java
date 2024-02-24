@@ -3,7 +3,6 @@ package com.zhekasmirnov.innercore.api.unlimited;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.innercore.api.NativeBlock;
-import com.zhekasmirnov.innercore.api.NativeItemModel;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -110,6 +109,7 @@ public class SpecialType {
     public int mapcolor = 0;
     public String color_source = "";
 
+    @SuppressWarnings("deprecation")
     public void setupBlock(int id) {
         NativeBlock.setMaterial(id, material);
         NativeBlock.setMaterialBase(id, base);
@@ -140,7 +140,6 @@ public class SpecialType {
             BlockVariant variant = BlockRegistry.getBlockVariant(id, data);
             if (variant != null) {
                 variant.renderType = rendertype;
-                NativeItemModel.getFor(id, data).updateForBlockVariant(variant);
             }
         }
     }

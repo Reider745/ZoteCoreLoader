@@ -13,6 +13,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UISlotElement extends UIElement {
     public UISlotElement(UIWindow window, ScriptableObject description) {
         super(window, description);

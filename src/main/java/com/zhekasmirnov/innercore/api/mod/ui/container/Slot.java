@@ -68,6 +68,7 @@ public class Slot extends ScriptableObject implements AbstractSlot {
         }
     }
 
+    @Deprecated(since = "Zote")
     public void drop(float x, float y, float z) {
         int id = getInt("id");
         int count = getInt("count");

@@ -43,7 +43,7 @@ public class DispenseBehaviorOverrides implements HookClass {
 	}
 
 	@Inject(className = "cn.nukkit.dispenser.DefaultDispenseBehavior", type = TypeHook.BEFORE, signature = "(Lcn/nukkit/block/BlockDispenser;Lcn/nukkit/math/BlockFace;Lcn/nukkit/item/Item;)Lcn/nukkit/item/Item;")
-	public static void dispense(HookController controller, DefaultDispenseBehavior behavior, BlockDispenser block,
+	public static void dispense(HookController<DefaultDispenseBehavior> controller, DefaultDispenseBehavior behavior, BlockDispenser block,
 			BlockFace face, Item item) {
 		Vector3 dispensePos = block.getDispensePosition();
 

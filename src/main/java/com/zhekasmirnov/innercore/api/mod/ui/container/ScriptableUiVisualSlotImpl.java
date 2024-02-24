@@ -4,6 +4,7 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.ScriptableObject;
 
+@Deprecated(since = "Zote")
 public class ScriptableUiVisualSlotImpl implements UiVisualSlotImpl {
     private final ScriptableObject scriptable;
 

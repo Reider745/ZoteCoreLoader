@@ -7,6 +7,7 @@ import java.io.File;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class TextureSource {
     public static final TextureSource instance = new TextureSource();
 

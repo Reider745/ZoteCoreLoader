@@ -2,7 +2,6 @@ package com.zhekasmirnov.innercore.api.dimensions;
 
 import java.util.HashMap;
 
-import com.reider745.InnerCoreServer;
 import com.reider745.world.dimensions.NoiseOctaveMethods;
 
 public class NoiseOctave {
@@ -34,7 +33,7 @@ public class NoiseOctave {
     public final long pointer;
 
     public NoiseOctave(int type) {
-        pointer = nativeConstruct(type);
+        pointer = NoiseOctaveMethods.nativeConstruct(type);
     }
 
     public NoiseOctave(String type) {
@@ -46,46 +45,27 @@ public class NoiseOctave {
     }
 
     public NoiseOctave setTranslate(float x, float y, float z) {
-        nativeSetTranslate(pointer, x, y, z);
+        NoiseOctaveMethods.nativeSetTranslate(pointer, x, y, z);
         return this;
     }
 
     public NoiseOctave setScale(float x, float y, float z) {
-        nativeSetScale(pointer, x, y, z);
+        NoiseOctaveMethods.nativeSetScale(pointer, x, y, z);
         return this;
     }
 
     public NoiseOctave setWeight(float w) {
-        nativeSetWeight(pointer, w);
+        NoiseOctaveMethods.nativeSetWeight(pointer, w);
         return this;
     }
 
     public NoiseOctave setSeed(int seed) {
-        nativeSetSeed(pointer, seed);
+        NoiseOctaveMethods.nativeSetSeed(pointer, seed);
         return this;
     }
 
     public NoiseOctave setConversion(NoiseConversion conversion) {
-        nativeSetConversion(pointer, conversion != null ? conversion.pointer : 0);
+        NoiseOctaveMethods.nativeSetConversion(pointer, conversion != null ? conversion.pointer : 0);
         return this;
-    }
-
-    private static long nativeConstruct(int type){
-        return NoiseOctaveMethods.nativeConstruct(type);
-    }
-    private static void nativeSetTranslate(long ptr, float x, float y, float z){
-        NoiseOctaveMethods.nativeSetTranslate(ptr, x, y, z);
-    }
-    private static void nativeSetScale(long ptr, float x, float y, float z){
-        NoiseOctaveMethods.nativeSetScale(ptr, x, y, z);
-    }
-    private static void nativeSetWeight(long ptr, float w){
-        NoiseOctaveMethods.nativeSetWeight(ptr, w);
-    }
-    private static void nativeSetSeed(long ptr, int seed){
-        NoiseOctaveMethods.nativeSetSeed(ptr, seed);
-    }
-    private static void nativeSetConversion(long ptr, long conversion){
-        NoiseOctaveMethods.nativeSetConversion(ptr, conversion);
     }
 }

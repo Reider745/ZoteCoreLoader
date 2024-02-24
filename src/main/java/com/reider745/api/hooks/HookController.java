@@ -1,12 +1,12 @@
 package com.reider745.api.hooks;
 
-public class HookController  {
+public class HookController<T> {
     private boolean replace;
     private Object result = null;
     private final Arguments arguments;
-    private final Object self;
+    private final T self;
 
-    public HookController(boolean replace, final Arguments arguments, Object self){
+    public HookController(boolean replace, Arguments arguments, T self) {
         this.replace = replace;
         this.arguments = arguments;
         this.self = self;
@@ -15,6 +15,7 @@ public class HookController  {
     public final void setReplace(boolean replace) {
         this.replace = replace;
     }
+
     public final boolean isReplace() {
         return replace;
     }
@@ -23,7 +24,8 @@ public class HookController  {
         setReplace(true);
         this.result = result;
     }
-    public final Object getResult(){
+
+    public final Object getResult() {
         return result;
     }
 
@@ -31,7 +33,7 @@ public class HookController  {
         return arguments;
     }
 
-    public final <T>T getSelf() {
-        return (T) self;
+    public final T getSelf() {
+        return self;
     }
 }

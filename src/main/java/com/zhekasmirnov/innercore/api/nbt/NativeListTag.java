@@ -33,6 +33,7 @@ public class NativeListTag {
         this.tag = tag != null ? (ListTag<Tag>) tag.copy() : new ListTag<>();
     }
 
+    @Deprecated(since = "Zote")
     public NativeListTag(long pointer) {
         throw new UnsupportedOperationException("NativeListTag(pointer)");
     }

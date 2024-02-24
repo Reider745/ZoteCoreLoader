@@ -19,6 +19,7 @@ import java.util.ArrayList;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIWindowElementDrawable extends Drawable implements IElementProvider, ITouchEventListener {
     public UIWindow window;
 

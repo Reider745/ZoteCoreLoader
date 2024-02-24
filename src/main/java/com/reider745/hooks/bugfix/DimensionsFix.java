@@ -14,7 +14,6 @@ import cn.nukkit.network.protocol.types.ExperimentData;
 import cn.nukkit.network.protocol.types.GameType;
 import cn.nukkit.utils.TextFormat;
 import cn.nukkit.utils.Utils;
-import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
@@ -41,8 +40,6 @@ public class DimensionsFix implements HookClass {
     private static List<ExperimentData> experiments;
 
     public static void init() {
-        final int protocol = InnerCoreServer.PROTOCOL;
-
         List<ExperimentData> experiments = new ObjectArrayList<>();
         //TODO Multiversion 当新版本删除部分实验性玩法时，这里也需要加上判断
         if (Server.getInstance().enableExperimentMode) {
@@ -50,12 +47,6 @@ public class DimensionsFix implements HookClass {
             experiments.add(new ExperimentData("experimental_custom_ui", true));
             experiments.add(new ExperimentData("upcoming_creator_features", true));
             experiments.add(new ExperimentData("experimental_molang_features", true));
-            if (protocol >= ProtocolInfo.v1_20_0_23) {
-                experiments.add(new ExperimentData("cameras", true));
-                if (protocol >= ProtocolInfo.v1_20_10_21 && protocol < ProtocolInfo.v1_20_30_24) {
-                    experiments.add(new ExperimentData("short_sneaking", true));
-                }
-            }
         }
         DimensionsFix.experiments = experiments;
     }

@@ -27,6 +27,7 @@ public class NetworkJsAdapter {
         return network.getServer();
     }
 
+    @Deprecated(since = "Zote")
     public ModdedClient getClient() {
         return network.getClient();
     }
@@ -47,6 +48,7 @@ public class NetworkJsAdapter {
         return NetworkPlayerRegistry.getSingleton().getHandlerFor(player);
     }
 
+    @Deprecated(since = "Zote")
     public void addClientInitializationPacket(String name, Network.ClientInitializationPacketSender sender,
             ConnectedClient.InitializationPacketListener receiver) {
         network.addClientInitializationPacket(name, sender, receiver);
@@ -57,10 +59,12 @@ public class NetworkJsAdapter {
         network.addServerInitializationPacket(name, sender, receiver);
     }
 
+    @Deprecated(since = "Zote")
     public void addClientPacket(String name, ModdedClient.OnPacketReceivedListener listener, JobExecutor executor) {
         network.addClientPacket(name, listener, executor);
     }
 
+    @Deprecated(since = "Zote")
     public void addClientPacket(String name, ModdedClient.OnPacketReceivedListener listener) {
         network.addClientPacket(name, listener);
     }
@@ -78,6 +82,7 @@ public class NetworkJsAdapter {
         network.getServer().sendToAll(packetName, data);
     }
 
+    @Deprecated(since = "Zote")
     public void sendToServer(String packetName, Object data) {
         ThreadTypeMarker.assertClientThread();
         network.getClient().send(packetName, data);
@@ -88,10 +93,12 @@ public class NetworkJsAdapter {
         network.getServer().sendMessageToAll(message);
     }
 
+    @Deprecated(since = "Zote")
     public int serverToLocalId(int id) {
         return IdConversionMap.serverToLocal(id);
     }
 
+    @Deprecated(since = "Zote")
     public int localToServerId(int id) {
         return IdConversionMap.localToServer(id);
     }

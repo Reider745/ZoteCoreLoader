@@ -7,6 +7,7 @@ import java.util.HashMap;
  * Created by zheka on 31.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public abstract class BitmapWrap {
     public static final Bitmap MISSING_BITMAP = Bitmap.getSingletonInternalProxy();
 

@@ -1,17 +1,14 @@
 package com.zhekasmirnov.apparatus.cpp;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
-
+@Deprecated(since = "Zote")
 public class NativeVanillaIdConversionMap {
-    public static void clearAll(){
 
+    public static void clearAll() {
     }
 
-    public static void addBlockId(String name, int id){
-
+    public static void addBlockId(String name, int id) {
     }
 
-    public static void addItemId(String name, int id){
-
+    public static void addItemId(String name, int id) {
     }
 }

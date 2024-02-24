@@ -225,6 +225,7 @@ public class NativeBlockSource {
         }
     }
 
+    @Deprecated(since = "Zote")
     public int getGrassColor(int x, int z) {
         return BlockSourceMethods.getGrassColor(level, x, 64, z);
     }

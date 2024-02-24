@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+@Deprecated(since = "Zote")
 public class NativeItemModel {
     private static final HashMap<Long, NativeItemModel> modelByPointer = new HashMap<>();
 

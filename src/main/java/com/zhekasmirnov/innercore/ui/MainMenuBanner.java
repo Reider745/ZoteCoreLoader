@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.ui;
 
+@Deprecated(since = "Zote")
 public class MainMenuBanner {
     private static MainMenuBanner instance;
 

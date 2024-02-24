@@ -3,6 +3,7 @@ package com.zhekasmirnov.innercore.api.mod.ui.container;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
 import com.zhekasmirnov.innercore.api.mod.ui.window.IWindow;
 
+@Deprecated(since = "Zote")
 public interface UiAbstractContainer {
     void addElementInstance(UIElement element, String name);
 

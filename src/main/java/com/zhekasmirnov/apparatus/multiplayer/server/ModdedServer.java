@@ -107,10 +107,10 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         Java8BackComp.computeIfAbsent(initializationPacketListenerMap, name, (String key) -> new ArrayList<>()).add(listener);
     }
 
+    @SuppressWarnings("unchecked")
     public<T> void addInitializationPacketListener(String name, TypedInitializationPacketListener<T> listener) {
         addUntypedInitializationPacketListener(name, (ConnectedClient client, Object data, Class<?> dataType) -> {
             try {
-                //noinspection unchecked
                 listener.onPacketReceived(client, (T) data);
             } catch (ClassCastException e) {
                 throw new InitializationPacketException(e.getMessage(), e);
@@ -122,10 +122,10 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         Java8BackComp.computeIfAbsent(onPacketReceivedListenerMap, name, (String key) -> new ArrayList<>()).add(listener);
     }
 
+    @SuppressWarnings("unchecked")
     public<T> void addPacketReceivedListener(String name, TypedOnPacketReceivedListener<T> listener) {
         addUntypedPacketReceivedListener(name, (ConnectedClient client, Object data, String meta, Class<?> dataType) -> {
             try {
-                //noinspection unchecked
                 listener.onPacketReceived(client, (T) data, meta);
             } catch (ClassCastException e) {
                 e.printStackTrace();
@@ -189,6 +189,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         onClientConnected(channel, sender);
     }
 
+    @Deprecated(since = "Zote")
     public DataChannel openLocalClientChannel(String sender) {
         /*try {
             Socket socket = new Socket("localhost", getConfig().getDefaultPort());
@@ -246,6 +247,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
                     connectedClientByPlayerUid.remove(client.getPlayerUid());
                 }
                 break;
+            case CREATED:
         }
     }
 

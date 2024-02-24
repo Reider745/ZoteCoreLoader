@@ -6,6 +6,7 @@ import android.graphics.*;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class ItemIconSource {
     public static final ItemIconSource instance = new ItemIconSource();
 

@@ -49,16 +49,20 @@ public class ResourceStorage implements IResourcePack {
         return res != null ? res : path;
     }
 
+    @Deprecated(since = "Zote")
     public void addResourceFile(TextureType type, Object resource, String name) {
     }
 
+    @Deprecated(since = "Zote")
     public static void nativeAddTextureToLoad(String path) {
         InnerCoreServer.useClientMethod("ResourceStorage.nativeAddTextureToLoad(path)");
     }
 
+    @Deprecated(since = "Zote")
     public static void loadAllTextures() {
     }
 
+    @Deprecated(since = "Zote")
     public static void addTextureToLoad(String path) {
     }
 }

@@ -17,6 +17,7 @@ import java.util.HashMap;
  * Created by zheka on 12.09.2017.
  */
 
+@Deprecated(since = "Zote")
 public class WorkbenchUIHandler {
     private final ScriptableObject target;
     private final Container targetCon;

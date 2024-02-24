@@ -66,6 +66,7 @@ public class BlockState {
         this.data = getDataFromRuntimeId(runtimeId);
     }
 
+    @SuppressWarnings("unused")
     private BlockState(int id, int[] rawStates) {
         this.id = id;
         this.rawStates = rawStates;

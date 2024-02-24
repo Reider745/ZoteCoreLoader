@@ -1,56 +1,54 @@
 package com.reider745.api.pointers;
 
-import com.reider745.InnerCoreServer;
 import com.reider745.api.pointers.pointer_gen.IBasePointerGen;
 import com.reider745.api.pointers.pointer_gen.PointerGenSlowest;
-import com.reider745.world.BiomesMethods;
-
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PointersStorage<T> {
-    private static final HashMap<String, PointersStorage> storages = new HashMap<>();
+    private static final HashMap<String, PointersStorage<?>> storages = new HashMap<>();
 
     private final ConcurrentHashMap<Long, ClassPointer<T>> pointers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<ClassPointer<T>, Long> pointerForInstance = new ConcurrentHashMap<>();
     private final IBasePointerGen pointerGen;
+
     public interface INewPointer<T> {
         ClassPointer<T> apply(WeakReference<T> value);
     }
 
-    private final INewPointer newPointer;
+    private final INewPointer<T> newPointer;
 
-    public PointersStorage(String type, final IBasePointerGen pointerGen, final INewPointer<T> newPointer, boolean clear){
-        System.out.println("Loaded pointer storage, type - "+type);
+    public PointersStorage(String type, IBasePointerGen pointerGen, INewPointer<T> newPointer, boolean clear) {
+        System.out.println("Loaded pointer storage, type - " + type);
         this.pointerGen = pointerGen;
 
-        if(storages.containsKey(type))
+        if (storages.containsKey(type))
             throw new RuntimeException("Error loaded storage pointers " + type);
         storages.put(type, this);
 
-        if(clear) new ThreadCheckToClear<T>(this);
+        if (clear)
+            new ThreadCheckToClear<T>(this);
         this.newPointer = newPointer;
     }
 
-    public PointersStorage(String type, final IBasePointerGen pointerGen, boolean clear){
+    public PointersStorage(String type, IBasePointerGen pointerGen, boolean clear) {
         this(type, pointerGen, ClassPointer::new, clear);
     }
 
-    public PointersStorage(String type, final IBasePointerGen pointerGen){
+    public PointersStorage(String type, IBasePointerGen pointerGen) {
         this(type, pointerGen, ClassPointer::new, true);
     }
 
-    public PointersStorage(String type){
+    public PointersStorage(String type) {
         this(type, new PointerGenSlowest());
     }
 
-    public PointersStorage(String type, final INewPointer<T> newPointer){
+    public PointersStorage(String type, final INewPointer<T> newPointer) {
         this(type, new PointerGenSlowest(), newPointer, true);
     }
 
-    public final long addPointer(T pointerClass){
+    public final long addPointer(T pointerClass) {
         long ptr = pointerGen.next();
         ClassPointer<T> pointer = newPointer.apply(new WeakReference<>(pointerClass));
         pointers.put(ptr, pointer);
@@ -58,33 +56,33 @@ public class PointersStorage<T> {
         return ptr;
     }
 
-    public final long addPointer(ClassPointer<T> pointer){
+    public final long addPointer(ClassPointer<T> pointer) {
         long ptr = pointerGen.next();
         pointers.put(ptr, pointer);
         pointerForInstance.put(pointer, ptr);
         return ptr;
     }
 
-    public final T get(long ptr){
+    public final T get(long ptr) {
         return pointers.get(ptr).get();
     }
 
-    public final ClassPointer<T> getInstance(long ptr){
+    public final ClassPointer<T> getInstance(long ptr) {
         return pointers.get(ptr);
     }
 
-    public final long getPointerForInstance(T value){
+    public final long getPointerForInstance(T value) {
         Long ptr = pointerForInstance.get(value);
         return ptr == null ? 0 : ptr;
     }
 
-    public final void removePointer(long pointer){
+    public final void removePointer(long pointer) {
         pointers.remove(pointer);
         pointerGen.remove(pointer);
     }
 
-    public final void replace(long ptr, ClassPointer<T> classPointer){
-        if(ptr == 0){
+    public final void replace(long ptr, ClassPointer<T> classPointer) {
+        if (ptr == 0) {
             addPointer(classPointer);
             return;
         }
@@ -96,7 +94,7 @@ public class PointersStorage<T> {
         return pointers;
     }
 
-    public static <T>PointersStorage<T> getStorageForType(final String type){
+    public static PointersStorage<?> getStorageForType(final String type) {
         return storages.get(type);
     }
 }

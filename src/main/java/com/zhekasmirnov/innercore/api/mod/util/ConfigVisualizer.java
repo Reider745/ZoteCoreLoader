@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * Created by zheka on 15.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class ConfigVisualizer {
     private Config config;
 

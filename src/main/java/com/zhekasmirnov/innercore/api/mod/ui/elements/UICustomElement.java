@@ -9,6 +9,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 03.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UICustomElement extends UIElement {
     public UICustomElement(UIWindow window, ScriptableObject description) {
         super(window, description);

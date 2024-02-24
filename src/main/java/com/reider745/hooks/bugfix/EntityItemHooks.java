@@ -13,7 +13,6 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
-import javassist.CtClass;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Iterator;

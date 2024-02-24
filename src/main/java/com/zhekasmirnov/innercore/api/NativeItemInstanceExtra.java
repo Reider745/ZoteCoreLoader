@@ -109,7 +109,7 @@ public class NativeItemInstanceExtra {
         return false;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public NativeItemInstanceExtra(long extra) {
         throw new UnsupportedOperationException();
     }
@@ -506,7 +506,7 @@ public class NativeItemInstanceExtra {
         return Item.AIR_ITEM.clone();
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static long constructClone(long ptr) {
         throw new UnsupportedOperationException();
     }
@@ -553,7 +553,7 @@ public class NativeItemInstanceExtra {
         return extra != null ? extra.getValue() : null;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static NativeItemInstanceExtra getExtraOrNull(long extra) {
         throw new UnsupportedOperationException();
     }

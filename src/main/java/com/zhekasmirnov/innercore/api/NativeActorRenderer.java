@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.reider745.InnerCoreServer;
 
+@Deprecated(since = "Zote")
 public class NativeActorRenderer {
     private static final Map<String, Integer> templateNameToId = new HashMap<>();
 

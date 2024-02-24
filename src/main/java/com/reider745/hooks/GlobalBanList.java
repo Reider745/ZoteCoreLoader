@@ -1,7 +1,6 @@
 package com.reider745.hooks;
 
 import cn.nukkit.permission.BanList;
-import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
@@ -12,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Base64;
 
 @Hooks(className = "cn.nukkit.permission.BanList")

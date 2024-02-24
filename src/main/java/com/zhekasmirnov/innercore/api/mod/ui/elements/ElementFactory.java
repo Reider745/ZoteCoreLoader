@@ -12,6 +12,7 @@ import java.util.HashMap;
  * Created by zheka on 01.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class ElementFactory {
     private static HashMap<String, Class<? extends UIElement>> elementConstructorMap = new HashMap<>();
 

@@ -13,6 +13,7 @@ import java.util.HashMap;
  * Created by zheka on 04.09.2017.
  */
 
+@Deprecated(since = "Zote")
 public class ItemModels {
     public static final String CACHE_DIR = FileTools.DIR_WORK + "cache/item-models/";
 

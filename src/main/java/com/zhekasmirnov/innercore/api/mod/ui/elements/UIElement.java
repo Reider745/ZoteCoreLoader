@@ -18,6 +18,7 @@ import java.util.HashMap;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public abstract class UIElement {
     public UIWindow window;
     public ScriptableObject description;

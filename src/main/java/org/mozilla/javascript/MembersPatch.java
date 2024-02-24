@@ -16,11 +16,7 @@ public class MembersPatch {
 
     static String getOverride(String from) {
         String result = overrides.get(from);
-        if (result != null) {
-            return result;
-        } else {
-            return from;
-        }
+        return result != null ? result : from;
     }
 
     static Method override(Class<?> cl, Method method) {
@@ -33,12 +29,12 @@ public class MembersPatch {
                 Class<?> overridenClass = Class.forName(overridenPath.substring(0, ind));
                 Method overridenMethod = overridenClass.getMethod(overridenPath.substring(ind + 1),
                         method.getParameterTypes());
-                Logger.debug("MEMBERS_PATCH", "Successfully overrided method " + path);
+                Logger.message("MEMBERS_PATCH", "Successfully overrided method " + path);
                 return overridenMethod;
             } catch (ClassNotFoundException | SecurityException e) {
                 throw new RuntimeException("Exception occured while trying to override existing method. ", e);
             } catch (NoSuchMethodException ignored) {
-                Logger.debug("MEMBERS_PATCH", "Could't override method " + path + " with arguments types "
+                Logger.message("MEMBERS_PATCH", "Could't override method " + path + " with arguments types "
                         + Arrays.toString(method.getParameterTypes()));
             }
         }

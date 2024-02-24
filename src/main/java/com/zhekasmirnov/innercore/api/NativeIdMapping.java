@@ -1,16 +1,16 @@
 package com.zhekasmirnov.innercore.api;
 
-import com.reider745.InnerCoreServer;
+import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 
 public class NativeIdMapping {
+
     public static int getItemNumericId(String stringId) {
-        InnerCoreServer.useNotCurrentSupport("NativeIdMapping.getItemNumericId(stringId)");
-        return 0;
+        int id = IDRegistry.getIdByNameId(stringId);
+        return id != 0 ? id : IDRegistry.getIDByName(stringId);
     }
 
     public static String getItemStringId(int numericId) {
-        InnerCoreServer.useNotCurrentSupport("NativeIdMapping.getItemStringId(numericId)");
-        return "";
+        return IDRegistry.getStringIdForItemId(numericId);
     }
 
     public interface IIdIterator {

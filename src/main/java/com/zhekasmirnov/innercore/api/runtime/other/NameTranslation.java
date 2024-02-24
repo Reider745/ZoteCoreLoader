@@ -110,8 +110,6 @@ public class NameTranslation {
         return str;
     }
 
-    private static final HashMap<Integer, String> namesToGenerateCache = new HashMap<>();
-
     public static void refresh(boolean sendOverrideCache) {
         File file = new File(FileTools.DIR_MINECRAFT + "minecraftpe/", "options.txt");
         try {
@@ -132,17 +130,6 @@ public class NameTranslation {
         } catch (Throwable e) {
             refreshFromNative();
         }
-
-        if (sendOverrideCache) {
-            synchronized (namesToGenerateCache) {
-                for (Integer idData : namesToGenerateCache.keySet()) {
-                    String name = namesToGenerateCache.get(idData);
-                    if (name != null) {
-                        NativeAPI.sendCachedItemNameOverride(idData / 16, idData % 16, translate(name));
-                    }
-                }
-            }
-        }
     }
 
     private static void refreshFromNative() {
@@ -156,11 +143,8 @@ public class NameTranslation {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void sendNameToGenerateCache(int id, int data, String name) {
-        synchronized (namesToGenerateCache) {
-            data = Math.min(15, Math.max(0, data));
-            namesToGenerateCache.put(id * 16 + data, name);
-        }
     }
 
     public static boolean isAscii(String str) {

@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.api.Client;
 import com.reider745.api.CustomManager;
 import com.reider745.block.BlockMethods;
 import com.reider745.block.CustomBlock;
@@ -24,8 +23,7 @@ import java.util.HashMap;
  */
 
 public class NativeBlock {
-
-    private CustomManager blockManager;
+    private CustomManager properties;
 
     private int id;
     private String basicName = "Unknown Block";
@@ -42,7 +40,7 @@ public class NativeBlock {
     }
 
     protected NativeBlock(CustomManager blockManager, int id, String nameId, String name) {
-        this.blockManager = blockManager;
+        this.properties = blockManager;
         this.id = id;
         this.basicName = name;
 
@@ -56,53 +54,49 @@ public class NativeBlock {
     }
 
     public void addVariant(String name, String[] textureNames, int[] textureIds) {
-        long ptr = addVariant(blockManager, name, textureNames, textureIds);
+        long ptr = addVariant(properties, name, textureNames, textureIds);
         variantPtrs.add(ptr);
     }
 
     public void addVariant(String[] textureNames, int[] textureIds) {
-        variantPtrs.add(addVariant(blockManager, basicName, textureNames, textureIds));
+        variantPtrs.add(addVariant(properties, basicName, textureNames, textureIds));
     }
 
     public static NativeBlock createBlock(int id, String nameId, String name, int materialBase) {
         name = NameTranslation.fixUnicodeIfRequired("block." + nameId, name);
-        return new NativeBlock(CustomBlock.registerBlock(nameId, id, name), id, nameId, name);
+        return new NativeBlock(constructBlock(id, nameId, name, materialBase), id, nameId, name);
     }
 
     public static NativeBlock[] createLiquidBlock(int id1, String nameId1, int id2, String nameId2, String name,
             int materialBase, int tickDelay, boolean isRenewable) {
         name = NameTranslation.fixUnicodeIfRequired("block." + nameId1, name);
-        CustomManager liquidStill = CustomBlock.registerBlock(nameId1, id1, name, tickDelay, isRenewable);
-        CustomManager liquidFlowing = CustomBlock.registerBlock(nameId2, id2, name, tickDelay, isRenewable);
-        return new NativeBlock[] { new NativeBlock(liquidStill, id1, nameId1, name),
-                new NativeBlock(liquidFlowing, id2, nameId2, name) };
+        CustomManager[] liquids = constructLiquidBlockPair(id1, nameId1, id2, nameId2, name, materialBase, tickDelay,
+                isRenewable);
+        return new NativeBlock[] { new NativeBlock(liquids[0], id1, nameId1, name),
+                new NativeBlock(liquids[1], id2, nameId2, name) };
     }
 
     /*
      * native part
      */
 
-    public static long constructBlock(int id, String nameId, String name, int materialBaseId) {
-        InnerCoreServer.useNotSupport("NativeBlock.constructBlock(id, nameId, name, materialBaseId)");
-        return 0;
+    public static CustomManager constructBlock(int id, String nameId, String name, int materialBaseId) {
+        return CustomBlock.registerBlock(nameId, id, name);
     }
 
-    public static long[] constructLiquidBlockPair(int id1, String nameId1, int id2, String nameId2, String name,
+    public static CustomManager[] constructLiquidBlockPair(int id1, String nameId1, int id2, String nameId2,
+            String name,
             int materialBaseId, int tickDelay, boolean isRenewable) {
-        InnerCoreServer.useNotSupport(
-                "NativeBlock.constructLiquidBlockPair(id1, nameId1, id2, nameId2, name, materialBaseId, tickDelay, isRenewable)");
-        return new long[0];
+        return new CustomManager[] {
+                CustomBlock.registerBlock(nameId1, id1, name, tickDelay, isRenewable),
+                CustomBlock.registerBlock(nameId2, id2, name, tickDelay, isRenewable)
+        };
     }
 
-    public static long addVariant(long pointer, String name, String[] textureNames, int[] textureIds) {
-        InnerCoreServer.useNotSupport("NativeBlock.addVariant(pointer, name, textureNames, textureIds)");
-        return 0;
-    }
-
-    public static long addVariant(CustomManager blockManager, String name, String[] textureNames, int[] textureIds) {
-        ArrayList<String> variants = blockManager.get("variants", new ArrayList<>());
+    public static long addVariant(CustomManager properties, String name, String[] textureNames, int[] textureIds) {
+        ArrayList<String> variants = properties.get("variants", new ArrayList<>());
         variants.add(name);
-        blockManager.put("variants", variants);
+        properties.put("variants", variants);
         return variants.size() - 1;
     }
 
@@ -142,16 +136,19 @@ public class NativeBlock {
         return BlockMethods.getLightLevel(id);
     }
 
+    @Deprecated(since = "Zote")
     public static int getLightOpacity(int id) {
         InnerCoreServer.useClientMethod("NativeBlock.getLightOpacity(id)");
         return 0;
     }
 
+    @Deprecated(since = "Zote")
     public static int getRenderLayer(int id) {
         InnerCoreServer.useClientMethod("NativeBlock.getRenderLayer(id)");
         return 0;
     }
 
+    @Deprecated(since = "Zote")
     public static int getRenderType(int id) {
         InnerCoreServer.useClientMethod("NativeBlock.getRenderType(id)");
         return 0;
@@ -233,15 +230,15 @@ public class NativeBlock {
         BlockMethods.setLightLevel(id, val);
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public static void setLightOpacity(int id, int val) {
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public static void setRenderLayer(int id, int val) {
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public static void setRenderType(int id, int val) {
     }
 
@@ -274,10 +271,12 @@ public class NativeBlock {
     private static HashMap<Integer, Float> blockDestroyTimes = new HashMap<>();
     private static HashMap<Integer, Float> realBlockDestroyTimes = new HashMap<>();
 
+    @Deprecated(since = "Zote")
     public static void setDestroyTimeForId(int id, float time) {
         blockDestroyTimes.put(id, time);
     }
 
+    @Deprecated(since = "Zote")
     public static float getDestroyTimeForId(int id) {
         if (blockDestroyTimes.containsKey(id)) {
             return blockDestroyTimes.get(id);
@@ -290,12 +289,14 @@ public class NativeBlock {
         return NativeBlock.getDestroyTime(id);
     }
 
+    @Deprecated(since = "Zote")
     public static void setTempDestroyTimeForId(int id, float time) {
         float _time = NativeBlock.getDestroyTimeForId(id);
         NativeBlock.setDestroyTime(id, time);
         realBlockDestroyTimes.put(id, _time);
     }
 
+    @Deprecated(since = "Zote")
     public static void onBlockDestroyStarted(int x, int y, int z, int side) {
         int id = NativeAPI.getTile(x, y, z);
         if (blockDestroyTimes.containsKey(id)) {
@@ -337,6 +338,7 @@ public class NativeBlock {
 
     private static HashMap<Integer, Function> animateCallbackForId = new HashMap<>();
 
+    @Deprecated(since = "Zote")
     public static void setAnimateTickCallback(int id, final Function callback) {
         NativeIdMapping.iterateMetadata(id, -1, new NativeIdMapping.IIdIterator() {
             @Override
@@ -352,6 +354,7 @@ public class NativeBlock {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void onAnimateTickCallback(int x, int y, int z, int id, int data) {
         Function callback = animateCallbackForId.get(id);
         if (callback != null) {

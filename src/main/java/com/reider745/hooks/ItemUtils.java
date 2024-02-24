@@ -153,7 +153,7 @@ public class ItemUtils implements HookClass {
     }
 
     @Inject(signature = "()Ljava/lang/Short;", type = TypeHook.BEFORE)
-    public static void getFuelTime(HookController controller) {
+    public static void getFuelTime(HookController<Item> controller) {
         short fuel = NativeFurnaceRegistry.getBurnTime(controller.getSelf());
         if (fuel > 0) {
             controller.setReplace(true);
@@ -204,7 +204,7 @@ public class ItemUtils implements HookClass {
     }
 
     @Inject(className = "cn.nukkit.inventory.transaction.RepairItemTransaction", type = TypeHook.BEFORE, signature = "()Z")
-    public static void isMapRecipe(HookController controller, RepairItemTransaction transaction) {
+    public static void isMapRecipe(HookController<RepairItemTransaction> controller, RepairItemTransaction transaction) {
         ArrayList<Integer> repairs = Repairs.getRepairs(transaction.getInputItem().getId());
         if (repairs != null)
             controller.setResult(repairs.contains(transaction.getOutputItem().getId()));
@@ -226,7 +226,7 @@ public class ItemUtils implements HookClass {
     }
 
     @Inject(className = "cn.nukkit.item.enchantment.EnchantmentType", type = TypeHook.AFTER, signature = "(Lcn/nukkit/item/Item;)Z")
-    public static void canEnchantItem(HookController controller, EnchantmentType type, Item item) {
+    public static void canEnchantItem(HookController<EnchantmentType> controller, EnchantmentType type, Item item) {
         if (type == EnchantmentType.ALL || (type == EnchantmentType.BREAKABLE && item.getMaxDurability() >= 0)) {
             return;
         }

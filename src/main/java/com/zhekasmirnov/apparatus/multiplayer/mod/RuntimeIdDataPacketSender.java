@@ -38,6 +38,5 @@ public class RuntimeIdDataPacketSender {
     }
 
     private static void onReceivedRuntimeIdData(byte[] data){
-
     }
 }

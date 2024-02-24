@@ -115,7 +115,8 @@ public class IDRegistry {
 
     public static int getIdByNameId(String id) {
         if (id.startsWith("item_")) {
-            return CustomItem.getIdForText(id);
+            int numericId = CustomItem.getIdForText(id);
+            if (numericId != 0) return numericId;
         }
         return CustomBlock.getIdForText(id);
     }

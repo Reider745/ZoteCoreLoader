@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api.mod.ui;
 
 import android.graphics.Bitmap;
 
+@Deprecated(since = "Zote")
 public class GuiRenderMesh {
     // Translate params.
     public float x = 0;

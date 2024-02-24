@@ -7,6 +7,7 @@ import com.zhekasmirnov.innercore.api.mod.ui.types.UIStyle;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public interface IElementProvider {
     void setBackgroundProvider(IBackgroundProvider provider);
 

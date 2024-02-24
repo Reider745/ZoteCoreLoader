@@ -1,8 +1,11 @@
 package com.zhekasmirnov.apparatus.multiplayer;
 
+import org.json.JSONObject;
+
+import com.reider745.InnerCoreServer;
+import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.SocketDataChannel;
-import com.zhekasmirnov.innercore.mod.build.Config;
 
 public class NetworkConfig {
     private int defaultPort = 2304;
@@ -77,6 +80,24 @@ public class NetworkConfig {
         // instead of direct channel, use native protocol for local client-server connection
         setLocalNativeProtocolForced(EngineConfig.getBoolean("network.local_native_protocol_forced", false));
         // enable socket server
-        //setSocketConnectionAllowed(EngineConfig.getBoolean("network.enable_socket_server", true));
+        setDefaultPort(InnerCoreServer.getPropertyInt("socket-port", 2304));
+        setSocketConnectionAllowed(InnerCoreServer.getPropertyBoolean("socket-server-enable", true));
+        InnerCorePacket.sendInfo = getServerDetectionPacket();
+    }
+
+    protected InnerCorePacket getServerDetectionPacket() {
+        JSONObject json = new JSONObject();
+        json.put("server", true);
+        json.put("socket_port", defaultPort);
+        byte[] bytes = json.toString().getBytes();
+
+        InnerCorePacket packet = new InnerCorePacket();
+        packet.name = "system.server_detection";
+        packet.format_id = 0;
+        packet.bytes_length = bytes.length;
+        packet.bytes = bytes;
+
+        packet.encode();
+        return packet;
     }
 }

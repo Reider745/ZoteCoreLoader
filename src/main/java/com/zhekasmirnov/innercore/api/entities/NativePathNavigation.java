@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 import com.reider745.InnerCoreServer;
 
+@SuppressWarnings("unused")
 public class NativePathNavigation {
     private final long entity;
-    private final long pointer = 0;
     private boolean isValid = true;
 
     private static HashMap<Long, NativePathNavigation> activeNavigationMap = new HashMap<>();
@@ -30,7 +30,7 @@ public class NativePathNavigation {
 
     private NativePathNavigation(long entity) {
         this.entity = entity;
-        // if (pointer == 0) {
+        // TODO: if (pointer == 0) {
             // throw new IllegalArgumentException("Invalid mob was passed to NativePathNavigation constructor: " + entity);
         // }
     }

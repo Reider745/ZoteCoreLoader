@@ -12,6 +12,7 @@ import com.zhekasmirnov.innercore.api.mod.ui.background.IDrawing;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIWindowBackgroundDrawable extends Drawable implements IBackgroundProvider {
     public UIWindow window;
 

@@ -1,6 +1,5 @@
 package com.zhekasmirnov.apparatus.api.player;
 
-import com.reider745.api.Client;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
@@ -50,7 +49,7 @@ public class NetworkPlayerRegistry {
         return handlerMap.get(uid);
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public NetworkPlayerHandler getLocalPlayerHandler() {
         return null;
     }
@@ -65,7 +64,7 @@ public class NetworkPlayerRegistry {
         }
     }
 
-    @Client
+    @Deprecated(since = "Zote")
     public void onLocalTick() {
     }
 

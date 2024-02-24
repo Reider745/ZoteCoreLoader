@@ -32,16 +32,14 @@ public class CELoader {
             Executable executable;
             if (isCompiled) {
                 executable = Compiler.loadDex(execFile, config);
-            }
-            else {
+            } else {
                 executable = Compiler.compileReader(new FileReader(execFile), config);
             }
             if (executable != null) {
                 setupExecutable(executable, execFile.getParentFile());
             }
             return executable;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -51,9 +49,9 @@ public class CELoader {
             Executable exec = loadCoreEngine();
             if (exec != null) {
                 return new CEHandler(exec);
-            }
-            else {
-                ICLog.e("COREENGINE", "failed to create handler, core engine executable is null", new RuntimeException());
+            } else {
+                ICLog.e("COREENGINE", "failed to create handler, core engine executable is null",
+                        new RuntimeException());
                 return null;
             }
         } catch (Exception e) {

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
+@Deprecated(since = "Zote")
 public class NativeIdPlaceholderGenerator {
     private static native void addItemPlaceholder(int id, String nameId);
     private static native void addBlockPlaceholder(int id, String nameId);

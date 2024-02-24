@@ -14,8 +14,6 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchField;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
-import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
-import com.zhekasmirnov.innercore.api.mod.ui.window.IWindow;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaver;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
 import org.json.JSONException;
@@ -65,10 +63,11 @@ public class ItemContainer implements WorkbenchField {
     }
 
 
+    @SuppressWarnings("deprecation")
     private static final int saverId = ObjectSaverRegistry.registerSaver("_container2", new ObjectSaver() {
         @Override
         public Object read(ScriptableObject input) {
-            Container con = new Container();
+            com.zhekasmirnov.innercore.api.mod.ui.container.Container con = new com.zhekasmirnov.innercore.api.mod.ui.container.Container();
             con.slots = input;
             return new ItemContainer(con);
         }
@@ -158,70 +157,6 @@ public class ItemContainer implements WorkbenchField {
                 } catch (JSONException ignore) { }
 
                 return packet;
-            })
-            .setClientEntityAddedListener((entity, initPacket) -> {
-                ItemContainer clientContainer = new ItemContainer(entity);
-                JSONObject json = (JSONObject) initPacket;
-
-                JSONObject slots = json.optJSONObject("slots");
-                if (slots != null) {
-                    for (Iterator<String> it = slots.keys(); it.hasNext(); ) {
-                        String key = it.next();
-                        JSONObject slotJson = slots.optJSONObject(key);
-                        if (slotJson != null) {
-                            clientContainer.setSlot(key, new ItemContainerSlot(slotJson, true));
-                        }
-                    }
-                }
-
-                JSONObject bindings = json.optJSONObject("bindings");
-                if (bindings != null) {
-                    clientContainer.uiAdapter.receiveBindingsFromServer(bindings);
-                }
-
-                clientContainer.setClientContainerTypeName(json.optString("clientType"));
-                return clientContainer;
-            })
-            .setClientEntityRemovedListener((target, entity, removePacket) -> {
-                ItemContainer container = (ItemContainer) target;
-                container.closeUi();
-            })
-            .addClientPacketListener("open", (target, entity, packetData, extra) -> {
-                ItemContainer container = (ItemContainer) target;
-                container.openUi(packetData.toString());
-            })
-            .addClientPacketListener("slots", (target, entity, packetData, extra) -> {
-                ItemContainer container = (ItemContainer) target;
-                JSONObject slotsJson = (JSONObject) packetData;
-                if (slotsJson != null) {
-                    synchronized (container.transactionLock) {
-                        for (Iterator<String> it = slotsJson.keys(); it.hasNext(); ) {
-                            String key = it.next();
-                            JSONObject slotJson = slotsJson.optJSONObject(key);
-                            if (slotJson != null) {
-                                container.setSlot(key, new ItemContainerSlot(slotJson, true));
-                            }
-                        }
-                    }
-                }
-            })
-            .addClientPacketListener("bindings", (target, entity, packetData, extra) -> {
-                ItemContainer container = (ItemContainer) target;
-                JSONObject bindingsJson = (JSONObject) packetData;
-                if (bindingsJson != null) {
-                    container.uiAdapter.receiveBindingsFromServer(bindingsJson);
-                }
-            })
-            .addClientPacketListener("event", (target, entity, packetData, extra) -> {
-                ItemContainer container = (ItemContainer) target;
-                Map<String, ClientEventListener> listenerMap = clientEventListenerMap.get(container.clientContainerTypeName);
-                if (listenerMap != null) {
-                    ClientEventListener listener = listenerMap.get(extra);
-                    if (listener != null) {
-                        IWindow window = container.uiAdapter.getWindow();
-                        listener.receive(container, window, window != null ? window.getContent() : null, packetData);
-                    }
-                }
             });
 
 
@@ -229,8 +164,9 @@ public class ItemContainer implements WorkbenchField {
         void run(ItemContainer container);
     }
 
+    @Deprecated(since = "Zote")
     public interface UiScreenFactory {
-        IWindow getByName(ItemContainer container, String name);
+        com.zhekasmirnov.innercore.api.mod.ui.window.IWindow getByName(ItemContainer container, String name);
     }
 
     public interface DirtySlotListener {
@@ -245,18 +181,21 @@ public class ItemContainer implements WorkbenchField {
         Object validate(ItemContainer container, String bindingComposedName, Object value, long player);
     }
 
+    @Deprecated(since = "Zote")
     public interface ClientEventListener {
-        void receive(ItemContainer container, IWindow window, ScriptableObject windowContent, Object packetData);
+        void receive(ItemContainer container, com.zhekasmirnov.innercore.api.mod.ui.window.IWindow window, ScriptableObject windowContent, Object packetData);
     }
 
     public interface ServerEventListener {
         void receive(ItemContainer container, ConnectedClient client, Object packetData);
     }
 
+    @Deprecated(since = "Zote")
     public interface ClientOnOpenListener {
         void onOpen(ItemContainer container, String screenName);
     }
 
+    @Deprecated(since = "Zote")
     public interface ClientOnCloseListener {
         void onClose(ItemContainer container);
     }
@@ -272,7 +211,6 @@ public class ItemContainer implements WorkbenchField {
 
     public final boolean isServer;
     private final NetworkEntity networkEntity;
-    private final ItemContainerUiHandler uiAdapter = new ItemContainerUiHandler(this);
     private Object parent = null;
 
     public final Object transactionLock = new Object();
@@ -312,17 +250,13 @@ public class ItemContainer implements WorkbenchField {
         }
     }
 
-    private ItemContainer(NetworkEntity clientEntity) {
-        networkEntity = clientEntity;
-        isServer = false;
-    }
-
     public ItemContainer() {
         this((String) null);
     }
 
     // copy legacy container
-    public ItemContainer(Container container) {
+    @SuppressWarnings("deprecation")
+    public ItemContainer(com.zhekasmirnov.innercore.api.mod.ui.container.Container container) {
         this();
         for (Object id : container.slots.getAllIds()) {
             Object slotScriptable = container.slots.get(id.toString(), container.slots);
@@ -340,19 +274,22 @@ public class ItemContainer implements WorkbenchField {
         return networkEntity != null ? networkEntity.getName() : null;
     }
 
+    @Deprecated(since = "Zote")
     public ItemContainerUiHandler getUiAdapter() {
         if (isServer) {
             throw new IllegalStateException();
         }
-        return uiAdapter;
+        return null;
     }
 
-    public IWindow getWindow() {
+    @Deprecated(since = "Zote")
+    public com.zhekasmirnov.innercore.api.mod.ui.window.IWindow getWindow() {
         return getUiAdapter().getWindow();
     }
 
+    @Deprecated(since = "Zote")
     public ScriptableObject getWindowContent() {
-        IWindow window = getUiAdapter().getWindow();
+        com.zhekasmirnov.innercore.api.mod.ui.window.IWindow window = getUiAdapter().getWindow();
         return window != null ? window.getContent() : null;
     }
 
@@ -614,6 +551,7 @@ public class ItemContainer implements WorkbenchField {
 
     // default transactions
 
+    @Deprecated(since = "Zote")
     public void sendInventoryToSlotTransaction(int inventorySlot, String slotName, int amount) {
         if (isServer) {
             throw new IllegalStateException();
@@ -658,6 +596,7 @@ public class ItemContainer implements WorkbenchField {
         }
     }
 
+    @Deprecated(since = "Zote")
     public void sendSlotToSlotTransaction(String slot1, String slot2, int amount) {
         if (isServer) {
             throw new IllegalStateException();
@@ -677,6 +616,7 @@ public class ItemContainer implements WorkbenchField {
         }
     }
 
+    @Deprecated(since = "Zote")
     public void sendSlotToInventoryTransaction(String slot, int amount) {
         if (isServer) {
             throw new IllegalStateException();
@@ -756,12 +696,9 @@ public class ItemContainer implements WorkbenchField {
             bindingsMap.put(composedBindingName, value);
             dirtyBindingsMap.put(composedBindingName, value);
         }
-        if (!isServer) {
-            // also update this binding on client
-            getUiAdapter().setBindingByComposedName(composedBindingName, value);
-        }
     }
 
+    @Deprecated(since = "Zote")
     public void setClientBinding(String composedBindingName, Object value) {
         getUiAdapter().setBindingByComposedName(composedBindingName, value);
         synchronized (bindingsMap) {
@@ -777,6 +714,7 @@ public class ItemContainer implements WorkbenchField {
         setBinding(elementName + "::" + bindingName, value);
     }
 
+    @Deprecated(since = "Zote")
     public void setClientBinding(String elementName, String bindingName, Object value) {
         setClientBinding(elementName + "::" + bindingName, value);
     }
@@ -789,6 +727,7 @@ public class ItemContainer implements WorkbenchField {
         setBinding(elementName, "value", value);
     }
 
+    @Deprecated(since = "Zote")
     public void setClientScale(String elementName, float value) {
         setClientBinding(elementName, "value", value);
     }
@@ -801,6 +740,7 @@ public class ItemContainer implements WorkbenchField {
         setBinding(elementName, "text", text);
     }
 
+    @Deprecated(since = "Zote")
     public void setClientText(String elementName, String text) {
         setClientBinding(elementName, "text", text);
     }
@@ -811,10 +751,12 @@ public class ItemContainer implements WorkbenchField {
     }
 
 
+    @Deprecated(since = "Zote")
     public void setClientContainerTypeName(String clientContainerTypeName) {
         this.clientContainerTypeName = clientContainerTypeName;
     }
 
+    @Deprecated(since = "Zote")
     public String getClientContainerTypeName() {
         return clientContainerTypeName;
     }
@@ -832,25 +774,19 @@ public class ItemContainer implements WorkbenchField {
     }
 
     public void sendEvent(String name, Object data) {
-        if (!isServer) {
-            networkEntity.getClientExecutor().add(() -> networkEntity.send("event#" + name, data));
-        } else {
+        if (isServer) {
             networkEntity.send("event#" + name, data);
         }
     }
 
     public void sendEvent(ConnectedClient client, String name, Object data) {
-        if (!isServer) {
-            networkEntity.getClientExecutor().add(() -> networkEntity.send(client, "event#" + name, data));
-        } else {
+        if (isServer) {
             networkEntity.send(client, "event#" + name, data);
         }
     }
 
     public void sendResponseEvent(String name, Object data) {
-        if (!isServer) {
-            networkEntity.getClientExecutor().add(() -> networkEntity.respond("event#" + name, data));
-        } else {
+        if (isServer) {
             networkEntity.respond("event#" + name, data);
         }
     }
@@ -881,7 +817,7 @@ public class ItemContainer implements WorkbenchField {
         networkEntity.getClients().clear();
     }
 
-
+    @Deprecated(since = "Zote")
     public void sendClosed() {
         if (isServer) {
             throw new IllegalStateException();
@@ -893,37 +829,6 @@ public class ItemContainer implements WorkbenchField {
             }
         }
         networkEntity.send("close", "");
-    }
-
-    private void closeUi() {
-        if (isServer) {
-            throw new IllegalStateException();
-        }
-        uiAdapter.close();
-    }
-
-    private void openUi(String name) {
-        if (isServer) {
-            throw new IllegalStateException();
-        }
-        if (clientContainerTypeName != null) {
-            List<ClientOnOpenListener> onOpenListeners = clientOnOpenListenerMap.get(clientContainerTypeName);
-            if (onOpenListeners != null) {
-                for (ClientOnOpenListener listener : onOpenListeners) {
-                    listener.onOpen(this, name);
-                }
-            }
-
-            UiScreenFactory factory = screenFactoryMap.get(clientContainerTypeName);
-            if (factory != null) {
-                IWindow window = factory.getByName(this, name);
-                if (window != null) {
-                    uiAdapter.openAs(window);
-                    return;
-                }
-            }
-        }
-        sendClosed();
     }
 
 
@@ -958,8 +863,9 @@ public class ItemContainer implements WorkbenchField {
         return false;
     }
 
-    public Container asLegacyContainer(boolean allSlots) {
-        Container container = new Container(this);
+    @Deprecated(since = "Zote")
+    public com.zhekasmirnov.innercore.api.mod.ui.container.Container asLegacyContainer(boolean allSlots) {
+        com.zhekasmirnov.innercore.api.mod.ui.container.Container container = new com.zhekasmirnov.innercore.api.mod.ui.container.Container(this);
         for (Map.Entry<String, ItemContainerSlot> entry : slotMap.entrySet()) {
             ItemContainerSlot slot = entry.getValue();
             if (!slot.isEmpty() && (allSlots || slot.isSavingEnabled())) {
@@ -969,7 +875,8 @@ public class ItemContainer implements WorkbenchField {
         return container;
     }
 
-    public Container asLegacyContainer() {
+    @Deprecated(since = "Zote")
+    public com.zhekasmirnov.innercore.api.mod.ui.container.Container asLegacyContainer() {
         return asLegacyContainer(true);
     }
 

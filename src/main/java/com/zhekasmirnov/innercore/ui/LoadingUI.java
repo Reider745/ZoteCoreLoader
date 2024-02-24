@@ -8,42 +8,47 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
  */
 
 public class LoadingUI {
+
+    @Deprecated(since = "Zote")
     public static void initializeFor(Activity ctx) {
     }
 
+    @Deprecated(since = "Zote")
     public static void initViews() {
     }
 
     private static boolean isShowed = false;
 
+    @Deprecated(since = "Zote")
     public static boolean isShowed() {
         return isShowed;
     }
 
+    @Deprecated(since = "Zote")
     public static void show() {
         if (!isShowed) {
-            Logger.debug("INNERCORE-LOADING-UI", "showing...");
             isShowed = true;
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void hide() {
         if (isShowed) {
-            Logger.debug("INNERCORE-LOADING-UI", "hiding...");
             isShowed = false;
         }
     }
 
     private static boolean isOpened = false;
 
+    @Deprecated(since = "Zote")
     public static void open() {
         if (!isOpened) {
             isOpened = true;
             show();
-            Logger.debug("LOADING-UI", "opened");
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void close() {
         if (isOpened) {
             isOpened = false;
@@ -51,24 +56,18 @@ public class LoadingUI {
     }
 
     public static void setTextAndProgressBar(String text, float progressBar) {
-        Logger.debug("INNERCORE", "updated loading ui: " + text + " (" + progressBar + ")");
-        ModLoadingOverlay.sendLoadingText(text);
-        ModLoadingOverlay.sendLoadingProgress(progressBar);
+        Logger.debug("INNERCORE", "updated loading ui: " + text + " (" + progressBar * 100f + "%)");
     }
 
     public static void setText(String text) {
         Logger.debug("INNERCORE", "updated loading ui text: " + text);
-        ModLoadingOverlay.sendLoadingText(text);
-        ModLoadingOverlay.sendLoadingTip("");
     }
 
     public static void setProgress(float progress) {
-        Logger.debug("INNERCORE", "updated loading ui progress: " + progress);
-        ModLoadingOverlay.sendLoadingProgress(progress);
+        Logger.debug("INNERCORE", "updated loading ui progress: " + progress * 100f + "%");
     }
 
     public static void setTip(String text) {
         Logger.debug("INNERCORE", "updated loading ui tip: " + text);
-        ModLoadingOverlay.sendLoadingTip(text);
     }
 }

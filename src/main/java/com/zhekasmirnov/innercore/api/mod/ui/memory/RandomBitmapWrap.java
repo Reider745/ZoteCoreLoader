@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
  * Created by zheka on 12.09.2017.
  */
 
+@Deprecated(since = "Zote")
 public class RandomBitmapWrap extends BitmapWrap {
     RandomBitmapWrap(Bitmap bitmap) {
         super();

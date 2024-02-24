@@ -9,6 +9,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 06.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIFrameElement extends UIElement {
     public UIFrameElement(UIWindow window, ScriptableObject description) {
         super(window, description);

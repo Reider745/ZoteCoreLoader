@@ -10,6 +10,7 @@ import java.io.IOException;
  * Created by zheka on 31.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class BitmapCache {
     public static final String CACHE_DIR = FileTools.DIR_WORK + "cache/bmp/";
 

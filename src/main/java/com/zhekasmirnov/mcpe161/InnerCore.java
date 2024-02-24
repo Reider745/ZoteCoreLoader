@@ -38,6 +38,7 @@ public class InnerCore {
         return instance;
     }
 
+    @Deprecated(since = "Zote")
     public /* Pack */ Object getPack() {
         InnerCoreServer.useNotSupport("InnerCore.getPack()");
         return null;
@@ -47,7 +48,7 @@ public class InnerCore {
         return javaDirectoriesFromProxy;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public InnerCore(Activity context, /* Pack */ Object pack) {
         throw new UnsupportedOperationException("InnerCore(context, pack)");
     }
@@ -73,10 +74,12 @@ public class InnerCore {
         initiateLoading();
     }
 
+    @Deprecated(since = "Zote")
     public void setMinecraftActivity(Activity activity) {
         InnerCoreServer.useNotSupport("InnerCore.setMinecraftActivity(activity)");
     }
 
+    @Deprecated(since = "Zote")
     public Activity getCurrentActivity() {
         return Activity.getSingletonInternalProxy();
     }
@@ -136,7 +139,6 @@ public class InnerCore {
 
     public void onFinalLoadComplete() {
         LoadingStage.setStage(LoadingStage.STAGE_COMPLETE);
-        LoadingUI.close();
         ICLog.showIfErrorsAreFound();
         LoadingStage.outputTimeMap();
     }
@@ -144,6 +146,8 @@ public class InnerCore {
     public String getWorkingDirectory() {
         return FileTools.DIR_PACK;
     }
+
+    // TODO: Should we implement it?
 
     public /* ResourceManager */ Object getResourceManager() {
         return null;

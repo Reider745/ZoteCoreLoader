@@ -19,10 +19,12 @@ public class NetworkEntityType {
 
 
 
+    @Deprecated(since = "Zote")
     public interface OnClientEntityAddedListener {
         Object onAdded(NetworkEntity entity, Object initPacket);
     }
 
+    @Deprecated(since = "Zote")
     public interface OnClientEntityRemovedListener {
         void onRemoved(Object target, NetworkEntity entity, Object removePacket);
     }
@@ -35,6 +37,7 @@ public class NetworkEntityType {
         void setup(NetworkEntity entity, boolean isServer);
     }
 
+    @Deprecated(since = "Zote")
     public interface OnClientPacketListener {
         void onReceived(Object target, NetworkEntity entity, Object packetData, String extra);
     }
@@ -56,13 +59,16 @@ public class NetworkEntityType {
 
     private OnEntitySetupListener entitySetupListener = null;
     private OnClientListSetupListener clientListSetupListener = null;
+    @Deprecated(since = "Zote")
     private OnClientEntityAddedListener clientEntityAddedListener = null;
+    @Deprecated(since = "Zote")
     private OnClientEntityRemovedListener clientEntityRemovedListener = null;
     private ClientAddPacketFactory clientAddPacketFactory = null;
     private ClientRemovePacketFactory clientRemovePacketFactory = null;
 
     private boolean isDuplicateAddPacketAllowed = false;
 
+    @Deprecated(since = "Zote")
     private final Map<String, List<OnClientPacketListener>> clientPacketListenerMap = new HashMap<>();
     private final Map<String, List<OnServerPacketListener>> serverPacketListenerMap = new HashMap<>();
 
@@ -96,16 +102,19 @@ public class NetworkEntityType {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public NetworkEntityType setClientEntityAddedListener(OnClientEntityAddedListener clientEntityAddedListener) {
         this.clientEntityAddedListener = clientEntityAddedListener;
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public NetworkEntityType setClientEntityRemovedListener(OnClientEntityRemovedListener clientEntityRemovedListener) {
         this.clientEntityRemovedListener = clientEntityRemovedListener;
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public NetworkEntityType addClientPacketListener(String name, OnClientPacketListener listener) {
         Java8BackComp.computeIfAbsent(clientPacketListenerMap, name, key -> new ArrayList<>()).add(listener);
         return this;
@@ -141,6 +150,7 @@ public class NetworkEntityType {
         return clientRemovePacketFactory != null ? clientRemovePacketFactory.newPacket(entity.getTarget(), entity, client) : "";
     }
 
+    @Deprecated(since = "Zote")
     public void onClientEntityAdded(NetworkEntity entity, Object packet) {
         Object target = null;
         if (clientEntityAddedListener != null) {
@@ -149,16 +159,19 @@ public class NetworkEntityType {
         entity.setTarget(target);
     }
 
+    @Deprecated(since = "Zote")
     public void onClientEntityRemoved(NetworkEntity entity, Object packet) {
         if (clientEntityRemovedListener != null) {
             clientEntityRemovedListener.onRemoved(entity.getTarget(), entity, packet);
         }
     }
 
+    @Deprecated(since = "Zote")
     public void onClientEntityRemovedDueShutdown(NetworkEntity entity) {
         onClientEntityRemoved(entity, null);
     }
 
+    @Deprecated(since = "Zote")
     public void onClientPacket(NetworkEntity entity, String name, Object data, String meta) {
         List<OnClientPacketListener> listeners = clientPacketListenerMap.get(name);
         if (listeners != null) {

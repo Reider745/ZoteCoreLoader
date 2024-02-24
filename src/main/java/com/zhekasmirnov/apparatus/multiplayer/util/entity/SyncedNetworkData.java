@@ -2,11 +2,9 @@ package com.zhekasmirnov.apparatus.multiplayer.util.entity;
 
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
-import com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,28 +18,16 @@ import java.util.*;
  */
 public class SyncedNetworkData implements ConnectedClientList.Listener {
     private static final Map<String, SyncedNetworkData> serverSyncedData = new HashMap<>();
+    @Deprecated(since = "Zote")
     private static final Map<String, SyncedNetworkData> receivedSyncedData = new HashMap<>();
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static SyncedNetworkData getClientSyncedData(String name) {
         return Java8BackComp.computeIfAbsent(receivedSyncedData, name, key -> new SyncedNetworkData(name, false));
     }
 
     static {
-        Network.getSingleton().addClientPacket("system.synced_data.data", (JSONObject map, String meta) -> {
-            if (map.length() > 0) {
-                SyncedNetworkData data = getClientSyncedData(meta);
-                for (Iterator<String> it = map.keys(); it.hasNext(); ) {
-                    String key = it.next();
-                    try {
-                        data.put(key, map.get(key), true);
-                    } catch (Throwable err) {
-                        ICLog.e("INNERCORE", "failed to run synced data listener", err);
-                    }
-                }
-            }
-        }, null);
-
         Network.getSingleton().addServerPacket("system.synced_data.data", (ConnectedClient client, JSONObject map, String meta) -> {
             SyncedNetworkData data = serverSyncedData.get(meta);
             if (data != null && map.length() > 0) {
@@ -76,7 +62,6 @@ public class SyncedNetworkData implements ConnectedClientList.Listener {
         }, null);
 
         Network.getSingleton().addServerShutdownListener(server -> serverSyncedData.clear());
-        Network.getSingleton().addClientShutdownListener(reason -> receivedSyncedData.clear());
     }
 
     @Override
@@ -86,7 +71,6 @@ public class SyncedNetworkData implements ConnectedClientList.Listener {
 
     @Override
     public void onRemove(ConnectedClient client) {
-
     }
 
 
@@ -101,7 +85,6 @@ public class SyncedNetworkData implements ConnectedClientList.Listener {
     private final String name;
     private final boolean isServer;
 
-    private final ModdedClient clientInstance = Network.getSingleton().getClient();
     private ConnectedClientList clients = new ConnectedClientList();
 
     private final Map<String, Object> data = new HashMap<>();
@@ -184,9 +167,6 @@ public class SyncedNetworkData implements ConnectedClientList.Listener {
                 if (isServer) {
                     ThreadTypeMarker.assertServerThread();
                     clients.send("system.synced_data.data#" + name, new JSONObject(dirtyData));
-                } else {
-                    ThreadTypeMarker.assertClientThread();
-                    clientInstance.send("system.synced_data.data#" + name, new JSONObject(dirtyData));
                 }
                 dirtyData.clear();
             }

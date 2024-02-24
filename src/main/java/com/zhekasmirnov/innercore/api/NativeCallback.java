@@ -19,13 +19,11 @@ import com.zhekasmirnov.apparatus.ecs.types.ServerTicking;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbenchContainer;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
-import com.zhekasmirnov.apparatus.minecraft.version.VanillaIdConversionMap;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
-import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.ecs.core.EntitySystem;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -38,14 +36,11 @@ import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegistry;
-import com.zhekasmirnov.innercore.api.mod.util.InventorySource;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.api.runtime.*;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.runtime.other.WorldGen;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
-import com.zhekasmirnov.innercore.utils.UIUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -124,8 +119,6 @@ public class NativeCallback {
 
     // called when minecraft initialization is complete
     public static void onFinalInitComplete() {
-        UIUtils.initialize(UIUtils.getContext());
-
         AsyncModLauncher modLauncher = new AsyncModLauncher();
         modLauncher.launchModsInCurrentThread();
     }
@@ -145,8 +138,8 @@ public class NativeCallback {
         // cleanup and rebuild id conversion maps (network and local)
         // NativeIdPlaceholderGenerator.clearAll();
         // NativeIdConversionMap.clearAll();
-        IdConversionMap.getSingleton().clearLocalIdMap();
-        VanillaIdConversionMap.getSingleton().reloadFromAssets();
+        // IdConversionMap.getSingleton().clearLocalIdMap();
+        // VanillaIdConversionMap.getSingleton().reloadFromAssets();
         IDRegistry.rebuildNetworkIdMap();
 
         // get world name and directory
@@ -311,8 +304,8 @@ public class NativeCallback {
 
         // id conversion map - it will be cleared on next level load or connection
         // anyway, so clear it only on server side to not fuck up last server tick
-        // TODO: NativeIdConversionMap.clearAll();
-        IdConversionMap.getSingleton().clearLocalIdMap();
+        // NativeIdConversionMap.clearAll();
+        // IdConversionMap.getSingleton().clearLocalIdMap();
     }
 
     static {
@@ -363,8 +356,6 @@ public class NativeCallback {
         if (!isServerTickDisabledDueToError) {
             try {
                 // tick internal systems
-                InventorySource.tick();
-                // ArmorRegistry.onTick();
                 WorldDataSaverHandler.getInstance().onTick();
 
                 // run callback and updatable
@@ -471,12 +462,6 @@ public class NativeCallback {
         Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), new FullBlock(player, x, y, z), player);
     }
 
-    @Deprecated
-    public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int i1, int i2,
-            long region) {
-        InnerCoreServer.useNotSupport("NativeCallback.onBlockChanged(x, y, z, id1, data1, id2, data2, i1, i2, region)");
-    }
-
     public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int i1, int i2,
             Level level) {
         Callback.invokeAPICallback("BlockChanged", new Coords(x, y, z), new FullBlock(id1, data1),
@@ -531,11 +516,6 @@ public class NativeCallback {
 
     public static void onPlayerLevelAdded(int level, long player) {
         Callback.invokeAPICallback("ExpLevelAdd", level, player);
-    }
-
-    @Deprecated
-    public static void onCommandExec() {
-        InnerCoreServer.useClientMethod("NativeCallback.onCommandExec()");
     }
 
     public static void onPlayerLogin(ConnectedClient client, String username, Consumer<String> acceptor) {
@@ -626,11 +606,6 @@ public class NativeCallback {
         Callback.invokeAPICallback("EntityPickUpDrop", entity, dropEntity, dropStack, count);
     }
 
-    @Deprecated
-    public static void onExpOrbsSpawned(long region, int amount, float x, float y, float z, long player) {
-        InnerCoreServer.useNotSupport("NativeCallback.onExpOrbsSpawned(region, amount, x, y, z, player)");
-    }
-
     public static void onExpOrbsSpawned(Level level, int amount, float x, float y, float z, long player) {
         Callback.invokeAPICallback("ExpOrbsSpawned", NativeBlockSource.getFromServerCallbackPointer(level), amount,
                 new Coords(x, y, z), player);
@@ -673,12 +648,6 @@ public class NativeCallback {
 
     /* BLOCK CALLBACKS */
 
-    @Deprecated
-    public static void onRedstoneSignalChange(int x, int y, int z, int signal, boolean isLoadingChange, long region) {
-        InnerCoreServer
-                .useNotSupport("NativeCallback.onRedstoneSignalChange(x, y, z, signal, isLoadingChange, region)");
-    }
-
     public static void onRedstoneSignalChange(int x, int y, int z, int signal, boolean isLoadingChange, Level level) {
         NativeBlockSource blockSource = NativeBlockSource.getFromServerCallbackPointer(level);
         Callback.invokeAPICallback("RedstoneSignal", new Coords(x, y, z), new ScriptableParams(
@@ -687,22 +656,13 @@ public class NativeCallback {
                 new Pair<String, Object>("onLoad", isLoadingChange)), new FullBlock(blockSource, x, y, z), blockSource);
     }
 
-    @Deprecated
-    public static void onRandomBlockTick(int x, int y, int z, int id, int data, long region) {
-        InnerCoreServer.useNotSupport("NativeCallback.onRandomBlockTick(x, y, z, id, data, region)");
-    }
-
     public static void onRandomBlockTick(int x, int y, int z, int id, int data, Level level) {
         NativeBlock.onRandomTickCallback(x, y, z, id, data, NativeBlockSource.getFromServerCallbackPointer(level));
     }
 
+    @Deprecated(since = "Zote")
     public static void onAnimateBlockTick(int x, int y, int z, int id, int data) {
         NativeBlock.onAnimateTickCallback(x, y, z, id, data);
-    }
-
-    @Deprecated
-    public static void onBlockSpawnResources(int x, int y, int z, int id, int data, float f, int i, long region) {
-        InnerCoreServer.useNotSupport("NativeCallback.onBlockSpawnResources(x, y, z, id, data, f, i, region)");
     }
 
     public static void onBlockSpawnResources(int x, int y, int z, int id, int data, float f, int i, Level level) {
@@ -718,13 +678,6 @@ public class NativeCallback {
     public static void onBlockEventEntityStepOn(int x, int y, int z, long entity) {
         Callback.invokeAPICallback("BlockEventEntityStepOn", new Coords(x, y, z), new FullBlock(entity, x, y, z),
                 entity);
-    }
-
-    @Deprecated
-    public static void onBlockEventNeighbourChange(int x, int y, int z, int changedX, int changedY, int changedZ,
-            long region) {
-        InnerCoreServer.useNotSupport(
-                "NativeCallback.onBlockEventNeighbourChange(x, y, z, changedX, changedY, changedZ, region)");
     }
 
     public static void onBlockEventNeighbourChange(int x, int y, int z, int changedX, int changedY, int changedZ,
@@ -749,13 +702,6 @@ public class NativeCallback {
     public static void onItemUseComplete(long player) {
         Callback.invokeAPICallback("ItemUsingComplete", new ItemInstance(EntityMethod.getEntityCarriedItem(player)),
                 player);
-    }
-
-    @Deprecated
-    public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data, long extra,
-            long region, int slot) {
-        InnerCoreServer
-                .useNotSupport("NativeCallback.onItemDispensed(x, y, z, side, id, count, data, extra, region, slot)");
     }
 
     public static void onItemDispensed(float x, float y, float z, int side, int id, int count, int data,
@@ -862,7 +808,7 @@ public class NativeCallback {
             if (!recipe.isVanilla()) {
                 // handle modded recipe: replace vanilla craft logic with modded one
                 NativeAPI.preventDefault();
-                ItemInstance result = recipe.provideRecipe(container);
+                ItemInstance result = recipe.provideRecipeForPlayer(container, player);
                 if (result != null && result.getId() != 0 && result.getCount() > 0) {
                     new NativePlayer(player).addItemToInventory(result.getId(), result.getCount(), result.getData(),
                             result.getExtra(), true);
@@ -908,6 +854,7 @@ public class NativeCallback {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static void onModdedClientPacketReceived(int formatId) {
         String name = getStringParam("name");
         try {
@@ -919,94 +866,99 @@ public class NativeCallback {
 
     /* LOCAL CALLBACKS, WHICH IS DISABLED ON SERVER */
 
-    @Deprecated
+    @Deprecated(since = "Zote")
+    public static void onCommandExec() {
+        InnerCoreServer.useClientMethod("NativeCallback.onCommandExec()");
+    }
+
+    @Deprecated(since = "Zote")
     public static void onNativeGuiLoaded() {
         InnerCoreServer.useClientMethod("NativeCallback.onNativeGuiLoaded()");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onKeyEventDispatched(int key, int state) {
         InnerCoreServer.useClientMethod("NativeCallback.onKeyEventDispatched(key, state)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static boolean isLevelDisplayed() {
         InnerCoreServer.useClientMethod("NativeCallback.isLevelDisplayed()");
-        return false;
+        return true;
     }
 
-    @Deprecated // this is called, when level renderer is set up
+    @Deprecated(since = "Zote")
     public static void onLevelDisplayed() {
         InnerCoreServer.useClientMethod("NativeCallback.onLevelDisplayed()");
     }
 
-    @Deprecated // this is local callback!
+    @Deprecated(since = "Zote")
     public static void onDimensionChanged(int current, int last) {
         InnerCoreServer.useClientMethod("NativeCallback.onDimensionChanged(current, last)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static boolean isLocalTickDisabledDueToError() {
         InnerCoreServer.useClientMethod("NativeCallback.isLocalTickDisabledDueToError()");
         return false;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onLocalTick() {
         InnerCoreServer.useClientMethod("NativeCallback.onLocalTick()");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onConnectToHost(int port) {
         InnerCoreServer.useNotSupport("NativeCallback.onConnectToHost(port)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onBlockDestroyStarted(int x, int y, int z, int side) {
         InnerCoreServer.useClientMethod("NativeCallback.onBlockDestroyStarted(x, y, z, side)");
     }
 
-    @Deprecated // fix callback
+    @Deprecated(since = "Zote")
     public static void _onBlockDestroyStarted(int x, int y, int z, int side) {
         InnerCoreServer.useClientMethod("NativeCallback._onBlockDestroyStarted(x, y, z, side)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onBlockDestroyContinued(int x, int y, int z, int side, float progress) {
         InnerCoreServer.useClientMethod("NativeCallback.onBlockDestroyContinued(x, y, z, side, progress)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onLocalEntityAdded(long entity) {
         Callback.invokeAPICallback("EntityAddedLocal", entity);
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onLocalEntityRemoved(long entity) {
         Callback.invokeAPICallback("EntityRemovedLocal", entity);
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onCustomTessellation(long tessellator, int x, int y, int z, int id, int data, boolean b) {
         InnerCoreServer.useClientMethod("NativeCallback.onCustomTessellation(tessellator, x, y, z, id, data, b)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onItemIconOverride(int id, int count, int data, int extra) {
         InnerCoreServer.useClientMethod("NativeCallback.onItemIconOverride(id, count, data, extra)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onItemModelOverride(long modelPtr, int id, int count, int data, long extra) {
         InnerCoreServer.useClientMethod("NativeCallback.onItemModelOverride(modelPtr, id, count, data, extra)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onItemNameOverride(int id, int count, int data, int extra) {
         InnerCoreServer.useClientMethod("NativeCallback.onItemNameOverride(id, count, data, extra)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onScreenChanged(boolean isPushEvent) {
         InnerCoreServer.useClientMethod("NativeCallback.onScreenChanged(isPushEvent)");
     }

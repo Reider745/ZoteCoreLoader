@@ -1,9 +1,5 @@
 package com.zhekasmirnov.apparatus.minecraft.version;
 
-//import android.os.Environment;
-//import com.zhekasmirnov.apparatus.minecraft.addon.AddonContext;
-//import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser11;
-//import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser16;
 import com.zhekasmirnov.apparatus.minecraft.addon.AddonContext;
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser11;
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser16;
@@ -26,7 +22,7 @@ public class MinecraftVersions {
         @Override
         public File getMinecraftExternalStoragePath() {
             return null;
-            //return new File(Environment.getExternalStorageDirectory(), "games/horizon");
+            // TODO: return new File(Environment.getExternalStorageDirectory(), "games/horizon");
         }
 
         @Override

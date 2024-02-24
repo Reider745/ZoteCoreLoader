@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import android.util.Pair;
+
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
@@ -220,6 +221,7 @@ public abstract class WorkbenchRecipe {
         return api.isPrevented() ? null : result;
     }
 
+    @Deprecated(since = "Zote")
     public ItemInstance provideRecipe(WorkbenchField field) {
         return provideRecipeForPlayer(field, NativeAPI.getPlayer());
     }

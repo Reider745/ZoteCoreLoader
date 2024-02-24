@@ -80,7 +80,7 @@ public class NetworkHooks implements HookClass {
                     System.out.println("received batch packet id=" + packetId);
 
                 // 1 - the very first package
-                if (packetId == 1)
+                if (player != null && packetId == 1)
                     player.dataPacket(InnerCorePacket.sendInfo);
 
                 DataPacket pk = network.getPacket(packetId);

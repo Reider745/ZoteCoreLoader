@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.annotations.APIStaticModule;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.mod.ui.TextureSource;
 import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
 import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
@@ -84,6 +83,7 @@ public class PreferencesWindowAPI extends AdaptedScriptAPI {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static String downloadIcon(String sURL) {
             try {
                 URL url = new URL(sURL);
@@ -94,7 +94,7 @@ public class PreferencesWindowAPI extends AdaptedScriptAPI {
 
                 String name = "web_icn_" + sURL;
                 if (bmp != null) {
-                    TextureSource.instance.put(name, bmp);
+                    com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.put(name, bmp);
                 }
                 return name;
             } catch (IOException | OutOfMemoryError e) {

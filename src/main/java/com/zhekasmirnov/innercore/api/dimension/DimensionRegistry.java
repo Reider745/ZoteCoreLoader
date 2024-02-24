@@ -4,7 +4,6 @@ import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
-import com.zhekasmirnov.innercore.api.runtime.other.PrintStacking;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -220,13 +219,11 @@ public class DimensionRegistry {
                             JSONObject data = json.optJSONObject(key);
                             dimensionDataByStrId.put(key, new DimensionData(data));
                         } catch (Throwable e) {
-                            PrintStacking.print("ERROR OCCURED DURING READING DIMENSION DATA");
                             ICLog.e("ERROR", "failed to read existing data for dimension with id: " + key + "", e);
                         }
                     }
 
                 } catch (IOException | JSONException e) {
-                    PrintStacking.print("ERROR OCCURED DURING READING DIMENSION DATA");
                     ICLog.e("ERROR", "failed to read dimension data file", e);
                 }
             }
@@ -271,7 +268,6 @@ public class DimensionRegistry {
                 } catch (IOException err) {
                 } catch (Throwable err) {
                     ICLog.e("ERROR", "failed to read dimension id file", err);
-                    PrintStacking.print("FAILED TO READ DIMENSION ID");
                 }
 
                 setCurrentCustomDimension(getDimensionById(id));
@@ -290,7 +286,6 @@ public class DimensionRegistry {
                             String.valueOf(currentDimension != null ? currentDimension.getId() : -1));
                 } catch (IOException err) {
                     ICLog.e("ERROR", "failed to write dimension id file", err);
-                    PrintStacking.print("FAILED TO WRITE DIMENSION ID");
                 }
             }
         }

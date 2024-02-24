@@ -1,11 +1,19 @@
 package com.zhekasmirnov.apparatus.cpp;
 
+@Deprecated(since = "Zote")
 public class NativeIdConversionMap {
-    public static native void clearAll();
 
-    public static native void mapConversion(int staticId, int dynamicId);
+    public static void clearAll() {
+    }
 
-    public static native int dynamicToStatic(int dynamicId);
+    public static void mapConversion(int staticId, int dynamicId) {
+    }
 
-    public static native int staticToDynamic(int staticId);
+    public static int dynamicToStatic(int dynamicId) {
+        return dynamicId;
+    }
+
+    public static int staticToDynamic(int staticId) {
+        return staticId;
+    }
 }

@@ -17,6 +17,7 @@ import java.util.HashMap;
  * Created by zheka on 07.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class NativeBlockRenderer {
 
     public static void nativeSetCollisionShape(int id, int data, long collisionShape) {
@@ -250,7 +251,7 @@ public class NativeBlockRenderer {
         jsRenderCallbacks.put(id, callback);
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void onRenderCall(RenderAPI api, Coords coords, FullBlock block, boolean b) {
         Callback.invokeAPICallback("CustomBlockTessellation", api, coords, block, b);
 

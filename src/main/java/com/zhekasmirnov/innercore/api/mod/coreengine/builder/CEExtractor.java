@@ -46,7 +46,8 @@ public class CEExtractor {
         long start = System.currentTimeMillis();
         ICLog.i("CORE-ENGINE", "starting compilation of Core Engine");
         try {
-            Compiler.compileScriptToFile(new FileReader(new File(DIR_CORE_ENGINE + "core-engine.dev.js")), "core-engine", DIR_CORE_ENGINE + "core-engine.script");
+            Compiler.compileScriptToFile(new FileReader(new File(DIR_CORE_ENGINE + "core-engine.dev.js")),
+                    "core-engine", DIR_CORE_ENGINE + "core-engine.script");
         } catch (IOException e) {
             ICLog.e("CORE-ENGINE", "compilation failed", e);
             return false;
@@ -70,13 +71,12 @@ public class CEExtractor {
 
             boolean success = false;
             if (CE_DEBUG) {
-                if(COMPILE){
+                if (COMPILE) {
                     success = tryToCompile();
                 } else {
                     success = true;
                 }
-            }
-            else {
+            } else {
                 success = tryReleaseBuild();
             }
 
@@ -93,8 +93,7 @@ public class CEExtractor {
         if (isExtractionSucceeded) {
             if (CE_DEBUG && !COMPILE) {
                 return new File(DIR_CORE_ENGINE, "core-engine.dev.js");
-            }
-            else {
+            } else {
                 return new File(DIR_CORE_ENGINE, "core-engine.script");
             }
         }

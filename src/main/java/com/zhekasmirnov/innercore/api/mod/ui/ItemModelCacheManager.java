@@ -7,6 +7,7 @@ import com.zhekasmirnov.innercore.utils.FileTools;
 import java.io.File;
 import java.io.IOException;
 
+@Deprecated(since = "Zote")
 public class ItemModelCacheManager {
     private static final ItemModelCacheManager singleton = new ItemModelCacheManager();
 

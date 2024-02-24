@@ -8,6 +8,7 @@ import org.mozilla.javascript.ScriptableObject;
  */
 
 public class ScriptableParams extends ScriptableObject {
+
     @Override
     public String getClassName() {
         return "Parameters";

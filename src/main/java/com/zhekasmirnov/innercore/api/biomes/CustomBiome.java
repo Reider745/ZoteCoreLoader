@@ -22,8 +22,8 @@ public class CustomBiome {
 
     public CustomBiome(String name) {
         allCustomBiomes.put(name, this);
-        this.pointer = nativeRegister(name);
-        this.id = nativeGetId(pointer);
+        this.pointer = BiomesMethods.nativeRegister(name);
+        this.id = BiomesMethods.nativeGetId(pointer);
         this.name = name;
     }
 
@@ -32,37 +32,45 @@ public class CustomBiome {
         return false;
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setGrassColor(int color) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setGrassColor(float r, float g, float b) {
         return setGrassColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
                 | (Math.round(b * 255) & 0xFF));
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setSkyColor(int color) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setSkyColor(float r, float g, float b) {
         return setGrassColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
                 | (Math.round(b * 255) & 0xFF));
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setFoliageColor(int color) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setFoliageColor(float r, float g, float b) {
         return setFoliageColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
                 | (Math.round(b * 255) & 0xFF));
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setWaterColor(int color) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setWaterColor(float r, float g, float b) {
         return setWaterColor(((((Math.round(r * 255) & 0xFF) << 8) | (Math.round(g * 255) & 0xFF)) << 8)
                 | (Math.round(b * 255) & 0xFF));
@@ -118,14 +126,8 @@ public class CustomBiome {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomBiome setClientJson(String json) {
         return this;
-    }
-
-    private static long nativeRegister(String name){
-        return BiomesMethods.nativeRegister(name);
-    }
-    private static int nativeGetId(long pointer){
-        return BiomesMethods.nativeGetId(pointer);
     }
 }

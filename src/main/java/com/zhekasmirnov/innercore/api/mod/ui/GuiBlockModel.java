@@ -13,6 +13,7 @@ import java.util.*;
  * Created by zheka on 21.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class GuiBlockModel {
     public void setShadow(boolean shadow) {
     }

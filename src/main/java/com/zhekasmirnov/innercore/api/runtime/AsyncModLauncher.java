@@ -1,7 +1,6 @@
 package com.zhekasmirnov.innercore.api.runtime;
 
 import com.zhekasmirnov.apparatus.Apparatus;
-import com.zhekasmirnov.apparatus.minecraft.version.VanillaIdConversionMap;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
 import com.zhekasmirnov.innercore.api.InnerCoreConfig;
 import com.zhekasmirnov.innercore.api.NativeAPI;
@@ -12,8 +11,6 @@ import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.coreengine.CoreEngineAPI;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeLoader;
 import com.zhekasmirnov.innercore.api.mod.recipes.furnace.FurnaceRecipeRegistry;
-import com.zhekasmirnov.innercore.api.mod.ui.icon.ItemIconSource;
-// import com.zhekasmirnov.innercore.api.mod.ui.icon.ItemIconSource;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.unlimited.BlockRegistry;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
@@ -22,7 +19,6 @@ import com.zhekasmirnov.innercore.mod.executable.CompilerConfig;
 import com.zhekasmirnov.innercore.mod.executable.library.LibraryRegistry;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
-import com.zhekasmirnov.innercore.ui.ModLoadingOverlay;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.mcpe161.InnerCore;
 
@@ -30,16 +26,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 public class AsyncModLauncher {
+
     public void launchModsInThread() {
-        final ModLoadingOverlay overlay = new ModLoadingOverlay(null);
-        overlay.await(500);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
                 long start = System.currentTimeMillis();
                 launchModsInCurrentThread();
-                overlay.close();
                 ICLog.i("LOADING", "mods launched in " + (System.currentTimeMillis() - start) + "ms");
             }
         }).start();
@@ -55,7 +49,6 @@ public class AsyncModLauncher {
         // prepare basic modules for menu scripts and further loading
         LoadingUI.setTextAndProgressBar("Preparing...", 0.65f);
         NameTranslation.refresh(false);
-        NativeAPI.setTileUpdateAllowed(true);
 
         // load menu scripts (workbench for example)
         loadAllMenuScripts();
@@ -66,7 +59,7 @@ public class AsyncModLauncher {
         NativeAPI.setInnerCoreVersion(Version.INNER_CORE_VERSION.toString());
 
         // prepare registries
-        VanillaIdConversionMap.getSingleton().reloadFromAssets();
+        // VanillaIdConversionMap.getSingleton().reloadFromAssets();
         BlockRegistry.onInit();
         LibraryRegistry.loadAllBuiltInLibraries();
         LibraryRegistry.prepareAllLibraries();
@@ -85,8 +78,6 @@ public class AsyncModLauncher {
         // invoke post-initialization
         LoadingUI.setTextAndProgressBar("Defining Blocks...", 1);
         BlockRegistry.onModsLoaded();
-        LoadingUI.setTextAndProgressBar("Generating Icons...", 1);
-        ItemIconSource.generateAllModItemModels();
         LoadingUI.setTextAndProgressBar("Post Initialization...", 1);
         invokePostLoadedCallbacks();
 

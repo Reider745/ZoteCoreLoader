@@ -34,20 +34,23 @@ public class TerrainLayer {
         return material;
     }
 
-
-    private static long nativeGetMainMaterial(long pointer){
+    private static long nativeGetMainMaterial(long pointer) {
         return TerrainLayerMethods.nativeGetMainMaterial(pointer);
     }
-    private static void nativeSetHeightmapNoiseGenerator(long pointer, long generator){
+
+    private static void nativeSetHeightmapNoiseGenerator(long pointer, long generator) {
         TerrainLayerMethods.nativeSetHeightmapNoiseGenerator(pointer, generator);
     }
-    private static void nativeSetMainNoiseGenerator(long pointer, long generator){
+
+    private static void nativeSetMainNoiseGenerator(long pointer, long generator) {
         TerrainLayerMethods.nativeSetMainNoiseGenerator(pointer, generator);
     }
-    private static void nativeSetYConversion(long pointer, long conversion){
+
+    private static void nativeSetYConversion(long pointer, long conversion) {
         TerrainLayerMethods.nativeSetYConversion(pointer, conversion);
     }
-    private static long nativeAddNewMaterial(long pointer, long noiseGenerator, int priority){
+
+    private static long nativeAddNewMaterial(long pointer, long noiseGenerator, int priority) {
         return TerrainLayerMethods.nativeAddNewMaterial(pointer, noiseGenerator, priority);
     }
 }

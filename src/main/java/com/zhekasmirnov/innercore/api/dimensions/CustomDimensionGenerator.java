@@ -2,7 +2,6 @@ package com.zhekasmirnov.innercore.api.dimensions;
 
 import java.util.HashMap;
 
-import com.reider745.InnerCoreServer;
 import com.reider745.world.dimensions.CustomGeneratorMethods;
 
 public class CustomDimensionGenerator {
@@ -33,7 +32,7 @@ public class CustomDimensionGenerator {
         if (baseType > 4 || baseType < 0) {
             throw new IllegalArgumentException("invalid base generator type: " + baseType);
         }
-        pointer = nativeConstruct(baseType);
+        this.pointer = CustomGeneratorMethods.nativeConstruct(baseType);
         this.baseType = baseType;
     }
 
@@ -42,17 +41,17 @@ public class CustomDimensionGenerator {
     }
 
     public CustomDimensionGenerator setBuildVanillaSurfaces(boolean value) {
-        nativeSetBuildVanillaSurfaces(pointer, value);
+        CustomGeneratorMethods.nativeSetBuildVanillaSurfaces(pointer, value);
         return this;
     }
 
     public CustomDimensionGenerator setGenerateVanillaStructures(boolean value) {
-        nativeSetGenerateVanillaStructures(pointer, value);
+        CustomGeneratorMethods.nativeSetGenerateVanillaStructures(pointer, value);
         return this;
     }
 
     public CustomDimensionGenerator setGenerateCaves(boolean caves, boolean underwaterCaves) {
-        nativeSetGenerateCaves(pointer, caves, underwaterCaves);
+        CustomGeneratorMethods.nativeSetGenerateCaves(pointer, caves, underwaterCaves);
         return this;
     }
 
@@ -60,12 +59,11 @@ public class CustomDimensionGenerator {
         return setGenerateCaves(caves, false);
     }
 
-
     private int modGenerationBaseDimension = -1;
     private boolean modGenerationEnabled = true;
 
     public CustomDimensionGenerator setGenerateModStructures(boolean value) {
-        nativeSetGenerateModStructures(pointer, value);
+        CustomGeneratorMethods.nativeSetGenerateModStructures(pointer, value);
         modGenerationEnabled = value;
         if (!value) {
             modGenerationBaseDimension = -1;
@@ -75,7 +73,8 @@ public class CustomDimensionGenerator {
 
     public CustomDimensionGenerator setModGenerationBaseDimension(int id) {
         if (id != -1 && id != 0 && id != 1 && id != 2) {
-            throw new IllegalArgumentException("setModGenerationBaseDimension must receive vanilla id or -1, not " + id);
+            throw new IllegalArgumentException(
+                    "setModGenerationBaseDimension must receive vanilla id or -1, not " + id);
         }
         setGenerateModStructures(true);
         modGenerationBaseDimension = id;
@@ -94,29 +93,8 @@ public class CustomDimensionGenerator {
         return modGenerationBaseDimension;
     }
 
-
-
     public CustomDimensionGenerator setTerrainGenerator(AbstractTerrainGenerator generator) {
-        nativeSetTerrainGenerator(pointer, generator != null ? generator.getPointer() : 0);
+        CustomGeneratorMethods.nativeSetTerrainGenerator(pointer, generator != null ? generator.getPointer() : 0);
         return this;
-    }
-
-    private static long nativeConstruct(int baseType){
-        return CustomGeneratorMethods.nativeConstruct(baseType);
-    }
-    private static void nativeSetTerrainGenerator(long pointer, long generator){
-        CustomGeneratorMethods.nativeSetTerrainGenerator(pointer, generator);
-    }
-    private static void nativeSetBuildVanillaSurfaces(long pointer, boolean value){
-        CustomGeneratorMethods.nativeSetBuildVanillaSurfaces(pointer, value);
-    }
-    private static void nativeSetGenerateVanillaStructures(long pointer, boolean value){
-        CustomGeneratorMethods.nativeSetGenerateVanillaStructures(pointer, value);
-    }
-    private static void nativeSetGenerateModStructures(long pointer, boolean value){
-        CustomGeneratorMethods.nativeSetGenerateModStructures(pointer, value);
-    }
-    private static void nativeSetGenerateCaves(long pointer, boolean caves, boolean underwaterCaves){
-        CustomGeneratorMethods.nativeSetGenerateCaves(pointer, caves, underwaterCaves);
     }
 }

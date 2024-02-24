@@ -360,39 +360,40 @@ public class EntityManager {
         });
     }
 
+    @SuppressWarnings("unchecked")
     public <T1> void performQuery(Query query, FixedQueryConsumer1<T1> consumer) {
         iterArchetypes(query, (archetype, entities, components, count) -> {
             Object[] c1 = components[0];
             for (int i = 0; i < count; i++) {
-                //noinspection unchecked
                 consumer.accept(entities[i], (T1) c1[i]);
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     public <T1, T2> void performQuery(Query query, FixedQueryConsumer2<T1, T2> consumer) {
         iterArchetypes(query, (archetype, entities, components, count) -> {
             Object[] c1 = components[0];
             Object[] c2 = components[1];
             for (int i = 0; i < count; i++) {
-                //noinspection unchecked
                 consumer.accept(entities[i], (T1) c1[i], (T2) c2[i]);
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     public <T1, T2, T3> void performQuery(Query query, FixedQueryConsumer3<T1, T2, T3> consumer) {
         iterArchetypes(query, (archetype, entities, components, count) -> {
             Object[] c1 = components[0];
             Object[] c2 = components[1];
             Object[] c3 = components[2];
             for (int i = 0; i < count; i++) {
-                //noinspection unchecked
                 consumer.accept(entities[i], (T1) c1[i], (T2) c2[i], (T3) c3[i]);
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     public <T1, T2, T3, T4> void performQuery(Query query, FixedQueryConsumer4<T1, T2, T3, T4> consumer) {
         iterArchetypes(query, (archetype, entities, components, count) -> {
             Object[] c1 = components[0];
@@ -400,12 +401,12 @@ public class EntityManager {
             Object[] c3 = components[2];
             Object[] c4 = components[3];
             for (int i = 0; i < count; i++) {
-                //noinspection unchecked
                 consumer.accept(entities[i], (T1) c1[i], (T2) c2[i], (T3) c3[i], (T4) c4[i]);
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     public <T1, T2, T3, T4, T5> void performQuery(Query query, FixedQueryConsumer5<T1, T2, T3, T4, T5> consumer) {
         iterArchetypes(query, (archetype, entities, components, count) -> {
             Object[] c1 = components[0];
@@ -414,12 +415,12 @@ public class EntityManager {
             Object[] c4 = components[3];
             Object[] c5 = components[4];
             for (int i = 0; i < count; i++) {
-                //noinspection unchecked
                 consumer.accept(entities[i], (T1) c1[i], (T2) c2[i], (T3) c3[i], (T4) c4[i], (T5) c5[i]);
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     public <T1, T2, T3, T4, T5, T6> void performQuery(Query query, FixedQueryConsumer6<T1, T2, T3, T4, T5, T6> consumer) {
         iterArchetypes(query, (archetype, entities, components, count) -> {
             Object[] c1 = components[0];
@@ -429,7 +430,6 @@ public class EntityManager {
             Object[] c5 = components[4];
             Object[] c6 = components[5];
             for (int i = 0; i < count; i++) {
-                //noinspection unchecked
                 consumer.accept(entities[i], (T1) c1[i], (T2) c2[i], (T3) c3[i], (T4) c4[i], (T5) c5[i], (T6) c6[i]);
             }
         });

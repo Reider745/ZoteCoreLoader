@@ -25,7 +25,7 @@ public class EntityOverrides implements HookClass {
     }
 
     // @Inject(className = "cn.nukkit.entity.EntityHumanType", type = TypeHook.BEFORE, signature = "(Lcn/nukkit/item/Item;Lcn/nukkit/entity/Entity;FZLcn/nukkit/event/entity/EntityDamageEvent$DamageCause;)Lcn/nukkit/item/Item;")
-    // public static void damageArmor(HookController controller, EntityHumanType human, Item armor, Entity damager,
+    // public static void damageArmor(HookController<EntityHumanType> controller, EntityHumanType human, Item armor, Entity damager,
     //         float damage, boolean shield, DamageCause cause) {
     //     if (armor instanceof CustomArmorItem && armor.getDamage() >= armor.getMaxDurability()) {
     //         controller.setReplace(true);

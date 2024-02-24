@@ -44,6 +44,7 @@ public class CustomDimension {
 
     public CustomDimension setHasSkyLight(boolean value) {
         InnerCoreServer.useNotCurrentSupport("CustomDimension.setHasSkyLight(value)");
+        this.hasSkyLight = value;
         return this;
     }
 
@@ -51,42 +52,52 @@ public class CustomDimension {
         return hasSkyLight;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension setSkyColor(float r, float g, float b) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension resetSkyColor() {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension setFogColor(float r, float g, float b) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension resetFogColor() {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension setCloudColor(float r, float g, float b) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension resetCloudColor() {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension setSunsetColor(float r, float g, float b) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension resetSusetColor() {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension setFogDistance(float start, float end) {
         return this;
     }
 
+    @Deprecated(since = "Zote")
     public CustomDimension resetFogDistance() {
         return this;
     }

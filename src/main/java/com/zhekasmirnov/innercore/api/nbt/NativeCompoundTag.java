@@ -34,6 +34,7 @@ public class NativeCompoundTag {
         this.tag = tag != null ? tag.copy() : new CompoundTag();
     }
 
+    @Deprecated(since = "Zote")
     public NativeCompoundTag(long pointer) {
         throw new UnsupportedOperationException("NativeCompoundTag(pointer)");
     }

@@ -15,6 +15,7 @@ import org.mozilla.javascript.ScriptableObject;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Deprecated(since = "Zote")
 public class UIAdaptiveWindow extends UIWindowGroup {
     // classic style:
     // - bg: 0x8b8b8b

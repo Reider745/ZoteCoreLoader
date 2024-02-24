@@ -8,6 +8,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 03.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UIScaleElement extends UIElement {
     public UIScaleElement(UIWindow window, ScriptableObject description) {
         super(window, description);

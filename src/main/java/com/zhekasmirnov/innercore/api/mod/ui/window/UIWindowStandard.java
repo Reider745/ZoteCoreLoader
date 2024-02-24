@@ -13,6 +13,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 04.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public abstract class UIWindowStandard extends UIWindowGroup {
     private ScriptableObject content;
     private ScriptableObject standardContent;

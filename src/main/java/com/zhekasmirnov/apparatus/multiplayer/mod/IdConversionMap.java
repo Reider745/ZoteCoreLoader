@@ -1,9 +1,7 @@
 package com.zhekasmirnov.apparatus.multiplayer.mod;
 
-import com.zhekasmirnov.apparatus.cpp.NativeIdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -20,7 +18,7 @@ public class IdConversionMap {
                 client -> getSingleton().localMapAsJson(),
                 (JSONObject data, String meta) -> {
                     getSingleton().updateConversionMap(data);
-                    // NativeIdPlaceholderGenerator.rebuildFromServerPacket(data);
+                    // TODO: NativeIdPlaceholderGenerator.rebuildFromServerPacket(data);
                 });
     }
 
@@ -73,17 +71,15 @@ public class IdConversionMap {
     }
 
     public void rebuildNativeConversionMap() {
-        /*NativeIdConversionMap.clearAll();
-        for (Map.Entry<Integer, Integer> entry : fromLocalToServerMap.entrySet()) {
-            NativeIdConversionMap.mapConversion(entry.getKey(), entry.getValue());
-        }*/
     }
 
 
+    @Deprecated(since = "Zote")
     public static int localToServer(int id) {
         return Java8BackComp.getOrDefault(getSingleton().fromLocalToServerMap, id, id);
     }
 
+    @Deprecated(since = "Zote")
     public static int serverToLocal(int id) {
         return Java8BackComp.getOrDefault(getSingleton().fromServerToLocalMap, id, id);
     }

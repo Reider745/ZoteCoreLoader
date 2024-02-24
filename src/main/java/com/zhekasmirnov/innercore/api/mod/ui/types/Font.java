@@ -10,6 +10,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class Font {
     public static final int ALIGN_DEFAULT = 0;
     public static final int ALIGN_CENTER = 1;

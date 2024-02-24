@@ -3,7 +3,6 @@ package com.zhekasmirnov.innercore.api.unlimited;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeBlock;
 import com.zhekasmirnov.innercore.api.NativeItem;
-import com.zhekasmirnov.innercore.api.NativeItemModel;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
@@ -106,7 +105,6 @@ public class BlockRegistry {
         BlockVariant variant = getBlockVariant(uid, data);
         if (variant != null) {
             variant.shape = shape;
-            NativeItemModel.getFor(uid, data).updateForBlockVariant(variant);
         }
     }
 

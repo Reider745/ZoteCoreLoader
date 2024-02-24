@@ -20,6 +20,7 @@ import java.util.HashMap;
  * Created by zheka on 02.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class Container implements WorkbenchField, UiAbstractContainer {
     public static final boolean isContainer = true;
 
@@ -103,8 +104,7 @@ public class Container implements WorkbenchField, UiAbstractContainer {
 
     @Override
     public void handleInventoryToSlotTransaction(int inventorySlotId, String slotName, int amount0) {
-        InnerCoreServer
-                .useClientMethod("Container.handleInventoryToSlotTransaction(inventorySlotId, slotName, amount0)");
+        InnerCoreServer.useClientMethod("Container.handleInventoryToSlotTransaction(inventorySlotId, slotName, amount0)");
     }
 
     @Override

@@ -5,9 +5,6 @@ import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

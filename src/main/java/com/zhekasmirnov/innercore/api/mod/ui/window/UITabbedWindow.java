@@ -14,6 +14,7 @@ import java.util.HashMap;
  * Created by zheka on 05.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class UITabbedWindow implements IWindow {
     private UIWindow backgroundWindow;
     private UIWindow[] tabWindows = new UIWindow[12];

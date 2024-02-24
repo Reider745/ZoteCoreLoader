@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * Created by zheka on 30.08.2017.
  */
 
+@SuppressWarnings("deprecation")
 public class ConstantRegistry {
     private static ArrayList<Class<?>> constantClasses = new ArrayList<>();
 

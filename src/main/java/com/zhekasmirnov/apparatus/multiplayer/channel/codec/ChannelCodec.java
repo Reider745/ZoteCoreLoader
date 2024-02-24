@@ -2,12 +2,8 @@ package com.zhekasmirnov.apparatus.multiplayer.channel.codec;
 
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataPacket;
-import com.zhekasmirnov.apparatus.util.Java8BackComp;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class ChannelCodec<T> implements DataChannel.IPacketListener {
     private final DataChannel channel;
@@ -17,14 +13,15 @@ public abstract class ChannelCodec<T> implements DataChannel.IPacketListener {
         void receive(String name, T data);
     }
 
-
     public ChannelCodec(DataChannel channel) {
         this.channel = channel;
         channel.addListener(this);
     }
 
     protected abstract T decode(byte[] data) throws ChannelCodecException;
+
     protected abstract byte[] encode(T data);
+
     public abstract int getFormatId();
 
     public void send(String name, T data) {

@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
+import com.reider745.world.BlockSourceMethods;
+import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
@@ -28,7 +30,7 @@ public class NativeTileEntity {
     protected int size;
     protected int x, y, z;
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public NativeTileEntity(long ptr) {
         throw new UnsupportedOperationException("NativeTileEntity(ptr)");
     }
@@ -69,7 +71,7 @@ public class NativeTileEntity {
     public void setSlot(int slot, NativeItemInstance item) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot2(blockEntity, slot, item.getItem());
+        setSlot2(blockEntity, slot, item.getPointer());
     }
 
     public NativeCompoundTag getCompoundTag() {
@@ -82,8 +84,9 @@ public class NativeTileEntity {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static NativeTileEntity getTileEntity(int x, int y, int z) {
-        return new NativeTileEntity(0);
+        return NativeBlockSource.getCurrentWorldGenRegion().getBlockEntity(x, y, z);
     }
 
     /*
@@ -117,6 +120,7 @@ public class NativeTileEntity {
         nukkitToEnumMappings.put(BlockEntity.SHULKER_BOX, "shulker_box");
         nukkitToEnumMappings.put(BlockEntity.BANNER, "banner");
         nukkitToEnumMappings.put(BlockEntity.LECTERN, "lectern");
+        nukkitToEnumMappings.put(BlockEntity.BEEHIVE, "beehive");
         nukkitToEnumMappings.put(BlockEntity.DROPPER, "dropper");
         nukkitToEnumMappings.put(BlockEntity.DISPENSER, "dispenser");
         nukkitToEnumMappings.put(BlockEntity.BARREL, "barrel");
@@ -132,7 +136,7 @@ public class NativeTileEntity {
         String tileEntityName = nukkitToEnumMappings.getOrDefault(blockEntity.getName(), null);
         if (tileEntityName == null) {
             Logger.error("NativeTileEntity",
-                    "Could not locate tile " + blockEntity.getName() + ", it was not implemented");
+                    "Could not locate tile " + blockEntity.getClass().getSimpleName() + ", it was not implemented");
             tileEntityName = "none";
         }
         return GameEnums.getInt(GameEnums.getSingleton().getEnum("tile_entity_type", tileEntityName));
@@ -196,44 +200,28 @@ public class NativeTileEntity {
         blockEntity.namedTag = tag;
     }
 
-    public static long getInWorld(int x, int y, int z) {
-        InnerCoreServer.useNotSupport("NativeTileEntity.getInWorld(x, y, z)");
-        return 0;
+    @Deprecated(since = "Zote")
+    public static BlockEntity getInWorld(int x, int y, int z) {
+        return BlockSourceMethods.getBlockEntity(NativeBlockSource.getCurrentWorldGenRegion().getPointer(), x, y, z);
     }
 
-    public static void nativeFinalize(long pointer) {
+    @Deprecated(since = "Zote")
+    public static void nativeFinalize(BlockEntity pointer) {
         InnerCoreServer.useNotSupport("NativeTileEntity.nativeFinalize(pointer)");
     }
 
-    public static int getType(long pointer) {
-        InnerCoreServer.useNotSupport("NativeTileEntity.getType(pointer)");
-        return 0;
-    }
-
-    public static int getSize(long pointer) {
-        InnerCoreServer.useNotSupport("NativeTileEntity.getSize(pointer)");
-        return 0;
-    }
-
-    public static long getSlot(long pointer, int slot) {
-        InnerCoreServer.useNotSupport("NativeTileEntity.getSlot(pointer, slot)");
-        return 0;
-    }
-
-    public static void setSlot(long pointer, int slot, int id, int count, int data, long extra) {
+    @Deprecated(since = "Zote")
+    public static void setSlot(BlockEntity pointer, int slot, int id, int count, int data, long extra) {
         InnerCoreServer.useNotSupport("NativeTileEntity.setSlot(pointer, slot, id, count, data, extra)");
     }
 
-    public static void setSlot2(long pointer, int slot, long itemInstance) {
+    @Deprecated(since = "Zote")
+    public static void setSlot2(BlockEntity pointer, int slot, long itemInstance) {
         InnerCoreServer.useNotSupport("NativeTileEntity.setSlot2(pointer, slot, itemInstance)");
     }
 
-    public static long getCompoundTag(long pointer) {
-        InnerCoreServer.useNotSupport("NativeTileEntity.getCompoundTag(pointer)");
-        return 0;
-    }
-
-    public static void setCompoundTag(long pointer, long tag) {
+    @Deprecated(since = "Zote")
+    public static void setCompoundTag(BlockEntity pointer, long tag) {
         InnerCoreServer.useNotSupport("NativeTileEntity.setCompoundTag(pointer, tag)");
     }
 }

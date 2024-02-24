@@ -10,17 +10,17 @@ import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.BiomesHooks;
 import com.reider745.item.ItemMethod;
-import com.reider745.world.BlockSourceMethods;
 import com.reider745.world.WorldMethod;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.constants.PlayerAbility;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
+import com.zhekasmirnov.innercore.mod.resource.ResourceStorage;
 
 public class NativeAPI {
 
     public static boolean isLocalServerRunning() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.isLocalServerRunning()");
-        return false;
+        return true;
     }
 
     public static String getStringIdAndTypeForIntegerId(int id) {
@@ -34,29 +34,33 @@ public class NativeAPI {
         return null;
     }
 
+    @Deprecated(since = "Zote")
     public static void setDebugDumpDirectory(String path) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setDebugDumpDirectory(path)");
+        InnerCoreServer.useClientMethod("NativeAPI.setDebugDumpDirectory(path)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void addTextureToLoad(String path) {
-        InnerCoreServer.useClientMethod("NativeAPI.addTextureToLoad(path)");
+        ResourceStorage.addTextureToLoad(path);
     }
 
+    @Deprecated(since = "Zote")
     public static void getAtlasTextureCoords(String name, int data, float[] result) {
-        InnerCoreServer.useNotSupport("NativeAPI.getAtlasTextureCoords(name, data, result)");
+        InnerCoreServer.useClientMethod("NativeAPI.getAtlasTextureCoords(name, data, result)");
     }
 
     public static String getGameLanguage() {
         return InnerCoreServer.getGameLanguage();
     }
 
+    @Deprecated(since = "Zote")
     public static void preventPendingAppEvent(int event, int timeout) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.preventPendingAppEvent(event, timeout)");
+        InnerCoreServer.useClientMethod("NativeAPI.preventPendingAppEvent(event, timeout)");
     }
 
+    @Deprecated(since = "Zote")
     public static void preventPendingKeyEvent(int event, int timeout) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.preventPendingKeyEvent(event, timeout)");
+        InnerCoreServer.useClientMethod("NativeAPI.preventPendingKeyEvent(event, timeout)");
     }
 
     public static void setNativeWorldsPathOverride(String path) {
@@ -71,14 +75,12 @@ public class NativeAPI {
         InnerCoreServer.useNotSupport("NativeAPI.setNativeBehaviorPacksPathOverride(path)");
     }
 
+    @Deprecated(since = "Zote")
     public static void sendCachedItemNameOverride(int id, int data, String overrideCache) {
-        // InnerCoreServer.useNotCurrentSupport("NativeAPI.sendCachedItemNameOverride(id,
-        // data, overrideCache)");
     }
 
+    @Deprecated(since = "Zote")
     public static void setItemNameOverrideCallbackForced(int id, boolean forces) {
-        // InnerCoreServer.useNotCurrentSupport("NativeAPI.setItemNameOverrideCallbackForced(id,
-        // forces)");
     }
 
     public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
@@ -122,7 +124,7 @@ public class NativeAPI {
     }
 
     public static void invokeUseItemNoTarget(int id, int count, int data, NativeItemInstanceExtra extra) {
-        InnerCoreServer.useClientMethod("NativeAPI.invokeUseItemNoTarget(id, count, data, extra)");
+        InnerCoreServer.useNotCurrentSupport("NativeAPI.invokeUseItemNoTarget(id, count, data, extra)");
     }
 
     public static void invokeUseItemOn(int id, int count, int data, Item extra, int x, int y, int z, int side, float vx,
@@ -156,25 +158,27 @@ public class NativeAPI {
         return EntityMethod.getEffectDuration(unwrapEntity, effect);
     }
 
+    @Deprecated(since = "Zote")
     public static void addFarParticle(int i, double d, double d2, double d3, double d4, double d5, double d6, int i2) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.addFarParticle(i, d, d2, d3, d4, d5, d6, i2)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void addItemToInventory(int id, int count, int data, long extra, boolean b) {
         InnerCoreServer.useClientMethod("NativeAPI.addItemToInventory(id, count, data, extra, b)");
     }
 
+    @Deprecated(since = "Zote")
     public static void addParticle(int i, double d, double d2, double d3, double d4, double d5, double d6, int i2) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.addParticle(i, d, d2, d3, d4, d5, d6, i2)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void addPlayerExperience(int experience) {
         InnerCoreServer.useClientMethod("NativeAPI.addPlayerExperience(experience)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static boolean canPlayerFly() {
         InnerCoreServer.useClientMethod("NativeAPI.canPlayerFly()");
         return false;
@@ -184,15 +188,17 @@ public class NativeAPI {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.clearAllFurnaceRecipes()");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void clientMessage(String str) {
     }
 
+    @Deprecated(since = "Zote")
     public static float getGuiScale() {
         InnerCoreServer.useClientMethod("NativeAPI.getGuiScale()");
         return 0.0f;
     }
 
+    @Deprecated(since = "Zote")
     public static int clipWorld(float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] clip) {
         InnerCoreServer.useIncomprehensibleMethod("NativeAPI.clipWorld(x1, y1, z1, x2, y2, z2, mode, clip)");
         return 0;
@@ -202,12 +208,14 @@ public class NativeAPI {
         EntityMethod.dealDamage(unwrapEntity, damage, cause, l, b1, b2);
     }
 
+    @Deprecated(since = "Zote")
     public static void destroyBlock(int x, int y, int z, boolean drop) {
         NativeBlockSource.getCurrentWorldGenRegion().destroyBlock(x, y, z, drop);
     }
 
+    @Deprecated(since = "Zote")
     public static void explode(float x, float y, float z, float power, boolean onFire) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.explode(x, y, z, power, onFire)");
+        NativeBlockSource.getCurrentWorldGenRegion().explode(x, y, z, power, onFire);
     }
 
     public static void leaveGame() {
@@ -222,18 +230,22 @@ public class NativeAPI {
         Server.getInstance().doAutoSave();
     }
 
+    @Deprecated(since = "Zote")
     public static void forceRenderRefreshUnsafe(int i, int i2, int i3, int i4) {
         InnerCoreServer.useClientMethod("NativeAPI.forceRenderRefreshUnsafe(i, i2, i3, i4)");
     }
 
+    @Deprecated(since = "Zote")
     public static void clearAllStaticRenders() {
         InnerCoreServer.useClientMethod("NativeAPI.clearAllStaticRenders()");
     }
 
+    @Deprecated(since = "Zote")
     public static void clearAllRenderMappings() {
         InnerCoreServer.useClientMethod("NativeAPI.clearAllRenderMappings()");
     }
 
+    @Deprecated(since = "Zote")
     public static long getGlobalShaderUniformSet() {
         InnerCoreServer.useClientMethod("NativeAPI.getGlobalShaderUniformSet()");
         return 0;
@@ -254,10 +266,12 @@ public class NativeAPI {
         BiomesHooks.setBiomeMap(x, z, id);
     }
 
+    @Deprecated(since = "Zote")
     public static int getBiome(int x, int z) {
         return NativeBlockSource.getCurrentWorldGenRegion().getBiome(x, z);
     }
 
+    @Deprecated(since = "Zote")
     public static void setBiome(int x, int z, int id) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
@@ -269,6 +283,7 @@ public class NativeAPI {
         return "";
     }
 
+    @Deprecated(since = "Zote")
     public static float getBiomeTemperatureAt(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
@@ -276,6 +291,7 @@ public class NativeAPI {
         return 0;
     }
 
+    @Deprecated(since = "Zote")
     public static int getBrightness(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
@@ -283,6 +299,7 @@ public class NativeAPI {
         return 0;
     }
 
+    @Deprecated(since = "Zote")
     public static int getData(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
@@ -294,7 +311,7 @@ public class NativeAPI {
         return WorldMethod.getDifficulty();
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static int getDimension() {
         InnerCoreServer.useClientMethod("NativeAPI.getDimension()");
         return 0;
@@ -310,21 +327,18 @@ public class NativeAPI {
         return new long[0];
     }
 
-    @Deprecated
     public static long getEntityArmor(long entity, int slot) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityArmor(entity, slot)");
         // return EntityMethod.getEntityArmor(entity, slot);
         return 0;
     }
 
-    @Deprecated
     public static long getEntityCarriedItem(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityCarriedItem(entity)");
         // return EntityMethod.getEntityCarriedItem(entity);
         return 0;
     }
 
-    @Deprecated
     public static long getEntityOffhandItem(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityOffhandItem(entity)");
         // return EntityMethod.getEntityOffhandItem(entity);
@@ -339,14 +353,12 @@ public class NativeAPI {
         return EntityMethod.getEntityTypeName(entity);
     }
 
-    @Deprecated
     public static long getEntityCompoundTag(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityCompoundTag(entity)");
         // return EntityMethod.getEntityCompoundTag(entity);
         return 0;
     }
 
-    @Deprecated
     public static void setEntityCompoundTag(long entity, long tag) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setEntityCompoundTag(entity, tag)");
         // EntityMethod.setEntityCompoundTag(entity, tag);
@@ -360,8 +372,9 @@ public class NativeAPI {
         return WorldMethod.getGameMode();
     }
 
+    @Deprecated(since = "Zote")
     public static int getGrassColor(int x, int z) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.getGrassColor(x, z)");
+        InnerCoreServer.useClientMethod("NativeAPI.getGrassColor(x, z)");
         return 0;
     }
 
@@ -369,6 +382,7 @@ public class NativeAPI {
         return EntityMethod.getHealth(entity);
     }
 
+    @Deprecated(since = "Zote")
     public static long getInventorySlot(int slot) {
         InnerCoreServer.useClientMethod("NativeAPI.getInventorySlot(slot)");
         return 0;
@@ -379,7 +393,6 @@ public class NativeAPI {
         return 0;
     }
 
-    @Deprecated
     public static long getItemFromProjectile(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getItemFromProjectile(entity)");
         // return EntityMethod.getItemFromProjectile(entity);
@@ -398,25 +411,25 @@ public class NativeAPI {
         return EntityMethod.getNameTag(entity);
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static long getPlayer() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayer()");
         return 0;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static long getServerPlayer() {
         InnerCoreServer.useNotSupport("NativeAPI.getServerPlayer()");
         return 0;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static long getLocalPlayer() {
-        InnerCoreServer.useNotSupport("NativeAPI.getLocalPlayer()");
+        InnerCoreServer.useClientMethod("NativeAPI.getLocalPlayer()");
         return 0;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static long getPlayerArmor(int slot) {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerArmor(slot)");
         return 0;
@@ -428,43 +441,43 @@ public class NativeAPI {
         return 0.0f;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static float getPlayerExperience() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerExperience()");
         return 0.0f;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static float getPlayerHunger() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerHunger()");
         return 0.0f;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static float getPlayerLevel() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerLevel()");
         return 0.0f;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static float getPlayerSaturation() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerSaturation()");
         return 0.0f;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static int getPlayerScore() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerScore()");
         return 0;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static int getPlayerSelectedSlot() {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerSelectedSlot()");
         return 0;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static long getPointedData(int[] iArr, float[] fArr) {
         InnerCoreServer.useClientMethod("NativeAPI.getPointedData(iArr, fArr)");
         return 0;
@@ -478,6 +491,7 @@ public class NativeAPI {
         return (float) WorldMethod.getRainLevel();
     }
 
+    @Deprecated(since = "Zote")
     public static int getRenderType(long entity) {
         InnerCoreServer.useClientMethod("NativeAPI.getRenderType(entity)");
         return 0;
@@ -491,6 +505,7 @@ public class NativeAPI {
         return WorldMethod.getSeed();
     }
 
+    @Deprecated(since = "Zote")
     public static int getTile(int x, int y, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
@@ -498,6 +513,7 @@ public class NativeAPI {
         return 0;
     }
 
+    @Deprecated(since = "Zote")
     public static int getTileAndData(int i, int i2, int i3) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getTileAndData(i, i2, i3)");
         return 0;
@@ -507,6 +523,7 @@ public class NativeAPI {
         return WorldMethod.getTime();
     }
 
+    @Deprecated(since = "Zote")
     public static int getUiProfile() {
         return 0;
     }
@@ -515,15 +532,19 @@ public class NativeAPI {
         EntityMethod.getVelocity(entity, velocity);
     }
 
+    @Deprecated(since = "Zote")
     public static boolean isChunkLoaded(int x, int z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
-            return NativeBlockSource.getCurrentWorldGenRegion().isChunkLoaded(x, z);
+            return region.isChunkLoaded(x, z);
         return false;
     }
 
+    @Deprecated(since = "Zote")
     public static int getChunkState(int x, int z) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.getChunkState(x, z)");
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            return region.getChunkStateAt(x, z);
         return 0;
     }
 
@@ -548,7 +569,7 @@ public class NativeAPI {
         return EntityMethod.isImmobile(entity);
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static boolean isPlayerFlying() {
         InnerCoreServer.useClientMethod("NativeAPI.isPlayerFlying()");
         return false;
@@ -558,13 +579,19 @@ public class NativeAPI {
         return EntityMethod.isSneaking(entity);
     }
 
+    @Deprecated(since = "Zote")
     public static boolean isTileUpdateAllowed() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.isTileUpdateAllowed()");
-        return true;
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            return region.getBlockUpdateAllowed();
+        return false;
     }
 
+    @Deprecated(since = "Zote")
     public static int getTileUpdateType() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.getTileUpdateType()");
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            return region.getBlockUpdateType();
         return 0;
     }
 
@@ -572,33 +599,36 @@ public class NativeAPI {
         return EntityMethod.isValid(EntityMethod.getEntityById(entity));
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void nativeSetCameraEntity(long entity) {
         InnerCoreServer.useClientMethod("NativeAPI.nativeSetCameraEntity(entity)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void nativeSetFov(float fov) {
         InnerCoreServer.useClientMethod("NativeAPI.nativeSetFov(fov)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void nativeVibrate(int i) {
         InnerCoreServer.useClientMethod("NativeAPI.nativeVibrate(i)");
     }
 
+    @Deprecated(since = "Zote")
     public static void overrideItemIcon(String name, int index) {
         InnerCoreServer.useClientMethod("NativeAPI.overrideItemIcon(name, index)");
     }
 
+    @Deprecated(since = "Zote")
     public static void overrideItemModel(long model) {
         InnerCoreServer.useClientMethod("NativeAPI.overrideItemModel(model)");
     }
 
+    @Deprecated(since = "Zote")
     public static void overrideItemName(String name) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.overrideItemName(name)");
     }
 
+    @Deprecated(since = "Zote")
     public static void preventBlockDrop(int i, int i2, int i3) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.preventBlockDrop(i, i2, i3)");
     }
@@ -631,8 +661,9 @@ public class NativeAPI {
         return EntityMethod.getRiding(entity);
     }
 
+    @Deprecated(since = "Zote")
     public static void resetSkyColor() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.resetSkyColor()");
+        InnerCoreServer.useClientMethod("NativeAPI.resetSkyColor()");
     }
 
     public static void setAge(long entity, int age) {
@@ -680,8 +711,9 @@ public class NativeAPI {
         WorldMethod.setGameMode(mode);
     }
 
+    @Deprecated(since = "Zote")
     public static void setGrassColor(int x, int z, int color) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setGrassColor(x, z, color)");
+        InnerCoreServer.useClientMethod("NativeAPI.setGrassColor(x, z, color)");
     }
 
     public static void setHealth(long entity, int health) {
@@ -695,11 +727,12 @@ public class NativeAPI {
     public static void setInnerCoreVersion(String str) {
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setInventorySlot(int slot, int id, int data, int count, long extra) {
         InnerCoreServer.useClientMethod("NativeAPI.setInventorySlot(slot, id, data, count, extra)");
     }
 
+    @Deprecated(since = "Zote")
     public static void setItemRequiresIconOverride(int id, boolean enabled) {
     }
 
@@ -728,55 +761,54 @@ public class NativeAPI {
     }
 
     public static void setNativeThreadPriorityParams(int low, int high, int threshold) {
-        // InnerCoreServer.useNotCurrentSupport("NativeAPI.setNativeThreadPriorityParams(low,
-        // high, threshold)");
+        InnerCoreServer.useNotCurrentSupport("NativeAPI.setNativeThreadPriorityParams(low, high, threshold)");
     }
 
     public static void setNightMode(boolean z) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setNightMode(z)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerArmor(int i, int i2, int i3, int i4, long extra) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerArmor(i, i2, i3, i4, extra)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerCanFly(boolean enabled) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerCanFly(enabled)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerExhaustion(float exhaustion) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerExhaustion(exhaustion)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerExperience(float experience) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerExperience(experience)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerFlying(boolean enabled) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerFlying(enabled)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerHunger(float hunger) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerHunger(hunger)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerLevel(float level) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerLevel(level)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerSaturation(float saturation) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerSaturation(saturation)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerSelectedSlot(int slot) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerSelectedSlot(slot)");
     }
@@ -793,6 +825,7 @@ public class NativeAPI {
         WorldMethod.setRainLevel(level);
     }
 
+    @Deprecated(since = "Zote")
     public static void setRenderType(long entity, int type) {
         InnerCoreServer.useClientMethod("NativeAPI.setRenderType(entity, type)");
     }
@@ -805,114 +838,141 @@ public class NativeAPI {
         EntityMethod.setRotation(entity, x, y);
     }
 
+    // TODO
     public static void setRotationAxis(long entity, int axis, float value) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setRotationAxis(entity, axis, value)");
     }
 
+    @Deprecated(since = "Zote")
     public static void setSkin(long entity, String skin) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setSkin(entity, skin)");
+        InnerCoreServer.useClientMethod("NativeAPI.setSkin(entity, skin)");
     }
 
+    @Deprecated(since = "Zote")
     public static void setSkyColor(float r, float g, float b) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setSkyColor(r, g, b)");
+        InnerCoreServer.useClientMethod("NativeAPI.setSkyColor(r, g, b)");
     }
 
+    @Deprecated(since = "Zote")
     public static void setCloudColor(float r, float g, float b) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setCloudColor(r, g, b)");
+        InnerCoreServer.useClientMethod("NativeAPI.setCloudColor(r, g, b)");
     }
 
+    @Deprecated(since = "Zote")
     public static void resetCloudColor() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.resetCloudColor()");
+        InnerCoreServer.useClientMethod("NativeAPI.resetCloudColor()");
     }
 
+    @Deprecated(since = "Zote")
     public static void setSunsetColor(float r, float g, float b) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setSunsetColor(r, g, b)");
+        InnerCoreServer.useClientMethod("NativeAPI.setSunsetColor(r, g, b)");
     }
 
+    @Deprecated(since = "Zote")
     public static void resetSunsetColor() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.resetSunsetColor()");
+        InnerCoreServer.useClientMethod("NativeAPI.resetSunsetColor()");
     }
 
+    @Deprecated(since = "Zote")
     public static void setFogColor(float r, float g, float b) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setFogColor(r, g, b)");
+        InnerCoreServer.useClientMethod("NativeAPI.setFogColor(r, g, b)");
     }
 
+    @Deprecated(since = "Zote")
     public static void resetFogColor() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.resetFogColor()");
+        InnerCoreServer.useClientMethod("NativeAPI.resetFogColor()");
     }
 
+    @Deprecated(since = "Zote")
     public static void setFogDistance(float start, float end) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setFogDistance(start, end)");
+        InnerCoreServer.useClientMethod("NativeAPI.setFogDistance(start, end)");
     }
 
+    @Deprecated(since = "Zote")
     public static void resetFogDistance() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.resetFogDistance()");
+        InnerCoreServer.useClientMethod("NativeAPI.resetFogDistance()");
     }
 
+    @Deprecated(since = "Zote")
     public static void setUnderwaterFogColor(float r, float g, float b) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setUnderwaterFogColor(r, g, b)");
+        InnerCoreServer.useClientMethod("NativeAPI.setUnderwaterFogColor(r, g, b)");
     }
 
+    @Deprecated(since = "Zote")
     public static void resetUnderwaterFogColor() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.resetUnderwaterFogColor()");
+        InnerCoreServer.useClientMethod("NativeAPI.resetUnderwaterFogColor()");
     }
 
+    @Deprecated(since = "Zote")
     public static void setUnderwaterFogDistance(float start, float end) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setUnderwaterFogDistance(start, end)");
+        InnerCoreServer.useClientMethod("NativeAPI.setUnderwaterFogDistance(start, end)");
     }
 
+    @Deprecated(since = "Zote")
     public static void resetUnderwaterFogDistance() {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.resetUnderwaterFogDistance()");
+        InnerCoreServer.useClientMethod("NativeAPI.resetUnderwaterFogDistance()");
     }
 
     public static void setSneaking(long entity, boolean sneak) {
         EntityMethod.setSneaking(entity, sneak);
     }
 
+    @Deprecated(since = "Zote")
     public static void setTile(int x, int y, int z, int id, int data) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
-            NativeBlockSource.getCurrentWorldGenRegion().setBlock(x, y, z, id, data);
+            region.setBlock(x, y, z, id, data);
     }
 
+    @Deprecated(since = "Zote")
     public static void setTileUpdateAllowed(boolean z) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setTileUpdateAllowed(z)");
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            region.setBlockUpdateAllowed(z);
     }
 
+    @Deprecated(since = "Zote")
     public static void setTileUpdateType(int i) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setTileUpdateType(i)");
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            region.setBlockUpdateType(i);
     }
 
     public static void setTime(long time) {
-        WorldMethod.setTime((int) (time % Integer.MAX_VALUE));
+        WorldMethod.setTime((int) (time & Integer.MAX_VALUE));
     }
 
     public static void setVelocity(long entity, float x, float y, float z) {
         EntityMethod.setVelocity(entity, x, y, z);
     }
 
+    // TODO
     public static void setVelocityAxis(long entity, int axis, float value) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.setVelocityAxis(entity, axis, value)");
     }
 
+    @Deprecated(since = "Zote")
     public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, Item extra) {
         return spawnDroppedItem(x, y, z, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
     }
 
+    @Deprecated(since = "Zote")
     public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, NativeItemInstanceExtra extra) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
-            return BlockSourceMethods.spawnDroppedItem(CallbackHelper.getForCurrentThread(), x, y, z, id, count, data, extra);
-        return 0;
+            return region.spawnDroppedItem(x, y, z, id, count, data, extra);
+        return -1;
     }
 
+    @Deprecated(since = "Zote")
     public static long spawnEntity(int id, float x, float y, float z) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
             return region.spawnEntity(x, y, z, id);
-        return 0;
+        return -1;
     }
 
+    @Deprecated(since = "Zote")
     public static void spawnExpOrbs(float x, float y, float z, int amount) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
@@ -920,10 +980,10 @@ public class NativeAPI {
     }
 
     public static void teleportTo(long entity, float x, float y, float z) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.teleportTo(entity, x, y, z)");
+        EntityMethod.setPosition(entity, x, y, z);
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void tipMessage(String str) {
     }
 
@@ -931,12 +991,13 @@ public class NativeAPI {
         EntityMethod.transferToDimension(entity, id);
     }
 
+    @Deprecated(since = "Zote")
     public static void forceRenderRefresh(final int x, final int y, final int z, final int mode) {
         NativeAPI.forceRenderRefreshUnsafe(x, y, z, mode);
     }
 
     public static void nativeLog(String message) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.nativeLog(message)");
+        Logger.debug(message);
     }
 
     public static String convertNameId(String str) {
@@ -961,23 +1022,23 @@ public class NativeAPI {
         return builder.toString();
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerBooleanAbility(String ability, boolean value) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerBooleanAbility(ability, value)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void setPlayerFloatAbility(String ability, float value) {
         InnerCoreServer.useClientMethod("NativeAPI.setPlayerFloatAbility(ability, value)");
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static boolean getPlayerBooleanAbility(String ability) {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerBooleanAbility(ability)");
         return false;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static float getPlayerFloatAbility(String ability) {
         InnerCoreServer.useClientMethod("NativeAPI.getPlayerFloatAbility(ability)");
         return 0.0f;

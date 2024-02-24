@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+@Deprecated(since = "Zote")
 public class ItemContainerUiHandler implements UiAbstractContainer {
     private final ItemContainer container;
 

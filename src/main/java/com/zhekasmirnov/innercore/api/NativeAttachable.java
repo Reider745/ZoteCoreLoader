@@ -2,14 +2,16 @@ package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
 
+@Deprecated(since = "Zote")
 public class NativeAttachable {
     public final long pointer = 0;
 
     public NativeAttachable(long actorUid) {
+        InnerCoreServer.useClientMethod("NativeAttachable(actorUid)");
     }
 
     public NativeShaderUniformSet getUniformSet() {
-        return null;
+        return new NativeShaderUniformSet(0);
     }
 
     public NativeAttachable setRenderer(NativeActorRenderer renderer) {

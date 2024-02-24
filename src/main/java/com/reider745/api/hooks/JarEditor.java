@@ -23,26 +23,10 @@ public class JarEditor {
         classPool.insertClassPath(classPath);
     }
 
-    public static class RetNull {
+    public static final class RetNull {
     }
 
-    private static class HookData {
-        public String className, method, signature;
-        public Method handler;
-        public TypeHook typeHook;
-        public boolean controller;
-        public ArgumentTypes argumentsMap;
-
-        public HookData(String className, String method, String signature, Method handler, TypeHook typeHook,
-                boolean controller, ArgumentTypes argumentsMap) {
-            this.className = className;
-            this.method = method;
-            this.signature = signature;
-            this.handler = handler;
-            this.typeHook = typeHook;
-            this.controller = controller;
-            this.argumentsMap = argumentsMap;
-        }
+    private static record HookData(String className, String method, String signature, Method handler, TypeHook typeHook, boolean controller, ArgumentTypes argumentsMap) {
     }
 
     private static final String NAME_CONTROLLER = HookController.class.getName();
@@ -266,7 +250,7 @@ public class JarEditor {
 
     private boolean isController(Method replaced) {
         Class<?>[] parameters = replaced.getParameterTypes();
-        return parameters.length >= 1 && parameters[0].getName().equals(NAME_CONTROLLER);
+        return parameters.length != 0 && parameters[0].getName().equals(NAME_CONTROLLER);
     }
 
     private boolean isMapArguments(Method replaced, String[] types, boolean isStatic, boolean isController) {
@@ -330,6 +314,7 @@ public class JarEditor {
                             default -> throw new RuntimeException("Hook type not found or does not exist. "
                                     + "Please make sure you have correctly specified the hook type and that it exists in your project.");
                         }
+
                         ctmBuffer.getMethodInfo().rebuildStackMap(ClassPool.getDefault());
                         System.out.println("Success register hook for " + method + signature + " " + typeHook.name());
                         return;
@@ -367,7 +352,6 @@ public class JarEditor {
 
                             String code = getCode(replaced, arguments, arguments_types, returnType, typeHook, isStatic,
                                     controller, argumentMap);
-
                             switch (typeHook) {
                                 case RETURN -> ctmBuffer.setBody("{ " + code + " }");
                                 case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, AFTER_REPLACE ->

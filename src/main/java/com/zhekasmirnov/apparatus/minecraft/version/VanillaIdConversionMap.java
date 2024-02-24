@@ -1,8 +1,6 @@
 package com.zhekasmirnov.apparatus.minecraft.version;
 
-import com.zhekasmirnov.apparatus.cpp.NativeVanillaIdConversionMap;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import org.json.JSONException;
@@ -21,7 +19,6 @@ public class VanillaIdConversionMap {
 
 
     private VanillaIdConversionMap() {
-
     }
 
     private boolean tryLoadFromAsset(String asset, Map<String, Map<String, Integer>> scopedIdMap, boolean override) {
@@ -49,6 +46,7 @@ public class VanillaIdConversionMap {
         return scopedIdMap;
     }
 
+    @Deprecated(since = "Zote")
     public void reloadFromAssets() {
         reloadFrom(loadScopedIdMapFromAssets());
     }
@@ -111,6 +109,7 @@ public class VanillaIdConversionMap {
         }
     }
 
+    @Deprecated(since = "Zote")
     public synchronized void reloadFrom(Map<String, Map<String, Integer>> scopedIdMap) {
         if (!MinecraftVersions.getCurrent().isFeatureSupported(MinecraftVersion.FEATURE_VANILLA_ID_MAPPING)) {
             ICLog.d("VanillaIdConversionMap", "vanilla id remapping is not required on this version of the game");
@@ -126,10 +125,10 @@ public class VanillaIdConversionMap {
                 int id = nameAndId.getValue();
                 switch (scopeName) {
                     case "blocks":
-                        NativeVanillaIdConversionMap.addBlockId(name, id);
+                        com.zhekasmirnov.apparatus.cpp.NativeVanillaIdConversionMap.addBlockId(name, id);
                         break;
                     case "items":
-                        NativeVanillaIdConversionMap.addItemId(name, id);
+                        com.zhekasmirnov.apparatus.cpp.NativeVanillaIdConversionMap.addItemId(name, id);
                         break;
                     default:
                         // unknown, just ignore

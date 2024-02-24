@@ -34,11 +34,11 @@ public class FurnaceRecipe {
         String outputName = object.optString("output");
         Pair<Integer, Integer> output = parser.getIdAndDataFromItemString(outputName, 0);
 
-        if(input == null){
+        if (input == null) {
             Logger.debug("cannot find vanilla numeric ID for " + inputName);
             inId = inData = resId = resData = 0;
             isValid = false;
-        } else if(output == null){
+        } else if (output == null) {
             Logger.debug("cannot find vanilla numeric ID for " + outputName);
             inId = inData = resId = resData = 0;
             isValid = false;
@@ -51,11 +51,12 @@ public class FurnaceRecipe {
         }
     }
 
-    public boolean isValid(){
+    public boolean isValid() {
         return isValid;
     }
 
     private String prefix;
+
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }

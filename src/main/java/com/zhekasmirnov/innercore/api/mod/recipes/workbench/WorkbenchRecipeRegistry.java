@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
+import com.reider745.InnerCoreServer;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
@@ -211,8 +212,9 @@ public class WorkbenchRecipeRegistry {
         return null;
     }
 
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static ItemInstance provideRecipe(WorkbenchField field, String prefix) {
+        InnerCoreServer.useClientMethod("WorkbenchRecipeRegistry.provideRecipe(field, prefix)");
         return provideRecipeForPlayer(field, prefix, NativeAPI.getPlayer());
     }
 

@@ -8,6 +8,7 @@ import org.mozilla.javascript.ScriptableObject;
  * Created by zheka on 31.07.2017.
  */
 
+@Deprecated(since = "Zote")
 public class Texture {
     public BitmapWrap bitmap;
     public BitmapWrap[] animation = new BitmapWrap[1];

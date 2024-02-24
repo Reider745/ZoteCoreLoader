@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Config {
-
     private File file;
     private Config parent;
 

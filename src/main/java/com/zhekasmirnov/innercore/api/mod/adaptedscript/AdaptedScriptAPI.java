@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.util.Pair;
 import cn.nukkit.nbt.tag.CompoundTag;
 
+import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
@@ -31,9 +32,6 @@ import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.RecipeRegistry;
-import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
-import com.zhekasmirnov.innercore.api.mod.ui.icon.ItemModels;
-import com.zhekasmirnov.innercore.api.mod.ui.types.FrameTexture;
 import com.zhekasmirnov.innercore.api.mod.ui.window.*;
 import com.zhekasmirnov.innercore.api.mod.util.DebugAPI;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
@@ -130,39 +128,43 @@ public class AdaptedScriptAPI extends API {
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static void setTile(int x, int y, int z, int id, int data) {
         NativeAPI.setTile(x, y, z, id, data);
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static int getTile(int x, int y, int z) {
         return NativeAPI.getTile(x, y, z);
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static int getTileAndData(int x, int y, int z) {
         return NativeAPI.getTileAndData(x, y, z);
     }
 
     @JSStaticFunction
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static long getPlayerEnt() {
         return NativeAPI.getPlayer();
     }
 
     @JSStaticFunction
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void clientMessage(String message) {
         NativeAPI.clientMessage(message);
     }
 
     @JSStaticFunction
-    @Deprecated
+    @Deprecated(since = "Zote")
     public static void tipMessage(String message) {
         NativeAPI.tipMessage(message);
     }
 
     @JSStaticFunction
+    @Deprecated(since = "Zote")
     public static void explode(double x, double y, double z, double power, boolean onFire) {
         NativeAPI.explode((float) x, (float) y, (float) z, (float) power, onFire);
     }
@@ -230,46 +232,55 @@ public class AdaptedScriptAPI extends API {
         // tile
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setTile(int x, int y, int z, int id, int data) {
             NativeAPI.setTile(x, y, z, id, data);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getTile(int x, int y, int z) {
             return NativeAPI.getTile(x, y, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getData(int x, int y, int z) {
             return NativeAPI.getData(x, y, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getTileAndData(int x, int y, int z) {
             return NativeAPI.getTileAndData(x, y, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getBrightness(int x, int y, int z) {
             return NativeAPI.getBrightness(x, y, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static boolean isChunkLoaded(int x, int z) {
             return NativeAPI.isChunkLoaded(x, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static boolean isChunkLoadedAt(int x, int y, int z) {
             return NativeAPI.isChunkLoaded((int) Math.floor(x / 16.0), (int) Math.floor(z / 16.0));
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getChunkState(int x, int z) {
             return NativeAPI.getChunkState(x, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getChunkStateAt(int x, int y, int z) {
             return NativeAPI.getChunkState((int) Math.floor(x / 16.0), (int) Math.floor(z / 16.0));
         }
@@ -277,11 +288,13 @@ public class AdaptedScriptAPI extends API {
         // biome
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getBiome(int x, int z) {
             return NativeAPI.getBiome(x, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setBiome(int x, int z, int id) {
             NativeAPI.setBiome(x, z, id);
         }
@@ -302,21 +315,25 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static float getTemperature(int x, int y, int z) {
             return NativeAPI.getBiomeTemperatureAt(x, y, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getGrassColor(int x, int z) {
             return NativeAPI.getGrassColor(x, z);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setGrassColor(int x, int z, int color) {
             NativeAPI.setGrassColor(x, z, color);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void destroyBlock(int x, int y, int z, boolean drop) {
             if (NativeAPI.getTile(x, y, z) > 0) {
                 NativeAPI.destroyBlock(x, y, z, drop);
@@ -326,18 +343,21 @@ public class AdaptedScriptAPI extends API {
         // entity
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void addParticle(int id, double x, double y, double z, double vx, double vy, double vz,
                 int data) {
             NativeAPI.addParticle(id, x, y, z, vx, vy, vz, data);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void addFarParticle(int id, double x, double y, double z, double vx, double vy, double vz,
                 int data) {
             NativeAPI.addFarParticle(id, x, y, z, vx, vy, vz, data);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static long spawnMob(double x, double y, double z, int id, String skin) {
             long entity = NativeAPI.spawnEntity(id, (float) x, (float) y, (float) z);
             if (skin != null && skin.length() > 0 && !skin.equals("undefined")) {
@@ -347,11 +367,13 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void spawnExpOrbs(double x, double y, double z, int amount) {
             NativeAPI.spawnExpOrbs((float) x, (float) y, (float) z, amount);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static long dropItem(double x, double y, double z, int placeholder, int id, int count, int data, Object extra) {
             if (id == 0) {
                 return -1;
@@ -361,6 +383,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static NativeTileEntity getTileEntity(int x, int y, int z) {
             return NativeTileEntity.getTileEntity(x, y, z);
         }
@@ -432,6 +455,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void explode(double x, double y, double z, double power, boolean fire) {
             NativeAPI.explode((float) x, (float) y, (float) z, (float) power, fire);
         }
@@ -468,6 +492,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static ScriptableObject clip(double x1, double y1, double z1, double x2, double y2, double z2,
                 int mode) {
             float[] clip = new float[4];
@@ -522,71 +547,85 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setSkyColor(double r, double g, double b) {
             NativeAPI.setSkyColor((float) r, (float) g, (float) b);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void resetSkyColor() {
             NativeAPI.resetSkyColor();
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setCloudColor(double r, double g, double b) {
             NativeAPI.setCloudColor((float) r, (float) g, (float) b);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void resetCloudColor() {
             NativeAPI.resetCloudColor();
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setSunsetColor(double r, double g, double b) {
             NativeAPI.setSunsetColor((float) r, (float) g, (float) b);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void resetSunsetColor() {
             NativeAPI.resetSunsetColor();
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setFogColor(double r, double g, double b) {
             NativeAPI.setFogColor((float) r, (float) g, (float) b);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void resetFogColor() {
             NativeAPI.resetFogColor();
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setFogDistance(double start, double end) {
             NativeAPI.setFogDistance((float) start, (float) end);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void resetFogDistance() {
             NativeAPI.resetFogDistance();
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setUnderwaterFogColor(double r, double g, double b) {
             NativeAPI.setUnderwaterFogColor((float) r, (float) g, (float) b);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void resetUnderwaterFogColor() {
             NativeAPI.resetUnderwaterFogColor();
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setUnderwaterFogDistance(double start, double end) {
             NativeAPI.setUnderwaterFogDistance((float) start, (float) end);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void resetUnderwaterFogDistance() {
             NativeAPI.resetUnderwaterFogDistance();
         }
@@ -788,11 +827,13 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getRenderType(Object entity) {
             return NativeAPI.getRenderType(unwrapEntity(entity));
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setRenderType(Object entity, int type) {
             NativeAPI.setRenderType(unwrapEntity(entity), type);
         }
@@ -805,6 +846,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setSkin(Object entity, String skin) {
             NativeAPI.setSkin(unwrapEntity(entity), skin);
         }
@@ -817,6 +859,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setMobSkin(Object entity, String skin) {
             NativeAPI.setSkin(unwrapEntity(entity), skin);
         }
@@ -1351,6 +1394,7 @@ public class AdaptedScriptAPI extends API {
     }
 
     @APIStaticModule
+    @Deprecated(since = "Zote")
     public static class UI {
         public static class Container extends com.zhekasmirnov.innercore.api.mod.ui.container.Container {
             public Container() {
@@ -1475,7 +1519,7 @@ public class AdaptedScriptAPI extends API {
         @APIStaticModule
         public static class FrameTextureSource {
             @JSStaticFunction
-            public static FrameTexture get(String name) {
+            public static com.zhekasmirnov.innercore.api.mod.ui.types.FrameTexture get(String name) {
                 return com.zhekasmirnov.innercore.api.mod.ui.types.FrameTextureSource.getFrameTexture(name);
             }
         }
@@ -1551,7 +1595,6 @@ public class AdaptedScriptAPI extends API {
         public static NativeItem createFoodItem(int id, String nameId, String name, String iconName, int iconIndex,
                 int food) {
             NativeItem item = NativeItem.createFoodItem(id, nameId, name, iconName, iconIndex, food);
-            item.setUseAnimation(1);
             item.setMaxUseDuration(32);
             return item;
         }
@@ -1572,16 +1615,19 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setRequiresIconOverride(int id, boolean enabled) {
             NativeItem.setItemRequiresIconOverride(id, enabled);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void overrideCurrentIcon(String name, int index) {
             NativeItem.overrideItemIcon(name, index);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void overrideCurrentName(String name) {
             NativeAPI.overrideItemName(name);
         }
@@ -1605,6 +1651,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void registerCallbacks(int id, ScriptableObject obj) {
             ArmorRegistry.registerArmor(id, obj);
         }
@@ -1730,6 +1777,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static double getDestroyTime(int id) {
             return NativeBlock.getDestroyTimeForId(id);
         }
@@ -1755,26 +1803,31 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getLightOpacity(int id) {
             return NativeBlock.getLightOpacity(id);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getRenderLayer(int id) {
             return NativeBlock.getRenderLayer(id);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static int getRenderType(int id) {
             return NativeBlock.getRenderType(id);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setDestroyTime(int id, double time) {
             NativeBlock.setDestroyTimeForId(id, (float) time);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setTempDestroyTime(int id, double time) {
             NativeBlock.setTempDestroyTimeForId(id, (float) time);
         }
@@ -1820,6 +1873,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void setAnimateTickCallback(int id, Function callback) {
             NativeBlock.setAnimateTickCallback(id, callback);
         }
@@ -1845,6 +1899,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static ScriptableObject getBlockAtlasTextureCoords(String name, int id) {
             float[] coords = new float[4];
             NativeAPI.getAtlasTextureCoords(name, id, coords);
@@ -1857,6 +1912,7 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static class RenderMesh extends NativeRenderMesh {
         public RenderMesh() {
             super();
@@ -1877,6 +1933,7 @@ public class AdaptedScriptAPI extends API {
     }
 
     @APIStaticModule
+    @Deprecated(since = "Zote")
     public static class ItemModel extends NativeItemModel {
 
     }
@@ -1887,6 +1944,7 @@ public class AdaptedScriptAPI extends API {
     }
 
     @APIStaticModule
+    @Deprecated(since = "Zote")
     public static class BlockRenderer extends NativeBlockRenderer {
         public static class Model extends NativeBlockModel {
             public Model() {
@@ -1954,20 +2012,23 @@ public class AdaptedScriptAPI extends API {
     }
 
     @APIStaticModule
+    @Deprecated(since = "Zote")
     public static class ICRender extends NativeICRender {
 
     }
 
     @APIStaticModule
+    @Deprecated(since = "Zote")
     public static class Renderer extends NativeRenderer {
         @JSStaticFunction
         public static NativeRenderer.Renderer getItemModel(int id, int count, int data, double scale, double rX,
                 double rY, double rZ, boolean randomize) {
-            return ItemModels.getItemOrBlockModel(id, count, data, scale, rX, rY, rZ, randomize);
+            return com.zhekasmirnov.innercore.api.mod.ui.icon.ItemModels.getItemOrBlockModel(id, count, data, scale, rX, rY, rZ, randomize);
         }
     }
 
     @APIStaticModule
+    @Deprecated(since = "Zote")
     public static class StaticRenderer {
         @JSStaticFunction
         public static NativeStaticRenderer createStaticRenderer(int renderer, double x, double y, double z) {
@@ -1985,6 +2046,7 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static class ActorRenderer extends NativeActorRenderer {
         public ActorRenderer() {
             super();
@@ -1995,6 +2057,7 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
+    @Deprecated(since = "Zote")
     public static class AttachableRender extends NativeAttachable {
         public AttachableRender(long actorUid) {
             super(actorUid);
@@ -2196,6 +2259,7 @@ public class AdaptedScriptAPI extends API {
     }
 
     @APIStaticModule
+    @Deprecated(since = "Zote")
     public static class WorldRenderer {
         @JSStaticFunction
         public static Object getGlobalUniformSet() {
@@ -2326,25 +2390,31 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void simulateBackPressed() {
+            InnerCoreServer.useClientMethod("MCSystem.simulateBackPressed()");
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static Activity getContext() {
             return UIUtils.getContext();
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void runAsUi(Object runnable) {
             getContext().runOnUiThread((Runnable) Context.jsToJava(runnable, Runnable.class));
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void debugStr(String s) {
             DebugAPI.dialog(s);
         }
 
         @JSStaticFunction
+        @Deprecated(since = "Zote")
         public static void debugBmp(Object bmp) {
             DebugAPI.img((Bitmap) Context.jsToJava(bmp, Bitmap.class));
         }
@@ -2623,7 +2693,8 @@ public class AdaptedScriptAPI extends API {
             super();
         }
 
-        public ItemContainer(Container container) {
+        @Deprecated(since = "Zote")
+        public ItemContainer(com.zhekasmirnov.innercore.api.mod.ui.container.Container container) {
             super(container);
         }
     }

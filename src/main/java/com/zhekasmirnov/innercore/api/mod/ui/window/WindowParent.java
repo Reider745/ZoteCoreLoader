@@ -7,6 +7,7 @@ import android.view.WindowInsets;
  * Created by zheka on 04.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class WindowParent {
     public static void openWindow(final UIWindow window) {
     }

@@ -11,6 +11,7 @@ import java.util.HashMap;
  * Created by zheka on 02.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public interface IWindow {
     void open();
 

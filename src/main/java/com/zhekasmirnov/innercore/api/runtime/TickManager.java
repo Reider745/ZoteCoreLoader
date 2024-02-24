@@ -1,8 +1,6 @@
 package com.zhekasmirnov.innercore.api.runtime;
 
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.mod.util.InventorySource;
-import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
 
 // WARNING! this class is no longer used and kept here like a stub, in case some mods need it
@@ -108,8 +106,6 @@ public class TickManager {
         }
         globalTickCounter++;
 
-        InventorySource.tick();
-        ArmorRegistry.onTick();
         WorldDataSaverHandler.getInstance().onTick();
 
         TickExecutor executor = TickExecutor.getInstance();

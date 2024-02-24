@@ -11,6 +11,7 @@ import java.util.HashMap;
  * Created by zheka on 02.08.2017.
  */
 
+@Deprecated(since = "Zote")
 public class DrawingFactory {
     private static HashMap<String, Class<? extends IDrawing>> drawingConstructorMap = new HashMap<>();
 
