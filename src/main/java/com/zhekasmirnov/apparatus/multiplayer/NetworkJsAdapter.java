@@ -4,7 +4,6 @@ import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerHandler;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
-import com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.multiplayer.server.InitializationPacketException;
@@ -28,7 +27,7 @@ public class NetworkJsAdapter {
     }
 
     @Deprecated(since = "Zote")
-    public ModdedClient getClient() {
+    public com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient getClient() {
         return network.getClient();
     }
 
@@ -54,18 +53,19 @@ public class NetworkJsAdapter {
         network.addClientInitializationPacket(name, sender, receiver);
     }
 
+    @SuppressWarnings("deprecation")
     public void addServerInitializationPacket(String name, Network.ServerInitializationPacketSender sender,
-            ModdedClient.OnPacketReceivedListener receiver) {
+            com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient.OnPacketReceivedListener receiver) {
         network.addServerInitializationPacket(name, sender, receiver);
     }
 
     @Deprecated(since = "Zote")
-    public void addClientPacket(String name, ModdedClient.OnPacketReceivedListener listener, JobExecutor executor) {
+    public void addClientPacket(String name, com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient.OnPacketReceivedListener listener, JobExecutor executor) {
         network.addClientPacket(name, listener, executor);
     }
 
     @Deprecated(since = "Zote")
-    public void addClientPacket(String name, ModdedClient.OnPacketReceivedListener listener) {
+    public void addClientPacket(String name, com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient.OnPacketReceivedListener listener) {
         network.addClientPacket(name, listener);
     }
 

@@ -8,7 +8,7 @@ import javassist.NotFoundException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
@@ -34,8 +34,15 @@ public class RhinoOverrides implements HookClass {
         return new String[] { "java", "javax", "org", "com", "edu", "net", "android" };
     }
 
+    @Inject(className = "org.mozilla.javascript.ScriptRuntime", type = TypeHook.BEFORE_REPLACE)
+    public static void warnAboutNonJSObject(Object nonJSObject) {
+        if (InnerCoreServer.isDeveloperMode()) {
+            logger.debug("Missed Context.javaToJS() conversion: " + nonJSObject);
+        }
+    }
+
     @Inject(className = "cn.nukkit.utils.MainLogger", type = TypeHook.BEFORE_REPLACE)
-    public static void warning(MainLogger self, String message) {
+    public static void warning(MainLogger nukkitLogger, String message) {
         if (message == null || !message.startsWith("Ignoring InnerCorePacket from ")) {
             logger.warn(message);
         }

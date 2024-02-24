@@ -13,7 +13,6 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.log.ModLoaderEventHandler;
 import com.zhekasmirnov.innercore.api.mod.API;
-import com.zhekasmirnov.innercore.api.mod.ui.TextureSource;
 import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
 import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
@@ -176,9 +175,10 @@ public class InnerCore {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void addGuiAssetsDirectory(ApparatusMod mod, File directory) {
             if (directory.isDirectory()) {
-                TextureSource.instance.loadDirectory(directory);
+                com.zhekasmirnov.innercore.api.mod.ui.TextureSource.instance.loadDirectory(directory);
             }
         }
 
