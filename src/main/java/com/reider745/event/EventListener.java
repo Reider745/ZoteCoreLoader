@@ -66,7 +66,6 @@ import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 public class EventListener implements Listener {
     public static final Object DEALING_LOCK = new Object();
     public static Object dealingEvent = null;
-    private static long projectileHitEntity = -1;
 
     public static final int FORM_REJOIN_EXCEPTION = 2560;
 
@@ -140,15 +139,6 @@ public class EventListener implements Listener {
                         mop != null && mop.entityHit != null ? mop.entityHit.getId() : 0, mop != null ? mop.blockX : 0,
                         mop != null ? mop.blockY : 0, mop != null ? mop.blockZ : 0, mop != null ? mop.sideHit : -1,
                         item.getId(), item.count, item.getDamage(), extra));
-
-        if (event.isCancelled()) {
-            // It actually cannot prevent projectile remove, but cancelling
-            // damage is most common requirement
-            if (mop != null && mop.entityHit != null) {
-                projectileHitEntity = mop.entityHit.getId();
-            }
-            entity.isCollided = entity.isCollidedHorizontally = entity.isCollidedVertically = entity.hadCollision = false;
-        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -259,10 +249,6 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity().getId() == projectileHitEntity && event.getCause() == DamageCause.PROJECTILE) {
-            projectileHitEntity = -1;
-            return;
-        }
         if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
             return;
         }

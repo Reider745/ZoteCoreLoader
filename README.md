@@ -83,7 +83,7 @@ display-ticking-errors-to-players: true
 
 # Если серверный тик прерывается слишком часто, сервер будет остановлен;
 # в противном случае тик будет пытаться продолжать перезапуски.
-stop-on-critical-ticking-error: true
+stop-on-critical-ticking-error: false
 ```
 
 ## Консольные команды

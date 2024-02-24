@@ -51,4 +51,4 @@ pack-version-code: 152
 
 # If ticking callback interrupts too often, server will be stopped;
 # otherwise it will continue trying restart itself continiously.
-# stop-on-critical-ticking-error: false
+# stop-on-critical-ticking-error: true
