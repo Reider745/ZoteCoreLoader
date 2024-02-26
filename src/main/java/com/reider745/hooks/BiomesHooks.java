@@ -20,12 +20,17 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
 
+
+//Забейте хуй товарищи, нам этот класс больше не нужен
+//Нахуя он тут?
+//А нахуй он тут не нужен
+
 @Hooks(className = "cn.nukkit.level.biome.Biome")
 public class BiomesHooks implements HookClass {
     /*
     Биомов не может быть больше 256, слишком много ограничений внутри Nukkit-Mot и вероятно это ограничено и клиентом
      */
-    private static final int MAX_ID = Biome.MAX_BIOMES;
+    //private static final int MAX_ID = Biome.MAX_BIOMES;
     /*
 
     @Override
@@ -45,22 +50,22 @@ public class BiomesHooks implements HookClass {
         BiomesMethods.encode(packet);
     }*/
 
-    private static final LongObjectMap<Biome[][]> populatingChunks = new LongObjectHashMap<>();
 
-    @Inject(className = "cn.nukkit.level.generator.Normal")
+
+    /*@Inject(className = "cn.nukkit.level.generator.Normal")
     public static void generateChunk(Normal generator, int chunkX, int chunkZ) {
         populatingChunks.put(Thread.currentThread().getId(), new Biome[16][16]);
         NativeCallback.onBiomeMapGenerated(generator.getDimensionData().getDimensionId(), chunkX, chunkZ);
-    }
+    }*/
 
-    public static class CustomBiomeSelector extends BiomeSelector {
+   /* public static class CustomBiomeSelector extends BiomeSelector {
         public CustomBiomeSelector(NukkitRandom random) {
             super(random);
         }
 
         @Override
         public Biome pickBiome(int x, int z) {
-            Biome[][] biomes = populatingChunks.get(Thread.currentThread().getId());
+            Biome[][] biomes =  BiomesMethods.getBiomesChunk();
             if (biomes != null) {
                 Biome biome = biomes[x & 0xf][z & 0xf];
                 if (biome != null)
@@ -68,17 +73,10 @@ public class BiomesHooks implements HookClass {
             }
             return super.pickBiome(x, z);
         }
-    }
+    }*/
 
-    @Inject(className = "cn.nukkit.level.generator.Normal", type = TypeHook.AFTER_NOT_REPLACE)
+    /*@Inject(className = "cn.nukkit.level.generator.Normal", type = TypeHook.AFTER_NOT_REPLACE)
     public static void init(Normal generator, ChunkManager manager, NukkitRandom random) {
         ReflectHelper.setField(generator, "selector", new CustomBiomeSelector(random));
-    }
-
-    public static void setBiomeMap(int x, int z, int id) {
-        Biome[][] biomes = populatingChunks.get(Thread.currentThread().getId());
-        if (biomes != null) {
-            biomes[x & 0xf][z & 0xf] = id >= 0 && id < MAX_ID ? Biome.biomes[id] : null;
-        }
-    }
+    }*/
 }

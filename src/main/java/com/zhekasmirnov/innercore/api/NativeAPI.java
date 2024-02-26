@@ -10,6 +10,7 @@ import com.reider745.api.CallbackHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.BiomesHooks;
 import com.reider745.item.ItemMethod;
+import com.reider745.world.BiomesMethods;
 import com.reider745.world.WorldMethod;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -263,7 +264,7 @@ public class NativeAPI {
     }
 
     public static void setBiomeMap(int x, int z, int id) {
-        BiomesHooks.setBiomeMap(x, z, id);
+        BiomesMethods.setBiomeMap(x, z, id);
     }
 
     @Deprecated(since = "Zote")

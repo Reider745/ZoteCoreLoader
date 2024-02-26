@@ -1,11 +1,16 @@
 package com.reider745.world;
 
+import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.biome.Biome;
+import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.NukkitRandom;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
+import com.zhekasmirnov.innercore.api.NativeCallback;
+import io.netty.util.collection.LongObjectHashMap;
+import io.netty.util.collection.LongObjectMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,25 +34,6 @@ public class BiomesMethods {
 
         protected void reg(int id){
             register(id, this);
-        }
-
-        @Override
-        public void populateChunk(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
-            super.populateChunk(level, chunkX, chunkZ, random);
-
-            //new BiomeSelector(random).pickBiome(chunkX * 16 + 7, chunkZ * 16 + 7).populateChunk(level, chunkX, chunkZ, random);
-            /*final int POS_CHUNK_X = chunkX * 16;
-            final int POS_CHUNK_Z = chunkZ * 16;
-            final BiomeSelector selector = ;
-
-            for(int x = 0;x < 16;x++) {
-                final int X_POS = POS_CHUNK_X + x;
-
-                for (int z = 0; z < 16; z++) {
-                    final Biome biome = selector.pickBiome(X_POS, POS_CHUNK_Z + z);
-                    biome.populateChunk();
-                }
-            }*/
         }
     }
 
@@ -73,7 +59,7 @@ public class BiomesMethods {
             for (int i = 0; i < json.length(); i++)
                 AvailableIDS.add(json.getInt(i));
 
-            for(int i = 0;i < 50;i++)
+            for(int i = 0;i < 50;i++)//Приходится ограничивать дополн id иначе майн не коректно обрабатывет id биома
                 AvailableIDS.remove(0);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -128,4 +114,31 @@ public class BiomesMethods {
         self.reset();
         self.put(sendBiomes);
     }*/
+
+    private static final LongObjectMap<Biome[][]> populatingChunks = new LongObjectHashMap<>();
+
+    public static void setBiomeMap(int x, int z, int id) {
+        Biome[][] biomes = populatingChunks.get(Thread.currentThread().getId());
+        if (biomes != null) {
+            biomes[x & 0xf][z & 0xf] = id >= 0 && id < Biome.MAX_BIOMES ? Biome.biomes[id] : null;
+        }
+    }
+
+    public static void onChunkPopulate(FullChunk fullChunk, int chunkX, int chunkZ, int dimension) {
+        final long id = Thread.currentThread().getId();
+
+        final Biome[][] biomes = new Biome[16][16];
+        populatingChunks.put(id, biomes);
+        NativeCallback.onBiomeMapGenerated(dimension, chunkX, chunkZ);
+
+        for(int x = 0;x < 16;x++) {
+            final Biome[] biomes_z = biomes[x];
+            for (int z = 0; z < 16; z++) {
+                final Biome biome = biomes_z[z];
+                if(biome != null)
+                    fullChunk.setBiomeId(x, z, biome.getId());//кнч очень полезно создавть матрицу Biome, может на int все ебануть?
+            }
+        }
+        populatingChunks.remove(id);
+    }
 }
