@@ -838,9 +838,8 @@ public class NativeAPI {
         EntityMethod.setRotation(entity, x, y);
     }
 
-    // TODO
     public static void setRotationAxis(long entity, int axis, float value) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setRotationAxis(entity, axis, value)");
+        EntityMethod.setRotationAxis(entity, axis, value);
     }
 
     @Deprecated(since = "Zote")

@@ -15,22 +15,27 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.Identifier;
 
+import com.reider745.InnerCoreServer;
 import com.reider745.api.ReflectHelper;
 import com.reider745.event.EventListener;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.constants.EntityType;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -45,17 +50,23 @@ public class EntityMethod {
                 return entity;
             }
         }
+        if (entityUid != 0 && InnerCoreServer.isDeveloperMode()) {
+            Logger.warning("NativeAPI", "Unknown entityUid=" + entityUid + ", aborting requested action!");
+        }
         return null;
     }
 
     public static Player getPlayerById(long entityUid) {
         Map<Integer, Level> levels = Server.getInstance().getLevels();
+        Player player;
         for (Level level : levels.values()) {
             Map<Long, Player> players = level.getPlayers();
-            Player player = players.containsKey(entityUid) ? players.get(entityUid) : null;
-            if (player != null) {
+            if ((player = players.containsKey(entityUid) ? players.get(entityUid) : null) != null) {
                 return player;
             }
+        }
+        if (entityUid != 0 && InnerCoreServer.isDeveloperMode()) {
+            Logger.warning("NativeAPI", "Unknown playerUid=" + entityUid + ", aborting requested action!");
         }
         return null;
     }
@@ -92,16 +103,27 @@ public class EntityMethod {
         });
     }
 
+    private static void setPositionDirectly(Entity entity, double x, double y, double z) {
+        if (entity instanceof Player player) {
+            player.teleportImmediate(new Location(x, y, z, entity.yaw, entity.pitch, player.headYaw, entity.level));
+        } else {
+            entity.setPosition(new Vector3(x, y, z));
+        }
+    }
+
     public static void setPosition(long entityUid, float x, float y, float z) {
-        validateThen(entityUid, entity -> entity.setPosition(new Vector3(x, y, z)));
+        validateThen(entityUid, entity -> setPositionDirectly(entity, x, y, z));
     }
 
     public static void setPositionAxis(long entityUid, int axis, float val) {
+        if (axis < 0 || axis > 2) {
+            return;
+        }
         validateThen(entityUid, entity -> {
             switch (axis) {
-                case 0 -> entity.setPosition(new Vector3(val, entity.y, entity.x));
-                case 1 -> entity.setPosition(new Vector3(entity.x, val, entity.x));
-                case 2 -> entity.setPosition(new Vector3(entity.x, entity.y, val));
+                case 0 -> setPositionDirectly(entity, val, entity.y, entity.x);
+                case 1 -> setPositionDirectly(entity, entity.x, val, entity.x);
+                case 2 -> setPositionDirectly(entity, entity.x, entity.y, val);
             }
         });
     }
@@ -126,7 +148,8 @@ public class EntityMethod {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         Item item = validateThen(entityUid,
-                entity -> entity instanceof EntityHuman human ? human.getOffhandInventory().getItemFast(0) : null, null);
+                entity -> entity instanceof EntityHuman human ? human.getOffhandInventory().getItemFast(0) : null,
+                null);
         return item != null ? item : Item.AIR_ITEM.clone();
     }
 
@@ -382,7 +405,27 @@ public class EntityMethod {
     }
 
     public static void setRotation(long entityUid, float x, float y) {
-        validateThen(entityUid, entity -> entity.setRotation(x, y));
+        validateThen(entityUid, entity -> {
+            entity.setRotation(x, y);
+            if (entity instanceof Player player) {
+                player.sendPosition(entity, entity.yaw, entity.pitch, MovePlayerPacket.MODE_RESET);
+            }
+        });
+    }
+
+    public static void setRotationAxis(long entityUid, int axis, float val) {
+        if (axis < 0 || axis > 1) {
+            return;
+        }
+        validateThen(entityUid, entity -> {
+            switch (axis) {
+                case 0 -> entity.setRotation(val, entity.pitch);
+                case 1 -> entity.setRotation(entity.yaw, val);
+            }
+            if (entity instanceof Player player) {
+                player.sendPosition(entity, entity.yaw, entity.pitch, MovePlayerPacket.MODE_RESET);
+            }
+        });
     }
 
     public static void getVelocity(long entityUid, float[] velocity) {
@@ -440,7 +483,8 @@ public class EntityMethod {
 
     public static void invokeUseItemOn(int id, int count, int data, Item extra, int x, int y, int z,
             int side, float vx, float vy, float vz, long entityUid) {
-        invokeUseItemOn(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz, entityUid);
+        invokeUseItemOn(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz,
+                entityUid);
     }
 
     public static void invokeUseItemOn(int id, int count, int data, NativeItemInstanceExtra extra, int x, int y, int z,
