@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.multiplayer;
 
+import com.reider745.world.BiomesMethods;
 import org.json.JSONObject;
 
 import com.reider745.InnerCoreServer;
@@ -89,6 +90,7 @@ public class NetworkConfig {
         JSONObject json = new JSONObject();
         json.put("server", true);
         json.put("socket_port", defaultPort);
+        json.put("biomes", BiomesMethods.getCustomBiomes());
         byte[] bytes = json.toString().getBytes();
 
         InnerCorePacket packet = new InnerCorePacket();

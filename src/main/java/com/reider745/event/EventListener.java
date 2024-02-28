@@ -44,6 +44,7 @@ import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
+import com.reider745.world.BiomesMethods;
 import oshi.hardware.NetworkIF;
 
 import java.util.ArrayList;
@@ -151,6 +152,8 @@ public class EventListener implements Listener {
 
         final CallbackHelper.ICallbackApply applyPre = () -> NativeCallback.onPreChunkPostProcessed(X, Z);
         final CallbackHelper.ICallbackApply applyPost = () -> NativeCallback.onChunkPostProcessed(X, Z);
+
+        BiomesMethods.onChunkPopulate(fullChunk, X, Z, level.getDimensionData().getDimensionId());
 
         try {
             switch (level.getDimension()) {

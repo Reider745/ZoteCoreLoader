@@ -202,7 +202,7 @@ public class InnerCoreServer {
 
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");
-        BiomesHooks.init();
+        // BiomesHooks.init();
 
         dataPath = server.getDataPath();
         final File dataFolderFile = new File(dataPath);
