@@ -1617,7 +1617,7 @@ var BlockRegistry = {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, idFlowing, 0);
                     dispenser.setSlot(slot, 325, 1, 0, null);
-                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1, 1);
+                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1, 1);
                 }
             });
 
@@ -1632,7 +1632,7 @@ var BlockRegistry = {
                 if (liquid && block.data === 0) {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, 0, 0);
-                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1);
+                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1);
 
                     dispenser.setSlot(slot, item.id, item.count - 1, item.data, item.extra);
                     for (var i = 0; i < 9; i++) {
@@ -6428,7 +6428,7 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
                         Entity.setCarriedItem(player, 0, 0, 0);
                     }
                 }
-                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
+                blockSource.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
                 preventDefault();
                 return;
             }
@@ -6442,7 +6442,7 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
                         Entity.setCarriedItem(player, 0, 0, 0);
                     }
                 }
-                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
+                blockSource.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
                 preventDefault();
             }
         }

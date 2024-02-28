@@ -444,6 +444,7 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         @Placeholder
+        @Deprecated(since = "Zote")
         public static void playSound(double x, double y, double z, String name, double f1, double f2) {
             NativeAPI.playSound(name, (float) x, (float) y, (float) z, (float) f1, (float) f2);
         }

@@ -16,6 +16,7 @@ import cn.nukkit.math.BlockVector3;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.PlaySoundPacket;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
@@ -269,5 +270,21 @@ public class BlockSourceMethods {
             return entity.getId();
         }
         return -1;
+    }
+
+    public static void playSound(Level level, String sound, int x, int y, int z, float volume, float pitch, Player[] players) {
+        PlaySoundPacket packet = new PlaySoundPacket();
+        packet.name = sound;
+        packet.volume = volume;
+        packet.pitch = pitch;
+        packet.x = x;
+        packet.y = y;
+        packet.z = z;
+
+        if (players == null || players.length == 0) {
+            level.addChunkPacket(x >> 4, z >> 4, packet);
+        } else {
+            Server.broadcastPacket(players, packet);
+        }
     }
 }

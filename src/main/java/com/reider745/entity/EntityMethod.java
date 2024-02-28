@@ -71,6 +71,28 @@ public class EntityMethod {
         return null;
     }
 
+    public static Entity[] getEntitiesByIds(long[] entityUids) {
+        ArrayList<Entity> entities = new ArrayList<>(entityUids.length);
+        Entity entity;
+        for (long entityUid : entityUids) {
+            if ((entity = getEntityById(entityUid)) != null) {
+                entities.add(entity);
+            }
+        }
+        return entities.toArray(new Entity[0]);
+    }
+
+    public static Player[] getPlayersByIds(long[] entityUids) {
+        ArrayList<Player> players = new ArrayList<>(entityUids.length);
+        Player player;
+        for (long entityUid : entityUids) {
+            if ((player = getPlayerById(entityUid)) != null) {
+                players.add(player);
+            }
+        }
+        return players.toArray(new Player[0]);
+    }
+
     public static boolean isValid(Entity entity) {
         return entity != null && entity.isValid() && !entity.isClosed();
     }
@@ -126,6 +148,11 @@ public class EntityMethod {
                 case 2 -> setPositionDirectly(entity, entity.x, entity.y, val);
             }
         });
+    }
+
+    public static void playSoundEnt(long entityUid, String name, float volume, float pitch) {
+        validateThen(entityUid, entity -> BlockSourceMethods.playSound(entity.getLevel(), name, (int) entity.x,
+                (int) entity.y, (int) entity.z, volume, pitch, null));
     }
 
     public static int getHealth(long entityUid) {

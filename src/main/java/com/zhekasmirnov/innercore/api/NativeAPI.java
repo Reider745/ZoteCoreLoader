@@ -138,12 +138,16 @@ public class NativeAPI {
         EntityMethod.invokeUseItemOn(id, count, data, extra, x, y, z, side, vx, vy, vz, entity);
     }
 
+    @Deprecated(since = "Zote")
     public static void playSound(String name, float x, float y, float z, float f1, float f2) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.playSound(name, x, y, z, f1, f2)");
+        NativeBlockSource region = NativeBlockSource.getDefault();
+        if (region != null)
+            region.playSound(x, y, z, name, f1, f2);
+        InnerCoreServer.useClientMethod("NativeAPI.playSound(name, x, y, z, f1, f2)");
     }
 
     public static void playSoundEnt(String name, long entity, float f1, float f2) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.playSoundEnt(name, entity, f1, f2)");
+        EntityMethod.playSoundEnt(entity, name, f1, f2);
     }
 
     public static void addEffect(long entity, int effect, int duration, int level, boolean b1, boolean b2,

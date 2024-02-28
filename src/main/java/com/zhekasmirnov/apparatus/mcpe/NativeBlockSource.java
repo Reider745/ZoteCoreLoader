@@ -3,6 +3,7 @@ package com.zhekasmirnov.apparatus.mcpe;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
@@ -256,6 +257,33 @@ public class NativeBlockSource {
     @ZoteOnly
     public void setRespawnCoords(int x, int y, int z) {
         BlockSourceMethods.setRespawnCoords(level, x, y, z);
+    }
+
+    @ZoteOnly
+    public void playSound(float x, float y, float z, String name, float volume, float pitch, long[] players) {
+        BlockSourceMethods.playSound(level, name, (int) x, (int) y, (int) z, volume, pitch, players != null ? EntityMethod.getPlayersByIds(players) : null);
+    }
+
+    private static long[] toLongArray(NativeArray array) {
+        LongArrayList result = new LongArrayList();
+        for (Object obj : array.toArray()) {
+            try {
+                if (obj != null)
+                    result.add((long) obj);
+            } catch (ClassCastException e) {
+            }
+        }
+        return result.toArray(new long[0]);
+    }
+
+    @ZoteOnly
+    public void playSound(float x, float y, float z, String name, float volume, float pitch, NativeArray players) {
+        playSound(x, y, z, name, volume, pitch, players != null ? toLongArray(players) : null);
+    }
+
+    @ZoteOnly
+    public void playSound(float x, float y, float z, String name, float volume, float pitch) {
+        playSound(x, y, z, name, volume, pitch, (long[]) null);
     }
 
     public void setBiome(int chunkX, int chunkZ, int id) {
