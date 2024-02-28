@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class BlockSourceMethods {
+
     private static void defDestroy(Level level, Block target) {
         BlockEntity blockEntity = level.getBlockEntity(target);
         if (blockEntity != null) {
@@ -35,11 +36,6 @@ public class BlockSourceMethods {
             blockEntity.close();
             level.updateComparatorOutputLevel(target);
         }
-    }
-
-    private static void sendBlock(Level level, int x, int y, int z, int layer) {
-        level.sendBlocks(level.getChunkPlayers(x / 16, z / 16).values().toArray(new Player[0]),
-                new Vector3[] { new Vector3(x, y, z) }, 0, layer);
     }
 
     public static Level getLevelForDimension(int dimension) {
@@ -50,6 +46,10 @@ public class BlockSourceMethods {
 
     public static Level getLevelForName(String name) {
         return Server.getInstance().getLevelByName(name);
+    }
+
+    public static Level getDefaultLevel() {
+        return Server.getInstance().getDefaultLevel();
     }
 
     public static void destroyBlock(Level level, int x, int y, int z, boolean drop, int updateType,
@@ -68,7 +68,6 @@ public class BlockSourceMethods {
         }
         defDestroy(level, block);
         level.setBlock(x, y, z, Block.get(0), true, update);
-        sendBlock(level, x, y, z, 0);
     }
 
     public static int getBlockId(Level level, int x, int y, int z) {
@@ -128,7 +127,6 @@ public class BlockSourceMethods {
         Block block = level.getBlock(x, y, z);
         defDestroy(level, block);
         level.setBlock(x, y, z, Block.get(id, data), false, allowUpdate);
-        sendBlock(level, x, y, z, 0);
     }
 
     public static void setBlockByRuntimeId(Level level, int x, int y, int z, int runtimeId, boolean allowUpdate,
@@ -140,7 +138,6 @@ public class BlockSourceMethods {
     public static void setExtraBlock(Level level, int x, int y, int z, int id, int data, boolean allowUpdate,
             int updateType) {
         level.setBlockExtraDataAt(x, y, z, id, data);
-        sendBlock(level, x, y, z, 1);
     }
 
     public static void setExtraBlockByRuntimeId(Level level, int x, int y, int z, int runtimeId, boolean allowUpdate,
@@ -163,6 +160,10 @@ public class BlockSourceMethods {
 
     public static void setBiome(Level level, int chunkX, int chunkZ, int id) {
         level.setBiomeId(chunkX, chunkZ, (byte) id);
+    }
+
+    public static void setRespawnCoords(Level level, int x, int y, int z) {
+        level.setSpawnLocation(new Vector3(x, y, z));
     }
 
     public static int getChunkState(Level level, int chunkX, int chunkZ) {

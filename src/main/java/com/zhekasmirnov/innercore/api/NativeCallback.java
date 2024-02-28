@@ -6,6 +6,7 @@ import cn.nukkit.inventory.CraftingGrid;
 import cn.nukkit.level.Level;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ZoteOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.PlayerHooks;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
@@ -499,6 +500,7 @@ public class NativeCallback {
                         new Pair<String, Object>("someFloat", anotherFloat)));
     }
 
+    @ZoteOnly
     public static void onServerCommand(String command, float x, float y, float z, long entity, boolean fromPacket) {
         Callback.invokeAPICallback("ServerCommand", command, new Coords(x, y, z), entity, fromPacket);
     }
@@ -518,6 +520,7 @@ public class NativeCallback {
         Callback.invokeAPICallback("ExpLevelAdd", level, player);
     }
 
+    @ZoteOnly
     public static void onPlayerLogin(ConnectedClient client, String username, Consumer<String> acceptor) {
         Callback.invokeAPICallback("ServerPlayerLogin", client, username, new ScriptableFunctionImpl() {
             @Override

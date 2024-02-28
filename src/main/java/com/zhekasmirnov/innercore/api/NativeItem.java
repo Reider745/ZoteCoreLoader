@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.api.CustomManager;
+import com.reider745.api.ZoteOnly;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
 import com.reider745.item.ItemMethod.PropertiesNames;
@@ -134,6 +135,7 @@ public class NativeItem {
         setArmorDamageable(properties, value);
     }
 
+    @ZoteOnly
     public void setFireResistant(boolean resist) {
         setFireResistant(properties, resist);
     }
@@ -269,6 +271,7 @@ public class NativeItem {
         ItemMethod.setArmorDamageable(manager, value);
     }
 
+    @ZoteOnly
     public static void setFireResistant(CustomManager manager, boolean resist) {
         if (resist || (manager.get(PropertiesNames.ID, 0) >= Item.NETHERITE_INGOT
                 && manager.get(PropertiesNames.ID, 0) <= Item.NETHERITE_SCRAP)) {

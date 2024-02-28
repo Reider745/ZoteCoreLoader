@@ -1,6 +1,8 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
 import cn.nukkit.Player;
+
+import com.reider745.api.ZoteOnly;
 import com.reider745.entity.PlayerActorMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -14,6 +16,11 @@ public class NativePlayer {
 
     public Player getPlayer() {
         return player;
+    }
+
+    @ZoteOnly
+    public String getLevelName() {
+        return player.getLevelName();
     }
 
     public boolean isValid() {
@@ -148,30 +155,37 @@ public class NativePlayer {
         return PlayerActorMethods.getItemUseStartupProgress(player);
     }
 
+    @ZoteOnly
     public boolean isOperator() {
         return PlayerActorMethods.isOperator(player);
     }
 
+    @ZoteOnly
     public void setCanFly(boolean canFly) {
         PlayerActorMethods.setCanFly(player, canFly);
     }
 
+    @ZoteOnly
     public void setCanFly() {
         setCanFly(true);
     }
 
+    @ZoteOnly
     public boolean canFly() {
         return PlayerActorMethods.canFly(player);
     }
 
+    @ZoteOnly
     public void setFlying(boolean flying) {
         PlayerActorMethods.setFlying(player, flying);
     }
 
+    @ZoteOnly
     public void setFlying() {
         setFlying(true);
     }
 
+    @ZoteOnly
     public boolean isFlying() {
         return PlayerActorMethods.isFlying(player);
     }

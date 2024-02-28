@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.biome.Biome;
 
 import java.lang.reflect.Field;
 
@@ -200,7 +201,9 @@ public class NativeAPI {
 
     @Deprecated(since = "Zote")
     public static int clipWorld(float x1, float y1, float z1, float x2, float y2, float z2, int mode, float[] clip) {
-        InnerCoreServer.useIncomprehensibleMethod("NativeAPI.clipWorld(x1, y1, z1, x2, y2, z2, mode, clip)");
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            return (int) region.clip(x1, y1, z1, x2, y2, z2, mode, clip);
         return 0;
     }
 
@@ -210,12 +213,16 @@ public class NativeAPI {
 
     @Deprecated(since = "Zote")
     public static void destroyBlock(int x, int y, int z, boolean drop) {
-        NativeBlockSource.getCurrentWorldGenRegion().destroyBlock(x, y, z, drop);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            region.destroyBlock(x, y, z, drop);
     }
 
     @Deprecated(since = "Zote")
     public static void explode(float x, float y, float z, float power, boolean onFire) {
-        NativeBlockSource.getCurrentWorldGenRegion().explode(x, y, z, power, onFire);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            region.explode(x, y, z, power, onFire);
     }
 
     public static void leaveGame() {
@@ -268,7 +275,10 @@ public class NativeAPI {
 
     @Deprecated(since = "Zote")
     public static int getBiome(int x, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getBiome(x, z);
+        NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
+        if (region != null)
+            return region.getBiome(x, z);
+        return 0;
     }
 
     @Deprecated(since = "Zote")
@@ -279,8 +289,8 @@ public class NativeAPI {
     }
 
     public static String getBiomeName(int id) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.getBiomeName(id)");
-        return "";
+        Biome biome = Biome.biomes[id];
+        return biome != null ? biome.getName() : null;
     }
 
     @Deprecated(since = "Zote")
@@ -830,8 +840,10 @@ public class NativeAPI {
         InnerCoreServer.useClientMethod("NativeAPI.setRenderType(entity, type)");
     }
 
-    public static void setRespawnCoords(int i, int i2, int i3) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setRespawnCoords(i, i2, i3)");
+    public static void setRespawnCoords(int x, int y, int z) {
+        NativeBlockSource region = NativeBlockSource.getDefault();
+        if (region != null)
+            region.setRespawnCoords(x, y, z);
     }
 
     public static void setRotation(long entity, float x, float y) {

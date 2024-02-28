@@ -6,6 +6,7 @@ import cn.nukkit.level.Level;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
+import com.reider745.api.ZoteOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.world.BlockSourceMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
@@ -43,11 +44,18 @@ public class NativeBlockSource {
         }
     }
 
+    @ZoteOnly
+    public static NativeBlockSource getDefault() {
+        Level level = BlockSourceMethods.getDefaultLevel();
+        return level != null ? getFromCallbackPointer(level) : null;
+    }
+
     public static NativeBlockSource getDefaultForActor(long actor) {
         Entity entity = EntityMethod.getEntityById(actor);
         return entity != null ? getFromCallbackPointer(entity.getLevel()) : null;
     }
 
+    @ZoteOnly
     public static NativeBlockSource getDefaultForLevel(String name) {
         Level level = BlockSourceMethods.getLevelForName(name);
         return level != null ? getFromCallbackPointer(level) : null;
@@ -58,6 +66,7 @@ public class NativeBlockSource {
         return level != null ? new NativeBlockSource(level, false) : null;
     }
 
+    @Deprecated(since = "Zote")
     public static NativeBlockSource getCurrentClientRegion() {
         InnerCoreServer.useIncomprehensibleMethod("NativeBlockSource.getCurrentClientRegion()");
         return null;
@@ -100,6 +109,11 @@ public class NativeBlockSource {
 
     public Level getPointer() {
         return level;
+    }
+
+    @ZoteOnly
+    public String getLevelName() {
+        return level.getName();
     }
 
     public NativeBlockSource(int dimension, boolean b1, boolean b2) {
@@ -237,6 +251,11 @@ public class NativeBlockSource {
 
     public int getDimension() {
         return BlockSourceMethods.getDimension(level);
+    }
+
+    @ZoteOnly
+    public void setRespawnCoords(int x, int y, int z) {
+        BlockSourceMethods.setRespawnCoords(level, x, y, z);
     }
 
     public void setBiome(int chunkX, int chunkZ, int id) {
@@ -395,17 +414,16 @@ public class NativeBlockSource {
 
     public NativeArray listEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2,
             int backCompEntityType, boolean flag) {
-        return entityListToScriptArray(
-                BlockSourceMethods.fetchEntitiesInAABB(level, x1, y1, z1, x2, y2, z2, backCompEntityType, flag));
+        return entityListToScriptArray(fetchEntitiesInAABB(x1, y1, z1, x2, y2, z2, backCompEntityType, flag));
     }
 
     public NativeArray listEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2,
             int backCompEntityType) {
-        return entityListToScriptArray(fetchEntitiesInAABB(x1, y1, z1, x2, y2, z2, backCompEntityType, false));
+        return listEntitiesInAABB(x1, y1, z1, x2, y2, z2, backCompEntityType, false);
     }
 
     public NativeArray listEntitiesInAABB(float x1, float y1, float z1, float x2, float y2, float z2) {
-        return entityListToScriptArray(fetchEntitiesInAABB(x1, y1, z1, x2, y2, z2, 256, false));
+        return listEntitiesInAABB(x1, y1, z1, x2, y2, z2, 256, false);
     }
 
     public NativeArray listEntitiesOfTypeInAABB(float x1, float y1, float z1, float x2, float y2, float z2,
