@@ -6024,8 +6024,8 @@ var EntityAPI = {
     setTarget: function(ent, target) {
         return Entity.setTarget(ent, target);
     },
-    getMobile: function(ent, mobile) {
-        Entity.isImmobile(ent);
+    getMobile: function(ent) {
+        return Entity.isImmobile(ent);
     },
     setMobile: function(ent, mobile) {
         Entity.setImmobile(ent, !mobile);
@@ -6048,16 +6048,16 @@ var EntityAPI = {
     health: function(entity) {
         return {
             get: function() {
-                return this.getHealth(entity);
+                return EntityAPI.getHealth(entity);
             },
             set: function(health) {
-                this.setHealth(entity, health);
+                EntityAPI.setHealth(entity, health);
             },
             getMax: function() {
-                return this.getMaxHealth(entity);
+                return EntityAPI.getMaxHealth(entity);
             },
             setMax: function(health) {
-                this.setMaxHealth(entity, health);
+                EntityAPI.setMaxHealth(entity, health);
             }
         };
     },
