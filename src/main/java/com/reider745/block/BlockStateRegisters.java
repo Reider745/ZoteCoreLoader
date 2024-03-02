@@ -79,9 +79,10 @@ public class BlockStateRegisters {
         return states;
     } // [state1, value1, state2, value2, ...]
     public static int runtimeIdByStates(int id, int[] statesAndValues){
-        Map<String, Integer> state = new HashMap<>();
+        final Map<String, Integer> state = new HashMap<>();
         for(int i = 0;i < statesAndValues.length;i+=2)
             state.put(nameByStateId.get(statesAndValues[i]), statesAndValues[i+1]);
-        return runtimeIdsForStatesAndId.get(id).get(state);
+        final Integer res = runtimeIdsForStatesAndId.get(id).get(state);
+        return res == null ? -1 : res;
     }// -1 is returned in case it is not found
 }
