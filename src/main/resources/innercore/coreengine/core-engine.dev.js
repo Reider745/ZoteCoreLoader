@@ -6025,7 +6025,7 @@ var EntityAPI = {
         return Entity.setTarget(ent, target);
     },
     getMobile: function(ent) {
-        return Entity.isImmobile(ent);
+        return !Entity.isImmobile(ent);
     },
     setMobile: function(ent, mobile) {
         Entity.setImmobile(ent, !mobile);
