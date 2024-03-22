@@ -41,7 +41,7 @@ function getMCPEVersion() {
         // noinspection JSValidateTypes
         version.array[i] = parseInt(version.array[i]) || 0;
     }
-    version.main = version.array[1] + version.array[0] * 17;
+    version.main = version.array[1];
     return version;
 }
 var MCPE_VERSION = getMCPEVersion();
@@ -710,6 +710,13 @@ var TileEntityBasePrototype = {
         this.networkData.setClients(this.networkEntity.getClients());
         this.init();
         this.load();
+        let self = this;
+        self.onConnectionPlayer && this.networkEntity.setConnectionPlayerListener(function(client){
+            self.onConnectionPlayer(client);
+        });
+        self.onDisconnectionPlayer && this.networkEntity.setDisconnectionPlayerListener(function(client){
+            self.onDisconnectionPlayer(client);
+        })
         this.__initialized = true;
         this.noupdate = !this.tick;
         return true;
@@ -885,12 +892,15 @@ var TileEntity = {
             })
             .setClientEntityAddedListener(function(entity, packet) {
                 // create client tile entity from Prototype.client
+
+                let networkData = SyncedNetworkData.getClientSyncedData(packet.sd);
+                networkData.fromJSON(packet.data);
                 var client = {
                     x: packet.x,
                     y: packet.y,
                     z: packet.z,
                     dimension: packet.d,
-                    networkData: SyncedNetworkData.getClientSyncedData(packet.sd),
+                    networkData: networkData,
                     networkEntity: entity,
 
                     __initialized: false,
@@ -937,7 +947,8 @@ var TileEntity = {
                     y: target.y,
                     z: target.z,
                     d: target.dimension,
-                    sd: "" + target.networkData.getName()
+                    sd: "" + target.networkData.getName(),
+                    data: "" + target.networkData.toJSON()
                 }
             });
 
@@ -1563,7 +1574,10 @@ var BlockRegistry = {
             var idBucket = ItemID[bucketNameId];
             ItemRegistry.createItem(bucketNameId, bucketData.name || "Bucket Of " + blockName, bucketData.texture || ["missing", 0], { stack: 1, isTech: bucketData.isTech });
             ItemRegistry.setLiquidClip(idBucket, true);
-            LiquidRegistry.registerItem(liquidRegistryId, { id: 325, data: 0 }, { id: idBucket, data: 0 });
+            var emptyId = bucketData.emptyId || 325;
+            if (emptyId !== 325)
+                ItemRegistry.setLiquidClip(emptyId, true);
+            LiquidRegistry.registerItem(liquidRegistryId, { id: emptyId, data: 0 }, { id: idBucket, data: 0 });
             var canReplaceWithLiquid = function(block) {
                 return block.id === idStill || block.id === idFlowing || canTileBeReplaced(block.id, block.data);
             }
@@ -1582,13 +1596,13 @@ var BlockRegistry = {
                 blockSource.setBlock(coords.x, coords.y, coords.z, idFlowing, 0);
                 if (GameAPI.isItemSpendingAllowed(player)) {
                     MCSystem.runOnMainThread(function() {
-                        EntityAPI.setCarriedItem(player, 325, 1, 0, null);
+                        EntityAPI.setCarriedItem(player, emptyId, 1, 0, null);
                     })
                 }
                 WorldAPI.playSoundAtEntity(player, bucketData.fillSound || "bucket.fill_water", 1, 1);
             });
             var clickFunc = function(coords, item, block, player) {
-                if (block.data === 0 && item.id === 325 && item.data === 0) {
+                if (block.data === 0 && item.id === emptyId && item.data === 0) {
                     var blockSource = BlockSource.getDefaultForActor(player);
                     if (!blockSource) return;
 
@@ -1599,7 +1613,7 @@ var BlockRegistry = {
                             EntityAPI.setCarriedItem(player, idBucket, 1, 0, null);
                         } else {
                             new PlayerActor(player).addItemToInventory(idBucket, 1, 0, null, true);
-                            EntityAPI.setCarriedItem(player, 325, item.count - 1, 0, null);
+                            EntityAPI.setCarriedItem(player, emptyId, item.count - 1, 0, null);
                         }
                     }
                     WorldAPI.playSoundAtEntity(player, bucketData.emptySound || "bucket.empty_water", 1, 1);
@@ -1616,13 +1630,13 @@ var BlockRegistry = {
                 if (canReplaceWithLiquid(block)) {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, idFlowing, 0);
-                    dispenser.setSlot(slot, 325, 1, 0, null);
-                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1, 1);
+                    dispenser.setSlot(slot, emptyId, 1, 0, null);
+                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1, 1);
                 }
             });
 
             // vanilla bucket is patched in such way, that it will call this callback only for custom liquids in front of dispenser
-            ItemRegistry.registerDispenseFunction(325, function(coords, item, region, slot) {
+            ItemRegistry.registerDispenseFunction(emptyId, function(coords, item, region, slot) {
                 if (item.data !== 0) return;
                 var dispenser = region.getBlockEntity(coords.x, coords.y, coords.z);
                 if (!dispenser) return;
@@ -1632,7 +1646,7 @@ var BlockRegistry = {
                 if (liquid && block.data === 0) {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, 0, 0);
-                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1);
+                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1);
 
                     dispenser.setSlot(slot, item.id, item.count - 1, item.data, item.extra);
                     for (var i = 0; i < 9; i++) {
@@ -2399,9 +2413,6 @@ var ItemRegistry = {
     setMaxUseDuration: function(id, duration) {
         this.getItemById(id).setMaxUseDuration(duration);
     },
-    setFireResistant: function(id, resist) {
-        this.getItemById(id).setFireResistant(resist);
-    },
     registerUseFunctionForID: function(numericID, useFunc) {
         this.useFunctions[numericID] = useFunc;
         return true;
@@ -2556,7 +2567,7 @@ var ItemRegistry = {
         };
         if (!noModCallback) {
             var blockSource = BlockSource.getDefaultForActor(entity);
-            var block = blockSource ? blockSource.getBlock(coords.x, coords.y, coords.z) 
+            var block = blockSource ? blockSource.getBlock(coords.x, coords.y, coords.z)
                     : WorldAPI.getBlock(coords.x, coords.y, coords.z);
             Callback.invokeCallback("ItemUse", coords, item, block, false, entity);
         }
@@ -2921,12 +2932,12 @@ var ToolAPI = {
             }
             var damage = toolData.damage + toolData.toolMaterial.damage;
             damage = Math.floor(damage) + (Math.random() < damage - Math.floor(damage) ? 1 : 0);
-            this.LastAttackTime = worldTime;
             EntityAPI.damageEntity(victim, damage, 2, {
                 attacker: attacker,
                 bool1: true
             });
             Entity.setCarriedItem(attacker, item.id, item.count, item.data, item.extra);
+            this.LastAttackTime = worldTime;
         }
     },
     resetEngine: function() {
@@ -3651,13 +3662,8 @@ var WorldAPI = {
         playSoundAtEntity: function(entity, name, volume, pitch) {}
     }
 };
-WorldAPI.setLoaded(false);
-Callback.addCallback("LevelSelected", function() {
-    WorldAPI.setLoaded(true);
-});
-Callback.addCallback("LevelLeft", function() {
-    WorldAPI.setLoaded(false);
-});
+WorldAPI.setLoaded(true); // always keep it loaded, for God sake, native will handle unloaded case
+
 Callback.addCallback("BlockChanged", function(coords, block1, block2, int1, int2, region) {
     WorldAPI.onBlockChanged(coords, block1, block2, region, int1, int2);
 });
@@ -5256,6 +5262,9 @@ var PlayerAPI = {
         pointedData.block = WorldAPI.getBlock(pos.x, pos.y, pos.side);
         return pointedData;
     },
+    localPlayerTurn: function(x, y) {
+        Player.localPlayerTurn(x, y);
+    },
     getInventory: function(loadPart, handleEnchant, handleNames) {
         MCSystem.throwException("Player.getInventory() method is deprecated");
     },
@@ -5634,7 +5643,7 @@ function AnimationBase(x, y, z) {
     this.loadCustom = function(func) {
         this.load();
         this.update = func;
-        Updatable.addUpdatable(this);
+        Updatable.addLocalUpdatable(this);
     };
     this.getAge = function() {
         return 0;
@@ -5890,8 +5899,8 @@ var EntityAPI = {
     putExtraJson: function(ent, name, obj) {
         logDeprecation("Entity.putExtraJson");
     },
-    addEffect: function(ent, effectId, effectData, effectTime, ambiance, particles) {
-        Entity.addEffect(ent, effectId, effectData, effectTime, ambiance, particles);
+    addEffect: function(ent, effectId, effectData, effectTime, ambiance, particles, effectAnimation) {
+        Entity.addEffect(ent, effectId, effectData, effectTime, ambiance, particles, effectAnimation);
     },
     hasEffect: function(ent, effectId) {
         return Entity.hasEffect(ent, effectId);
@@ -6024,8 +6033,8 @@ var EntityAPI = {
     setTarget: function(ent, target) {
         return Entity.setTarget(ent, target);
     },
-    getMobile: function(ent) {
-        return !Entity.isImmobile(ent);
+    getMobile: function(ent, mobile) {
+        Entity.isImmobile(ent);
     },
     setMobile: function(ent, mobile) {
         Entity.setImmobile(ent, !mobile);
@@ -6048,16 +6057,16 @@ var EntityAPI = {
     health: function(entity) {
         return {
             get: function() {
-                return EntityAPI.getHealth(entity);
+                return this.getHealth(entity);
             },
             set: function(health) {
-                EntityAPI.setHealth(entity, health);
+                this.setHealth(entity, health);
             },
             getMax: function() {
-                return EntityAPI.getMaxHealth(entity);
+                return this.getMaxHealth(entity);
             },
             setMax: function(health) {
-                EntityAPI.setMaxHealth(entity, health);
+                this.setMaxHealth(entity, health);
             }
         };
     },
@@ -6428,7 +6437,7 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
                         Entity.setCarriedItem(player, 0, 0, 0);
                     }
                 }
-                blockSource.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
+                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
                 preventDefault();
                 return;
             }
@@ -6442,7 +6451,7 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
                         Entity.setCarriedItem(player, 0, 0, 0);
                     }
                 }
-                blockSource.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
+                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
                 preventDefault();
             }
         }
@@ -7091,9 +7100,7 @@ var CoreAPI = {
         TileEntityType: TileEntityType,
         NbtDataType: NbtDataType
     },
-    alert: print,
-
-
+    alert: print
 };
 
 function ResetInGameAPIs() {

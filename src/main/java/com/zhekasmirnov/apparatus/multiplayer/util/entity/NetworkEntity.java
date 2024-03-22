@@ -3,8 +3,10 @@ package com.zhekasmirnov.apparatus.multiplayer.util.entity;
 import com.zhekasmirnov.apparatus.job.JobExecutor;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
+import com.zhekasmirnov.apparatus.multiplayer.client.ModdedClient;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +26,66 @@ public class NetworkEntity {
     }
 
     static {
+        Network.getSingleton().addClientPacket("system.entity.add", (Object data, String meta, Class<?> dataType) -> {
+            synchronized (clientEntities) {
+                String[] metaArr = meta.split("#");
+                if (metaArr.length == 2) {
+                    NetworkEntityType entityType = NetworkEntityType.getByName(metaArr[0]);
+                    String entityName = metaArr[1];
+                    if (entityType != null && entityName.length() > 0) {
+                        if (!clientEntities.containsKey(entityName)) {
+                            NetworkEntity entity = new NetworkEntity(entityType, null, entityName, false);
+                            clientEntities.put(entityName, entity);
+                            entity.getClientExecutor().add(() -> entityType.onClientEntityAdded(entity, data));
+                        } else {
+                            if (entityType.isDuplicateAddPacketAllowed()) {
+                                NetworkEntity entity = clientEntities.get(entityName);
+                                if (entity != null) {
+                                    entity.getClientExecutor().add(() -> entityType.onClientEntityAdded(entity, data));
+                                }
+                            } else {
+                            }
+                        }
+                    }
+                }
+            }
+        }, null);
+
+        Network.getSingleton().addClientPacket("system.entity.remove", (Object data, String meta, Class<?> dataType) -> {
+            synchronized (clientEntities) {
+                NetworkEntity entity = clientEntities.get(meta);
+                if (entity != null) {
+                    entity.isRemoved = true;
+                    entity.getClientExecutor().add(() -> entity.type.onClientEntityRemoved(entity, data));
+                    clientEntities.remove(meta);
+                }
+            }
+        }, null); // use entity executor instead
+
+        Network.getSingleton().addClientPacket("system.entity.packet", (Object data, String meta, Class<?> dataType) -> {
+            synchronized (clientEntities) {
+                int sepIndex = meta.indexOf('#');
+                if (sepIndex != -1) {
+                    NetworkEntity entity = clientEntities.get(meta.substring(0, sepIndex));
+                    String packetName = meta.substring(sepIndex + 1);
+                    sepIndex = packetName.indexOf('#');
+                    if (sepIndex != -1) {
+                        meta = packetName.substring(sepIndex + 1);
+                        packetName = packetName.substring(0, sepIndex);
+                    } else {
+                        meta = null;
+                    }
+                    if (entity != null) {
+                        String finalPacketName = packetName;
+                        String finalMeta = meta;
+                        entity.getClientExecutor().add(() -> {
+                            entity.type.onClientPacket(entity, finalPacketName, data, finalMeta);
+                        });
+                    }
+                }
+            }
+        }, null); // use entity executor instead
+
         Network.getSingleton().addServerPacket("system.entity.packet", (ConnectedClient client, Object data, String meta, Class<?> dataType) -> {
             synchronized (serverEntities) {
                 int sepIndex = meta.indexOf('#');
@@ -58,6 +120,23 @@ public class NetworkEntity {
                 serverEntities.clear();
             }
         });
+
+        Network.getSingleton().addClientShutdownListener(reason -> {
+            synchronized (clientEntities) {
+                for (NetworkEntity entity : clientEntities.values()) {
+                    entity.removeOnShutdown();
+                }
+                clientEntities.clear();
+            }
+        });
+    }
+
+    public interface IConnectionPlayer {
+        void onConnection(ConnectedClient client);
+    }
+
+    public interface IDisconnectionPlayer {
+        void onDisconnection(ConnectedClient client);
     }
 
     private final String name;
@@ -67,11 +146,13 @@ public class NetworkEntity {
 
     private boolean isRemoved = false;
 
+    private final ModdedClient clientInstance = Network.getSingleton().getClient();
     private final ConnectedClientList clients = new ConnectedClientList();
 
-    @Deprecated(since = "Zote")
     private JobExecutor clientExecutor = Network.getSingleton().getClientThreadJobExecutor();
     private JobExecutor serverExecutor = Network.getSingleton().getServerThreadJobExecutor();
+    private IConnectionPlayer connectionPlayerListener = (client) -> {};
+    private IDisconnectionPlayer disconnectionPlayerListener = (client) -> {};
 
     protected NetworkEntity(NetworkEntityType type, Object target, String name, boolean isServer) {
         if (type == null) {
@@ -91,12 +172,14 @@ public class NetworkEntity {
                 public void onAdd(ConnectedClient client) {
                     if (!isRemoved) {
                         client.send("system.entity.add#" + type.getTypeName() + "#" + name, type.newClientAddPacket(NetworkEntity.this, client));
+                        connectionPlayerListener.onConnection(client);
                     }
                 }
 
                 @Override
                 public void onRemove(ConnectedClient client) {
                     client.send("system.entity.remove#" + name, type.newClientRemovePacket(NetworkEntity.this, client));
+                    disconnectionPlayerListener.onDisconnection(client);
                 }
             });
 
@@ -116,6 +199,14 @@ public class NetworkEntity {
 
     public NetworkEntity(NetworkEntityType type) {
         this(type, null);
+    }
+
+    public void setConnectionPlayerListener(IConnectionPlayer connectionPlayerListener) {
+        this.connectionPlayerListener = connectionPlayerListener;
+    }
+
+    public void setDisconnectionPlayerListener(IDisconnectionPlayer disconnectionPlayerListener) {
+        this.disconnectionPlayerListener = disconnectionPlayerListener;
     }
 
     public NetworkEntityType getType() {
@@ -146,12 +237,10 @@ public class NetworkEntity {
         clients.refresh();
     }
 
-    @Deprecated(since = "Zote")
     public JobExecutor getClientExecutor() {
         return clientExecutor;
     }
 
-    @Deprecated(since = "Zote")
     public void setClientExecutor(JobExecutor clientExecutor) {
         if (clientExecutor == null) {
             throw new NullPointerException("clientExecutor cannot be null");
@@ -178,6 +267,9 @@ public class NetworkEntity {
             if (isServer) {
                 ThreadTypeMarker.assertServerThread();
                 clients.send("system.entity.packet#" + this.name + "#" + name, data);
+            } else {
+                ThreadTypeMarker.assertClientThread();
+                clientInstance.send("system.entity.packet#" + this.name + "#" + name, data);
             }
         }
     }
@@ -216,6 +308,10 @@ public class NetworkEntity {
             isRemoved = true;
             if (isServer) {
                 clients.clear();
+            } else {
+                Network.getSingleton().getInstantJobExecutor().add(() -> {
+                    type.onClientEntityRemovedDueShutdown(this);
+                });
             }
         }
     }
