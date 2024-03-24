@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,15 +29,13 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 import com.googlecode.d2j.dex.Dex2jar;
+import com.reider745.api.hooks.RebuildJavadoc;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
+import javassist.*;
 import javassist.bytecode.AccessFlag;
+import javassist.bytecode.BadBytecode;
 
 public class ClassLoaderPatch {
     private static final List<Object> patchedObjects = new ArrayList<>();
@@ -125,7 +124,7 @@ public class ClassLoaderPatch {
             }
             addClasspath(classLoader, jarFile);
             return;
-        } catch (CannotCompileException | NotFoundException | IOException e) {
+        } catch (CannotCompileException | NotFoundException | IOException | BadBytecode e) {
             Logger.error("ClassLoaderPath", "Java library is broken or it class file is not supported yet!");
             Logger.error("ClassLoaderPath", e);
         }
@@ -156,9 +155,13 @@ public class ClassLoaderPatch {
     }
 
     public static void patchNativeMethods(File jarFile, File outputJarFile)
-            throws NotFoundException, IOException, CannotCompileException {
+            throws NotFoundException, IOException, CannotCompileException, BadBytecode {
         final ClassPool classPool = new ClassPool();
-        classPool.insertClassPath(jarFile.getPath());
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{jarFile.toURL()});
+
+        ClassPath path = new LoaderClassPath(classLoader);
+        classPool.insertClassPath(path);
+
 
         final File outputDirectory = new File(outputJarFile.getParentFile(), ".patch");
         final String outputDirectoryPath = outputDirectory.getPath();
@@ -179,7 +182,7 @@ public class ClassLoaderPatch {
         }
     }
 
-    private static void stoleNative(CtClass ctClass) {
+    private static void stoleNative(CtClass ctClass) throws CannotCompileException, NotFoundException {
         if (ctClass.isFrozen()) {
             ctClass.defrost();
         }
@@ -188,6 +191,11 @@ public class ClassLoaderPatch {
             int modifiers = method.getModifiers();
             if ((modifiers & AccessFlag.NATIVE) != 0) {
                 method.setModifiers(modifiers & ~AccessFlag.NATIVE);
+                String ret = RebuildJavadoc.getStubValue(method.getReturnType());
+                if(ret != null)
+                    method.setBody("{return "+ret+";}");
+                else
+                    method.setBody("{}");
             }
         }
     }

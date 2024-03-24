@@ -1,8 +1,8 @@
 # Change resolution of pack that client should have to log into server.
 # However, no deprecated or unimplemented methods will be added.
 pack: Inner Core Test
-pack-version: 2.3.0b115 test
-pack-version-code: 152
+pack-version: 2.3.0b116
+pack-version-code: 153
 
 # Sets the list of mods and configs to load, you can specify
 # name, folder name of a modpack from /modpacks or a path.

@@ -36,7 +36,7 @@ public class RebuildJavadoc {
         this.requiresProxies = requiresProxies;
     }
 
-    private static String getStubValue(CtClass retType) {
+    public static String getStubValue(CtClass retType) {
         return switch (retType.getName()) {
             case "java.lang.String", "java.lang.CharSequence" -> "\"\"";
             case "byte" -> "(byte)0";
