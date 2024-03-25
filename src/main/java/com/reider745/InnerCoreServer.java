@@ -59,6 +59,7 @@ public class InnerCoreServer {
     }
 
     public static final int PROTOCOL = 422;
+    public static final int RECIPES_PROTOCOL = 419;
     public static final int EXIT_CODE_NO_INTERNAL_PACKAGE = 32;
     public static final int EXIT_CODE_NO_MODPACK = 33;
 

@@ -130,8 +130,17 @@ public class NativeWorkbench {
                     }
                     ingredients.put(ingredient.getKey(), item);
                 }
+
+                for(int i = 0;i < recipe.pattern.length;i++){
+                    if(recipe.pattern[i].length() > 3) {
+                        Logger.warning("NativeWorkbench", "Skip recipe, error pattern: "+Arrays.toString(recipe.pattern) +", item: "+result);
+                        accepted = false;
+                        break;
+                    }
+                }
+
                 if (accepted) {
-                    craftingManager.registerRecipe(419,
+                    craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL,
                             new ShapedRecipe(result, recipe.pattern, ingredients, new ArrayList<>()));
                 }
             } else {
@@ -151,7 +160,7 @@ public class NativeWorkbench {
                     ingredients.add(item);
                 }
                 if (accepted) {
-                    craftingManager.registerRecipe(419, new ShapelessRecipe(result, ingredients));
+                    craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL, new ShapelessRecipe(result, ingredients));
                 }
             }
         }
