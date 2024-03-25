@@ -19,6 +19,7 @@ import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConvertor;
+import com.reider745.world.FakeDimensions;
 import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
@@ -300,6 +301,7 @@ public class InnerCoreServer {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
 
+        FakeDimensions.init();
         DimensionsFix.init();
         GlobalBlockPalette.init();
         RuntimeItemsHooks.register();

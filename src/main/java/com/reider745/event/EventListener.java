@@ -45,6 +45,7 @@ import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import com.reider745.world.BiomesMethods;
+import com.reider745.world.FakeDimensions;
 import oshi.hardware.NetworkIF;
 
 import java.util.ArrayList;
@@ -153,10 +154,11 @@ public class EventListener implements Listener {
         final CallbackHelper.ICallbackApply applyPre = () -> NativeCallback.onPreChunkPostProcessed(X, Z);
         final CallbackHelper.ICallbackApply applyPost = () -> NativeCallback.onChunkPostProcessed(X, Z);
 
-        BiomesMethods.onChunkPopulate(fullChunk, X, Z, level.getDimensionData().getDimensionId());
+        final int id = FakeDimensions.getFakeIdForLevel(level);
+        BiomesMethods.onChunkPopulate(fullChunk, X, Z, id);
 
         try {
-            switch (level.getDimension()) {
+            switch (id) {
                 case Level.DIMENSION_OVERWORLD -> {
                     CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK, level, applyPre);
                     CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVERWORLD, level, applyPost);
@@ -373,8 +375,8 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityTeleport(EntityTeleportEvent event) {
-        final int from = event.getFrom().level.getDimension();
-        final int to = event.getFrom().level.getDimension();
+        final int from = FakeDimensions.getFakeIdForLevel(event.getFrom().level);
+        final int to = FakeDimensions.getFakeIdForLevel(event.getFrom().level);
 
         if (CustomDimension.getDimensionById(to) != null || CustomDimension.getDimensionById(from) != null)
             NativeCallback.onCustomDimensionTransfer(event.getEntity().getId(), from, to);

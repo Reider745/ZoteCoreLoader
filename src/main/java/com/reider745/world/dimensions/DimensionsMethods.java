@@ -10,6 +10,7 @@ import cn.nukkit.math.Vector3;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
+import com.reider745.world.FakeDimensions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -109,6 +110,7 @@ public class DimensionsMethods {
     public static final Map<String, CustomDimensionDescription> descriptions = new HashMap<>();
 
     public static long nativeConstruct(int id, String name) {
+        FakeDimensions.registerIgnore(id);
         CustomDimensionDescription description = new CustomDimensionDescription(id, name);
         descriptions.put(name, description);
         return pointers.addPointer(description);

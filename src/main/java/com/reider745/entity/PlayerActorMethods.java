@@ -17,6 +17,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.InnerCoreServer;
 import com.reider745.event.EventListener;
 import com.reider745.hooks.ItemUtils;
+import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import org.jetbrains.annotations.Nullable;
@@ -134,7 +135,7 @@ public class PlayerActorMethods {
         }
         Level level = player.getLevel();
         if (level != null) {
-            return player.getLevel().getDimension();
+            return FakeDimensions.getFakeIdForLevel(player.getLevel());
         }
         return 0;
     }

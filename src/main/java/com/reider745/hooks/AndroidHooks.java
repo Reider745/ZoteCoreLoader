@@ -1,5 +1,13 @@
 package com.reider745.hooks;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.*;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.FieldPatched;
 import com.reider745.api.hooks.annotation.Hooks;
@@ -7,6 +15,8 @@ import com.reider745.api.hooks.annotation.Inject;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Locale;
@@ -276,6 +286,307 @@ public class AndroidHooks implements HookClass {
 		sColorNameMap.put("teal", 0xFF008080);
 	}
 
+	private static final WindowManager windowManager = new WindowManager() {
+		@Override
+		public void addView(View view, ViewGroup.LayoutParams layoutParams) {
+
+		}
+
+		@Override
+		public void updateViewLayout(View view, ViewGroup.LayoutParams layoutParams) {
+
+		}
+
+		@Override
+		public void removeView(View view) {
+
+		}
+
+		@Override
+		public Display getDefaultDisplay() {
+			return Display.getSingletonInternalProxy();
+		}
+
+		@Override
+		public void removeViewImmediate(View view) {
+
+		}
+	};
+
+	@Inject(className = "android.app.Activity")
+	public static WindowManager getWindowManager(Activity self){
+		return windowManager;
+	}
+
+	private static final Window window = new Window(null) {
+		public WindowManager getWindowManager(){
+			return windowManager;
+		}
+
+		@Override
+		public void takeSurface(SurfaceHolder.Callback2 callback2) {
+
+		}
+
+		@Override
+		public void takeInputQueue(InputQueue.Callback callback) {
+
+		}
+
+		@Override
+		public boolean isFloating() {
+			return false;
+		}
+
+		@Override
+		public void setContentView(int i) {
+
+		}
+
+		@Override
+		public void setContentView(View view) {
+
+		}
+
+		@Override
+		public void setContentView(View view, ViewGroup.LayoutParams layoutParams) {
+
+		}
+
+		@Override
+		public void addContentView(View view, ViewGroup.LayoutParams layoutParams) {
+
+		}
+
+		@Override
+		public View getCurrentFocus() {
+			return null;
+		}
+
+		@Override
+		public LayoutInflater getLayoutInflater() {
+			return null;
+		}
+
+		@Override
+		public void setTitle(CharSequence charSequence) {
+
+		}
+
+		@Override
+		public void setTitleColor(int i) {
+
+		}
+
+		@Override
+		public void openPanel(int i, KeyEvent keyEvent) {
+
+		}
+
+		@Override
+		public void closePanel(int i) {
+
+		}
+
+		@Override
+		public void togglePanel(int i, KeyEvent keyEvent) {
+
+		}
+
+		@Override
+		public void invalidatePanelMenu(int i) {
+
+		}
+
+		@Override
+		public boolean performPanelShortcut(int i, int i1, KeyEvent keyEvent, int i2) {
+			return false;
+		}
+
+		@Override
+		public boolean performPanelIdentifierAction(int i, int i1, int i2) {
+			return false;
+		}
+
+		@Override
+		public void closeAllPanels() {
+
+		}
+
+		@Override
+		public boolean performContextMenuIdentifierAction(int i, int i1) {
+			return false;
+		}
+
+		@Override
+		public void onConfigurationChanged(Configuration configuration) {
+
+		}
+
+		@Override
+		public void setBackgroundDrawable(Drawable drawable) {
+
+		}
+
+		@Override
+		public void setFeatureDrawableResource(int i, int i1) {
+
+		}
+
+		@Override
+		public void setFeatureDrawableUri(int i, Uri uri) {
+
+		}
+
+		@Override
+		public void setFeatureDrawable(int i, Drawable drawable) {
+
+		}
+
+		@Override
+		public void setFeatureDrawableAlpha(int i, int i1) {
+
+		}
+
+		@Override
+		public void setFeatureInt(int i, int i1) {
+
+		}
+
+		@Override
+		public void takeKeyEvents(boolean b) {
+
+		}
+
+		@Override
+		public boolean superDispatchKeyEvent(KeyEvent keyEvent) {
+			return false;
+		}
+
+		@Override
+		public boolean superDispatchKeyShortcutEvent(KeyEvent keyEvent) {
+			return false;
+		}
+
+		@Override
+		public boolean superDispatchTouchEvent(MotionEvent motionEvent) {
+			return false;
+		}
+
+		@Override
+		public boolean superDispatchTrackballEvent(MotionEvent motionEvent) {
+			return false;
+		}
+
+		@Override
+		public boolean superDispatchGenericMotionEvent(MotionEvent motionEvent) {
+			return false;
+		}
+
+		@Override
+		public View getDecorView() {
+			return View.getSingletonInternalProxy();
+		}
+
+		@Override
+		public View peekDecorView() {
+			return View.getSingletonInternalProxy();
+		}
+
+		@Override
+		public Bundle saveHierarchyState() {
+			return null;
+		}
+
+		@Override
+		public void restoreHierarchyState(Bundle bundle) {
+
+		}
+
+		@Override
+		protected void onActive() {
+
+		}
+
+		@Override
+		public void setChildDrawable(int i, Drawable drawable) {
+
+		}
+
+		@Override
+		public void setChildInt(int i, int i1) {
+
+		}
+
+		@Override
+		public boolean isShortcutKey(int i, KeyEvent keyEvent) {
+			return false;
+		}
+
+		@Override
+		public void setVolumeControlStream(int i) {
+
+		}
+
+		@Override
+		public int getVolumeControlStream() {
+			return 0;
+		}
+
+		@Override
+		public int getStatusBarColor() {
+			return 0;
+		}
+
+		@Override
+		public void setStatusBarColor(int i) {
+
+		}
+
+		@Override
+		public int getNavigationBarColor() {
+			return 0;
+		}
+
+		@Override
+		public void setNavigationBarColor(int i) {
+
+		}
+
+		@Override
+		public void setDecorCaptionShade(int i) {
+
+		}
+
+		@Override
+		public void setResizingCaptionDrawable(Drawable drawable) {
+
+		}
+	};
+
+	@Inject(className = "android.app.Activity")
+	public static Window getWindow(Activity self){
+		return window;
+	}
+
+	private static final HashMap<String, Object> services = new HashMap<>();
+
+	static {
+        try {
+			Constructor<?> constructor = ConnectivityManager.class.getDeclaredConstructors()[0];
+			constructor.setAccessible(true);
+            services.put(Context.CONNECTIVITY_SERVICE, constructor.newInstance());
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+	@Inject(className = "android.app.Activity")
+	public static Object getSystemService(Activity self, String name){
+		return services.get(name);
+	}
+
 	private AndroidHooks() {
+
 	}
 }

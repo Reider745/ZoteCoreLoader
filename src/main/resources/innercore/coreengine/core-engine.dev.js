@@ -6033,7 +6033,7 @@ var EntityAPI = {
     setTarget: function(ent, target) {
         return Entity.setTarget(ent, target);
     },
-    getMobile: function(ent, mobile) {
+    getMobile: function(ent) {
         return !Entity.isImmobile(ent);
     },
     setMobile: function(ent, mobile) {

@@ -30,6 +30,7 @@ import com.reider745.api.ReflectHelper;
 import com.reider745.event.EventListener;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
+import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -113,7 +114,7 @@ public class EntityMethod {
     }
 
     public static int getEntityDimension(long entityUid) {
-        return validateThen(entityUid, entity -> entity.getLevel().getDimension(), -1);
+        return validateThen(entityUid, entity -> FakeDimensions.getFakeIdForLevel(entity.getLevel()), -1);
     }
 
     public static void getPosition(long entityUid, float[] position) {

@@ -40,9 +40,9 @@ public class BlockSourceMethods {
     }
 
     public static Level getLevelForDimension(int dimension) {
-        return Server.getInstance().getLevels().values().stream()
-                .filter(level -> level.getDimension() == dimension)
-                .findFirst().orElse(null);
+        /*return */
+        //FakeDimensions.getFakeIdForLevel()
+        return FakeDimensions.getLevelForFakeId(dimension);
     }
 
     public static Level getLevelForName(String name) {
@@ -156,7 +156,7 @@ public class BlockSourceMethods {
     }
 
     public static int getDimension(Level level) {
-        return level.getDimension();
+        return FakeDimensions.getFakeIdForLevel(level);
     }
 
     public static void setBiome(Level level, int chunkX, int chunkZ, int id) {
