@@ -8,6 +8,7 @@ import cn.nukkit.item.RuntimeItems;
 import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
+import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
@@ -20,6 +21,12 @@ import java.util.*;
 
 @Hooks(className = "cn.nukkit.item.RuntimeItemMapping")
 public class RuntimeItemsHooks implements HookClass {
+    private static HashMap<Integer, Boolean> protocols = new HashMap<>();
+
+    @Inject
+    public static void generatePalette(RuntimeItemMapping self){
+        protocols.put(self.getProtocolId(), true);
+    }
 
     public static void register(int protocolId) {
         final Map<String, Integer> legacyString2LegacyInt = ReflectHelper.getField(RuntimeItems.class,
@@ -84,29 +91,13 @@ public class RuntimeItemsHooks implements HookClass {
             Method generatePalette = RuntimeItemMapping.class.getDeclaredMethod("generatePalette", new Class[0]);
             generatePalette.setAccessible(true);
             generatePalette.invoke(mapping, new Object[0]);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                | SecurityException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new UnsupportedOperationException(e);
         }
     }
 
     public static void register() {
-        register(361);
-        register(419);
-        register(440);
-        register(448);
-        register(475);
-        register(486);
-        register(503);
-        register(527);
-        register(534);
-        register(560);
-        register(567);
-        register(575);
-        register(582);
-        register(589);
-        register(594);
-        register(618);
-        register(630);
+        for(Integer id : protocols.keySet())
+            register(id);
     }
 }
