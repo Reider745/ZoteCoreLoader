@@ -3,6 +3,7 @@ package com.zhekasmirnov.apparatus.mcpe;
 import cn.nukkit.Player;
 
 import com.reider745.api.ZoteOnly;
+import com.reider745.entity.EntityMethod;
 import com.reider745.entity.PlayerActorMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -11,7 +12,7 @@ public class NativePlayer {
     private final Player player;
 
     public NativePlayer(long entity) {
-        player = PlayerActorMethods.fetchOnline(entity);
+        player = EntityMethod.fetchOnline(entity);
     }
 
     public Player getPlayer() {

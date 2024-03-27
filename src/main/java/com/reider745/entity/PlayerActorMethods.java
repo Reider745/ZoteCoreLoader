@@ -20,25 +20,13 @@ import com.reider745.hooks.ItemUtils;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
-import java.util.UUID;
-
 public class PlayerActorMethods {
-
-    @Nullable
-    public static Player fetchOnline(long entity) {
-        Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
-        return players.values().stream().filter(player -> player.getId() == entity).findFirst().orElse(null);
-    }
-
     public static boolean isValid(Player player, boolean checkOnline) {
         if (!EntityMethod.isValid(player)) {
             return false;
         }
         if (checkOnline) {
-            return fetchOnline(player.getId()) != null;
+            return EntityMethod.fetchOnline(EntityMethod.getIdForEntity(player)) != null;
         }
         return true;
     }

@@ -48,7 +48,7 @@ public class ServerHooks implements HookClass {
     @Inject
     public static boolean getPropertyBoolean(Server server, String variable, Object defaultValue) {
         if (!InnerCoreServer.isUnsupportedOptionsAllowed()
-                && (variable.equals("xbox-auth") || variable.equals("save-player-data-by-uuid")))
+                && (variable.equals("xbox-auth")))
             return false;
 
         Config properties = server.getProperties();

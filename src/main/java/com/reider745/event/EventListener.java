@@ -93,28 +93,28 @@ public class EventListener implements Listener {
             consumeEvent(event,
                     () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z,
                             event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true,
-                            player.getHealth() > 0, player.getId()));
+                            player.getHealth() > 0, EntityMethod.getIdForEntity(player)));
         }
     }
 
     public static void onBlockBreak(BlockBreakEvent event, boolean isNukkitPrevent) {
         final Block block = event.getBlock();
         consumeEvent(event, () -> NativeCallback.onBlockDestroyed((int) block.x, (int) block.y, (int) block.z,
-                event.getFace().getIndex(), event.getPlayer().getId()), isNukkitPrevent);
+                event.getFace().getIndex(), EntityMethod.getIdForEntity(event.getPlayer())), isNukkitPrevent);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEatFood(PlayerEatFoodEvent event) {
         final Food food = event.getFood();
         consumeEvent(event, () -> NativeCallback.onPlayerEat(food.getRestoreFood(), food.getRestoreSaturation(),
-                event.getPlayer().getId()));
+                EntityMethod.getIdForEntity(event.getPlayer())));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         final Block block = event.getBlock();
         consumeEvent(event, () -> NativeCallback.onBlockBuild((int) block.x, (int) block.y, (int) block.z, 0,
-                event.getPlayer().getId()));
+                EntityMethod.getIdForEntity(event.getPlayer())));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -133,12 +133,13 @@ public class EventListener implements Listener {
         // MovingObjectPosition actually always != null, but in plugins case
         final MovingObjectPosition mop = event.getMovingObjectPosition();
         final Vector3 hit = mop != null ? mop.hitVector : entity.getPosition();
-        final Item item = EntityMethod.getItemFromProjectile(entity.getId());
+        long id = EntityMethod.getIdForEntity(entity);
+        final Item item = EntityMethod.getItemFromProjectile(id);
         final NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
 
         consumeEvent(event,
-                () -> NativeCallback.onThrowableHit(entity.getId(), (float) hit.x, (float) hit.y, (float) hit.z,
-                        mop != null && mop.entityHit != null ? mop.entityHit.getId() : 0, mop != null ? mop.blockX : 0,
+                () -> NativeCallback.onThrowableHit(id, (float) hit.x, (float) hit.y, (float) hit.z,
+                        mop != null && mop.entityHit != null ? EntityMethod.getIdForEntity(mop.entityHit) : 0, mop != null ? mop.blockX : 0,
                         mop != null ? mop.blockY : 0, mop != null ? mop.blockZ : 0, mop != null ? mop.sideHit : -1,
                         item.getId(), item.count, item.getDamage(), extra));
     }
@@ -188,12 +189,13 @@ public class EventListener implements Listener {
         final Entity entity = event.getEntity();
 
         EntityMotion.added(entity);
+        long id = EntityMethod.getIdForEntity(entity);
 
         if (entity instanceof EntityXPOrb xpOrb) {
             NativeCallback.onExpOrbsSpawned(entity.getLevel(), xpOrb.getExp(), (float) entity.x, (float) entity.y,
-                    (float) entity.z, entity.getId());
+                    (float) entity.z, id);
         }
-        NativeCallback.onEntityAdded(entity.getId());
+        NativeCallback.onEntityAdded(id);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -201,7 +203,7 @@ public class EventListener implements Listener {
         final Entity entity = event.getEntity();
 
         EntityMotion.remove(entity);
-        NativeCallback.onEntityRemoved(entity.getId());
+        NativeCallback.onEntityRemoved(EntityMethod.getIdForEntity(entity));
     }
 
     public static int convertDamageCauseToEnum(DamageCause cause) {
@@ -265,11 +267,11 @@ public class EventListener implements Listener {
 
         if (attacker instanceof Player) {
             consumeEvent(event,
-                    () -> NativeCallback.onEntityAttacked(entity.getId(), attacker != null ? attacker.getId() : -1));
+                    () -> NativeCallback.onEntityAttacked(EntityMethod.getIdForEntity(entity), EntityMethod.getIdForEntity(attacker)));
         }
 
         consumeEvent(event,
-                () -> NativeCallback.onEntityHurt(entity.getId(), attacker != null ? attacker.getId() : -1,
+                () -> NativeCallback.onEntityHurt(EntityMethod.getIdForEntity(entity), attacker != null ? EntityMethod.getIdForEntity(attacker) : -1,
                         convertDamageCauseToEnum(event.getCause()), (int) (event.getDamage() * 2f),
                         event.canBeReducedByArmor(), event.isBreakShield())); // последний 2 boolean тут временно
     }
@@ -282,7 +284,7 @@ public class EventListener implements Listener {
                 ? damageByEntityEvent.getDamager()
                 : null;
 
-        NativeCallback.onEntityDied(entity.getId(), attacker != null ? attacker.getId() : -1,
+        NativeCallback.onEntityDied(EntityMethod.getIdForEntity(entity), attacker != null ? EntityMethod.getIdForEntity(attacker) : -1,
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM));
     }
 
@@ -294,7 +296,7 @@ public class EventListener implements Listener {
                 ? damageByEntityEvent.getDamager()
                 : null;
 
-        consumeEvent(event, () -> NativeCallback.onEntityDied(entity.getId(), attacker != null ? attacker.getId() : -1,
+        consumeEvent(event, () -> NativeCallback.onEntityDied(EntityMethod.getIdForEntity(entity), attacker != null ? EntityMethod.getIdForEntity(attacker) : -1,
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM)));
     }
 
@@ -320,7 +322,7 @@ public class EventListener implements Listener {
         final Position pos = entity.getPosition();
 
         consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
-                (float) event.getForce(), entity.getId(), false, event.isBlockBreaking(), Float.MAX_VALUE));
+                (float) event.getForce(), EntityMethod.getIdForEntity(entity), false, event.isBlockBreaking(), Float.MAX_VALUE));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -331,14 +333,14 @@ public class EventListener implements Listener {
 
         if (newExperienceLevel != oldExperienceLevel) {
             consumeEvent(event,
-                    () -> NativeCallback.onPlayerLevelAdded(newExperienceLevel - oldExperienceLevel, player.getId()));
+                    () -> NativeCallback.onPlayerLevelAdded(newExperienceLevel - oldExperienceLevel, EntityMethod.getIdForEntity(player)));
         }
 
         final int newExperience = event.getNewExperience();
         final int oldExperience = event.getOldExperience();
 
         if (newExperience != oldExperience) {
-            consumeEvent(event, () -> NativeCallback.onPlayerExpAdded(newExperience - oldExperience, player.getId()));
+            consumeEvent(event, () -> NativeCallback.onPlayerExpAdded(newExperience - oldExperience, EntityMethod.getIdForEntity(player)));
         }
     }
 
@@ -346,7 +348,7 @@ public class EventListener implements Listener {
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         final Vector3 position = event.getClickedPos();
 
-        NativeCallback.onInteractWithEntity(event.getEntity().getId(), event.getPlayer().getId(), (float) position.x,
+        NativeCallback.onInteractWithEntity(EntityMethod.getIdForEntity(event.getEntity()), EntityMethod.getIdForEntity(event.getPlayer()), (float) position.x,
                 (float) position.y, (float) position.z);
     }
 
@@ -354,7 +356,7 @@ public class EventListener implements Listener {
     public void onPickupItem(InventoryPickupItemEvent event) {
         final long dropEntity = event.getItem().getId();
         final long entity = event.getInventory().getHolder() instanceof Entity pickupEntity
-                ? pickupEntity.getId()
+                ? EntityMethod.getIdForEntity(pickupEntity)
                 : -1;
         final Item item = event.getItem().getItem();
         final int count = item != null ? item.getCount() : 0;
@@ -379,14 +381,14 @@ public class EventListener implements Listener {
         final int to = FakeDimensions.getFakeIdForLevel(event.getFrom().level);
 
         if (CustomDimension.getDimensionById(to) != null || CustomDimension.getDimensionById(from) != null)
-            NativeCallback.onCustomDimensionTransfer(event.getEntity().getId(), from, to);
+            NativeCallback.onCustomDimensionTransfer(EntityMethod.getIdForEntity(event.getEntity()), from, to);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerCommand(ServerCommandEvent event) {
         final CommandSender sender = event.getSender();
         final Position position = sender.getPosition();
-        final long entityUid = sender.isEntity() ? sender.asEntity().getId() : 0;
+        final long entityUid = sender.isEntity() ? EntityMethod.getIdForEntity(sender.asEntity()) : 0;
 
         consumeEvent(event, () -> NativeCallback.onServerCommand(event.getCommand(),
                 (float) position.x, (float) position.y, (float) position.z, entityUid, false));
@@ -394,7 +396,7 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-        long playerUid = event.getPlayer().getId();
+        long playerUid = EntityMethod.getIdForEntity(event.getPlayer());
         Position position = event.getPlayer().getPosition();
         String command = event.getMessage();
 
@@ -439,7 +441,7 @@ public class EventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCraftItem(CraftItemEvent event) {
         CraftingGrid grid = event.getPlayer().getCraftingGrid();
-        long playerUid = event.getPlayer().getId();
+        long playerUid = EntityMethod.getIdForEntity(event.getPlayer());
         int inventorySize = (int) Math.sqrt(grid.getSize());
 
         consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));

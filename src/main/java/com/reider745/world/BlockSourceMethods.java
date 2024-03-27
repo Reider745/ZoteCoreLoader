@@ -224,7 +224,7 @@ public class BlockSourceMethods {
                     int entityType = EntityMethod.getEntityTypeDirect(entity);
                     return !blacklist ? entityType == backCompEntityType : entityType != backCompEntityType;
                 })
-                .mapMultiToLong((entity, consumer) -> consumer.accept(entity.getId()))
+                .mapMultiToLong((entity, consumer) -> consumer.accept(EntityMethod.getIdForEntity(entity)))
                 .toArray();
     }
 
@@ -233,7 +233,7 @@ public class BlockSourceMethods {
         // TODO: Quite BETTER name to identifier conversion!
         return Arrays.stream(fetchEntitiesInAABB(level, x1, y1, z1, x2, y2, z2))
                 .filter(entity -> entity.getName().equalsIgnoreCase(name))
-                .mapMultiToLong((entity, consumer) -> consumer.accept(entity.getId()))
+                .mapMultiToLong((entity, consumer) -> consumer.accept(EntityMethod.getIdForEntity(entity)))
                 .toArray();
     }
 
@@ -241,7 +241,7 @@ public class BlockSourceMethods {
         Entity entity = Entity.createEntity(type, new Position(x, y, z, level));
         if (entity != null) {
             entity.spawnToAll();
-            return entity.getId();
+            return EntityMethod.getIdForEntity(entity);
         }
         return -1;
     }
@@ -256,7 +256,7 @@ public class BlockSourceMethods {
                 new Position(x, y, z, level));
         if (entity != null) {
             entity.spawnToAll();
-            return entity.getId();
+            return EntityMethod.getIdForEntity(entity);
         }
         return -1;
     }
@@ -267,7 +267,7 @@ public class BlockSourceMethods {
         Entity entity = Entity.createEntity("XpOrb", new Position(x, y, z, level), nbt);
         if (entity != null) {
             entity.spawnToAll();
-            return entity.getId();
+            return EntityMethod.getIdForEntity(entity);
         }
         return -1;
     }

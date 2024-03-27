@@ -93,7 +93,7 @@ public class PlayerHooks implements HookClass {
     @Inject
     public static void dataPacket(Player player, DataPacket packet) {
         if (InnerCoreServer.isDebugInnerCoreNetwork() && !player.isOnline())
-            System.out.println("sending packet player=" + player.getId() + " id=" + packet.packetId()
+            System.out.println("sending packet player=" + EntityMethod.getIdForEntity(player) + " id=" + packet.packetId()
                     + " pid=" + packet.pid() + " channel=" + packet.getChannel());
     }
 

@@ -6,6 +6,7 @@ import cn.nukkit.item.ItemTool;
 import cn.nukkit.math.Vector3;
 import com.reider745.api.CustomManager;
 
+import com.reider745.entity.EntityMethod;
 import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.constants.EnchantType;
@@ -76,9 +77,10 @@ public class CustomItemClass extends Item {
 
     @Override
     public boolean onRelease(Player player, int ticksUsed) {
-        NativeCallback.onItemUseReleased(ticksUsed, player.getId());
+        long id = EntityMethod.getIdForEntity(player);
+        NativeCallback.onItemUseReleased(ticksUsed, id);
         if (ticksUsed > getMaxDurability())
-            NativeCallback.onItemUseComplete(player.getId());
+            NativeCallback.onItemUseComplete(id);
         return super.onRelease(player, ticksUsed);
     }
 
@@ -89,7 +91,7 @@ public class CustomItemClass extends Item {
 
     @Override
     public boolean onClickAir(Player player, Vector3 directionVector) {
-        NativeCallback.onItemUsedNoTarget(player.getId());
+        NativeCallback.onItemUsedNoTarget(EntityMethod.getIdForEntity(player));
         return Callback.count("ItemUseNoTarget") > 0;
     }
 

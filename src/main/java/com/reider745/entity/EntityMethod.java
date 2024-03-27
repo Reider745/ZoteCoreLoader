@@ -35,15 +35,41 @@ import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.constants.EntityType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EntityMethod {
+    public static long getIdForEntity(Entity entity){
+        if(entity instanceof EntityHuman human)
+            return human.getUniqueId().node();
+        return entity.getId();
+    }
+
+    @Nullable
+    public static Player fetchOnline(long entity) {
+        Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
+
+        Iterator<Map.Entry<UUID, Player>> it = players.entrySet().iterator();
+        while (it.hasNext()){
+            Map.Entry<UUID, Player> entry = it.next();
+            if(entry.getKey().node() == entity)
+                return entry.getValue();
+        }
+
+        return null;
+    }
 
     public static Entity getEntityById(long entityUid) {
+        Player player = fetchOnline(entityUid);
+        if(player != null)
+            return player;
+
         Map<Integer, Level> levels = Server.getInstance().getLevels();
         for (Level level : levels.values()) {
             Entity entity = level.getEntity(entityUid);
@@ -58,18 +84,7 @@ public class EntityMethod {
     }
 
     public static Player getPlayerById(long entityUid) {
-        Map<Integer, Level> levels = Server.getInstance().getLevels();
-        Player player;
-        for (Level level : levels.values()) {
-            Map<Long, Player> players = level.getPlayers();
-            if ((player = players.containsKey(entityUid) ? players.get(entityUid) : null) != null) {
-                return player;
-            }
-        }
-        if (entityUid != 0 && InnerCoreServer.isDeveloperMode()) {
-            Logger.warning("NativeAPI", "Unknown playerUid=" + entityUid + ", aborting requested action!");
-        }
-        return null;
+        return fetchOnline(entityUid);
     }
 
     public static Entity[] getEntitiesByIds(long[] entityUids) {
@@ -360,18 +375,18 @@ public class EntityMethod {
 
     public static long getRider(long entityUid) {
         Entity passenger = validateThen(entityUid, entity -> entity.getPassenger(), null);
-        return passenger != null ? passenger.getId() : -1;
+        return passenger != null ? EntityMethod.getIdForEntity(passenger) : -1;
     }
 
     public static long getRiding(long entityUid) {
         Entity riding = validateThen(entityUid, entity -> entity.getRiding(), null);
-        return riding != null ? riding.getId() : -1;
+        return riding != null ? EntityMethod.getIdForEntity(riding) : -1;
     }
 
     public static long getTarget(long entityUid) {
         Entity target = validateThen(entityUid,
                 entity -> entity instanceof BaseEntity attacker ? attacker.getTarget() : null, null);
-        return target != null ? target.getId() : -1;
+        return target != null ? EntityMethod.getIdForEntity(target) : -1;
     }
 
     public static void setTarget(long entityUid, long targetUid) {
