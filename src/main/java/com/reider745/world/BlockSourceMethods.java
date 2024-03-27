@@ -40,8 +40,6 @@ public class BlockSourceMethods {
     }
 
     public static Level getLevelForDimension(int dimension) {
-        /*return */
-        //FakeDimensions.getFakeIdForLevel()
         return FakeDimensions.getLevelForFakeId(dimension);
     }
 

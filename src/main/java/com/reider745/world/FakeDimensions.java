@@ -2,6 +2,7 @@ package com.reider745.world;
 
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 
 import java.util.ArrayList;
@@ -9,8 +10,9 @@ import java.util.HashMap;
 
 public class FakeDimensions {
     private static int CURRENT_FAKE_ID = Integer.MIN_VALUE;
-    private static HashMap<Integer, Integer> fakeIdForLevelId = new HashMap<>();
-    private static HashMap<Integer, Level> levelForFakeId = new HashMap<>();
+    private static final HashMap<Integer, Integer> fakeIdForLevelId = new HashMap<>();
+    private static final HashMap<Integer, Level> levelForFakeId = new HashMap<>();
+    private static final ArrayList<Integer> ignore = new ArrayList<>();
 
     public static int getFakeIdForLevel(final Level level){
         /*final int dimensionId = level.getDimension();
@@ -18,6 +20,9 @@ public class FakeDimensions {
             levelForFakeId.put(dimensionId, level);
             return dimensionId;
         }*/
+
+        if(ignore.contains(level.getDimension()))
+            return level.getDimension();
 
         //Проверка для псевдо-измерений накита
         Integer fakeId = fakeIdForLevelId.get(level.getId());
@@ -32,8 +37,6 @@ public class FakeDimensions {
 
         return fakeId;
     }
-
-    private static ArrayList<Integer> ignore = new ArrayList<>();
 
     public static void registerIgnore(int id){
         ignore.add(id);

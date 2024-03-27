@@ -212,6 +212,7 @@ public class InnerCoreServer {
         CallbackHelper.init();
         NukkitIdConvertor.init();
         DimensionsMethods.init();
+        FakeDimensions.init();
 
         HashMap<String, Object> description = new HashMap<>();
         description.put("name", "ZoteCore");
@@ -302,7 +303,6 @@ public class InnerCoreServer {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
 
-        FakeDimensions.init();
         DimensionsFix.init();
         GlobalBlockPalette.init();
         RuntimeItemsHooks.register();
