@@ -108,4 +108,4 @@ stop-on-critical-ticking-error: false
 | Версия протокола | 422 (1.16.200) |
 | Коммит Apparatus | `73194cfd` |
 | Коммит Instant Referrer | `a264591` |
-| Коммит Nukkit-MOT | `9ebdd88` |
+| Коммит Nukkit-MOT | `191f6ea2b29c083d41470125fd6cd1fb3d698399` |
