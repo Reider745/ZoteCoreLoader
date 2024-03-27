@@ -15,7 +15,7 @@ public abstract class ScriptableSaverScope implements WorldDataScopeRegistry.Sav
         } else if (scriptable instanceof Scriptable) {
             read((Scriptable) scriptable);
         } else {
-            throw new IOException("scriptable saver scope readJson() de-serialized into non scriptable");
+            throw new IOException("scriptable saver scope readJson() de-serialized into non scriptable "+scriptable.getClass().toString());
         }
     }
 

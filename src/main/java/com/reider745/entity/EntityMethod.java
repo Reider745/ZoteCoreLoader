@@ -46,8 +46,6 @@ import java.util.function.Function;
 
 public class EntityMethod {
     public static long getIdForEntity(Entity entity){
-        if(entity instanceof EntityHuman human)
-            return human.getUniqueId().node();
         return entity.getId();
     }
 
@@ -58,7 +56,7 @@ public class EntityMethod {
         Iterator<Map.Entry<UUID, Player>> it = players.entrySet().iterator();
         while (it.hasNext()){
             Map.Entry<UUID, Player> entry = it.next();
-            if(entry.getKey().node() == entity)
+            if(entry.getValue().getId() == entity)
                 return entry.getValue();
         }
 
@@ -77,9 +75,11 @@ public class EntityMethod {
                 return entity;
             }
         }
+
         if (entityUid != 0 && InnerCoreServer.isDeveloperMode()) {
             Logger.warning("NativeAPI", "Unknown entityUid=" + entityUid + ", aborting requested action!");
         }
+
         return null;
     }
 

@@ -2,6 +2,7 @@ package com.reider745.entity;
 
 import cn.nukkit.entity.Entity;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 // TODO: It was too good to be in ZoteCore, remote it.
@@ -24,7 +25,7 @@ public class EntityMotion {
 
     public static void tick() {
         for (final Entity entity : positionsCurrent.keySet())
-            positionsLast.put(entity, positionsCurrent.put(entity, new double[] { entity.x, entity.y, entity.z }));
+            positionsLast.put(entity, positionsCurrent.put(entity, new double[]{entity.x, entity.y, entity.z}));
     }
 
     public static void added(final Entity entity) {

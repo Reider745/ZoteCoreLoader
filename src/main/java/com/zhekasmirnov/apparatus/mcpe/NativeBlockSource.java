@@ -99,7 +99,7 @@ public class NativeBlockSource {
 
     public NativeBlockSource(Level level, boolean isFinalizable) {
         if (level == null) {
-            throw new IllegalArgumentException("cannot pass null pointer to NativeBlockSource constructor");
+            throw new RuntimeException("cannot pass null pointer to NativeBlockSource constructor");
         }
         this.level = level;
     }

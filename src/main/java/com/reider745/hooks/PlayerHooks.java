@@ -8,6 +8,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.TextFormat;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;

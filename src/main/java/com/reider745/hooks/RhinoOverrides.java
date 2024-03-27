@@ -31,7 +31,7 @@ public class RhinoOverrides implements HookClass {
 
     @Inject(className = "org.mozilla.javascript.ScriptRuntime")
     public static String[] getTopPackageNames() {
-        return new String[] { "java", "javax", "org", "com", "edu", "net", "android" };
+        return new String[] { "java", "javax", "org", "com", "edu", "net", "android", "cn"};
     }
 
     @Inject(className = "org.mozilla.javascript.ScriptRuntime", type = TypeHook.BEFORE_REPLACE)

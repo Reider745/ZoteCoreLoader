@@ -83,7 +83,7 @@ public class NetworkHooks implements HookClass {
                 if (player != null && packetId == 1)
                     player.dataPacket(InnerCorePacket.sendInfo);
 
-                DataPacket pk = network.getPacket(packetId);
+                DataPacket pk = network.getPacket(packetId, InnerCoreServer.PROTOCOL);
 
                 if (pk != null) {
                     pk.protocol = player == null ? Integer.MAX_VALUE : player.protocol;
