@@ -683,6 +683,7 @@ var TileEntityBasePrototype = {
     _runInit: function() {
         Saver.registerObject(this, this.saverId);
         this.blockSource = BlockSource.getDefaultForDimension(this.dimension);
+
         if (!this.blockSource) {
             this.isLoaded = false;
             return false;
@@ -827,6 +828,11 @@ var TileEntity = {
 
         Prototype.saverId = Saver.registerObjectSaver(saverName, {
             read: function(obj) {
+                if(TileEntity.getTileEntity(obj.coords.x, obj.coords.y, obj.coords.z, BlockSource.getDefaultForDimension(obj.coords.d))){
+                    print("Duplicate TileEntity detected: "+obj.coords.x+":"+obj.coords.y+":"+obj.coords.z);
+                    return;
+                }
+
                 if (!obj || !obj.coords) {
                     return;
                 }
@@ -1631,7 +1637,7 @@ var BlockRegistry = {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, idFlowing, 0);
                     dispenser.setSlot(slot, emptyId, 1, 0, null);
-                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1, 1);
+                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1, 1);
                 }
             });
 
@@ -1646,7 +1652,7 @@ var BlockRegistry = {
                 if (liquid && block.data === 0) {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, 0, 0);
-                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1);
+                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1);
 
                     dispenser.setSlot(slot, item.id, item.count - 1, item.data, item.extra);
                     for (var i = 0; i < 9; i++) {
@@ -2568,7 +2574,7 @@ var ItemRegistry = {
         if (!noModCallback) {
             var blockSource = BlockSource.getDefaultForActor(entity);
             var block = blockSource ? blockSource.getBlock(coords.x, coords.y, coords.z)
-                    : WorldAPI.getBlock(coords.x, coords.y, coords.z);
+                : WorldAPI.getBlock(coords.x, coords.y, coords.z);
             Callback.invokeCallback("ItemUse", coords, item, block, false, entity);
         }
         if (noModCallback || !MCSystem.isDefaultPrevented()) {
@@ -6033,8 +6039,8 @@ var EntityAPI = {
     setTarget: function(ent, target) {
         return Entity.setTarget(ent, target);
     },
-    getMobile: function(ent) {
-        return !Entity.isImmobile(ent);
+    getMobile: function(ent, mobile) {
+        Entity.isImmobile(ent);
     },
     setMobile: function(ent, mobile) {
         Entity.setImmobile(ent, !mobile);
@@ -6437,7 +6443,7 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
                         Entity.setCarriedItem(player, 0, 0, 0);
                     }
                 }
-                blockSource.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
+                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
                 preventDefault();
                 return;
             }
@@ -6451,7 +6457,7 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
                         Entity.setCarriedItem(player, 0, 0, 0);
                     }
                 }
-                blockSource.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
+                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
                 preventDefault();
             }
         }

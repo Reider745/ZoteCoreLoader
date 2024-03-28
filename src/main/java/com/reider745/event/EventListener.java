@@ -85,9 +85,13 @@ public class EventListener implements Listener {
             return;
         }
 
-        final Vector3 pos = event.getTouchVector();
         final Block block = event.getBlock();
         final Player player = event.getPlayer();
+        final Vector3 pos = player.getDirectionVector();
+
+        pos.x = Math.abs(pos.x) + block.x;
+        pos.y = Math.abs(pos.y) + block.y;
+        pos.z = Math.abs(pos.z) + block.z;
 
         if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
             consumeEvent(event,
