@@ -253,6 +253,17 @@ public class InnerCoreServer {
         }
 
         unpackResources("/innercore_default_config.json", dataPath);
+        {
+            InputStream inputStream = InnerCoreServer.class.getClassLoader().getResourceAsStream("innercore/coreengine/core-engine.dev.js");
+            File file = new File(dataPath+"/innercore/coreengine/core-engine.dev.js");
+            file.createNewFile();
+            OutputStream outputStream = new FileOutputStream(file);
+
+            outputStream.write(inputStream.readAllBytes());
+
+            inputStream.close();
+            outputStream.close();
+        }
 
         // Required to be called before modpack instantiation
         FileTools.init();
