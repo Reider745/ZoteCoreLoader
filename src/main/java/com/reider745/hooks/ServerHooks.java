@@ -12,6 +12,7 @@ import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.entity.EntityMotion;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
 @Hooks(className = "cn.nukkit.Server")
@@ -65,8 +66,17 @@ public class ServerHooks implements HookClass {
 
     @Inject
     public static void checkTickUpdates(Server server, int tick) {
-        EntityMotion.tick();
-        NativeCallback.onTick();
+        try {
+            try {
+                EntityMotion.tick();
+                NativeCallback.onTick();
+            } catch (Exception e) {
+                Logger.warning("IC-TICK", e.getCause());
+            }
+        }catch (Throwable e){
+            Logger.warning("IC-TICK", e);
+        }
+
     }
 
     @Inject
