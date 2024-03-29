@@ -1,8 +1,6 @@
 package com.reider745.hooks;
 
-import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
-import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
@@ -12,7 +10,6 @@ import javassist.CtMethod;
 import javassist.NotFoundException;
 
 import java.lang.reflect.Field;
-import java.util.UUID;
 
 @Hooks(className = "cn.nukkit.entity.item.EntityArmorStand")
 public class EntityOverrides implements HookClass {
@@ -46,7 +43,7 @@ public class EntityOverrides implements HookClass {
     public static void scheduleUpdate(Entity self){
         try {
             if(self.isPlayer)
-                fieldId.set(self, self.getUniqueId().toString().hashCode());
+                fieldId.set(self, (long) self.getUniqueId().toString().hashCode());
         } catch (IllegalAccessException ignore) {}
     }
 

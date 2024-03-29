@@ -2125,15 +2125,17 @@ public class AdaptedScriptAPI extends API {
         @APIIgnore
         public static interface IScopeSaver {
             void read(Object scope);
-
             Object save();
+            default Scriptable getDefaultSaves(){
+                return ScriptableObjectHelper.createEmpty();
+            }
         }
 
         @APIIgnore
         public static interface IObjectSaver {
             Object read(ScriptableObject input);
-
             ScriptableObject save(Object input);
+            Scriptable getDefaultSaves();
         }
 
         @JSStaticFunction
@@ -2147,10 +2149,15 @@ public class AdaptedScriptAPI extends API {
 
                 @Override
                 public void read(Object scope) {
-                    if (scope == null) {
-                        scope = ScriptableObjectHelper.createEmpty();
-                    }
                     saver.read(scope);
+                }
+
+                @Override
+                public Scriptable getDefaultSaves() {
+                    Scriptable result = saver.getDefaultSaves();
+                    if(result == null)
+                        return ScriptableObjectHelper.createEmpty();
+                    return result;
                 }
             });
         }

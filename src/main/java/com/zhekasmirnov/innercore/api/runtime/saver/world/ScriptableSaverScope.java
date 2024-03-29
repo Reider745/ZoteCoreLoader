@@ -1,8 +1,8 @@
 package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.saver.serializer.ScriptableSerializer;
-
-import org.apache.commons.math3.exception.NullArgumentException;
 import org.mozilla.javascript.Scriptable;
 import java.io.IOException;
 
@@ -10,12 +10,13 @@ public abstract class ScriptableSaverScope implements WorldDataScopeRegistry.Sav
     @Override
     public void readJson(Object json) throws Exception {
         Object scriptable = ScriptableSerializer.scriptableFromJson(json);
-        if (scriptable == null) {
-            throw new NullArgumentException();
-        } else if (scriptable instanceof Scriptable) {
+        if (scriptable instanceof Scriptable) {
             read((Scriptable) scriptable);
-        } else {
-            throw new IOException("scriptable saver scope readJson() de-serialized into non scriptable "+scriptable.getClass().toString());
+        }else if(scriptable == null){
+            Logger.warning("scriptable saver scope readJson() de-serialized into non scriptable, use default value");
+            read(getDefaultSaves());
+        }else{
+            throw new IOException("scriptable saver scope readJson() de-serialized into non scriptable "+scriptable.getClass());
         }
     }
 
@@ -27,7 +28,9 @@ public abstract class ScriptableSaverScope implements WorldDataScopeRegistry.Sav
         });
     }
 
+    public Scriptable getDefaultSaves(){
+        return ScriptableObjectHelper.createEmpty();
+    }
     public abstract void read(Object object);
-
     public abstract Object save();
 }

@@ -1,6 +1,9 @@
 package com.reider745.hooks;
 
 import cn.nukkit.utils.MainLogger;
+import com.reider745.api.hooks.ArgumentTypes;
+import com.reider745.api.hooks.HookController;
+import com.zhekasmirnov.innercore.api.NativeCallback;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -13,6 +16,9 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Symbol;
 
 @Hooks(className = "org.mozilla.javascript.JavaMembers")
 public class RhinoOverrides implements HookClass {

@@ -303,6 +303,12 @@ public class InnerCoreServer {
         Logger.info("INNERCORE", "preloaded in " + (System.currentTimeMillis() - startupMillis) + "ms");
     }
 
+    private static boolean endLoad = false;
+
+    public static boolean canEndLoadMods(){
+        return endLoad;
+    }
+
     public void afterload() {
         Server.getInstance().getLogger().info("Registering Nukkit-MOT containment...");
         PluginManager pluginManager = Server.getInstance().getPluginManager();
@@ -328,6 +334,8 @@ public class InnerCoreServer {
         CommandsHelper.init();
 
         ItemMethod.isPostLoad = true;
+
+        endLoad = true;
 
         NativeCallback.onLevelCreated();
     }

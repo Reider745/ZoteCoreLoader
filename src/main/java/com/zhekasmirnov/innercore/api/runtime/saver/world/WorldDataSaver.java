@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
+import com.zhekasmirnov.innercore.api.log.DialogHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +38,7 @@ public class WorldDataSaver {
 
     private SaverState state = SaverState.IDLE;
 
+
     public WorldDataSaver(File worldDirectory) {
         this.worldDirectory = worldDirectory;
     }
@@ -56,7 +58,7 @@ public class WorldDataSaver {
                 try {
                     return FileUtils.readJSON(file);
                 } catch (IOException | JSONException exception) {
-                    Logger.error("FAILED TO READ SAVES", new IOException("Failed to read this world saves", exception));
+                    Logger.debug("FAILED TO READ SAVES", "Failed to read this world saves", exception);
                 }
             }
         }
@@ -88,7 +90,8 @@ public class WorldDataSaver {
         WorldDataScopeRegistry.getInstance().readAllScopes(
                 json,
                 (scope, error) -> logError("While reading scope " + scope, SaverState.READ, error),
-                missingScopeData::put);
+                missingScopeData::put
+        );
         state = SaverState.IDLE;
 
         if (showLogOnError) {
@@ -112,7 +115,8 @@ public class WorldDataSaver {
         JSONObject json = new JSONObject(missingScopeData);
         WorldDataScopeRegistry.getInstance().saveAllScopes(
                 json,
-                (scope, error) -> logError("While saving scope " + scope, SaverState.SAVE, error));
+                (scope, error) -> logError("While saving scope " + scope, SaverState.SAVE, error)
+        );
         state = SaverState.IDLE;
 
         for (String name : worldSavesFileNames) {
@@ -121,7 +125,7 @@ public class WorldDataSaver {
                 FileUtils.writeJSON(new File(worldDirectory, name), json);
                 FileUtils.setFileFlag(worldDirectory, name + "-opened", false);
             } catch (Exception exception) {
-                Logger.error("FAILED TO WRITE SAVES", new IOException("Failed to write this world saves", exception));
+                Logger.debug("FAILED TO WRITE SAVES", "Failed to write this world saves", exception);
             }
         }
 
@@ -129,6 +133,8 @@ public class WorldDataSaver {
             showAndClearErrorLog(SaverState.SAVE);
         }
     }
+
+
 
     public void logError(String message, SaverState state, Throwable err) {
         errorLog.add(new LoggedSavesError(message, state, err));
@@ -146,11 +152,10 @@ public class WorldDataSaver {
         if (!errorLog.isEmpty()) {
             StringBuilder log = new StringBuilder();
             for (LoggedSavesError err : errorLog) {
-                log.append(err.message).append("\n").append(Logger.getStackTrace(err.error)).append("\n\n");
+                log.append(err.message).append("\n").append(DialogHelper.getFormattedStackTrace(err.error)).append("\n\n");
             }
-            Logger.error(
-                    "Errors occurred while " + (state == SaverState.READ ? "reading" : "saving") + " data:\n\n" + log,
-                    "SOME " + (state == SaverState.READ ? "READING" : "SAVING") + " ERRORS OCCURRED");
+            Logger.error(log.toString());
+            DialogHelper.openFormattedDialog("Errors occurred while " + (state == SaverState.READ ? "reading" : "saving") + " data:\n\n" + log, "SOME " + (state == SaverState.READ ? "READING" : "SAVING") + " ERRORS OCCURRED");
         }
         clearErrorLog();
     }

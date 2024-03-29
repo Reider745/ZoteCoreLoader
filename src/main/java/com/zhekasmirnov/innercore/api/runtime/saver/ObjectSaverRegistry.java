@@ -28,6 +28,8 @@ public class ObjectSaverRegistry {
         NativeItemInstanceExtra.initSaverId();
     }
 
+
+
     public static int registerSaver(String name, ObjectSaver saver) {
         int saverId = name.hashCode();
         while (saverMap.containsKey(saverId)) {
@@ -44,6 +46,8 @@ public class ObjectSaverRegistry {
     public static String getSaverName(int saverId) {
         return saverNameById.get(saverId);
     }
+
+
 
     static Object unwrapIfNeeded(Object object) {
         if (object instanceof Wrapper) {
@@ -75,9 +79,8 @@ public class ObjectSaverRegistry {
             ScriptableObject result = null;
             try {
                 result = saver.save(object);
-            } catch (Throwable err) {
-                WorldDataSaver.logErrorStatic(
-                        "error in saving object of saver type " + getSaverName(saver.getSaverId()), err);
+            } catch(Throwable err) {
+                WorldDataSaver.logErrorStatic("error in saving object of saver type " + getSaverName(saver.getSaverId()), err);
                 return null;
             }
             if (result != null) {
@@ -100,9 +103,8 @@ public class ObjectSaverRegistry {
             ScriptableObject result = null;
             try {
                 result = saver.save(object);
-            } catch (Throwable err) {
-                WorldDataSaver.logErrorStatic(
-                        "error in saving object of saver type " + getSaverName(saver.getSaverId()), err);
+            } catch(Throwable err) {
+                WorldDataSaver.logErrorStatic("error in saving object of saver type " + getSaverName(saver.getSaverId()), err);
                 return null;
             }
             if (result != null) {
@@ -129,9 +131,8 @@ public class ObjectSaverRegistry {
             Object result = null;
             try {
                 result = saver.read(object);
-            } catch (Throwable err) {
-                WorldDataSaver.logErrorStatic(
-                        "error in reading object of saver type " + getSaverName(saver.getSaverId()), err);
+            } catch(Throwable err) {
+                WorldDataSaver.logErrorStatic("error in reading object of saver type " + getSaverName(saver.getSaverId()), err);
                 return null;
             }
             if (!(result instanceof Scriptable)) {
@@ -147,8 +148,7 @@ public class ObjectSaverRegistry {
 
     public static void registerObject(Object object, int saverId) {
         if (!saverMap.containsKey(saverId)) {
-            throw new IllegalArgumentException(
-                    "no saver found for id " + saverId + " use only registerObjectSaver return values");
+            throw new IllegalArgumentException("no saver found for id " + saverId + " use only registerObjectSaver return values");
         }
         object = unwrapIfNeeded(object);
         saverByObjectHash.put(object.hashCode(), saverMap.get(saverId));

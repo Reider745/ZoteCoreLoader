@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.utils;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 
 public class OperationTimeLogger {
@@ -19,7 +20,8 @@ public class OperationTimeLogger {
 
     public OperationTimeLogger finish(String message) {
         message = String.format(message, (System.currentTimeMillis() - start) / 1000.0);
-        ICLog.d("Time-Logger", message);
+        if(InnerCoreServer.isDeveloperMode())
+            ICLog.d("Time-Logger", message);
         return this;
     }
 }
