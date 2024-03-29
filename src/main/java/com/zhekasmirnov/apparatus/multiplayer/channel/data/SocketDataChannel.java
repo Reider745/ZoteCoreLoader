@@ -61,7 +61,7 @@ public class SocketDataChannel extends DataChannel {
         try {
             socket.shutdownOutput();
             socket.shutdownInput();
-        } finally {
+        }catch (Exception ignore){} finally {
             socket.close();
         }
     }
