@@ -21,23 +21,29 @@ public class SocketDataChannel extends DataChannel {
 
     @Override
     public void sendImpl(DataPacket packet) throws IOException {
-        outputStream.writeUTF(packet.name);
-        outputStream.writeByte(packet.formatId);
-        outputStream.writeInt(packet.data.length);
-        outputStream.write(packet.data);
+        if(socket.isClosed()) return;
+        synchronized (outputStream) {
+            outputStream.writeUTF(packet.name);
+            outputStream.writeByte(packet.formatId);
+            outputStream.writeInt(packet.data.length);
+            outputStream.write(packet.data);
+        }
     }
 
     @Override
     public DataPacket receiveImpl() throws IOException {
-        String name = inputStream.readUTF();
-        int formatId = inputStream.readByte();
-        int size = inputStream.readInt();
-        if (size < 0 || size > 1024 * 1024 * 64) {
-            throw new IOException("packet has invalid size " + size);
+        if(socket.isClosed()) return null;
+        synchronized (inputStream) {
+            String name = inputStream.readUTF();
+            int formatId = inputStream.readByte();
+            int size = inputStream.readInt();
+            if (size < 0 || size > 1024 * 1024 * 64) {
+                throw new IOException("packet has invalid size " + size);
+            }
+            byte[] data = new byte[size];
+            inputStream.readFully(data);
+            return new DataPacket(name, formatId, data);
         }
-        byte[] data = new byte[size];
-        inputStream.readFully(data);
-        return new DataPacket(name, formatId, data);
     }
 
     @Override
