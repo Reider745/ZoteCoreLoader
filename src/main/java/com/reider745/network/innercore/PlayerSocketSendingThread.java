@@ -36,7 +36,7 @@ public class PlayerSocketSendingThread extends Thread {
             try{
                 if(channel.isClosed()) break;
 
-                if(list.size() > 150){
+                if(list.size() > InnerCoreServer.getMaxPacketSending()){
                     channel.close();
                     break;
                 }
@@ -47,9 +47,6 @@ public class PlayerSocketSendingThread extends Thread {
                 outputStream.writeByte(packet.formatId);
                 outputStream.writeInt(packet.data.length);
                 outputStream.write(packet.data);
-
-                Logger.debug("send "+packet.name);
-
             }catch (Exception e){
                 if(InnerCoreServer.isDeveloperMode())
                     Logger.error(ICLog.getStackTrace(e));
