@@ -431,7 +431,7 @@ public class EventListener implements Listener {
                 event.getPlayer().kick(message);
             }
            // event.setCancelled();
-        }));
+        }), true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
