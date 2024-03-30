@@ -67,6 +67,7 @@ public class WorldDataScopeRegistry {
         for (Map.Entry<String, SaverScope> entry : scopeMap.entrySet()) {
             String key = entry.getKey();
             Object data = json.opt(key);
+            if(key.isEmpty()) continue;
             Logger.debug("Loaded save "+key);
             try {
                 entry.getValue().readJson(data);

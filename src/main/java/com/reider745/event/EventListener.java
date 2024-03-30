@@ -21,15 +21,7 @@ import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
-import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
-import cn.nukkit.event.player.PlayerDeathEvent;
-import cn.nukkit.event.player.PlayerEatFoodEvent;
-import cn.nukkit.event.player.PlayerExperienceChangeEvent;
-import cn.nukkit.event.player.PlayerFormRespondedEvent;
-import cn.nukkit.event.player.PlayerInteractEntityEvent;
-import cn.nukkit.event.player.PlayerInteractEvent;
-import cn.nukkit.event.player.PlayerLoginEvent;
-import cn.nukkit.event.player.PlayerPreLoginEvent;
+import cn.nukkit.event.player.*;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.event.server.ServerCommandEvent;
 import cn.nukkit.form.response.FormResponse;
@@ -425,20 +417,20 @@ public class EventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onLoginEvent(PlayerLoginEvent event) {
+    public void onLoginEvent(PlayerJoinEvent event) {
         ConnectedClient client = PlayerHooks.getForPlayer(event.getPlayer());
         if (client == null) {
-            event.setKickMessage("You are should connect via Inner Core!");
-            event.setCancelled();
+            event.getPlayer().kick("You are should connect via Inner Core!");
+           // event.setCancelled();
             return;
         }
 
         final String username = event.getPlayer().getName();
         consumeEvent(event, () -> NativeCallback.onPlayerLogin(client, username, (message) -> {
             if (message != null) {
-                event.setKickMessage(message);
+                event.getPlayer().kick(message);
             }
-            event.setCancelled();
+           // event.setCancelled();
         }));
     }
 

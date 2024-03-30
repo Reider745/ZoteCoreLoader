@@ -16,9 +16,6 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Symbol;
 
 @Hooks(className = "org.mozilla.javascript.JavaMembers")
 public class RhinoOverrides implements HookClass {

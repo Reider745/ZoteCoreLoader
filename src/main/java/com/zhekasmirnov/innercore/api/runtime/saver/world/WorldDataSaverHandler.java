@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
@@ -26,10 +27,12 @@ public class WorldDataSaverHandler {
     private long previousAutoSave = 0;
 
     public void fetchParamsFromConfig() {
+        final int auto_save_period = InnerCoreServer.getAutoSavePeriod();
+
         setParams(
-                EngineConfig.getBoolean("background.auto_save", true),
-                EngineConfig.getBoolean("background.auto_save_world", true),
-                EngineConfig.getInt("background.auto_save_period", 30) * 1000
+                auto_save_period >= 40,
+                InnerCoreServer.canAutoSaveWorld(),
+                auto_save_period * 1000
         );
     }
 

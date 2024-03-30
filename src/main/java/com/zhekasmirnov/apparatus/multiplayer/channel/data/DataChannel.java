@@ -29,20 +29,31 @@ public abstract class DataChannel {
     public interface IBrokenChannelListener {
         void onBroke(IOException exception);
     }
-
     public void send(DataPacket packet) {
-        synchronized (sendLock) {
-            if (isClosed || isShutdown) {
-                return;
+        if(canSendingLock()){
+            synchronized (sendLock) {
+                if (isClosed || isShutdown) {
+                    return;
+                }
+                try {
+                    sendImpl(packet);
+                } catch (IOException e) {
+                    channelBroke(e);
+                }
             }
-            try {
-                sendImpl(packet);
-            } catch (IOException e) {
-                channelBroke(e);
-            }
+
+            return;
+        }
+
+        if (isClosed || isShutdown) {
+            return;
+        }
+        try {
+            sendImpl(packet);
+        } catch (IOException e) {
+            channelBroke(e);
         }
     }
-
     public DataPacket receive() {
         synchronized (receiveLock) {
             try {
@@ -107,9 +118,14 @@ public abstract class DataChannel {
     protected abstract void sendImpl(DataPacket packet) throws IOException;
     protected abstract DataPacket receiveImpl() throws IOException;
     protected abstract void closeImpl() throws IOException;
+    protected boolean canSendingLock(){
+        return true;
+    };
+
     public abstract int getProtocolId();
     public abstract String getClient();
 
+    @Deprecated
     public void listenerLoop() {
         while (!isClosed) {
             DataPacket packet = receive();
@@ -122,6 +138,15 @@ public abstract class DataChannel {
             }
         }
     }
+
+    public void onListener(DataPacket packet){
+        synchronized (packetListeners) {
+            for (IPacketListener listener : packetListeners) {
+                listener.receive(packet);
+            }
+        }
+    }
+
 
     public void addListener(IPacketListener listener) {
         synchronized (packetListeners) {

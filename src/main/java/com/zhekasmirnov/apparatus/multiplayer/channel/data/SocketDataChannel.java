@@ -1,7 +1,8 @@
 package com.zhekasmirnov.apparatus.multiplayer.channel.data;
 
+import com.reider745.network.innercore.PlayerSocketSendingThread;
+
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -9,41 +10,36 @@ public class SocketDataChannel extends DataChannel {
     public static final int PROTOCOL_ID = 1;
 
     public final Socket socket;
-    public final DataInputStream inputStream;
-    public final DataOutputStream outputStream;
+
+    private final DataInputStream inputStream;
+    public final PlayerSocketSendingThread sendingThread;
+
 
     public SocketDataChannel(Socket socket) throws IOException {
         this.socket = socket;
-        this.inputStream = new DataInputStream(socket.getInputStream());
-        this.outputStream = new DataOutputStream(socket.getOutputStream());
         socket.setKeepAlive(true);
+        inputStream = new DataInputStream(socket.getInputStream());
+        this.sendingThread = new PlayerSocketSendingThread(socket, this);
     }
 
     @Override
     public void sendImpl(DataPacket packet) throws IOException {
-        if(socket.isClosed()) return;
-        synchronized (outputStream) {
-            outputStream.writeUTF(packet.name);
-            outputStream.writeByte(packet.formatId);
-            outputStream.writeInt(packet.data.length);
-            outputStream.write(packet.data);
-        }
+        sendingThread.send(packet);
     }
 
     @Override
     public DataPacket receiveImpl() throws IOException {
-        if(socket.isClosed()) return null;
-        synchronized (inputStream) {
-            String name = inputStream.readUTF();
-            int formatId = inputStream.readByte();
-            int size = inputStream.readInt();
-            if (size < 0 || size > 1024 * 1024 * 64) {
-                throw new IOException("packet has invalid size " + size);
-            }
-            byte[] data = new byte[size];
-            inputStream.readFully(data);
-            return new DataPacket(name, formatId, data);
+        String name = inputStream.readUTF();
+        int formatId = inputStream.readByte();
+        int size = inputStream.readInt();
+
+        if (size < 0 || size > 1024 * 1024 * 64) {
+            throw new IOException("packet has invalid size " + size);
         }
+
+        byte[] data = new byte[size];
+        inputStream.readFully(data);
+        return new DataPacket(name, formatId, data);
     }
 
     @Override
@@ -53,17 +49,18 @@ public class SocketDataChannel extends DataChannel {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        sendingThread.close();
         try {
             socket.shutdownOutput();
             socket.shutdownInput();
         }catch (Exception ignore){} finally {
             socket.close();
         }
+    }
+
+    @Override
+    protected boolean canSendingLock() {
+        return false;
     }
 
     @Override

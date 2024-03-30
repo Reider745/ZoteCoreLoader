@@ -469,6 +469,10 @@ public class InnerCoreServer {
         return getPropertyBoolean("auto-save-world", true);
     }
 
+    public static int getMaxPacketSending(){
+        return getPropertyInt("max-packet-sending", 200);
+    }
+
     public static boolean isUnsupportedOptionsAllowed() {
         return getPropertyBoolean("allow-unsupported-options", false);
     }
