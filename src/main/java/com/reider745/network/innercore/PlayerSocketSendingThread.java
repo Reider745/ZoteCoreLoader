@@ -6,15 +6,13 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.data.SocketDataChannel;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class PlayerSocketSendingThread extends Thread {
-    private BlockingQueue<DataPacket> list = new LinkedBlockingQueue<>();
+    private LinkedBlockingDeque<DataPacket> list = new LinkedBlockingDeque<>();
 
     private final DataOutputStream outputStream;
     private final SocketDataChannel channel;
@@ -27,14 +25,16 @@ public class PlayerSocketSendingThread extends Thread {
     }
 
     public void send(DataPacket packet){
-        list.add(packet);
+        list.addFirst(packet);
     }
+
+    private static boolean isClose = false;
 
     @Override
     public void run() {
         while (true){
             try{
-                if(channel.isClosed()) break;
+                if(isClose) break;
 
                 if(list.size() > InnerCoreServer.getMaxPacketSending()){
                     channel.close();
@@ -56,6 +56,9 @@ public class PlayerSocketSendingThread extends Thread {
     }
 
     public void close(){
+        long start = System.currentTimeMillis();
+        while (list.size() <= 15 && !list.isEmpty() && System.currentTimeMillis() - start <= 1000L){}
+        isClose = true;
         try {
             outputStream.close();
         } catch (IOException e) {
