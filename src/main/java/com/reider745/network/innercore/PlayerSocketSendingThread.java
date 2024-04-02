@@ -25,7 +25,7 @@ public class PlayerSocketSendingThread extends Thread {
     }
 
     public void send(DataPacket packet){
-        list.addFirst(packet);
+        list.add(packet);
     }
 
     private boolean isClose = false;
@@ -64,7 +64,7 @@ public class PlayerSocketSendingThread extends Thread {
         }
 
         isClose = true;
-        
+
         try {
             outputStream.close();
         } catch (IOException e) {
