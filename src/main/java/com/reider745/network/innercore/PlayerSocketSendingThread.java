@@ -25,10 +25,10 @@ public class PlayerSocketSendingThread extends Thread {
     }
 
     public void send(DataPacket packet){
-        list.addLast(packet);
+        list.addFirst(packet);
     }
 
-    private static boolean isClose = false;
+    private boolean isClose = false;
 
     @Override
     public void run() {
@@ -57,8 +57,14 @@ public class PlayerSocketSendingThread extends Thread {
 
     public void close(){
         long start = System.currentTimeMillis();
-        while (list.size() <= 15 && !list.isEmpty() && System.currentTimeMillis() - start <= 1000L){}
+        while ((list.size() <= 15 && !list.isEmpty()) || System.currentTimeMillis() - start <= 1000L){
+            try {
+                Thread.sleep(10);
+            }catch (Exception ignore){}
+        }
+
         isClose = true;
+        
         try {
             outputStream.close();
         } catch (IOException e) {
