@@ -364,10 +364,11 @@ public class EventListener implements Listener {
     public void onBlockUpdate(BlockGrowEvent event) {
         final Block block = event.getBlock();
         final Block newBlock = event.getNewState();
+        final Level level = block.getLevel();
 
         consumeEvent(event,
                 () -> NativeCallback.onBlockChanged((int) block.x, (int) block.y, (int) block.z, block.getId(),
-                        block.getDamage(), newBlock.getId(), newBlock.getDamage(), block.getFullId(),
+                        block.getDamage(), newBlock.getId(), newBlock.getDamage(), FakeDimensions.getFakeIdForLevel(level),
                         newBlock.getFullId(), block.getLevel()));
     }
 

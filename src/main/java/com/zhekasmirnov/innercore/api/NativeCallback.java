@@ -463,10 +463,10 @@ public class NativeCallback {
         Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), new FullBlock(player, x, y, z), player);
     }
 
-    public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int i1, int i2,
+    public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int dimension, int i2,
             Level level) {
         Callback.invokeAPICallback("BlockChanged", new Coords(x, y, z), new FullBlock(id1, data1),
-                new FullBlock(id2, data2), i1, i2, NativeBlockSource.getFromServerCallbackPointer(level));
+                new FullBlock(id2, data2), dimension, i2, NativeBlockSource.getFromServerCallbackPointer(level));
     }
 
     public static void onItemUsed(int x, int y, int z, int side, float fx, float fy, float fz, boolean isServer,
