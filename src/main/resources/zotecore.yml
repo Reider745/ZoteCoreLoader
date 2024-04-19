@@ -1,8 +1,8 @@
 # Change resolution of pack that client should have to log into server.
 # However, no deprecated or unimplemented methods will be added.
 pack: Inner Core Test
-pack-version: 2.3.0b117
-pack-version-code: 157
+pack-version: 2.3.0b118
+pack-version-code: 158
 
 # Sets the list of mods and configs to load, you can specify
 # name, folder name of a modpack from /modpacks or a path.
@@ -53,5 +53,9 @@ pack-version-code: 157
 # otherwise it will continue trying restart itself continiously.
 # stop-on-critical-ticking-error: true
 
-
+# Maximum number of packets sent to the client
 # max-packet-sending: 150
+
+# Additional information in the log
+# debug-logger: on
+# info-logger: on

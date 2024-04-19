@@ -291,12 +291,6 @@ public class InnerCoreServer {
         NativeCallback.onFinalInitStarted();
         NativeCallback.onFinalInitComplete();
 
-        JSONObject object = new JSONObject();
-        object.put("fix", getPropertyBoolean("use-legacy-inventory", true));
-        Network.getSingleton().addServerInitializationPacket("server_fixed.inventory", (client) -> object, (v, v1) -> {
-            // legacy inner core for mod ServerFixed
-        });
-
         NativeCallback.onLocalServerStarted();
         WorldDataSaverHandler.getInstance().fetchParamsFromConfig();
 
@@ -455,6 +449,12 @@ public class InnerCoreServer {
 
     public static boolean isDebugInnerCoreNetwork() {
         return getPropertyBoolean("network-debug", false);
+    }
+    public static boolean isDebugLogger() {
+        return getPropertyBoolean("debug-logger", false);
+    }
+    public static boolean isInfoLogger() {
+        return getPropertyBoolean("info-logger", false);
     }
 
     public static boolean isDeveloperMode() {

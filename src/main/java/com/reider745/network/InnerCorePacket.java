@@ -2,13 +2,17 @@ package com.reider745.network;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.network.protocol.DataPacket;
+import com.reider745.InnerCoreServer;
+import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
+
+import java.util.*;
 
 public class InnerCorePacket extends BasePacket {
     public static final byte NETWORK_ID = -64;
+    private static Map<Long, byte[]> bytes_recived = new LinkedHashMap<>();
 
     public String name;
     public int format_id;
@@ -20,10 +24,15 @@ public class InnerCorePacket extends BasePacket {
         return NETWORK_ID;
     }
 
-    public static byte[] bytes_cache = null;
-
-    public static HashMap<String, InetSocketAddress> addressHashMap = new HashMap<>();
-    public static HashMap<String, Player> playerHashMap = new HashMap<>();
+    @Override
+    public DataPacket clone() {
+        InnerCorePacket packet = (InnerCorePacket) super.clone();
+        packet.name = name;
+        packet.bytes = bytes;
+        packet.bytes_length = bytes_length;
+        packet.format_id = format_id;
+        return packet;
+    }
 
     @Override
     public void decode() {
@@ -32,7 +41,12 @@ public class InnerCorePacket extends BasePacket {
             format_id = this.getVarInt();
             bytes_length = this.getVarInt();
             bytes = this.get();
-            reciveLogic();
+
+            if(InnerCoreServer.isDebugInnerCoreNetwork())
+                System.out.println("Recived packet for native protocol "+name);
+
+            bytes_recived.put(Thread.currentThread().getId(), bytes);
+            NativeNetworking.onServerPacketReceived(player, name, format_id);
         } catch (Exception e) {
             Server.getInstance().getLogger().warning("Native protocol decoding error!", e);
             player.kick(e.getMessage());
@@ -40,29 +54,6 @@ public class InnerCorePacket extends BasePacket {
     }
 
     public static InnerCorePacket sendInfo;
-
-    public void reciveLogic() {
-        try {
-            final InetSocketAddress address = this.player.getSocketAddress();
-            final String client = address.getAddress().toString();
-
-            addressHashMap.put(client, address);
-            playerHashMap.put(client, player);
-
-            bytes_cache = bytes;
-            NativeNetworking.onServerPacketReceived(client, name, format_id);
-        } catch (Exception e) {
-            Logger.error(e.getMessage());
-        }
-    }
-
-    public static void closePlayer(Player player) {
-        final InetSocketAddress address = player.getSocketAddress();
-        final String client = address.getAddress().toString();
-
-        addressHashMap.remove(client);
-        playerHashMap.remove(client);
-    }
 
     @Override
     public void encode() {
@@ -75,31 +66,21 @@ public class InnerCorePacket extends BasePacket {
     }
 
     public static byte[] getCurrentNativePacketBytes() {
-        return bytes_cache;
+        return bytes_recived.get(Thread.currentThread().getId());
     }
 
-    public static Player getPlayerForId(String client) {
-        return playerHashMap.get(client);
-    }
-
-    public static void sendPacketToClient(String client, String name, int format_id, byte[] data) {
+    public static void sendPacketToClient(Player player, String name, int format_id, byte[] data) {
         InnerCorePacket packet = new InnerCorePacket();
         packet.name = name;
         packet.format_id = format_id;
         packet.bytes_length = data.length;
         packet.bytes = data;
-        packet.encode();
 
-        playerHashMap.get(client).dataPacket(packet);
+        player.dataPacket(packet);
     }
 
+    @ClientOnly
     public static void sendPacketToServer(String name, int format_id, byte[] data) {
-        InnerCorePacket packet = new InnerCorePacket();
-        packet.name = name;
-        packet.format_id = format_id;
-        packet.bytes_length = data.length;
-        packet.bytes = data;
-        packet.encode();
-        packet.reciveLogic();
+        InnerCoreServer.useClientMethod("sendPacketToServer "+name);
     }
 }

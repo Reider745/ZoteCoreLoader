@@ -8,6 +8,8 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.log.ICLog;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -48,7 +50,7 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         void onStateChanged(ConnectedClient client, ClientState newState);
     }
 
-    public ConnectedClient(ModdedServer server, DataChannel channel, String client) {
+    public ConnectedClient(ModdedServer server, DataChannel channel, Player client) {
         this.server = server;
         this.channel = new ChannelInterface(channel);
         this.channel.addListener(this);
@@ -136,6 +138,11 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
             setClientState(ClientState.OPEN);
         }
 
+        if(InnerCoreServer.isDebugInnerCoreNetwork()) {
+            System.out.println(remainingInitializationPackets.size());
+            remainingInitializationPackets.forEach(System.out::println);
+        }
+
         server.addWatchdogAction(server.getConfig().getInitializationTimeout(), () -> {
             if (!remainingInitializationPackets.isEmpty() && !isClosed()) {
                 StringBuilder sb = new StringBuilder();
@@ -158,7 +165,9 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
         try {
             channel.listenerLoop();
-        } catch (Throwable ignore) {
+        } catch (Throwable e) {
+            if(InnerCoreServer.isDebugInnerCoreNetwork())
+                System.out.println(ICLog.getStackTrace(e));
         }
         setClientState(ClientState.CLOSED);
 
@@ -192,15 +201,19 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     private void acceptChannelIfAvailable(String name, Runnable action) {
         try {
+            boolean is = !channel.isClosed() && (name.startsWith("system") || getClientState() == ClientState.OPEN);
             if (InnerCoreServer.isDebugInnerCoreNetwork())
                 System.out.println(
-                        "sending packet player=" + playerUid + ", name=" + name + ", state=" + getClientState().name());
-            if (!channel.isClosed() && (name.startsWith("system") || name.startsWith("server_fixed")
-                    || getClientState() == ClientState.OPEN))
+                        "sending packet player=" + playerUid
+                                + ", name=" + name + ", state=" + getClientState().name()
+                                +", isClosed="+channel.isClosed()+", action.run="+is);
+            if (is)
                 action.run();
         } catch (Throwable e) {
             Player player;
             if ((player = EntityMethod.getPlayerById(playerUid)) == null) {
+                if(InnerCoreServer.isDebugInnerCoreNetwork())
+                    System.out.println("Error kick player, accept error "+ ICLog.getStackTrace(e));
                 return;
             }
 
@@ -210,11 +223,15 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
     }
 
     public void send(String name, Object data) {
-        acceptChannelIfAvailable(name, () -> channel.send(name, data));
+        if(InnerCoreServer.isDebugInnerCoreNetwork())
+            System.out.println("ConnectionClient.send("+name+", data)");
+        channel.send(name, data);
     }
 
     public <T> void send(String name, T data, Class<T> dataType) {
-        acceptChannelIfAvailable(name, () -> channel.send(name, data, dataType));
+        if(InnerCoreServer.isDebugInnerCoreNetwork())
+            System.out.println("ConnectionClient.send("+name+", data, "+dataType+")");
+        channel.send(name, data, dataType);
     }
 
     public void sendMessage(String message) {

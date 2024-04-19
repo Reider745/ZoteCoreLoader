@@ -99,7 +99,6 @@ public class NetworkConfig {
         packet.bytes_length = bytes.length;
         packet.bytes = bytes;
 
-        packet.encode();
         return packet;
     }
 }

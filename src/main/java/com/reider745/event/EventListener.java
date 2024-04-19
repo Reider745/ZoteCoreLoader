@@ -420,7 +420,7 @@ public class EventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLoginEvent(PlayerJoinEvent event) {
         ConnectedClient client = PlayerHooks.getForPlayer(event.getPlayer());
-        if (client == null) {
+        if (client == null || client.getClientState() != ConnectedClient.ClientState.OPEN) {
             event.getPlayer().kick("You are should connect via Inner Core!");
            // event.setCancelled();
             return;

@@ -16,10 +16,6 @@ public class Main {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
 
     public static class LoadingStages {
-        public static void registerPacket(Network network) {
-            network.registerPacket(InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
-        }
-
         public static void preload(Server server) throws Exception {
             innerCoreServer.preload(server);
         }

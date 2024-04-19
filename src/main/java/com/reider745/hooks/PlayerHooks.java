@@ -88,12 +88,11 @@ public class PlayerHooks implements HookClass {
                 client.disconnect();
         } catch (Throwable ignore) {
         }
-        InnerCorePacket.closePlayer(player);
     }
 
     @Inject
     public static void dataPacket(Player player, DataPacket packet) {
-        if (InnerCoreServer.isDebugInnerCoreNetwork() && !player.isOnline())
+        if (InnerCoreServer.isDebugInnerCoreNetwork())
             System.out.println("sending packet player=" + EntityMethod.getIdForEntity(player) + " id=" + packet.packetId()
                     + " pid=" + packet.pid() + " channel=" + packet.getChannel());
     }

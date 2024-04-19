@@ -76,14 +76,15 @@ public class NetworkHooks implements HookClass {
                         break;
                 }
 
-                if (InnerCoreServer.isDebugInnerCoreNetwork())
-                    System.out.println("received batch packet id=" + packetId);
-
                 // 1 - the very first package
                 if (player != null && packetId == 1)
-                    player.dataPacket(InnerCorePacket.sendInfo);
+                    if(!player.dataPacket(InnerCorePacket.sendInfo))
+                        Logger.warning("Error send InnerCorePacket.sendInfo");
 
                 DataPacket pk = network.getPacket(packetId, InnerCoreServer.PROTOCOL);
+
+                if (InnerCoreServer.isDebugInnerCoreNetwork())
+                    System.out.println("received batch packet id=" + packetId+", pk: "+(pk == null));
 
                 if (pk != null) {
                     pk.protocol = player == null ? Integer.MAX_VALUE : player.protocol;
@@ -114,9 +115,9 @@ public class NetworkHooks implements HookClass {
         }
     }
 
-    @Inject
+    @Inject(type = TypeHook.AFTER_NOT_REPLACE)
     public static void registerPackets(Network network) {
-        Main.LoadingStages.registerPacket(network);
+        network.registerPacket(InnerCoreServer.PROTOCOL, InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
     }
 
     @Inject(className = "cn.nukkit.network.RakNetInterface", type = TypeHook.AFTER_NOT_REPLACE)

@@ -2,11 +2,27 @@ package com.zhekasmirnov.horizon.runtime.logger;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.function.Supplier;
 
 import cn.nukkit.Server;
+import com.reider745.InnerCoreServer;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import org.mozilla.javascript.RhinoException;
 
 public class Logger {
+    interface Func {
+        void message(String text);
+    }
+
+    private static Func debugMessage = (message) -> {};
+    private static Func infoMessage = (message) -> {};
+
+    static {
+        if(InnerCoreServer.isDebugLogger())
+            debugMessage = (message) -> Server.getInstance().getLogger().info(message);
+        if(InnerCoreServer.isInfoLogger())
+            debugMessage = (message) -> Server.getInstance().getLogger().info(message);
+    }
 
     public static void message(String message) {
         Server.getInstance().getLogger().debug(message);
@@ -25,19 +41,19 @@ public class Logger {
     }
 
     public static void debug(String message) {
-        Server.getInstance().getLogger().info(message);
+        debugMessage.message(message);
     }
 
     public static void debug(String tag, String message) {
-        Server.getInstance().getLogger().info("[" + tag + "] " + message);
+        debugMessage.message("["+tag+"]"+message);
     }
 
     public static void debug(String message, Throwable exc) {
-        Server.getInstance().getLogger().info(message + ": ", exc);
+        debugMessage.message(message + ": " + ICLog.getStackTrace(exc));
     }
 
     public static void debug(String tag, String message, Throwable exc) {
-        Server.getInstance().getLogger().info("[" + tag + "] " + message, exc);
+        debugMessage.message(message + ": " + ICLog.getStackTrace(exc));
     }
 
     public static void error(String message) {
@@ -57,19 +73,19 @@ public class Logger {
     }
 
     public static void info(String message) {
-        Server.getInstance().getLogger().info(message);
+        infoMessage.message(message);
     }
 
     public static void info(String tag, String message) {
-        Server.getInstance().getLogger().info("[" + tag + "] " + message);
+        infoMessage.message("["+tag+"]"+ message);
     }
 
     public static void info(String message, Throwable exc) {
-        Server.getInstance().getLogger().info(message + ": ", exc);
+        infoMessage.message(message +": " + ICLog.getStackTrace(exc));
     }
 
     public static void info(String tag, String message, Throwable exc) {
-        Server.getInstance().getLogger().info("[" + tag + "] " + message, exc);
+        infoMessage.message("[" + tag + "] " + message + "\n" + ICLog.getStackTrace(exc));
     }
 
     public static void warning(String message) {

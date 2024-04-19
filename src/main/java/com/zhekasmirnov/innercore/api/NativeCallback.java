@@ -851,7 +851,7 @@ public class NativeCallback {
         String name = getStringParam("name");
         String client = getStringParam("client");
         try {
-            NativeNetworking.onServerPacketReceived(client, name, formatId);
+            NativeNetworking.onServerPacketReceived(null, name, formatId);
         } catch (IOException e) {
             e.printStackTrace();
         }

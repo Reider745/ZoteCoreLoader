@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
+import cn.nukkit.Player;
 import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.multiplayer.channel.codec.StringChannelCodec;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataPacket;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NativeNetworking {
     public interface ConnectionListener {
-        void onNativeChannelConnected(NativeDataChannel channel, String sender);
+        void onNativeChannelConnected(NativeDataChannel channel, Player sender);
     }
 
     private static final List<ConnectionListener> connectionListeners = new ArrayList<>();
@@ -37,18 +38,18 @@ public class NativeNetworking {
         private static final int packetPollTimeout = 20 * 1000;
         private static final int initialPacketPollTimeout = 75 * 1000;
 
-        private final String client;
+        private final Player client;
         private boolean isClosed = false;
         private long channelOpenedTime = 0;
 
         private final BlockingQueue<DataPacket> packets = new LinkedBlockingQueue<>();
         private final BlockingQueue<DataPacket> pongs = new LinkedBlockingQueue<>();
 
-        private NativeChannelImpl(String client) {
+        private NativeChannelImpl(Player client) {
             this.client = client;
         }
 
-        public String getClient() {
+        public Player getClient() {
             return client;
         }
 
@@ -160,7 +161,7 @@ public class NativeNetworking {
     }
 
     private static NativeChannelImpl clientToServerChannel = null;
-    private static final Map<String, NativeChannelImpl> serverToClientChannelMap = new HashMap<>();
+    private static final Map<Player, NativeChannelImpl> serverToClientChannelMap = new HashMap<>();
 
     @Deprecated(since = "Zote")
     public static NativeChannelImpl getClientToServerChannel() {
@@ -196,7 +197,7 @@ public class NativeNetworking {
         }
     }
 
-    public static void onServerPacketReceived(String sender, String name, int formatId) throws IOException {
+    public static void onServerPacketReceived(Player sender, String name, int formatId) throws IOException {
         synchronized (serverToClientChannelMap) {
             Java8BackComp.computeIfAbsent(serverToClientChannelMap, sender, key -> {
                 NativeChannelImpl channel = new NativeChannelImpl(sender);

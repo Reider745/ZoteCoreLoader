@@ -43,6 +43,6 @@ public class NativeDataChannel extends DataChannel {
 
     @Override
     public String getClient() {
-        return nativeImpl.getClient();
+        return nativeImpl.getClient().getSocketAddress().getAddress().toString();
     }
 }

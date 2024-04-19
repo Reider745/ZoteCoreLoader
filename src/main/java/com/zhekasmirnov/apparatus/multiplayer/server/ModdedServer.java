@@ -1,6 +1,7 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import android.util.Pair;
+import cn.nukkit.Player;
 import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
@@ -137,7 +138,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         onShutdownListeners.add(listener);
     }
 
-    public void onClientConnected(DataChannel channel, String cl) {
+    public void onClientConnected(DataChannel channel, Player cl) {
         ConnectedClient client = new ConnectedClient(this, channel, cl);
         client.setDisconnectListener(this);
         client.setStateChangedListener(this);
@@ -147,16 +148,16 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         }
 
         for (String name : initializationPacketListenerMap.keySet()) {
+            var listeners = initializationPacketListenerMap.get(name);
             if(InnerCoreServer.isDebugInnerCoreNetwork())
-                System.out.println("received initialization packet player=" + client.getPlayerUid() + " name="+name);
-            for (ConnectedClient.InitializationPacketListener listener : initializationPacketListenerMap.get(name)) {
+                System.out.println("received initialization packet player=" + client.getPlayerUid() + " name="+name+", listeners="+listeners.size());
+            for (ConnectedClient.InitializationPacketListener listener : listeners) {
                 client.addInitializationPacketListener(name, listener);
             }
         }
 
         client.getChannelInterface().addListener((String name, Object data, Class<?> dataType) -> {
-            if (InnerCoreServer.isDebugInnerCoreNetwork())
-                System.out.println("received packet player=" + client.getPlayerUid() + " name="+name);
+
             int separatorIndex = name.indexOf('#');
             String meta = null;
             if (separatorIndex != -1) {
@@ -165,11 +166,15 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
             }
 
             List<OnPacketReceivedListener> listeners = onPacketReceivedListenerMap.get(name);
+
             if (listeners != null) {
+                if (InnerCoreServer.isDebugInnerCoreNetwork())
+                    System.out.println("Received packet player=" + client.getPlayerUid() + " name="+name+", listeners="+listeners.size());
                 for (OnPacketReceivedListener listener : listeners) {
                     listener.onPacketReceived(client, data, meta, dataType);
                 }
-            }
+            }else if(InnerCoreServer.isDebugInnerCoreNetwork())
+                System.out.println("Not listeners, received packet player=" + client.getPlayerUid() + " name="+name);
         });
 
         client.start();
@@ -177,12 +182,12 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
 
     @Override
     public boolean onClientConnected(DataChannel channel, Socket socket, boolean isChannelAlreadyManaged) {
-        onClientConnected(channel, socket.getInetAddress().toString());
+        onClientConnected(channel, null);
         return true;
     }
 
     @Override
-    public void onNativeChannelConnected(NativeDataChannel channel,String sender) {
+    public void onNativeChannelConnected(NativeDataChannel channel, Player sender) {
         if (EngineConfig.isDeveloperMode()) {
             Logger.debug("client connected via native protocol");
         }
@@ -209,7 +214,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
             return channel;
         } else {
             Pair<DirectDataChannel, DirectDataChannel> channelPair = DirectDataChannel.createDirectChannelPair();
-            onClientConnected(channelPair.first, sender);
+            onClientConnected(channelPair.first, null);
             return channelPair.second;
         }
     }
