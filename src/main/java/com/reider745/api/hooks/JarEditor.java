@@ -98,11 +98,12 @@ public class JarEditor {
         return this;
     }
 
-    public void init() {
+    public void init(boolean debug) {
         ALL_HOOKS.forEach((key, list) -> {
-            System.out.println("===== " + key + " =====");
+            if(debug)
+                System.out.println("===== " + key + " =====");
             list.forEach(data -> addHook(data.className, data.method, data.signature, data.handler, data.typeHook,
-                    data.controller, data.argumentsMap));
+                    data.controller, data.argumentsMap, debug));
         });
     }
 
@@ -280,7 +281,7 @@ public class JarEditor {
     }
 
     private void addHook(String className, String method, String signature, Method replaced, TypeHook typeHook,
-            boolean controller, ArgumentTypes argumentMap) {
+            boolean controller, ArgumentTypes argumentMap, boolean debug) {
         try {
             // String[] argumentTypes = Arguments.parseSignature(sig);
 
@@ -316,7 +317,8 @@ public class JarEditor {
                         }
 
                         ctmBuffer.getMethodInfo().rebuildStackMap(ClassPool.getDefault());
-                        System.out.println("Success register hook for " + method + signature + " " + typeHook.name());
+                        if(debug)
+                            System.out.println("Success register hook for " + method + signature + " " + typeHook.name());
                         return;
                     } else {
                         signatures.add("<init>" + constructorSignature);
@@ -362,7 +364,8 @@ public class JarEditor {
                             }
 
                             ctmBuffer.getMethodInfo().rebuildStackMap(ClassPool.getDefault());
-                            System.out.println("Success register hook for " + ctmBuffer.getName()
+                            if(debug)
+                                System.out.println("Success register hook for " + ctmBuffer.getName()
                                     + ctmBuffer.getSignature() + " " + typeHook.name());
                             return;
                         } else {

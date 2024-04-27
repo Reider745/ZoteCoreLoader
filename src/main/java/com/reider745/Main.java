@@ -64,7 +64,7 @@ public class Main {
         // bug fix
         loader.registerHooksInitializationForClass(DimensionsFix.class);
 
-        loader.init();
+        loader.init(Arrays.stream(args).anyMatch("--debug-hooks"::equals));
         loader.run("cn.nukkit.Nukkit", args);
     }
 }

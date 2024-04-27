@@ -6,7 +6,6 @@ import cn.nukkit.network.protocol.DataPacket;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.util.*;
 

@@ -58,4 +58,4 @@ pack-version-code: 158
 
 # Additional information in the log
 # debug-logger: on
-# info-logger: on
+info-logger: on
