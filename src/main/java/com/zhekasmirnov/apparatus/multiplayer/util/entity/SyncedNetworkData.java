@@ -232,7 +232,7 @@ public class SyncedNetworkData implements ConnectedClientList.Listener {
     }
 
     public String toJSON(){
-        return data.toString();
+        return new JSONObject(data).toString();
     }
 
     public void fromJSON(String networkData) throws JSONException {
