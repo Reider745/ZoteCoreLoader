@@ -119,9 +119,6 @@ public class DimensionsMethods {
         public CustomDimensionDescription(int id, String name){
             this.id = id;
             this.name = name;
-
-            if(LEVELS_LOADED)
-                this.loadLevel(Server.getInstance());
         }
 
         public int getId() {
@@ -190,6 +187,8 @@ public class DimensionsMethods {
             generator.updateDescription(name, id);
             description.initLevel(level);
             ReflectHelper.setField(level, "dimensionData", generator.data);
+        }else if(LEVELS_LOADED){
+            description.loadLevel(Server.getInstance());
         }
 
         dimensionsId.put(name, id);
