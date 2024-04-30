@@ -115,7 +115,6 @@ public class CustomDimension {
     }
 
     public static boolean isLimboId(int id) {
-        InnerCoreServer.useNotCurrentSupport("CustomDimension.isLimboId(id)");
-        return false;
+        return !dimensionById.containsKey(id);
     }
 }

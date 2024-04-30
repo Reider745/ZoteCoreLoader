@@ -204,11 +204,6 @@ public class LevelHooks implements HookClass {
         DimensionsMethods.initLevels();
     }
 
-    @Inject
-    public static void initLevel(Level level){
-        DimensionsMethods.initLevel(level);
-    }
-
     @Inject(className = "cn.nukkit.level.format.generic.BaseLevelProvider")
     public static Map<String, Object> getGeneratorOptions(BaseLevelProvider provider) {
         return new HashMap<>() {

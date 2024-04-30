@@ -43,6 +43,14 @@ public class FakeDimensions {
         levelForFakeId.put(id, null);
     }
 
+    public static boolean canIgnore(int id){
+        return ignore.contains(id);
+    }
+
+    public static void initLevel(int id, Level level){
+        levelForFakeId.put(id, level);
+    }
+
     public static void init(){
         registerIgnore(Level.DIMENSION_OVERWORLD);
         registerIgnore(Level.DIMENSION_NETHER);
