@@ -54,7 +54,7 @@ public class NativeNetworking {
         }
 
         public String getClientRepresentation() {
-            return client == null ? "server" : "client:" + client;
+            return client == null ? "server" : "client:" + client.getSocketAddress().getAddress().toString();
         }
 
         public boolean isServerSide() {
@@ -161,7 +161,7 @@ public class NativeNetworking {
     }
 
     private static NativeChannelImpl clientToServerChannel = null;
-    private static final Map<Player, NativeChannelImpl> serverToClientChannelMap = new HashMap<>();
+    private static final Map<String, NativeChannelImpl> serverToClientChannelMap = new HashMap<>();
 
     @Deprecated(since = "Zote")
     public static NativeChannelImpl getClientToServerChannel() {
@@ -199,7 +199,7 @@ public class NativeNetworking {
 
     public static void onServerPacketReceived(Player sender, String name, int formatId) throws IOException {
         synchronized (serverToClientChannelMap) {
-            Java8BackComp.computeIfAbsent(serverToClientChannelMap, sender, key -> {
+            Java8BackComp.computeIfAbsent(serverToClientChannelMap, sender.getSocketAddress().getAddress().toString(), key -> {
                 NativeChannelImpl channel = new NativeChannelImpl(sender);
                 for (ConnectionListener listener : connectionListeners) {
                     listener.onNativeChannelConnected(new NativeDataChannel(channel), sender);

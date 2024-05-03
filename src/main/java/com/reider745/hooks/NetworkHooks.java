@@ -6,6 +6,7 @@ import cn.nukkit.network.CompressionProvider;
 import cn.nukkit.network.Network;
 import cn.nukkit.network.RakNetInterface;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.network.session.RakNetPlayerSession;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
@@ -28,7 +29,6 @@ import java.util.Collection;
 
 @Hooks(className = "cn.nukkit.network.Network")
 public class NetworkHooks implements HookClass {
-
     @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
     public static void processBatch(Network network, byte[] payload, Collection<DataPacket> packets,
             CompressionProvider compression, int raknetProtocol, Player player) {
@@ -75,11 +75,6 @@ public class NetworkHooks implements HookClass {
                         packetId = header & 0x3FF;
                         break;
                 }
-
-                // 1 - the very first package
-                if (player != null && packetId == 1)
-                    if(!player.dataPacket(InnerCorePacket.sendInfo))
-                        Logger.warning("Error send InnerCorePacket.sendInfo");
 
                 DataPacket pk = network.getPacket(packetId, InnerCoreServer.PROTOCOL);
 
@@ -136,5 +131,10 @@ public class NetworkHooks implements HookClass {
         properties[2] = Integer.toString(InnerCoreServer.PROTOCOL);
         properties[3] = Utils.getVersionByProtocol(InnerCoreServer.PROTOCOL);
         ReflectHelper.setField(raknet, "advertisement", String.join(";", properties).getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Inject(className = "cn.nukkit.network.session.RakNetPlayerSession")
+    public static void setPlayer(RakNetPlayerSession self, Player player){
+        player.dataPacket(InnerCorePacket.sendInfo);
     }
 }

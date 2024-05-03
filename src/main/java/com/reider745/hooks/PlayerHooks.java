@@ -80,16 +80,6 @@ public class PlayerHooks implements HookClass {
         return null;
     }
 
-    @Inject(type = TypeHook.BEFORE_NOT_REPLACE)
-    public static void close(Player player, TextContainer message, String reason, boolean notify) {
-        ConnectedClient client = getForPlayer(player);
-        try {
-            if (client != null)
-                client.disconnect();
-        } catch (Throwable ignore) {
-        }
-    }
-
     @Inject
     public static void dataPacket(Player player, DataPacket packet) {
         if (InnerCoreServer.isDebugInnerCoreNetwork())

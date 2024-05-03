@@ -20,6 +20,7 @@ public class SocketDataChannel extends DataChannel {
         socket.setKeepAlive(true);
         inputStream = new DataInputStream(socket.getInputStream());
         this.sendingThread = new PlayerSocketSendingThread(socket, this);
+        this.sendingThread.setName(this.getClient());
     }
 
     @Override

@@ -70,7 +70,9 @@ public class BlockSourceMethods {
     }
 
     public static int getBlockId(Level level, int x, int y, int z) {
-        return level.getBlock(x, y, z).getId();
+        if(y >= 0 && y <= 255)
+            return level.getBlock(x, y, z).getId();
+        return  0;
     }
 
     public static boolean isChunkLoaded(Level level, int x, int z) {
@@ -110,7 +112,9 @@ public class BlockSourceMethods {
     }
 
     public static int getBlockData(Level level, int x, int y, int z) {
-        return level.getBlockDataAt(x, y, z);
+        if(y >= 0 && y <= 255)
+            return level.getBlockDataAt(x, y, z);
+        return 0;
     }
 
     public static Block getBlockIdDataAndState(Level level, int x, int y, int z) {

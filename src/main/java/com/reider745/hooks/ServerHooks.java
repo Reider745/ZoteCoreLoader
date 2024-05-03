@@ -49,7 +49,7 @@ public class ServerHooks implements HookClass {
     @Inject
     public static boolean getPropertyBoolean(Server server, String variable, Object defaultValue) {
         if (!InnerCoreServer.isUnsupportedOptionsAllowed()
-                && (variable.equals("xbox-auth")))
+                && (variable.equals("xbox-auth") || variable.equals("enable-raw-ores")))
             return false;
 
         Config properties = server.getProperties();
