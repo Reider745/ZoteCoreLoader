@@ -12,6 +12,7 @@ import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.entity.EntityMotion;
+import com.reider745.event.EventListener;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
@@ -70,6 +71,8 @@ public class ServerHooks implements HookClass {
             try {
                 EntityMotion.tick();
                 NativeCallback.onTick();
+
+                EventListener.isFirstTickEnd = true;
             } catch (Exception e) {
                 Logger.warning("IC-TICK", e.getCause());
             }

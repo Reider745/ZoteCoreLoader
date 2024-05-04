@@ -62,6 +62,7 @@ public class EventListener implements Listener {
     public static Object dealingEvent = null;
 
     public static final int FORM_REJOIN_EXCEPTION = 2560;
+    public static boolean isFirstTickEnd = false;
 
     public static void consumeEvent(Event event, CallbackHelper.ICallbackApply apply, boolean isPrevent) {
         CallbackHelper.apply(event, apply, isPrevent);
@@ -115,12 +116,14 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRedstoneUpdate(RedstoneUpdateEvent event) {
-        Block block = event.getBlock();
-        Level level = event.getBlock().getLevel();
-        int signal = level.isBlockIndirectlyGettingPowered(block);
+        if(isFirstTickEnd){
+            Block block = event.getBlock();
+            Level level = event.getBlock().getLevel();
+            int signal = level.isBlockIndirectlyGettingPowered(block);
 
-        consumeEvent(event, () -> NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z,
-                signal, !event.getBlock().isPowerSource(), level));
+            consumeEvent(event, () -> NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z,
+                    signal, !event.getBlock().isPowerSource(), level));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
