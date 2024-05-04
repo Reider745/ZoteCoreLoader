@@ -9,8 +9,10 @@ import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntityType;
 import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchField;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
@@ -511,8 +513,12 @@ public class ItemContainer implements WorkbenchField {
             }
             if (!dirtyBindingsMap.isEmpty()) {
                 synchronized (bindingsMap) {
-                    networkEntity.send("bindings", new JSONObject(dirtyBindingsMap));
-                    dirtyBindingsMap.clear();
+                    try{
+                        networkEntity.send("bindings", new JSONObject(dirtyBindingsMap));
+                        dirtyBindingsMap.clear();
+                    }catch (Exception e){
+                        Logger.error(dirtyBindingsMap.toString(), e);
+                    }
                 }
             }
         }

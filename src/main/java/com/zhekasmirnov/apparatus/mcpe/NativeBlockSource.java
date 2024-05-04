@@ -324,6 +324,23 @@ public class NativeBlockSource {
         BlockSourceMethods.addToTickingQueue(level, x, y, z, -1, delay, 0);
     }
 
+    public float getRainLevel(){
+        return BlockSourceMethods.getRainLevel(level);
+    }
+
+    public void setRainLevel(float rainLevel){
+        BlockSourceMethods.setRainLevel(level, rainLevel);
+    }
+
+    public float getLightningLevel(){
+        return BlockSourceMethods.getLightningLevel(level);
+    }
+
+    public void setLightningLevel(float lightningLevel){
+        BlockSourceMethods.setLightningLevel(level, lightningLevel);
+    }
+
+
     public void destroyBlock(int x, int y, int z, boolean drop) {
         BlockSourceMethods.destroyBlock(level, x, y, z, drop, updateType, destroyParticles);
     }

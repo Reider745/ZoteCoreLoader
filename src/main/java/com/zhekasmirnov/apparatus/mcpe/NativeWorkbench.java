@@ -15,6 +15,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NativeWorkbench {
 
@@ -87,23 +88,47 @@ public class NativeWorkbench {
         removeds.add(new int[] { resultId, resultCount, resultData });
     }
 
+    private static int indexOfRemove(int id, int count, int data, ArrayList<Integer> blackList){
+        for(int i = 0;i < removeds.size();i++) {
+            int[] item = removeds.get(i);
+            if (!blackList.contains(i) && item[0] == id && item[1] == count && (item[2] == -1 || data == -1 || item[2] == data))
+                return i;
+        }
+        return -1;
+    }
+
     public static void init() {
         RuntimeItemMapping mapping = RuntimeItems.getMapping(InnerCoreServer.PROTOCOL);
         CraftingManager craftingManager = Server.getInstance().getCraftingManager();
         for (int[] item : removeds) {
             // TODO: data -1, shaped recipes support
             Item itemInstance = ItemUtils.get(item[0], item[1], item[2]);
+            AtomicBoolean canRemove = new AtomicBoolean(false);
 
             craftingManager.getShapelessRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
                 for (UUID uuid : recipes.keySet()) {
                     ShapelessRecipe recipe = recipes.get(uuid);
                     if (recipe.getResult().equals(itemInstance)) {
                         recipes.remove(uuid);
-                        break;
+                        canRemove.set(true);
+                        return;
+                    }
+                }
+            });
+
+            craftingManager.getShapedRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
+                for (UUID uuid : recipes.keySet()) {
+                    ShapedRecipe recipe = recipes.get(uuid);
+                    if (recipe.getResult().equals(itemInstance)) {
+                        recipes.remove(uuid);
+                        canRemove.set(true);
+                        return;
                     }
                 }
             });
         }
+
+        final HashMap<Item, ArrayList<Integer>> blackLists = new HashMap<>();
         for (RecipeRegistry recipe : recipes) {
             Item result = ItemUtils.get(recipe.resultId, recipe.resultCount, recipe.resultData, recipe.resultExtra);
             try {
@@ -113,6 +138,15 @@ public class NativeWorkbench {
                         "Unknown legacy2Runtime mapping: id=" + recipe.resultId + ", meta=" + recipe.resultData);
                 continue;
             }
+
+            final ArrayList<Integer> list = blackLists.getOrDefault(result, new ArrayList<>());
+            final int index = indexOfRemove(recipe.resultId, recipe.resultCount, recipe.resultData, list);
+            if(index != -1){
+                list.add(index);
+                blackLists.put(result, list);
+                continue;
+            }
+
             boolean accepted = true;
             Item item;
             if (!recipe.shapeless) {

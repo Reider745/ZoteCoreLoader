@@ -87,7 +87,12 @@ public class BlockSourceMethods {
     }
 
     public static boolean canSeeSky(Level level, int x, int y, int z) {
-        return level.canBlockSeeSky(new Vector3(x, y, z));
+        y++;
+        while (y < 256){
+            if(level.getBlockIdAt(x, y, z) != 0) return false;
+            y++;
+        }
+        return true;
     }
 
     public static int getBiome(Level level, int x, int y, int z) {
@@ -288,5 +293,21 @@ public class BlockSourceMethods {
         } else {
             Server.broadcastPacket(players, packet);
         }
+    }
+
+    public static float getRainLevel(Level level) {
+        return level.isRaining() ? 1 : 0;
+    }
+
+    public static void setRainLevel(Level level, float rainLevel) {
+        level.setRaining(rainLevel != 0);
+    }
+
+    public static float getLightningLevel(Level level) {
+        return level.isThundering() ? 1 : 0;
+    }
+
+    public static void setLightningLevel(Level level, float lightningLevel) {
+        level.setThundering(lightningLevel != 0);
     }
 }

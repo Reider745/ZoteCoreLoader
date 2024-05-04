@@ -36,6 +36,7 @@ import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.UpdateBlockPacket;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
 import oshi.hardware.NetworkIF;
@@ -72,6 +73,25 @@ public class EventListener implements Listener {
         consumeEvent(event, apply, false);
     }
 
+    protected void updateBlocks(Level level, double x, double y, double z, boolean sides){
+        final Player[] players = level.getChunkPlayers(((int) x) / 16, ((int) z) / 16).values().toArray(Player.EMPTY_ARRAY);
+
+        if(sides){
+            Vector3[] blocks = new Vector3[7];
+
+            blocks[0] = new Vector3(x, y, z);
+            blocks[1] = new Vector3(x - 1, y, z);
+            blocks[2] = new Vector3(x + 1, y, z);
+            blocks[3] = new Vector3(x, y - 1, z);
+            blocks[4] = new Vector3(x, y + 1, z);
+            blocks[5] = new Vector3(x, y, z - 1);
+            blocks[6] = new Vector3(x, y, z + 1);
+
+            level.sendBlocks(players, blocks, UpdateBlockPacket.FLAG_ALL);
+        }else
+            level.sendBlocks(players, new Vector3[]{new Vector3(x, y, z)}, UpdateBlockPacket.FLAG_ALL);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
         if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
@@ -91,6 +111,7 @@ public class EventListener implements Listener {
                     () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z,
                             event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true,
                             player.getHealth() > 0, EntityMethod.getIdForEntity(player)));
+            updateBlocks(player.level, block.x, block.y, block.z, true);
         }
     }
 

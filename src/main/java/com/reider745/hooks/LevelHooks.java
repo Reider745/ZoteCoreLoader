@@ -1,29 +1,40 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockBed;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityPrimedTNT;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.enchantment.Enchantment;
+import cn.nukkit.lang.TranslationContainer;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Position;
 import cn.nukkit.level.format.generic.BaseLevelProvider;
 import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.level.particle.ItemBreakParticle;
+import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.BlockFace;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.nbt.tag.ListTag;
-import cn.nukkit.nbt.tag.StringTag;
-import cn.nukkit.nbt.tag.Tag;
+import cn.nukkit.nbt.tag.*;
 import cn.nukkit.potion.Effect;
+import cn.nukkit.utils.TextFormat;
+import cn.nukkit.utils.Utils;
+import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
+import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.event.EventListener;
 import com.reider745.world.dimensions.DimensionsMethods;
+import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 
 import javassist.CtClass;
@@ -202,6 +213,122 @@ public class LevelHooks implements HookClass {
     @Inject(className = "cn.nukkit.level.EnumLevel")
     public static void initLevels(){
         DimensionsMethods.initLevels();
+    }
+
+    private static Level getSyncLevel(){
+        return Server.getInstance().getDefaultLevel();
+    }
+
+    private static boolean isUsePath(Level self){
+        return CustomDimension.getDimensionById(self.getDimension()) != null;
+    }
+
+
+    //Общие правила с миром world
+    @Inject(type = TypeHook.AFTER_NOT_REPLACE)
+    public static void initLevel(Level self){
+        if(isUsePath(self))
+            self.gameRules = getSyncLevel().gameRules;
+    }
+
+    //Патч кровати
+    @Inject(className = "cn.nukkit.block.BlockBed")
+    public static boolean onActivate(BlockBed self, Item item, Player player){
+        if (self.level.getDimension() != Level.DIMENSION_OVERWORLD && !isUsePath(self.level)) {
+            self.level.useBreakOn(self);
+            CompoundTag nbt = new CompoundTag()
+                    .putList(new ListTag<DoubleTag>("Pos")
+                            .add(new DoubleTag("", self.x))
+                            .add(new DoubleTag("", self.y))
+                            .add(new DoubleTag("", self.z)))
+                    .putList(new ListTag<DoubleTag>("Motion")
+                            .add(new DoubleTag("", 0))
+                            .add(new DoubleTag("", 0))
+                            .add(new DoubleTag("", 0)))
+                    .putList(new ListTag<FloatTag>("Rotation")
+                            .add(new FloatTag("", 0))
+                            .add(new FloatTag("", 0)))
+                    .putShort("Fuse", 0); // create an instant explosion
+            new EntityPrimedTNT(self.level.getChunk(self.getFloorX() >> 4, self.getFloorZ() >> 4), nbt); // we don't even have to spawn the tnt entity for players
+            return true;
+        }
+
+        Block blockNorth = self.north();
+        Block blockSouth = self.south();
+        Block blockEast = self.east();
+        Block blockWest = self.west();
+
+        Block b;
+        if (self.isHeadPiece()) {
+            b = self;
+        } else {
+            if (blockNorth.getId() == BlockID.BED_BLOCK && (blockNorth.getDamage() & 0x08) == 0x08) {
+                b = blockNorth;
+            } else if (blockSouth.getId() == BlockID.BED_BLOCK && (blockSouth.getDamage() & 0x08) == 0x08) {
+                b = blockSouth;
+            } else if (blockEast.getId() == BlockID.BED_BLOCK && (blockEast.getDamage() & 0x08) == 0x08) {
+                b = blockEast;
+            } else if (blockWest.getId() == BlockID.BED_BLOCK && (blockWest.getDamage() & 0x08) == 0x08) {
+                b = blockWest;
+            } else {
+                if (player != null) {
+                    player.sendTranslation("§7%tile.bed.notValid");
+                }
+
+                return true;
+            }
+        }
+
+        int time = self.getLevel().getTime() % Level.TIME_FULL;
+        boolean isNight = (time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE);
+
+        if (player != null && !isNight && !self.getLevel().isThundering()) {
+            Position spawn = Position.fromObject(b.add(0.5, 0.5, 0.5), player.getLevel());
+            if (!player.getSpawn().equals(spawn)) {
+                player.setSpawnBlock(self);
+            }
+            player.sendMessage(new TranslationContainer(TextFormat.GRAY + "%tile.bed.respawnSet"));
+            player.sendTranslation("§7%tile.bed.noSleep");
+            return true;
+        }
+
+        if (player != null) {
+            if (player.distanceSquared(self) > 36) {
+                player.sendTranslation("§7%tile.bed.tooFar");
+                return true;
+            }
+
+            if (!player.isCreative()) {
+                BlockFace secondPart = self.getBlockFace().getOpposite();
+                AxisAlignedBB checkArea = new SimpleAxisAlignedBB(b.x - 8, b.y - 6.5, b.z - 8, b.x + 9, b.y + 5.5, b.z + 9).addCoord(secondPart.getXOffset(), 0, secondPart.getZOffset());
+
+                for (Entity entity : self.getLevel().getCollidingEntities(checkArea)) {
+                    if (!entity.isClosed() && Utils.monstersList.contains(entity.getNetworkId())) {
+                        player.sendTranslation("§7%tile.bed.notSafe");
+                        return true;
+                    }
+                }
+            }
+
+            if (!player.sleepOn(b)) {
+                player.sendTranslation("§7%tile.bed.occupied");
+            }
+        }
+
+        return true;
+    }
+
+    //Синхронизация времени
+    @Inject
+    public static void setTime(Level self, int time){
+        if(isUsePath(self) && time != getSyncLevel().getTime())
+            getSyncLevel().setTime(time);
+    }
+
+    @Inject
+    public static void doTick(Level self, int currentTick){
+        if(isUsePath(self))
+            self.setTime(getSyncLevel().getTime());
     }
 
     @Inject(className = "cn.nukkit.level.format.generic.BaseLevelProvider")

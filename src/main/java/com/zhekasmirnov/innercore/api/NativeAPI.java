@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
+import com.reider745.api.ClientOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.BiomesHooks;
 import com.reider745.item.ItemMethod;
@@ -414,8 +415,9 @@ public class NativeAPI {
         return 0;
     }
 
+    @ClientOnly
     public static float getLightningLevel() {
-        return (float) WorldMethod.getLightningLevel();
+        return 0;
     }
 
     public static int getMaxHealth(long entity) {
@@ -502,8 +504,9 @@ public class NativeAPI {
         EntityMethod.getPosition(entity, position);
     }
 
+    @ClientOnly
     public static float getRainLevel() {
-        return (float) WorldMethod.getRainLevel();
+        return 0;
     }
 
     @Deprecated(since = "Zote")
@@ -759,8 +762,8 @@ public class NativeAPI {
         EntityMethod.setItemToDrop(entity, id, count, data, extra);
     }
 
+    @ClientOnly
     public static void setLightningLevel(float level) {
-        WorldMethod.setLightningLevel(level);
     }
 
     public static void setMaxHealth(long entity, int health) {
@@ -836,8 +839,8 @@ public class NativeAPI {
         EntityMethod.setPositionAxis(entity, axis, value);
     }
 
+    @ClientOnly
     public static void setRainLevel(float level) {
-        WorldMethod.setRainLevel(level);
     }
 
     @Deprecated(since = "Zote")
