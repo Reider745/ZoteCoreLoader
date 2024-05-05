@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.api.container;
 
+import com.reider745.item.ItemMethod;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
@@ -640,7 +641,7 @@ public class ItemContainer implements WorkbenchField {
             throw new IllegalStateException();
         }
 
-        if (amount > 0) {
+        /*if (amount > 0) {
             ItemContainerSlot slot = getSlot(slotName);
             if (slot.id != 0 && slot.count > 0) {
                 NativePlayer player = new NativePlayer(playerUid);
@@ -652,6 +653,35 @@ public class ItemContainer implements WorkbenchField {
                     if (amount > 0) {
                         synchronized (playerInventoryLock) {
                             player.addItemToInventory(id, amount, data, extra, true);
+                        }
+                    }
+                }
+            }
+        }*/
+        //Фикс максимально стака
+        if(amount > 0){
+            ItemContainerSlot slot = getSlot(slotName);
+            if (slot.id != 0 && slot.count > 0) {
+                NativePlayer player = new NativePlayer(playerUid);
+                if (player.isValid()) {
+                    int id = slot.id;
+                    int data = slot.data;
+                    NativeItemInstanceExtra extra = slot.extra;
+                    amount = getFromSlot(slotName, id, amount, data, extra, playerUid);
+                    int maxStack = ItemMethod.getMaxStackForId(id, data);
+
+                    if (amount > 0) {
+                        if(amount <= maxStack){
+                            synchronized (playerInventoryLock) {
+                                player.addItemToInventory(id, amount, data, extra, true);
+                            }
+                        }else{
+                            synchronized (playerInventoryLock) {
+                                while (amount > 0) {
+                                    player.addItemToInventory(id, Math.min(amount, maxStack), data, extra, true);
+                                    amount -= maxStack;
+                                }
+                            }
                         }
                     }
                 }

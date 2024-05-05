@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
+import cn.nukkit.Server;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
@@ -64,6 +65,7 @@ public class NativeBlockSource {
 
     public static NativeBlockSource getCurrentWorldGenRegion() {
         Level level = CallbackHelper.getForCurrentThread();
+        if(level == null) Server.getInstance().getDefaultLevel();
         return level != null ? new NativeBlockSource(level, false) : null;
     }
 
