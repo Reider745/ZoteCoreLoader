@@ -62,7 +62,6 @@ public class InnerCorePacket extends BasePacket {
         this.put(bytes);
     }
 
-
     public static void sendPacketToClient(Player player, String name, int format_id, byte[] data) {
         InnerCorePacket packet = new InnerCorePacket();
         packet.name = name;

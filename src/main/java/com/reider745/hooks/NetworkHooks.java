@@ -20,15 +20,24 @@ import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
+import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.net.ProtocolException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.LinkedList;
 
 @Hooks(className = "cn.nukkit.network.Network")
 public class NetworkHooks implements HookClass {
+
+    private static LinkedList<String> canSendInfo = new LinkedList<>();
+
+    public static void close(Player player){
+        canSendInfo.remove(NativeNetworking.getId(player));
+    }
+
     @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
     public static void processBatch(Network network, byte[] payload, Collection<DataPacket> packets,
             CompressionProvider compression, int raknetProtocol, Player player) {
@@ -88,6 +97,15 @@ public class NetworkHooks implements HookClass {
                     if (pk instanceof BasePacket)
                         ((BasePacket) pk).player = player;
 
+                    if(player != null){
+                        final String id = NativeNetworking.getId(player);
+                        if(!canSendInfo.contains(id)){
+                            canSendInfo.add(id);
+                            player.dataPacket(InnerCorePacket.sendInfo);
+                        }
+                    }
+
+
                     try {
                         if (raknetProtocol > 8) {
                             pk.decode();
@@ -131,10 +149,5 @@ public class NetworkHooks implements HookClass {
         properties[2] = Integer.toString(InnerCoreServer.PROTOCOL);
         properties[3] = Utils.getVersionByProtocol(InnerCoreServer.PROTOCOL);
         ReflectHelper.setField(raknet, "advertisement", String.join(";", properties).getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Inject(className = "cn.nukkit.network.session.RakNetPlayerSession")
-    public static void setPlayer(RakNetPlayerSession self, Player player){
-        player.dataPacket(InnerCorePacket.sendInfo);
     }
 }
