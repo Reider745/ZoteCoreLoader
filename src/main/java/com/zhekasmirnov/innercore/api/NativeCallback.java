@@ -848,13 +848,13 @@ public class NativeCallback {
     /* NETWORK CALLBACKS */
 
     public static void onModdedServerPacketReceived(int formatId) {
-        String name = getStringParam("name");
+        /*String name = getStringParam("name");
         String client = getStringParam("client");
         try {
             NativeNetworking.onServerPacketReceived(null, name, formatId);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Deprecated(since = "Zote")

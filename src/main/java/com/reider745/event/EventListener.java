@@ -435,7 +435,7 @@ public class EventListener implements Listener {
                 if (username.equalsIgnoreCase(player.getName()) || player.getUniqueId().equals(p.getUniqueId())) {
                     event.setKickMessage("disconnectionScreen.loggedinOtherLocation");
                     event.setCancelled();
-                    break;
+                    return;
                 }
             }
         }
@@ -445,17 +445,17 @@ public class EventListener implements Listener {
     public void onLoginEvent(PlayerJoinEvent event) {
         ConnectedClient client = PlayerHooks.getForPlayer(event.getPlayer());
         if (client == null || client.getClientState() != ConnectedClient.ClientState.OPEN) {
-            event.getPlayer().kick("You are should connect via Inner Core!");
-           // event.setCancelled();
+            String message = "You are should connect via Inner Core!";
+            if(client != null)
+                message += "\nstate:" + client.getClientState();
+            event.getPlayer().kick(message);
             return;
         }
 
         final String username = event.getPlayer().getName();
         consumeEvent(event, () -> NativeCallback.onPlayerLogin(client, username, (message) -> {
-            if (message != null) {
+            if(message != null)
                 event.getPlayer().kick(message);
-            }
-           // event.setCancelled();
         }), true);
     }
 

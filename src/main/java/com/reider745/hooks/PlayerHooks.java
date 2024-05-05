@@ -65,13 +65,13 @@ public class PlayerHooks implements HookClass {
     }
 
     public static ConnectedClient getForPlayer(Player player) {
-        List<ConnectedClient> clients = Network.getSingleton().getServer().getInitializingClients();
+        List<ConnectedClient>clients = Network.getSingleton().getServer().getConnectedClients();
         for (ConnectedClient client : clients)
             if (equalsAddress(player.getSocketAddress().toString(),
                     client.getChannelInterface().getChannel().getClient()))
                 return client;
 
-        clients = Network.getSingleton().getServer().getConnectedClients();
+        clients = Network.getSingleton().getServer().getInitializingClients();
         for (ConnectedClient client : clients)
             if (equalsAddress(player.getSocketAddress().toString(),
                     client.getChannelInterface().getChannel().getClient()))
@@ -80,9 +80,19 @@ public class PlayerHooks implements HookClass {
         return null;
     }
 
+    @Inject(type = TypeHook.BEFORE_NOT_REPLACE)
+    public static void close(Player player, TextContainer message, String reason, boolean notify) {
+        ConnectedClient client = getForPlayer(player);
+        try {
+            if (client != null)
+                client.disconnect();
+        } catch (Throwable ignore) {
+        }
+    }
+
     @Inject
     public static void dataPacket(Player player, DataPacket packet) {
-        if (InnerCoreServer.isDebugInnerCoreNetwork())
+        if (InnerCoreServer.isDebugInnerCoreNetwork() && packet.packetId() != 21)
             System.out.println("sending packet player=" + EntityMethod.getIdForEntity(player) + " id=" + packet.packetId()
                     + " pid=" + packet.pid() + " channel=" + packet.getChannel());
     }

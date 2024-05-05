@@ -11,7 +11,6 @@ import java.util.*;
 
 public class InnerCorePacket extends BasePacket {
     public static final byte NETWORK_ID = -64;
-    private static Map<Long, byte[]> bytes_recived = new LinkedHashMap<>();
 
     public String name;
     public int format_id;
@@ -44,8 +43,7 @@ public class InnerCorePacket extends BasePacket {
             if(InnerCoreServer.isDebugInnerCoreNetwork())
                 System.out.println("Recived packet for native protocol "+name);
 
-            bytes_recived.put(Thread.currentThread().getId(), bytes);
-            NativeNetworking.onServerPacketReceived(player, name, format_id);
+            NativeNetworking.onServerPacketReceived(player, name, format_id, bytes);
         } catch (Exception e) {
             Server.getInstance().getLogger().warning("Native protocol decoding error!", e);
             player.kick(e.getMessage());
@@ -64,9 +62,6 @@ public class InnerCorePacket extends BasePacket {
         this.put(bytes);
     }
 
-    public static byte[] getCurrentNativePacketBytes() {
-        return bytes_recived.get(Thread.currentThread().getId());
-    }
 
     public static void sendPacketToClient(Player player, String name, int format_id, byte[] data) {
         InnerCorePacket packet = new InnerCorePacket();
@@ -76,10 +71,5 @@ public class InnerCorePacket extends BasePacket {
         packet.bytes = data;
 
         player.dataPacket(packet);
-    }
-
-    @ClientOnly
-    public static void sendPacketToServer(String name, int format_id, byte[] data) {
-        InnerCoreServer.useClientMethod("sendPacketToServer "+name);
     }
 }

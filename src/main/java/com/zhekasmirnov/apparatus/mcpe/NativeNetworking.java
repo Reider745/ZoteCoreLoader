@@ -1,6 +1,7 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
 import cn.nukkit.Player;
+import com.reider745.InnerCoreServer;
 import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.multiplayer.channel.codec.StringChannelCodec;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataPacket;
@@ -54,7 +55,7 @@ public class NativeNetworking {
         }
 
         public String getClientRepresentation() {
-            return client == null ? "server" : "client:" + client.getSocketAddress().getAddress().toString();
+            return client == null ? "server" : "client:" + getId(client);
         }
 
         public boolean isServerSide() {
@@ -134,7 +135,7 @@ public class NativeNetworking {
         private void unlink() {
             if (client != null) {
                 synchronized (serverToClientChannelMap) {
-                    serverToClientChannelMap.remove(client);
+                    serverToClientChannelMap.remove(getId(client));
                 }
             } else {
                 clientToServerChannel = null;
@@ -155,9 +156,13 @@ public class NativeNetworking {
             if (client != null) {
                 InnerCorePacket.sendPacketToClient(client, packet.name, packet.formatId, packet.data);
             } else {
-                InnerCorePacket.sendPacketToServer(packet.name, packet.formatId, packet.data);
+                InnerCoreServer.useClientMethod("send");
             }
         }
+    }
+
+    public static String getId(Player client){
+        return client.getSocketAddress().getAddress().toString();
     }
 
     private static NativeChannelImpl clientToServerChannel = null;
@@ -197,31 +202,22 @@ public class NativeNetworking {
         }
     }
 
-    public static void onServerPacketReceived(Player sender, String name, int formatId) throws IOException {
+    public static void onServerPacketReceived(Player sender, String name, int formatId, byte[] bytes) throws IOException {
         synchronized (serverToClientChannelMap) {
-            Java8BackComp.computeIfAbsent(serverToClientChannelMap, sender.getSocketAddress().getAddress().toString(), key -> {
+            Java8BackComp.computeIfAbsent(serverToClientChannelMap, getId(sender), key -> {
                 NativeChannelImpl channel = new NativeChannelImpl(sender);
                 for (ConnectionListener listener : connectionListeners) {
                     listener.onNativeChannelConnected(new NativeDataChannel(channel), sender);
                 }
                 return channel;
-            }).onReceived(new DataPacket(name, formatId, getCurrentNativePacketBytesNonNull()));
+            }).onReceived(new DataPacket(name, formatId, bytes));
         }
     }
 
     @Deprecated(since = "Zote")
     public static void onClientPacketReceived(String name, int formatId) throws IOException {
-        if (clientToServerChannel == null) {
-            clientToServerChannel = new NativeChannelImpl(null);
-        }
-        clientToServerChannel.onReceived(new DataPacket(name, formatId, getCurrentNativePacketBytesNonNull()));
+        throw new RuntimeException("onClientPacketReceived");
     }
-
-    private static byte[] getCurrentNativePacketBytesNonNull() {
-        byte[] bytes = InnerCorePacket.getCurrentNativePacketBytes();
-        return bytes != null ? bytes : new byte[0];
-    }
-
 
     public static class NetworkLoopHandler {
         public static final int GLOBAL_HANDLER = 1;
