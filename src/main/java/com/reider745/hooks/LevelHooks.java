@@ -225,11 +225,11 @@ public class LevelHooks implements HookClass {
 
 
     //Общие правила с миром world
-    @Inject(type = TypeHook.AFTER_NOT_REPLACE)
+    /*@Inject(type = TypeHook.AFTER_NOT_REPLACE)
     public static void initLevel(Level self){
         if(isUsePath(self))
             self.gameRules = getSyncLevel().gameRules;
-    }
+    }*/
 
     //Патч кровати
     @Inject(className = "cn.nukkit.block.BlockBed")

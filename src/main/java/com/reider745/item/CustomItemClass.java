@@ -79,9 +79,20 @@ public class CustomItemClass extends Item {
     public boolean onRelease(Player player, int ticksUsed) {
         long id = EntityMethod.getIdForEntity(player);
         NativeCallback.onItemUseReleased(ticksUsed, id);
-        if (ticksUsed > getMaxDurability())
-            NativeCallback.onItemUseComplete(id);
         return super.onRelease(player, ticksUsed);
+    }
+
+    @Override
+    public boolean canRelease() {
+        return parameters.get(PropertiesNames.MAX_USE_DURATION) != null;
+    }
+
+    @Override
+    public boolean onUse(Player player, int ticksUsed) {
+        if(canRelease()){
+            NativeCallback.onItemUseComplete(EntityMethod.getIdForEntity(player));
+        }
+        return super.onUse(player, ticksUsed);
     }
 
     @Override
@@ -92,7 +103,7 @@ public class CustomItemClass extends Item {
     @Override
     public boolean onClickAir(Player player, Vector3 directionVector) {
         NativeCallback.onItemUsedNoTarget(EntityMethod.getIdForEntity(player));
-        return Callback.count("ItemUseNoTarget") > 0;
+        return Callback.count("ItemUseNoTarget") > 0 || canRelease();
     }
 
     @Override

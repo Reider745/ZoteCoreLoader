@@ -16,10 +16,55 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 public class NativeWorkbench {
+    interface IApply {
+        void apply(RuntimeItemMapping mapping, CraftingManager craftingManager);
+    }
 
-    private static class RecipeRegistry {
+    private static class RecipeRemove implements IApply {
+        public int resultId, resultCount, resultData;
+
+        public RecipeRemove(int resultId, int resultCount, int resultData){
+            this.resultId = resultId;
+            this.resultCount = resultCount;
+            this.resultData = resultData;
+        }
+
+        @Override
+        public void apply(RuntimeItemMapping mapping, CraftingManager craftingManager) {
+            Item itemInstance = ItemUtils.get(this.resultId, this.resultCount, this.resultData);
+            AtomicBoolean canRemove = new AtomicBoolean(false);
+
+            craftingManager.getShapelessRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
+                for (UUID uuid : recipes.keySet()) {
+                    ShapelessRecipe recipe = recipes.get(uuid);
+                    if (recipe.getResult().equals(itemInstance)) {
+                        recipes.remove(uuid);
+                        canRemove.set(true);
+                        return;
+                    }
+                }
+            });
+
+            craftingManager.getShapedRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
+                for (UUID uuid : recipes.keySet()) {
+                    ShapedRecipe recipe = recipes.get(uuid);
+                    if (recipe.getResult().equals(itemInstance)) {
+                        recipes.remove(uuid);
+                        canRemove.set(true);
+                        return;
+                    }
+                }
+            });
+
+            if(!canRemove.get())
+                Logger.warning("Not remove recipe "+itemInstance);
+        }
+    }
+
+    private static class RecipeRegistry implements IApply {
         public int resultId;
         public int resultCount;
         public int resultData;
@@ -47,9 +92,72 @@ public class NativeWorkbench {
             this.ingredients_ = ingredients;
             this.shapeless = true;
         }
+
+        @Override
+        public void apply(RuntimeItemMapping mapping, CraftingManager craftingManager) {
+            Item result = ItemUtils.get(this.resultId, this.resultCount, this.resultData, this.resultExtra);
+            try {
+                mapping.toRuntime(result.getId(), result.getDamage());
+            } catch (IllegalArgumentException e) {
+                Logger.warning("NativeWorkbench",
+                        "Unknown legacy2Runtime mapping: id=" + this.resultId + ", meta=" + this.resultData);
+                return;
+            }
+
+            boolean accepted = true;
+            Item item;
+            if (!this.shapeless) {
+                final Map<Character, Item> ingredients = new HashMap<>();
+                for (Map.Entry<Character, ItemStack> ingredient : this.ingredients.entrySet()) {
+                    ItemStack stack = ingredient.getValue();
+                    item = ItemUtils.get(stack.id, stack.data);
+                    try {
+                        mapping.toRuntime(item.getId(), item.getDamage());
+                    } catch (IllegalArgumentException e) {
+                        accepted = false;
+                        Logger.warning("NativeWorkbench", "Unknown legacy2Runtime mapping: id=" + stack.id + ", meta="
+                                + stack.data + " (recipe: id=" + this.resultId + ", meta=" + this.resultData + ")");
+                        continue;
+                    }
+                    ingredients.put(ingredient.getKey(), item);
+                }
+
+                for (String s : this.pattern) {
+                    if (s.length() > 3) {
+                        Logger.warning("NativeWorkbench", "Skip recipe, error pattern: " + Arrays.toString(this.pattern) + ", item: " + result);
+                        accepted = false;
+                        break;
+                    }
+                }
+
+                if (accepted) {
+                    craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL,
+                            new ShapedRecipe(result, this.pattern, ingredients, new ArrayList<>()));
+                }
+            } else {
+                final Collection<Item> ingredients = new ArrayList<>();
+                for (int id, data, i = 0; i < this.ingredients_.length; i += 3) {
+                    id = this.ingredients_[i + 1];
+                    data = this.ingredients_[i + 2];
+                    item = ItemUtils.get(id, data);
+                    try {
+                        mapping.toRuntime(item.getId(), item.getDamage());
+                    } catch (IllegalArgumentException e) {
+                        accepted = false;
+                        Logger.warning("NativeWorkbench", "Unknown legacy2Runtime mapping: id=" + id + ", meta=" + data
+                                + " (recipe: id=" + this.resultId + ", meta=" + this.resultData + ")");
+                        continue;
+                    }
+                    ingredients.add(item);
+                }
+                if (accepted) {
+                    craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL, new ShapelessRecipe(result, ingredients));
+                }
+            }
+        }
     }
 
-    private static ArrayList<RecipeRegistry> recipes = new ArrayList<>();
+    private static final ArrayList<IApply> recipes = new ArrayList<>();
 
     private static void addShapedRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
             String[] pattern, int[] ingredients) {
@@ -82,122 +190,17 @@ public class NativeWorkbench {
         addShapelessRecipe(result.id, result.count, result.data, result.extra, ingredients);
     }
 
-    private static final ArrayList<int[]> removeds = new ArrayList<>();
 
     public static void removeRecipeByResult(int resultId, int resultCount, int resultData) {
-        removeds.add(new int[] { resultId, resultCount, resultData });
+        recipes.add(new RecipeRemove(resultId, resultCount, resultData));
     }
-
-    private static int indexOfRemove(int id, int count, int data, ArrayList<Integer> blackList){
-        for(int i = 0;i < removeds.size();i++) {
-            int[] item = removeds.get(i);
-            if (!blackList.contains(i) && item[0] == id && item[1] == count && (item[2] == -1 || data == -1 || item[2] == data))
-                return i;
-        }
-        return -1;
-    }
-
     public static void init() {
-        RuntimeItemMapping mapping = RuntimeItems.getMapping(InnerCoreServer.PROTOCOL);
-        CraftingManager craftingManager = Server.getInstance().getCraftingManager();
-        for (int[] item : removeds) {
-            // TODO: data -1, shaped recipes support
-            Item itemInstance = ItemUtils.get(item[0], item[1], item[2]);
-            AtomicBoolean canRemove = new AtomicBoolean(false);
+        final RuntimeItemMapping mapping = RuntimeItems.getMapping(InnerCoreServer.PROTOCOL);
+        final CraftingManager craftingManager = Server.getInstance().getCraftingManager();
 
-            craftingManager.getShapelessRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
-                for (UUID uuid : recipes.keySet()) {
-                    ShapelessRecipe recipe = recipes.get(uuid);
-                    if (recipe.getResult().equals(itemInstance)) {
-                        recipes.remove(uuid);
-                        canRemove.set(true);
-                        return;
-                    }
-                }
-            });
+        for (IApply recipe : recipes)
+            recipe.apply(mapping, craftingManager);
 
-            craftingManager.getShapedRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
-                for (UUID uuid : recipes.keySet()) {
-                    ShapedRecipe recipe = recipes.get(uuid);
-                    if (recipe.getResult().equals(itemInstance)) {
-                        recipes.remove(uuid);
-                        canRemove.set(true);
-                        return;
-                    }
-                }
-            });
-        }
-
-        final HashMap<Item, ArrayList<Integer>> blackLists = new HashMap<>();
-        for (RecipeRegistry recipe : recipes) {
-            Item result = ItemUtils.get(recipe.resultId, recipe.resultCount, recipe.resultData, recipe.resultExtra);
-            try {
-                mapping.toRuntime(result.getId(), result.getDamage());
-            } catch (IllegalArgumentException e) {
-                Logger.warning("NativeWorkbench",
-                        "Unknown legacy2Runtime mapping: id=" + recipe.resultId + ", meta=" + recipe.resultData);
-                continue;
-            }
-
-            final ArrayList<Integer> list = blackLists.getOrDefault(result, new ArrayList<>());
-            final int index = indexOfRemove(recipe.resultId, recipe.resultCount, recipe.resultData, list);
-            if(index != -1){
-                list.add(index);
-                blackLists.put(result, list);
-                continue;
-            }
-
-            boolean accepted = true;
-            Item item;
-            if (!recipe.shapeless) {
-                final Map<Character, Item> ingredients = new HashMap<>();
-                for (Map.Entry<Character, ItemStack> ingredient : recipe.ingredients.entrySet()) {
-                    ItemStack stack = ingredient.getValue();
-                    item = ItemUtils.get(stack.id, stack.data);
-                    try {
-                        mapping.toRuntime(item.getId(), item.getDamage());
-                    } catch (IllegalArgumentException e) {
-                        accepted = false;
-                        Logger.warning("NativeWorkbench", "Unknown legacy2Runtime mapping: id=" + stack.id + ", meta="
-                                + stack.data + " (recipe: id=" + recipe.resultId + ", meta=" + recipe.resultData + ")");
-                        continue;
-                    }
-                    ingredients.put(ingredient.getKey(), item);
-                }
-
-                for(int i = 0;i < recipe.pattern.length;i++){
-                    if(recipe.pattern[i].length() > 3) {
-                        Logger.warning("NativeWorkbench", "Skip recipe, error pattern: "+Arrays.toString(recipe.pattern) +", item: "+result);
-                        accepted = false;
-                        break;
-                    }
-                }
-
-                if (accepted) {
-                    craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL,
-                            new ShapedRecipe(result, recipe.pattern, ingredients, new ArrayList<>()));
-                }
-            } else {
-                final Collection<Item> ingredients = new ArrayList<>();
-                for (int id, data, i = 0; i < recipe.ingredients_.length; i += 3) {
-                    id = recipe.ingredients_[i + 1];
-                    data = recipe.ingredients_[i + 2];
-                    item = ItemUtils.get(id, data);
-                    try {
-                        mapping.toRuntime(item.getId(), item.getDamage());
-                    } catch (IllegalArgumentException e) {
-                        accepted = false;
-                        Logger.warning("NativeWorkbench", "Unknown legacy2Runtime mapping: id=" + id + ", meta=" + data
-                                + " (recipe: id=" + recipe.resultId + ", meta=" + recipe.resultData + ")");
-                        continue;
-                    }
-                    ingredients.add(item);
-                }
-                if (accepted) {
-                    craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL, new ShapelessRecipe(result, ingredients));
-                }
-            }
-        }
         recipes.clear();
         craftingManager.rebuildPacket();
     }
