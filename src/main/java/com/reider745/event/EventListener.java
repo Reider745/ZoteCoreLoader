@@ -396,7 +396,7 @@ public class EventListener implements Listener {
         consumeEvent(event, () -> NativeCallback.onEntityPickUpDrop(entity, dropEntity, count));
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    /*@EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockUpdate(BlockGrowEvent event) {
         final Block block = event.getBlock();
         final Block newBlock = event.getNewState();
@@ -406,7 +406,7 @@ public class EventListener implements Listener {
                 () -> NativeCallback.onBlockChanged((int) block.x, (int) block.y, (int) block.z, block.getId(),
                         block.getDamage(), newBlock.getId(), newBlock.getDamage(), FakeDimensions.getFakeIdForLevel(level),
                         newBlock.getFullId(), block.getLevel()));
-    }
+    }*/
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityTeleport(EntityTeleportEvent event) {

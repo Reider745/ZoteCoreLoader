@@ -1,6 +1,7 @@
 package com.reider745.api;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public class ReflectHelper {
 
@@ -45,6 +46,16 @@ public class ReflectHelper {
             Field field = self.getDeclaredField(name);
             field.setAccessible(true);
             field.set(null, v);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void invokeVoid(Object self, String name, Object[] args, Class<?>... classes){
+        try {
+            Method method = self.getClass().getDeclaredMethod(name, classes);
+            method.setAccessible(true);
+            method.invoke(self, args);
         } catch (Exception e) {
             e.printStackTrace();
         }
