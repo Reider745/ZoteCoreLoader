@@ -47,6 +47,7 @@ import java.util.function.Function;
 
 public class EntityMethod {
     public static long getIdForEntity(Entity entity){
+        if(entity == null) return -1;
         return entity.getId();
     }
 

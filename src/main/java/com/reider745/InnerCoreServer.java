@@ -42,12 +42,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -503,7 +499,23 @@ public class InnerCoreServer {
     }
 
     public static int getVersionCode() {
-        return getPropertyInt("pack-version-code", 152);
+        List<Integer> versions = getVersionsCode();
+        if(versions.isEmpty())
+            return 159;
+        return versions.get(0);
+    }
+
+    public static List<Integer> getVersionsCode() {
+        final String args = getPropertyString("pack-version-code", "159");
+        final String[] versions_s = args.split(",");
+        final List<Integer> versions = new ArrayList<>();
+
+        for (String version : versions_s)
+            try {
+                versions.add(Integer.parseInt(version));
+            } catch (Exception ignore){}
+
+        return versions;
     }
 
     private static void handleUnsupportedMethod(String message) {

@@ -1,12 +1,19 @@
 package com.reider745.hooks;
 
 import cn.nukkit.block.Block;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.event.entity.EntityExplodeEvent;
+import cn.nukkit.level.Explosion;
+import cn.nukkit.level.Position;
 import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.BlockMethods;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
 import javassist.*;
+
+import java.util.List;
 
 @Hooks(className = "cn.nukkit.block.Block")
 public class BlocksHooks implements HookClass {

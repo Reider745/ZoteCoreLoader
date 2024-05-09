@@ -12,10 +12,7 @@ import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
-import cn.nukkit.event.block.BlockBreakEvent;
-import cn.nukkit.event.block.BlockExplosionPrimeEvent;
-import cn.nukkit.event.block.BlockGrowEvent;
-import cn.nukkit.event.block.BlockPlaceEvent;
+import cn.nukkit.event.block.*;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.inventory.CraftItemEvent;
@@ -42,6 +39,7 @@ import com.reider745.world.FakeDimensions;
 import oshi.hardware.NetworkIF;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.reider745.api.CallbackHelper;
 import com.reider745.api.CustomManager;
@@ -320,16 +318,30 @@ public class EventListener implements Listener {
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM)));
     }
 
+    @EventHandler
+    public void onExplodeBlock(BlockExplodeEvent event){
+        List<Block> blockList = event.getBlockList();
+        for(Block block : blockList)
+            NativeCallback.onBlockSpawnResources((int) block.x, (int) block.y, (int) block.z, block.getId(), block.getDamage(), 0f, 0, block.level);
+    }
+
+    @EventHandler
+    public void onExplodeEntity(EntityExplodeEvent event){
+        List<Block> blockList = event.getBlockList();
+        for(Block block : blockList)
+            NativeCallback.onBlockSpawnResources((int) block.x, (int) block.y, (int) block.z, block.getDamage(), 0, 0f, 0, block.level);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockExplosion(BlockExplosionPrimeEvent event) {
+    public void onBlockExplosion(BlockExplosionPrimeEvent event) {// TODO: deprecated
         if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
             return;
         }
 
         final Location pos = event.getBlock().getLocation();
 
-        consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
-                (float) event.getForce(), -1, event.isIncendiary(), event.isBlockBreaking(), Float.MAX_VALUE));
+
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

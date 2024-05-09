@@ -132,22 +132,4 @@ public class NetworkHooks implements HookClass {
     public static void registerPackets(Network network) {
         network.registerPacket(InnerCoreServer.PROTOCOL, InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
     }
-
-    @Inject(className = "cn.nukkit.network.RakNetInterface", type = TypeHook.AFTER_NOT_REPLACE)
-    public static void setName(RakNetInterface raknet, String name) {
-        Object advertisementObject = ReflectHelper.getField(raknet, "advertisement");
-        if (advertisementObject == null) {
-            Logger.warning("No advertisement in RakNetInterface, version will not be affected.");
-            return;
-        }
-        String advertisement = new String((byte[]) advertisementObject, StandardCharsets.UTF_8);
-        String[] properties = advertisement.split(";");
-        if (properties.length <= 3) {
-            Logger.warning("Invalid advertisement in RakNetInterface, version will not be affected.");
-            return;
-        }
-        properties[2] = Integer.toString(InnerCoreServer.PROTOCOL);
-        properties[3] = Utils.getVersionByProtocol(InnerCoreServer.PROTOCOL);
-        ReflectHelper.setField(raknet, "advertisement", String.join(";", properties).getBytes(StandardCharsets.UTF_8));
-    }
 }

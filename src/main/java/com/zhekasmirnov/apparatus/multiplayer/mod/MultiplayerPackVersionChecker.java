@@ -1,13 +1,17 @@
 package com.zhekasmirnov.apparatus.multiplayer.mod;
 
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.PackInfo;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.InitializationPacketException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public class MultiplayerPackVersionChecker {
     static {
+        List<Integer> versions = InnerCoreServer.getVersionsCode();
         Network.getSingleton().addClientInitializationPacket("system.inner_core_build", () -> {
                 JSONObject packInfo = new JSONObject();
                 try {
@@ -35,7 +39,8 @@ public class MultiplayerPackVersionChecker {
                                     " (code=" + PackInfo.getPackVersionCode() + ")\n";
                         throw new InitializationPacketException(message);
                     }*/
-                    if (PackInfo.getPackVersionCode() != packVersionCode) {
+
+                    if (!versions.contains(packVersionCode)) {
                         String message = "\n\n{{loc: multiplayer_innercore_version_mismatch}}\n" +
                                 "client (your) version: " +
                                 packName + " " + packVersionName +
