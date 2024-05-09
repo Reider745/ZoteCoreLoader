@@ -828,19 +828,21 @@ var TileEntity = {
 
         Prototype.saverId = Saver.registerObjectSaver(saverName, {
             read: function(obj) {
+                if (!obj || !obj.coords) {
+                    print("Corrupted data "+JSON.stringify(obj));
+                    return;
+                }
+
                 if(TileEntity.getTileEntity(obj.coords.x, obj.coords.y, obj.coords.z, BlockSource.getDefaultForDimension(obj.coords.d))){
                     print("Duplicate TileEntity detected: "+obj.coords.x+":"+obj.coords.y+":"+obj.coords.z);
                     return;
                 }
 
-                if (!obj || !obj.coords) {
-                    return;
-                }
                 var instance = {};
                 for (var property in Prototype) {
                     instance[property] = Prototype[property];
                 }
-                instance.data = obj.data;
+                instance.data = obj.data || {};
                 instance.x = obj.coords.x || 0;
                 instance.y = obj.coords.y || 0;
                 instance.z = obj.coords.z || 0;
