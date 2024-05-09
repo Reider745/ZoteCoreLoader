@@ -187,14 +187,10 @@ public class BlockSourceMethods {
 
     public static void explode(Level level, float x, float y, float z, float power, boolean fire) {
         final Block block = level.getBlock((int) x, (int) y, (int) z);
-        final BlockExplosionPrimeEvent event = new BlockExplosionPrimeEvent(block, power, 0d);
+        final BlockExplosionPrimeEvent event = new BlockExplosionPrimeEvent(block, power,  fire ? .4 : 0d);
         event.setIncendiary(fire);
 
-        synchronized (EventListener.DEALING_LOCK) {
-            EventListener.dealingEvent = event;
-            Server.getInstance().getPluginManager().callEvent(event);
-            EventListener.dealingEvent = null;
-        }
+        Server.getInstance().getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {
             return;

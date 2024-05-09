@@ -13,7 +13,7 @@ __Zote Core__ — серверное ядро, основанное на Inner C
 Запустите собранное ядро, открыв консоль в папке с ним:
 
 ```sh
-java -jar ZoteCore-SNAPSHOT.jar
+java -jar ZoteCore-SNAPSHOT.jar -XX:MaxRAMPercentage=95.0 --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
 ```
 
 ## Конфигурация

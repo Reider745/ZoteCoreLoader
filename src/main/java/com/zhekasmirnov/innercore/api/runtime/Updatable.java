@@ -104,6 +104,11 @@ public class Updatable {
     private Context currentContext = null;
 
     private void executeUpdateWithContext(Context ctx, ScriptableObject obj) {
+        if(shouldBeRemoved(obj)){
+            postedRemovedUpdatables.add(obj);
+            return;
+        }
+
         Object _update = obj.get("update", obj);
         try {
             Function update = (Function) _update;
@@ -125,10 +130,6 @@ public class Updatable {
             }
             return;
         }
-
-        if (shouldBeRemoved(obj)) {
-            postedRemovedUpdatables.add(obj);
-        }
     }
 
     private boolean executeUpdate(ScriptableObject obj) {
@@ -141,7 +142,9 @@ public class Updatable {
             TickExecutor.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
-                    executeUpdateWithContext(Compiler.assureContextForCurrentThread(), obj);
+                    synchronized (obj) {
+                        executeUpdateWithContext(Compiler.assureContextForCurrentThread(), obj);
+                    }
                 }
             });
         } else {
