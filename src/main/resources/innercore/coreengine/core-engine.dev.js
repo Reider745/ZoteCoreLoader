@@ -780,13 +780,8 @@ var TileEntityBasePrototype = {
                     return true;
                 }
             }
-        } else {
-            var screen = this.getGuiScreen();
-            if (screen) {
-                this.container.openAs(screen);
-                return true;
-            }
         }
+        return false;
 
     },
     selfDestroy: function() {
@@ -829,7 +824,7 @@ var TileEntity = {
         Prototype.saverId = Saver.registerObjectSaver(saverName, {
             read: function(obj) {
                 if (!obj || !obj.coords) {
-                    print("Corrupted data "+JSON.stringify(obj));
+                    print("Corrupted save "+JSON.stringify(obj));
                     return;
                 }
 
@@ -842,7 +837,14 @@ var TileEntity = {
                 for (var property in Prototype) {
                     instance[property] = Prototype[property];
                 }
-                instance.data = obj.data || {};
+                instance.data = obj.data;
+                if(!instance.data){
+                    instance.data = {};
+                    for (let property in Prototype.defaultValues) {
+                        instance.data[property] = Prototype.defaultValues[property];
+                    }
+                    print("Corrupted save data "+JSON.stringify(obj));
+                }
                 instance.x = obj.coords.x || 0;
                 instance.y = obj.coords.y || 0;
                 instance.z = obj.coords.z || 0;
@@ -1149,9 +1151,6 @@ var TileEntity = {
             tileEntity.noupdate = false; // tile entity must update at least once to initialize
         }
         tileEntity.onCheckerTick(tileEntity.__initialized, tileEntity.isLoaded, wasLoaded);
-        if (tileEntity.networkEntity) {
-            tileEntity.networkEntity.refreshClients();
-        }
         if (tileEntity.isLoaded && tileEntity.blockSource) {
             var isPlaced = tileEntity.blockSource.getBlockId(tileEntity.x, tileEntity.y, tileEntity.z) === tileEntity.blockID;
             if (!isPlaced) {
@@ -1198,9 +1197,7 @@ Callback.addCallback("tick", function() {
 });
 Callback.addCallback("RedstoneSignal", function(coords, params, onLoad, region) {
     var tileEntity = TileEntity.getTileEntity(coords.x, coords.y, coords.z, region);
-    if (tileEntity) {
-        tileEntity.redstone(params);
-    }
+    tileEntity && tileEntity.__initialized && tileEntity.redstone(params);
 });
 Callback.addCallback("BreakBlock", function(blockSource, coords, fullTile, isDropAllowed, player, item) {
     if (GameAPI.isActionPrevented()) {

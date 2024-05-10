@@ -27,6 +27,7 @@ import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.apparatus.ecs.core.EntitySystem;
+import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.commontypes.Coords;
 import com.zhekasmirnov.innercore.api.commontypes.FullBlock;
@@ -369,6 +370,7 @@ public class NativeCallback {
                 Updatable.getForServer().onTick();
                 executor.blockUntilExecuted();
                 Updatable.getForServer().onPostTick();
+                ConnectedClientList.onTick();
 
                 // run ecs
                 serverTickingSystem.run(ECS.getEntityManager());

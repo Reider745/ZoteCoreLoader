@@ -33,6 +33,24 @@ public class ConnectedClientList implements Iterable<ConnectedClient> {
         }
     }
 
+    public static void onTick(){
+        final List<ConnectedClientList> listsToRefresh = new ArrayList<>();
+        synchronized (allClientLists) {
+            Java8BackComp.removeIf(allClientLists, ref -> {
+                ConnectedClientList list = ref.get();
+                if (list != null) {
+                    listsToRefresh.add(list);
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        for (ConnectedClientList list : listsToRefresh) {
+            list.refresh();
+        }
+    }
+
     private static void clearOnShutdown() {
         synchronized (allClientLists) {
             allClientLists.clear();

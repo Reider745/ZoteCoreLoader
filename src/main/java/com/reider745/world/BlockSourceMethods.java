@@ -132,7 +132,9 @@ public class BlockSourceMethods {
             int updateType) {
         Block block = level.getBlock(x, y, z);
         defDestroy(level, block);
-        level.setBlock(x, y, z, Block.get(id, data), false, allowUpdate);
+        try{
+            level.setBlock(x, y, z, Block.get(id, data), false, allowUpdate);
+        }catch (Exception e){}
     }
 
     public static void setBlockByRuntimeId(Level level, int x, int y, int z, int runtimeId, boolean allowUpdate,

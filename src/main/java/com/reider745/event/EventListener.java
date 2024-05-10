@@ -339,9 +339,8 @@ public class EventListener implements Listener {
         }
 
         final Location pos = event.getBlock().getLocation();
-
-
-
+        consumeEvent(event, () -> NativeCallback.onExplode((float) pos.x, (float) pos.y, (float) pos.z,
+                (float) event.getForce(), -1, false, event.isBlockBreaking(), Float.MAX_VALUE));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -411,9 +410,9 @@ public class EventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityTeleport(EntityTeleportEvent event) {
         final int from = FakeDimensions.getFakeIdForLevel(event.getFrom().level);
-        final int to = FakeDimensions.getFakeIdForLevel(event.getFrom().level);
+        final int to = FakeDimensions.getFakeIdForLevel(event.getTo().level);
 
-        if (CustomDimension.getDimensionById(to) != null || CustomDimension.getDimensionById(from) != null)
+        if(to != from)
             NativeCallback.onCustomDimensionTransfer(EntityMethod.getIdForEntity(event.getEntity()), from, to);
     }
 
@@ -535,7 +534,4 @@ public class EventListener implements Listener {
 
     // TODO: onItemUsedNoTarget (not only custom items)
 
-    // TODO: onItemUseReleased (not only custom items)
-
-    // TODO: onItemUseComplete (not only custom items)
 }

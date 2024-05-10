@@ -32,7 +32,7 @@ import java.util.LinkedList;
 @Hooks(className = "cn.nukkit.network.Network")
 public class NetworkHooks implements HookClass {
 
-    private static LinkedList<String> canSendInfo = new LinkedList<>();
+    private static final LinkedList<String> canSendInfo = new LinkedList<>();
 
     public static void close(Player player){
         canSendInfo.remove(NativeNetworking.getId(player));
@@ -94,8 +94,19 @@ public class NetworkHooks implements HookClass {
                     pk.protocol = player == null ? Integer.MAX_VALUE : player.protocol;
                     pk.setBuffer(buf, buf.length - bais.available());
 
-                    if (pk instanceof BasePacket)
+                    if (pk instanceof BasePacket) {
+                        if(player == null){
+                            /*
+                            TODO: Иногда player бывает null, иза этого не проходит подключение по нативному протоклу
+                            Возможное решение:
+                            Хранить все пакеты с null player
+                            Хукнуть setPlayer из cn.nukkit.network.session.RakNetPlayerSession и в нем обрабатывать пакеты
+                             */
+                            log.warning("processBatch player null, ignore packet "+packetId);
+                            break;
+                        }
                         ((BasePacket) pk).player = player;
+                    }
 
                     if(player != null){
                         final String id = NativeNetworking.getId(player);

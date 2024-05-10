@@ -45,8 +45,8 @@ public class InnerCorePacket extends BasePacket {
 
             NativeNetworking.onServerPacketReceived(player, name, format_id, bytes);
         } catch (Exception e) {
-            Server.getInstance().getLogger().warning("Native protocol decoding error!", e);
-            player.kick(e.getMessage());
+            Server.getInstance().getLogger().warning("Native protocol decoding error! player: "+(player == null), e);
+            if(player != null) player.kick(e.getMessage());
         }
     }
 
