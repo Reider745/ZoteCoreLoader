@@ -1,11 +1,15 @@
 package com.zhekasmirnov.innercore.api.runtime.saver;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaver;
+import org.json.JSONObject;
 import org.mozilla.javascript.*;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by zheka on 19.08.2017.
@@ -14,11 +18,12 @@ import java.util.HashMap;
 public class ObjectSaverRegistry {
     public static final String PROPERTY_IGNORE_SAVE = "_json_ignore";
     public static final String PROPERTY_SAVER_ID = "_json_saver_id";
+    public static final String PROPERTY_SAVER_ENABLE = "_json_saver_enable";
 
     private static final ScriptableObject scope;
 
     private static HashMap<Integer, ObjectSaver> saverMap = new HashMap<>();
-    private static HashMap<Integer, ObjectSaver> saverByObjectHash = new HashMap<>();
+    //private static HashMap<Integer, ObjectSaver> saverByObjectHash = new HashMap<>();
     private static HashMap<Integer, String> saverNameById = new HashMap<>();
 
     static {
@@ -28,7 +33,10 @@ public class ObjectSaverRegistry {
         NativeItemInstanceExtra.initSaverId();
     }
 
-
+    public interface IHashSaver {
+        int getId();
+        void setId(int id);
+    }
 
     public static int registerSaver(String name, ObjectSaver saver) {
         int saverId = name.hashCode();
@@ -57,7 +65,16 @@ public class ObjectSaverRegistry {
     }
 
     public static ObjectSaver getSaverFor(Object object) {
-        ObjectSaver saver = saverByObjectHash.get(object.hashCode());
+        ObjectSaver saver = null;
+        if(object instanceof ScriptableObject scriptable){
+            int id = ScriptableObjectHelper.getIntProperty(scriptable, PROPERTY_SAVER_ENABLE, -1);
+            if(id != -1)
+                saver = saverMap.get(id);
+        }else if(object instanceof IHashSaver hashSaver){
+            saver = saverMap.get(hashSaver.getId());
+        }else if(object instanceof JSONObject json && json.has(PROPERTY_SAVER_ENABLE)){
+            saver = saverMap.get(json.getInt(PROPERTY_SAVER_ENABLE));
+        }
         if (saver != null) {
             return saver;
         }
@@ -151,7 +168,15 @@ public class ObjectSaverRegistry {
             throw new IllegalArgumentException("no saver found for id " + saverId + " use only registerObjectSaver return values");
         }
         object = unwrapIfNeeded(object);
-        saverByObjectHash.put(object.hashCode(), saverMap.get(saverId));
+        if (object instanceof ScriptableObject scriptable){
+            scriptable.put(PROPERTY_SAVER_ENABLE, scriptable, saverId);
+        }else if(object instanceof JSONObject json){
+            json.put(PROPERTY_SAVER_ENABLE, saverId);
+        }else if(object instanceof IHashSaver hashSaver){
+            hashSaver.setId(saverId);
+        }else {
+            Logger.warning("Error registerObject "+object.getClass().getName()+", serverId: "+saverId);
+        }
     }
 
     public static void setObjectIgnored(ScriptableObject object, boolean ignore) {

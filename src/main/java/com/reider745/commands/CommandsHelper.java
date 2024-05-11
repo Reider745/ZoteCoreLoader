@@ -16,5 +16,6 @@ public class CommandsHelper {
         map.register(tag, new GenChunksCommands());
         map.register(tag, new CallbackProfilingCommand());
         map.register(tag, new GetAllPlayersIdCommand());
+        map.register(tag, new DimensionsList());
     }
 }

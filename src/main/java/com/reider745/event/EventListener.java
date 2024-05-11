@@ -21,6 +21,7 @@ import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.event.server.ServerCommandEvent;
+import cn.nukkit.event.server.ServerStopEvent;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.response.FormResponseSimple;
@@ -34,6 +35,8 @@ import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
+import com.reider745.InnerCoreServer;
+import com.reider745.Main;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
 import oshi.hardware.NetworkIF;
@@ -519,6 +522,15 @@ public class EventListener implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void stopServer(ServerStopEvent event){
+        try {
+            Main.innerCoreServer.left();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

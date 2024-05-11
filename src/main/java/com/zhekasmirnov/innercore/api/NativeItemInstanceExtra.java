@@ -25,7 +25,7 @@ import org.mozilla.javascript.Wrapper;
  * Created by zheka on 14.02.2018.
  */
 
-public class NativeItemInstanceExtra {
+public class NativeItemInstanceExtra implements ObjectSaverRegistry.IHashSaver {
     private static final int saverId;
 
     static {
@@ -589,5 +589,17 @@ public class NativeItemInstanceExtra {
             extra.setAllCustomData(data);
         }
         return extra;
+    }
+
+    private int id;
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 }

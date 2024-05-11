@@ -82,11 +82,6 @@ public class ServerHooks implements HookClass {
 
     }
 
-    @Inject
-    public static void forceShutdown(Server server, String reason) throws Exception {
-        Main.LoadingStages.stop(server);
-    }
-
     @Inject(type = TypeHook.AFTER)
     public static void reload(Server server) {
         InnerCoreServer.singleton.reload();

@@ -27,14 +27,6 @@ public class Main {
         public static void start(Server server) {
             innerCoreServer.start();
         }
-
-        public static void stop(Server server) throws Exception {
-            try {
-                innerCoreServer.left();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public static void main(String[] args) throws Throwable {

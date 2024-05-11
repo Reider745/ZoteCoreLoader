@@ -21,7 +21,7 @@ import java.util.HashMap;
  */
 
 @Deprecated(since = "Zote")
-public class Container implements WorkbenchField, UiAbstractContainer {
+public class Container implements WorkbenchField, UiAbstractContainer, ObjectSaverRegistry.IHashSaver {
     public static final boolean isContainer = true;
 
     private static final int saverId;
@@ -206,6 +206,18 @@ public class Container implements WorkbenchField, UiAbstractContainer {
             this.window = null;
             this.elements = null;
         }
+    }
+
+    private int id;
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     public interface OnCloseListener {

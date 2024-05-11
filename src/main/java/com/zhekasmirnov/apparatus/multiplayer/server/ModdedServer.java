@@ -81,7 +81,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
     }
 
     public List<ConnectedClient> getConnectedClients() {
-        return connectedClients;
+        return new ArrayList<>(connectedClients);
     }
 
     public ConnectedClient getConnectedClientForPlayer(long player) {

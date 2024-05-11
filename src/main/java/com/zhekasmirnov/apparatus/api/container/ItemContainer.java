@@ -26,7 +26,7 @@ import org.mozilla.javascript.ScriptableObject;
 
 import java.util.*;
 
-public class ItemContainer implements WorkbenchField {
+public class ItemContainer implements WorkbenchField, ObjectSaverRegistry.IHashSaver {
     private static final Object playerInventoryLock = new Object();
 
     public static void loadClass() {
@@ -161,6 +161,17 @@ public class ItemContainer implements WorkbenchField {
 
                 return packet;
             });
+    private int id;
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
 
 
     public interface Transaction {

@@ -1082,8 +1082,12 @@ var TileEntity = {
         return null;
     },
     destroyTileEntity: function(tileEntity, fromDestroyBlock, isDropAllowed) {
-        if (tileEntity.destroy(fromDestroyBlock || false, isDropAllowed || false)) {
-            return false;
+        try{
+            if (tileEntity.destroy(fromDestroyBlock || false, isDropAllowed || false)) {
+                return false;
+            }
+        }catch(e){
+            print("Error destroy tile "+e);
         }
         tileEntity.update = function() {}; // make sure tile entity will not tick anymore, because it is already cleaned up
         if (tileEntity.networkEntity) {
