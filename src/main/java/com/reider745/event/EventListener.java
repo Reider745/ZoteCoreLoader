@@ -39,10 +39,13 @@ import com.reider745.InnerCoreServer;
 import com.reider745.Main;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
+import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import oshi.hardware.NetworkIF;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 
 import com.reider745.api.CallbackHelper;
 import com.reider745.api.CustomManager;
@@ -93,6 +96,8 @@ public class EventListener implements Listener {
             level.sendBlocks(players, new Vector3[]{new Vector3(x, y, z)}, UpdateBlockPacket.FLAG_ALL);
     }
 
+    public static final LinkedHashMap<UUID, Vector3> itemUseVector = new LinkedHashMap<>();
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
         if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
@@ -101,13 +106,14 @@ public class EventListener implements Listener {
 
         final Block block = event.getBlock();
         final Player player = event.getPlayer();
-        final Vector3 pos = player.getDirectionVector();
-
-        pos.x = Math.abs(pos.x) + block.x;
-        pos.y = Math.abs(pos.y) + block.y;
-        pos.z = Math.abs(pos.z) + block.z;
 
         if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
+            final Vector3 pos = itemUseVector.get(player.getUniqueId());
+
+            pos.x = Math.abs(pos.x) + block.x;
+            pos.y = Math.abs(pos.y) + block.y;
+            pos.z = Math.abs(pos.z) + block.z;
+
             consumeEvent(event,
                     () -> NativeCallback.onItemUsed((int) block.x, (int) block.y, (int) block.z,
                             event.getFace().getIndex(), (float) pos.x, (float) pos.y, (float) pos.z, true,
@@ -479,7 +485,10 @@ public class EventListener implements Listener {
         long playerUid = EntityMethod.getIdForEntity(event.getPlayer());
         int inventorySize = (int) Math.sqrt(grid.getSize());
 
-        consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));
+        if(!NativeWorkbench.canRemoveRecipe(event.getTransaction().getRecipe().getId()))
+            consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));
+        else
+            event.setCancelled();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

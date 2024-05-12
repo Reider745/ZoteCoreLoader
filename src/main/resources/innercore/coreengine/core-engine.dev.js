@@ -1099,7 +1099,7 @@ var TileEntity = {
         tileEntity.container.close();
         if (tileEntity.container.isLegacyContainer()) {
             tileEntity.container.dropAt(tileEntity.x + 0.5, tileEntity.y + 0.5, tileEntity.z + 0.5);
-        } else {
+        } else if(tileEntity.blockSource) {
             tileEntity.container.dropAt(tileEntity.blockSource, tileEntity.x + 0.5, tileEntity.y + 0.5, tileEntity.z + 0.5);
             tileEntity.container.removeEntity();
         }

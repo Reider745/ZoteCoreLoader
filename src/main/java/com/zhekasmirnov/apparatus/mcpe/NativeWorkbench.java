@@ -1,26 +1,33 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
 import cn.nukkit.Server;
-import cn.nukkit.inventory.CraftingManager;
-import cn.nukkit.inventory.ShapedRecipe;
-import cn.nukkit.inventory.ShapelessRecipe;
+import cn.nukkit.inventory.*;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.RuntimeItemMapping;
 import cn.nukkit.item.RuntimeItems;
 
+import cn.nukkit.network.protocol.ProtocolInfo;
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class NativeWorkbench {
     interface IApply {
         void apply(RuntimeItemMapping mapping, CraftingManager craftingManager);
+    }
+
+    private static final ArrayList<UUID> removedRecipes = new ArrayList<>();
+
+    public static boolean canRemoveRecipe(UUID uuid){
+        return removedRecipes.contains(uuid);
     }
 
     private static class RecipeRemove implements IApply {
@@ -32,35 +39,33 @@ public class NativeWorkbench {
             this.resultData = resultData;
         }
 
+        private static Collection<Recipe> getRecipes(CraftingManager craftingManager){
+            try{
+                Method method = craftingManager.getClass().getDeclaredMethod("getRegisterRecipes", int.class);
+                method.setAccessible(true);
+                return (Collection<Recipe>) method.invoke(craftingManager, InnerCoreServer.RECIPES_PROTOCOL);
+            }catch (Exception e){
+                Logger.error("ERROR-REMOVE-RECIPE", e);
+            }
+            return  null;
+        }
+
         @Override
         public void apply(RuntimeItemMapping mapping, CraftingManager craftingManager) {
-            Item itemInstance = ItemUtils.get(this.resultId, this.resultCount, this.resultData);
-            AtomicBoolean canRemove = new AtomicBoolean(false);
+            final Item itemInstance = ItemUtils.get(this.resultId, this.resultCount, this.resultData);
+            final Collection<Recipe> recipes = getRecipes(craftingManager);
+            boolean removeRecipe = false;
 
-            craftingManager.getShapelessRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
-                for (UUID uuid : recipes.keySet()) {
-                    ShapelessRecipe recipe = recipes.get(uuid);
-                    if (recipe.getResult().equals(itemInstance)) {
-                        recipes.remove(uuid);
-                        canRemove.set(true);
-                        return;
-                    }
+            // TODO: Удаляет все крафты этого предмета, в том числе ели их несколько
+            for(Recipe recipe : recipes){
+                if(recipe instanceof CraftingRecipe craftingRecipe && recipe.getResult().equals(itemInstance)){
+                    removedRecipes.add(craftingRecipe.getId());
+                    removeRecipe = true;
                 }
-            });
+            }
 
-            craftingManager.getShapedRecipes(InnerCoreServer.PROTOCOL).forEach((uid, recipes) -> {
-                for (UUID uuid : recipes.keySet()) {
-                    ShapedRecipe recipe = recipes.get(uuid);
-                    if (recipe.getResult().equals(itemInstance)) {
-                        recipes.remove(uuid);
-                        canRemove.set(true);
-                        return;
-                    }
-                }
-            });
-
-            if(!canRemove.get())
-                Logger.warning("Not remove recipe "+itemInstance);
+            if(!removeRecipe)
+                Logger.warning("Not remove recipe " + itemInstance);
         }
     }
 

@@ -83,6 +83,7 @@ public class PlayerHooks implements HookClass {
     @Inject(type = TypeHook.BEFORE_NOT_REPLACE)
     public static void close(Player player, TextContainer message, String reason, boolean notify) {
         NetworkHooks.close(player);
+        EventListener.itemUseVector.remove(player.getUniqueId());
         ConnectedClient client = getForPlayer(player);
         try {
             if (client != null)

@@ -218,6 +218,11 @@ public class LevelHooks implements HookClass {
         return item;
     }
 
+    @Inject
+    public static void useItemOn(Level self, Vector3 vector3, Item item, BlockFace face, float fx, float fy, float fz, Player player, boolean sound){
+        EventListener.itemUseVector.put(player.getUniqueId(), new Vector3(fx, fy, fz));
+    }
+
     @Inject(className = "cn.nukkit.level.EnumLevel")
     public static void initLevels(){
         DimensionsMethods.initLevels();
