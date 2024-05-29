@@ -181,6 +181,11 @@ public class NativeAPI {
     }
 
     @Deprecated(since = "Zote")
+    public static void addBreakingItemParticle(int id, int data, double x, double y, double z) {
+        InnerCoreServer.useNotCurrentSupport("NativeAPI.addBreakingItemParticle(id, data, x, y, z)");
+    }
+
+    @Deprecated(since = "Zote")
     public static void addPlayerExperience(int experience) {
         InnerCoreServer.useClientMethod("NativeAPI.addPlayerExperience(experience)");
     }

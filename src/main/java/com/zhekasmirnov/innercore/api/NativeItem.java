@@ -135,10 +135,18 @@ public class NativeItem {
         setArmorDamageable(properties, value);
     }
 
-    @ZoteOnly
-    public void setFireResistant(boolean resist) {
-        setFireResistant(properties, resist);
+    public void setShouldDespawn(boolean value) {
+        ItemMethod.setShouldDespawn(id, value);
     }
+
+    public void setFireResistant(boolean value) {
+        ItemMethod.setFireResistant(properties, value);
+    }
+
+    public void setExplodable(boolean value) {
+        ItemMethod.setExplodable(id, value);
+    }
+
 
     @JSStaticFunction
     public static NativeItem getItemById(int id) {
@@ -271,16 +279,6 @@ public class NativeItem {
         ItemMethod.setArmorDamageable(manager, value);
     }
 
-    @ZoteOnly
-    public static void setFireResistant(CustomManager manager, boolean resist) {
-        if (resist || (manager.get(PropertiesNames.ID, 0) >= Item.NETHERITE_INGOT
-                && manager.get(PropertiesNames.ID, 0) <= Item.NETHERITE_SCRAP)) {
-            manager.put(PropertiesNames.FIRE_RESISTANT, resist);
-        } else {
-            manager.remove(PropertiesNames.FIRE_RESISTANT);
-        }
-    }
-
     public static void addRepairItemId(CustomManager manager, int id) {
         ItemMethod.addRepairItemId(manager, id);
     }
@@ -300,6 +298,11 @@ public class NativeItem {
     public static String getNameForId(int id, int data, NativeItemInstanceExtra extra) {
         return ItemMethod.getNameForId(id, data, extra);
     }
+    @JSStaticFunction
+    public static int getArmorValue(int id){
+        return ItemMethod.getArmorValue(id);
+    }
+
 
     public static void setCreativeCategoryForId(int id, int category) {
         ItemMethod.setCreativeCategory(CustomManager.getFor(id), category);

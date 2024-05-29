@@ -1,9 +1,11 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.lang.TextContainer;
+import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.TextFormat;
 
@@ -65,7 +67,7 @@ public class PlayerHooks implements HookClass {
     }
 
     public static ConnectedClient getForPlayer(Player player) {
-        List<ConnectedClient>clients = Network.getSingleton().getServer().getConnectedClients();
+        List<ConnectedClient> clients = Network.getSingleton().getServer().getConnectedClients();
         for (ConnectedClient client : clients)
             if (equalsAddress(player.getSocketAddress().toString(),
                     client.getChannelInterface().getChannel().getClient()))

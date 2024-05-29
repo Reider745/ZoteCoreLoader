@@ -35,8 +35,11 @@ import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
+import cn.nukkit.utils.BinaryStream;
 import com.reider745.InnerCoreServer;
 import com.reider745.Main;
+import com.reider745.item.ItemMethod;
+import com.reider745.network.InnerCorePacket;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
@@ -311,6 +314,12 @@ public class EventListener implements Listener {
                 ? damageByEntityEvent.getDamager()
                 : null;
 
+        if(damageEvent.getCause() == DamageCause.ENTITY_EXPLOSION &&
+                entity instanceof EntityItem entityItem &&
+                !ItemMethod.canExplodable(entityItem.getItem().getId())){
+            event.setCancelled();
+        }
+
         NativeCallback.onEntityDied(EntityMethod.getIdForEntity(entity), attacker != null ? EntityMethod.getIdForEntity(attacker) : -1,
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM));
     }
@@ -541,6 +550,12 @@ public class EventListener implements Listener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    @EventHandler
+    public void onItemDespawn(ItemDespawnEvent event){
+        if(!ItemMethod.canShouldDespawn(event.getEntity().getItem().getId()))
+            event.setCancelled();
     }
 
     // TODO: onPathNavigationDone

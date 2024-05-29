@@ -196,7 +196,7 @@ public class ConnectedClientList implements Iterable<ConnectedClient> {
 
             if (addPolicy != null && addPolicyNextRefresh <= time) {
                 for (ConnectedClient client : Network.getSingleton().getServer().getConnectedClients()) {
-                    if (!clients.contains(client) && addPolicy.check(client)) {
+                    if (client != null && !clients.contains(client) && addPolicy.check(client)) {
                         clients.add(client);
                         for (Listener listener : listeners) {
                             listener.onAdd(client);

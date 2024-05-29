@@ -2349,6 +2349,9 @@ var ItemRegistry = {
     getName: function(id, data, extra) {
         return Item.getName(id, data, extra);
     },
+    getArmorValue: function(id) {
+        return Item.getArmorValue(id);
+    },
     isValid: function(id, data) {
         return Item.isValid(id);
     },
@@ -2389,6 +2392,16 @@ var ItemRegistry = {
     setArmorDamageable: function(id, val) {
         this.getItemById(id).setArmorDamageable(val);
     },
+    setShouldDespawn: function(id, val) {
+        this.getItemById(id).setShouldDespawn(val);
+    },
+    setFireResistant: function(id, val) {
+        this.getItemById(id).setFireResistant(val);
+    },
+    setExplodable: function(id, val) {
+        this.getItemById(id).setExplodable(val);
+    },
+
     addRepairItemIds: function(id, items) {
         var item = this.getItemById(id);
         for (var i in items) {
@@ -6516,9 +6529,11 @@ Callback.addCallback("EntityRemoved", function(entity) {
 });
 var Particle_addParticle = requireMethodFromNativeAPI("api.NativeAPI", "addParticle");
 var Particle_addFarParticle = requireMethodFromNativeAPI("api.NativeAPI", "addFarParticle");
+var Particle_addBreakingItemParticle = requireMethodFromNativeAPI("api.NativeAPI", "addBreakingItemParticle");
 var ParticleAnimator = {
     addParticle: Particle_addParticle,
     addFarParticle: Particle_addFarParticle,
+    addBreakingItemParticle: Particle_addBreakingItemParticle,
     line: function(particle, coords1, coords2, gap, vel, data) {
         gap = gap || 1;
         var delta = {

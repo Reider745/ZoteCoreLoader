@@ -11,6 +11,7 @@ import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegis
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ItemMethod {
     public static boolean isPostLoad = false;
@@ -30,6 +31,7 @@ public class ItemMethod {
         public static final String REPAIRS = "repairs";
         public static final String CREATIVE_CATEGORY = "creative_category";
         public static final String FIRE_RESISTANT = "fire_resistant";
+        public static final String EXPLODABLE = "explodable";
 
         public static class Armors {
             public static final String SLOT = "slot";
@@ -157,6 +159,42 @@ public class ItemMethod {
 
     public static void setArmorDamageable(CustomManager manager, boolean value) {
         manager.put(PropertiesNames.ARMOR_DAMAGEABLE, value);
+    }
+
+    public static HashMap<Integer, Boolean> despawn = new HashMap<>();
+
+    public static void setShouldDespawn(int id, boolean value) {
+        despawn.put(id, value);
+    }
+
+    public static boolean canShouldDespawn(int id){
+        return despawn.getOrDefault(id, true);
+    }
+
+    public static void setFireResistant(CustomManager manager, boolean resist) {
+        if (resist || (manager.get(PropertiesNames.ID, 0) >= Item.NETHERITE_INGOT
+                && manager.get(PropertiesNames.ID, 0) <= Item.NETHERITE_SCRAP)) {
+            manager.put(PropertiesNames.FIRE_RESISTANT, resist);
+        } else {
+            manager.remove(PropertiesNames.FIRE_RESISTANT);
+        }
+    }
+
+    public static HashMap<Integer, Boolean> explodable = new HashMap<>();
+
+    public static void setExplodable(int id, boolean value) {
+        explodable.put(id, value);
+    }
+
+    public static boolean canExplodable(int id){
+        return explodable.getOrDefault(id, true);
+    }
+
+    public static int getArmorValue(int id) {
+        Item item = Item.get(id);
+        if(item != null)
+            return item.getArmorPoints();
+        return 0;
     }
 
     public static void addRepairItemId(CustomManager manager, int id) {

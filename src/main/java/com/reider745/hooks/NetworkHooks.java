@@ -4,16 +4,11 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.network.CompressionProvider;
 import cn.nukkit.network.Network;
-import cn.nukkit.network.RakNetInterface;
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.session.RakNetPlayerSession;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
-import cn.nukkit.utils.Utils;
 import cn.nukkit.utils.VarInt;
 import com.reider745.InnerCoreServer;
-import com.reider745.Main;
-import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
@@ -21,19 +16,18 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.net.ProtocolException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedList;
 
 @Hooks(className = "cn.nukkit.network.Network")
 public class NetworkHooks implements HookClass {
+    private static final LinkedList<String> canSendInfo = new LinkedList<>();
 
     public static void close(Player player){
-        
+        canSendInfo.remove(NativeNetworking.getId(player));
     }
 
     @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
@@ -100,10 +94,18 @@ public class NetworkHooks implements HookClass {
                             Хранить все пакеты с null player
                             Хукнуть setPlayer из cn.nukkit.network.session.RakNetPlayerSession и в нем обрабатывать пакеты
                              */
-                            log.warning("processBatch player null, ignore packet "+packetId);
+                            log.error("processBatch player null, ignore packet "+packetId);
                             break;
                         }
                         ((BasePacket) pk).player = player;
+                    }
+
+                    if(player != null){
+                        final String id = NativeNetworking.getId(player);
+                        if(!canSendInfo.contains(id)){
+                            canSendInfo.add(id);
+                            player.dataPacket(InnerCorePacket.sendInfo);
+                        }
                     }
 
                     try {
@@ -126,13 +128,6 @@ public class NetworkHooks implements HookClass {
         } catch (Exception e) {
             log.debug("Error while decoding batch packet", e);
         }
-    }
-
-    @Inject(className = "cn.nukkit.network.session.RakNetPlayerSession")
-    public static void setPlayer(RakNetPlayerSession self, Player player){
-        if(InnerCoreServer.isDebugInnerCoreNetwork())
-            System.out.println("Send inner core info");
-        player.dataPacket(InnerCorePacket.sendInfo);
     }
 
     @Inject(type = TypeHook.AFTER_NOT_REPLACE)
