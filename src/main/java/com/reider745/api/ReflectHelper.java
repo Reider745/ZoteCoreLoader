@@ -51,13 +51,25 @@ public class ReflectHelper {
         }
     }
 
-    public static void invokeVoid(Object self, String name, Object[] args, Class<?>... classes){
+    public static <T>T invoke(Object self, String name, Object[] args, Class<?>... classes){
         try {
             Method method = self.getClass().getDeclaredMethod(name, classes);
             method.setAccessible(true);
-            method.invoke(self, args);
+            return (T) method.invoke(self, args);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    public static <T>T invoke(Class<?> self, String name, Object[] args, Class<?>... classes){
+        try {
+            Method method = self.getDeclaredMethod(name, classes);
+            method.setAccessible(true);
+            return (T) method.invoke(null, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

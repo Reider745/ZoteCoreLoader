@@ -88,12 +88,17 @@ public class ClassLoaderPatch {
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | RuntimeException e) {
-            ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+            /*ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
             if (classLoader != systemClassLoader) {
                 addClasspath(systemClassLoader, file);
                 return;
             }
-            throw new RuntimeException("failed to patch classloader with following error", e);
+            throw new RuntimeException("failed to patch classloader with following error", e);*/
+            /*try {
+                addClasspath(new URLClassLoader(new URL[]{file.toURL()}), file);
+            } catch (MalformedURLException ex) {
+
+            }*/
         } catch (MalformedURLException e) {
             throw new RuntimeException("failed to patch classloader with following error", e);
         }

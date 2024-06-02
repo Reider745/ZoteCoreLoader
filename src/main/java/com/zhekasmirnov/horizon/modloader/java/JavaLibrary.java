@@ -1,9 +1,14 @@
 package com.zhekasmirnov.horizon.modloader.java;
 
+import com.reider745.InnerCoreServer;
+import com.reider745.hooks.RhinoOverrides;
 import com.zhekasmirnov.horizon.launcher.env.ClassLoaderPatch;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,13 +44,26 @@ public class JavaLibrary {
     }
 
     public void initialize() {
+        final List<URL> urls = new ArrayList<>();
         for (File dexFile : this.dexFiles) {
-            ClassLoaderPatch.addDexPath(JavaLibrary.class.getClassLoader(), dexFile, true);
+            try {
+                final String filePath = dexFile.getAbsolutePath();
+                urls.add(new File(
+                        (filePath.endsWith(".dex") ? filePath.substring(0, filePath.length() - 4) : filePath) + ".jar").toURL());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        final URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), InnerCoreServer.class.getClassLoader());
+        RhinoOverrides.ClassLoaderPool.addClassLoader(classLoader);
+        for (File dexFile : this.dexFiles)
+            ClassLoaderPatch.addDexPath(classLoader, dexFile, true);
+
         HashMap<String, Object> data = new HashMap<>();
         for (String name : this.directory.getBootClassNames()) {
             try {
-                Class<?> clazz = Class.forName(name);
+                Class<?> clazz = classLoader.loadClass(name);
                 Method method = clazz.getMethod("boot", HashMap.class);
                 data.put("class_name", name);
                 method.invoke(null, new HashMap<>(data));

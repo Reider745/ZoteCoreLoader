@@ -1,6 +1,7 @@
 package com.zhekasmirnov.innercore.mod.executable;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.hooks.RhinoOverrides;
 import com.zhekasmirnov.innercore.api.NativeJavaScript;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
@@ -166,7 +167,7 @@ public class Executable implements Runnable {
                     return result;
                 }
                 try {
-                    result = new NativeJavaClass(parent, Class.forName(name), false);
+                    result = new NativeJavaClass(parent, RhinoOverrides.ClassLoaderPool.forName(name), false);
                 } catch (ClassNotFoundException e) {
                     result = new NativeJavaPackage(name);
                 }

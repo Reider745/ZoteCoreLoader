@@ -391,7 +391,7 @@ public class LevelHooks implements HookClass {
         if (direct) {
             self.sendBlocks(self.getChunkPlayers(cx, cz).values().toArray(Player.EMPTY_ARRAY), new Block[]{block}, UpdateBlockPacket.FLAG_ALL_PRIORITY, block.layer);
         } else {
-            ReflectHelper.invokeVoid(self, "addBlockChange", new Object[]{
+            ReflectHelper.<Void>invoke(self, "addBlockChange", new Object[]{
                     Level.chunkHash(cx, cz), x, y, z
             }, long.class, int.class, int.class, int.class);
         }

@@ -1,120 +1,116 @@
+[Russian](README-RU.md)
+
 # Zote Core Loader
 
-__Zote Core__ — серверное ядро, основанное на Inner Core 1.16.200, созданное для создания уникального геймплея с модами.
+__Zote Core__ — A server core based on Inner Core 1.16.200, designed to create a unique gameplay with mods.
 
-Основой серверного ядра послужил [Nukkit-MOT](https://github.com/MemoriesOfTime/Nukkit-MOT), его можно легко обновить, заменив соответствующую библиотеку.
+The server core is based on [Nukkit-MOT](https://github.com/MemoriesOfTime/Nukkit-MOT ), it can be easily updated by replacing the corresponding library.
 
 ![Zote Core](/.github/logo.png)
 
-## Установка
+## Installation
 
-Поддерживается любая платформа, поддерживающая Java 17 или выше. Загрузите последний релиз серверного ядра, либо соберите репозиторий с помощью Gradle.
+Any platform supporting Java 17 or higher is supported. Download the latest release of the server core, or build a repository using Gradle.
 
-Запустите собранное ядро, открыв консоль в папке с ним:
+Run the assembled kernel by opening the console in the folder with it:
 
 ```sh
-java -jar ZoteCore-SNAPSHOT.jar -XX:MaxRAMPercentage=95.0 --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+java -jar ZoteCore-SNAPSHOT.jar
 ```
 
-## Конфигурация
+## Configuration
 
-Настройки производятся посредством двух основных файлов: *server.properties* и *zotecore.yml*. Они будут созданы автоматически сразу же после запуска ядра, документация по первому доступна в репозитории Nukkit-MOT.
+The settings are made using two main files: *server.properties* and *zotecore.yml*. They will be created automatically immediately after the kernel is launched, the documentation for the first one is available in the Nukkit-MOT repository.
 
-Некоторые настройки Nukkit заблокированы загрузчиком, среди которых *multiversion-min/max-protocol* (422), *xbox-auth* (авторизация с помощью него не доступна) и *save-player-data-by-uuid* (false).
+Some settings of Nukkit are blocked by the loader, including *multiversion-min/max-protocol* (422), *xbox-auth* (authorization using it is not available) and *save-player-data-by-uuid* (false).
 
-Чтобы сокеты клиентов отваливались, не крашая сервер, отключите Watchdog. В текущей реализации альтернативные варианты исправления недоступны, необходимая настройка `thread-watchdog=on`.
+To make client sockets fall off without crashing the server, disable Watchdog. In the current implementation, alternative fix options are not available, the necessary setting is `thread-watchdog=on'.
 
 ### zotecore.yml
 
-Стандартные настройки ядра, которые можно использовать как основу:
+Standard kernel settings that can be used as a basis:
 
 ```yml zotecore.yml
-# Изменение информации пака, который клиент должен иметь для входа на сервер.
-# Устаревшие или не реализованные методы, однако, добавлены не будут.
+# Change resolution of pack that client should have to log into server.
+# However, no deprecated or unimplemented methods will be added.
 pack: Inner Core Test
-pack-version: 2.3.0b115 test
-pack-version-code: 152
+pack-version: 2.3.0b119
+pack-version-code: 159
 
-# Устанавливает список модов и конфигураций для загрузки, вы можете
-# указать название, имя папки модпака из /modpacks или путь.
-modpack: innercore
+# Sets the list of mods and configs to load, you can specify
+# name, folder name of a modpack from /modpacks or a path.
+# modpack: StoneBlock
 
-# Использование ванильного интерфейса верстака, вместо кастомного.
-# Внимание: в настоящее время не рекомендуется использовать,
-# так как некоторые рецепты отображаются с проблемами.
-use-legacy-workbench-override: on
+# Use vanilla crafting table interface, instead of custom one.
+# Attention: currently not recommended and recipes dislayed with bugs.
+# use-legacy-workbench-override: off
 
-# Отключение исправления инвентаря для подключенных клиентов,
-# устаревшие версии не работают должным образом с ним,
-# не позволяя перемещать предметы по инвентарю.
-use-legacy-inventory: on
+# Disabling inventory fix for connected clients, outdated versions do not
+# work properly with it, not allowing moving items around inventory.
+# use-legacy-inventory: off
 
-# Переключение режима отладки для неподдерживаемых методов (например, клиентских).
-# Может быть одним из: none, debug (по умолчанию), warning, raise.
-unsupported-method-handling: debug
+# Switches the debugging mode for unsupported methods (e.g., client-side).
+# Might be one of: none, debug (default), warning, raise.
+# unsupported-method-handling: raise
 
-# Могут ли моды использовать небезопасные функции (например, вызов eval) или нет.
-# Внимание: это может создать риск безопасности, однако, например, его запрет
-# влияет на requireGlobal и часто может нарушить работу модов.
-allow-unsafe-scripting: on
+# Can mods use unsafe features (e.g., calling eval) or not.
+# Attention: can create a security risk, however, for example,
+# using requireGlobal can often disrupt operation of mods.  
+# allow-unsafe-scripting: off
 
-# Режим разработчика позволяет получать дополнительную информацию
-# о работе ядра, а также профайлинг методов.
-developer-mode: off
+# Developer mode allows you to receive additional information
+# about engine operation, as well as profiling of methods.
+# developer-mode: on
 
-# Время в секундах между запусками автосохранения данных модов (любое от 20),
-# а также мира, если он включен в другой опции.
-auto-save-period: 60
+# Time in seconds between auto-saving data of mods (any value above 20),
+# as well as the world if it is included in another option.
+# auto-save-period: 180
 
-# Нужно ли помимо данных модов сохранять еще и миры.
-auto-save-world: on
+# Whether to save worlds in addition to mod data.
+# auto-save-world: off
 
-# Включен ли сокетный сервер или нет. Сокеты требуют дополнительный порт,
-# подключение через серверные сокеты более нестабильное.
-socket-server-enable: on
+# Whether socket server enabled or not.
+# Server socket requires an additional port, connection
+# through server sockets is more unstable.
+# socket-server-enable: off
 
-# Порт серверного сокета, обычно должен быть между 10000 и 24999.
-# Но учтите, что по умолчанию клиент использует порт 2304.
-socket-port: 2304
+# Server socket port, usually should be between 10000 and 24999.
+# But keep in mind that the client uses port 2304 by default.
+# socket-port: 19131
 
-# Отправляет текстовую форму игрокам когда происходят ошибки тика,
-# содержит только стактрейс скрипта (без потенциально опасных свойств).
-display-ticking-errors-to-players: true
+# Sends form to players when ticking exception happens,
+# contains only script stacktrace (without sensitive properties).
+# display-ticking-errors-to-players: false
 
-# Если серверный тик прерывается слишком часто, сервер будет остановлен;
-# в противном случае тик будет пытаться продолжать перезапуски.
-stop-on-critical-ticking-error: false
+# If ticking callback interrupts too often, server will be stopped;
+# otherwise it will continue trying restart itself continiously.
+# stop-on-critical-ticking-error: true
 
-# Максималльное количесво пакетов которые может хранить сервер для отправки игроку
-# Если количесвто пакетов привышает это, то игрок кикается с сервера
-max-packet-sending: 200
+# Maximum number of packets sent to the client
+# max-packet-sending: 150
 
-# Дополнительная информация в лог
+# Additional information in the log
 # debug-logger: on
 # info-logger: on
 ```
 
-## Консольные команды
+## Console commands
 
-+ custom_items — выводит список кастумных предметов
-+ custom_blocks — выводит список кастумных блоков
-+ mods — выводит список модификаций на сервере
-+ inner_core_network — выводит список подключенных к протоколу игроков на сервере
-+ state — выводит стейты блока по рантайм идентификатору
-+ profilecallback [enabled] [showParameters] — отладка и профайлинг калбеков
-+ dimensions_list - выводит список измерений
++ custom_items — displays a list of custom items
++ custom_blocks — displays a list of custom blocks
++ mods — displays a list of modifications on the server
++ inner_core_network — displays a list of players connected to the protocol on the server
++ state — outputs block statuses by the runtime ID
++ profilecallback [enabled] [showParameters] — debugging and profiling of callbacks
++ dimensions_list - displays a list of dimensions
 
-> Все команды предназначены для операторов и не могут быть вызваны игроками.
+> All commands are for operators and cannot be called by players.
 
-## Лицензия
-
-![Licensing](/.github/license.jpg)
-
-## Техническая информация
+## Technical information
 
 | Ключ | Значение |
 |---|---|
-| Версия протокола | 422 (1.16.200) |
-| Коммит Apparatus | `73194cfd` |
-| Коммит Instant Referrer | `a264591` |
-| Коммит Nukkit-MOT | `191f6ea2b29c083d41470125fd6cd1fb3d698399` |
+| Protocol version | 422 (1.16.200) |
+| Commit Apparatus | `73194cfd` |
+| Commit Instant Referrer | `a264591` |
+| Commit Nukkit-MOT | `191f6ea2b29c083d41470125fd6cd1fb3d698399` |
