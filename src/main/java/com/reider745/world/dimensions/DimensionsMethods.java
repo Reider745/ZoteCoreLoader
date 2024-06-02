@@ -186,7 +186,7 @@ public class DimensionsMethods {
         if(level != null && level.getGenerator() instanceof CustomDimensionGenerator generator) {
             generator.updateDescription(name, id);
             description.initLevel(level);
-            ReflectHelper.setField(level, "dimensionData", generator.data);
+            level.setDimensionData(generator.data);
         }else if(LEVELS_LOADED){
             description.loadLevel(Server.getInstance());
         }
