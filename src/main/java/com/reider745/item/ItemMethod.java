@@ -72,8 +72,9 @@ public class ItemMethod {
         CustomManager manager = getCustomManager(id);
         if (manager != null)
             return manager.get(PropertiesNames.CREATIVE_CATEGORY, 1);
-        Logger.warning("not get CreativeCategory " + id);
-        return 0;
+        if(id != 0)//Какова вообще фига?
+            Logger.warning("not get CreativeCategory " + id);
+        return 1;
     }
 
     public static int getMaxStackForId(int id, int data) {

@@ -9,6 +9,7 @@ import com.reider745.api.hooks.JarEditor;
 import com.reider745.event.DispenseBehaviorOverrides;
 import com.reider745.hooks.*;
 import com.reider745.hooks.bugfix.DimensionsFix;
+import com.reider745.hooks.bugfix.SaplingFix;
 import com.reider745.network.CraftingTransactionPacket;
 import com.reider745.network.InnerCorePacket;
 
@@ -55,6 +56,7 @@ public class Main {
 
         // bug fix
         loader.registerHooksInitializationForClass(DimensionsFix.class);
+        loader.registerHooksInitializationForClass(SaplingFix.class);
 
         loader.init(Arrays.stream(args).anyMatch("--debug-hooks"::equals));
         loader.run("cn.nukkit.Nukkit", args);
