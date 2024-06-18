@@ -1,5 +1,9 @@
 package com.reider745.api;
 
+import cn.nukkit.entity.Entity;
+import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.nbt.tag.CompoundTag;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 

@@ -6,6 +6,7 @@ import cn.nukkit.plugin.PluginManager;
 
 import com.google.common.base.Preconditions;
 import com.reider745.api.CallbackHelper;
+import com.reider745.behavior.BehaviorPack;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
@@ -342,6 +343,8 @@ public class InnerCoreServer {
     }
 
     public void start() {
+        /*BehaviorPack pack = new BehaviorPack(new File(InnerCoreServer.dataPath, "pack").getAbsolutePath());
+        pack.load();*/
     }
 
     public static Object getProperty(String variable) {

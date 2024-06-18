@@ -49,8 +49,13 @@ public class ServerHooks implements HookClass {
 
     @Inject
     public static boolean getPropertyBoolean(Server server, String variable, Object defaultValue) {
-        if (!InnerCoreServer.isUnsupportedOptionsAllowed()
-                && (variable.equals("xbox-auth") || variable.equals("enable-raw-ores")))
+        if (!InnerCoreServer.isUnsupportedOptionsAllowed() && (variable.equals("xbox-auth")))
+            return false;
+
+        if(variable.equals("load-all-worlds"))// Увы это может сломать сохраенения TileEntity, поэтому настройка заблокировна
+            return true;
+
+        if(variable.equals("enable-raw-ores"))// Исключительно для новых версий, поэтому без права на включение
             return false;
 
         Config properties = server.getProperties();
