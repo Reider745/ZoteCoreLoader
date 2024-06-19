@@ -12,11 +12,11 @@ public class DescriptionsFactory extends TagContentFactory {
 
         private DescriptionTag(JSONObject json){
             identifier = json.getString("identifier");
+
+            // TODO: Не поддерживается
             isSpawnable = json.getBoolean("is_spawnable");
             isSummonable = json.getBoolean("is_summonable");
             isExperimental = json.getBoolean("is_experimental");
-
-            identifier = Character.toUpperCase(identifier.charAt(0)) + identifier.substring(1);
         }
     }
 

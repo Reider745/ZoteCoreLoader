@@ -61,11 +61,17 @@ public class EntityOverrides implements HookClass {
             signature = "(Ljava/lang/String;Lcn/nukkit/level/format/FullChunk;Lcn/nukkit/nbt/tag/CompoundTag;[Ljava/lang/Object;)Lcn/nukkit/entity/Entity;"
     )
     public static Entity createEntity(String name, FullChunk chunk, CompoundTag nbt, Object... args) {
+        final String identifier = Character.toLowerCase(name.charAt(0)) + name.substring(1);
         final Map<String, Class<? extends Entity>> knownEntities = ReflectHelper.getField(Entity.class, "knownEntities");
 
-        final EntityContentFactory factory = EntityContentFactory.factoryMap.get(name);
+        EntityContentFactory factory = EntityContentFactory.factoryMap.get(name);
         if(factory != null) {
             nbt.putString("___id___", name);
+            return new CustomEntity(chunk, nbt);
+        }
+        factory = EntityContentFactory.factoryMap.get(identifier);
+        if(factory != null) {
+            nbt.putString("___id___", identifier);
             return new CustomEntity(chunk, nbt);
         }
 

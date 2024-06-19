@@ -10,7 +10,9 @@ public class EntitiesContent extends BehaviorContent {
     private static final HashMap<String, EntitiesVersion> versions = new HashMap<>();
 
     static {
+        versions.put("1.8.0", new EntitiesVersion113());
         versions.put("1.13.0", new EntitiesVersion113());
+        versions.put("1.16.0", new EntitiesVersion113());
     }
 
     @Override

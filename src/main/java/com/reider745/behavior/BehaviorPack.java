@@ -15,17 +15,46 @@ public class BehaviorPack {
 
     static {
         contents_api.add(new EntitiesContent());
-
     }
 
     private final String path;
+    public String name = "Not-load";
 
     public BehaviorPack(String path){
         this.path = path + "/";
     }
 
+    protected void loadManifest2(JSONObject json){
+        loadManifest1(json);
+    }
+
+    protected void loadManifest1(JSONObject json){
+        final JSONObject header = json.getJSONObject("header");
+
+        name = header.getString("name");
+    }
+
+    protected void loadManifest(){
+        File file = new File(this.path+"manifest.json");
+        if(file.exists()){
+            try {
+                final JSONObject json = FileUtils.readJSON(file);
+                final int format = json.getInt("format_version");
+                switch (format){
+                    case 1 -> loadManifest1(json);
+                    case 2 -> loadManifest2(json);//Отличий не нашел
+                    default -> throw new RuntimeException("Not support manifest version "+format);
+                }
+            }catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public void load(){
-        Logger.info("Loaded behavior-pack");
+        loadManifest();
+
+        Logger.warning("Loaded behavior-pack "+name);
 
         final File contentsFile = new File(path + "contents.json");
         if(contentsFile.exists()) {

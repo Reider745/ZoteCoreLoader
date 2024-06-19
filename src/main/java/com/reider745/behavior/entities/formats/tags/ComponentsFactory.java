@@ -3,8 +3,7 @@ package com.reider745.behavior.entities.formats.tags;
 import com.reider745.behavior.entities.ComponentsTag;
 import com.reider745.behavior.entities.EntityContentFactory;
 import com.reider745.behavior.entities.TagContentFactory;
-import com.reider745.behavior.entities.formats.tags.components.CollisionComponent;
-import com.reider745.behavior.entities.formats.tags.components.FireImmuneComponent;
+import com.reider745.behavior.entities.formats.tags.components.*;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -15,6 +14,12 @@ public class ComponentsFactory extends TagContentFactory {
     static {
         tags.add(new FireImmuneComponent());
         tags.add(new CollisionComponent());
+        tags.add(new HealthComponent());
+
+        tags.add(new GravityComponent());
+        tags.add(new JumpComponent());
+        tags.add(new MovementBasicComponent());
+        tags.add(new MovementComponent());
     }
 
     @Override

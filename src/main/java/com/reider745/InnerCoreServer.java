@@ -343,8 +343,8 @@ public class InnerCoreServer {
     }
 
     public void start() {
-        /*BehaviorPack pack = new BehaviorPack(new File(InnerCoreServer.dataPath, "pack").getAbsolutePath());
-        pack.load();*/
+        BehaviorPack pack = new BehaviorPack(new File(InnerCoreServer.dataPath, "pack").getAbsolutePath());
+        pack.load();
     }
 
     public static Object getProperty(String variable) {

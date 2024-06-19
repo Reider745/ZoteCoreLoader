@@ -314,7 +314,7 @@ public class EventListener implements Listener {
                 ? damageByEntityEvent.getDamager()
                 : null;
 
-        if(damageEvent.getCause() == DamageCause.ENTITY_EXPLOSION &&
+        if(damageEvent != null && damageEvent.getCause() == DamageCause.ENTITY_EXPLOSION &&
                 entity instanceof EntityItem entityItem &&
                 !ItemMethod.canExplodable(entityItem.getItem().getId())){
             event.setCancelled();

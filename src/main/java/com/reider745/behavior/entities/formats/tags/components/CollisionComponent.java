@@ -6,7 +6,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONObject;
 
 public class CollisionComponent extends ComponentsTag {
-    public int width, height;
+    public int width = 1, height = 2;
 
     @Override
     public String getNameTag() {
