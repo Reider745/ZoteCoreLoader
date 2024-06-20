@@ -180,7 +180,7 @@ public class CustomEnchantment extends Enchantment {
 	private boolean isMeleeDamageEnchant;
 
 	@Override
-	public double getDamageBonus(Entity entity) {
+	public double getDamageBonus(Entity entity, Entity attacker) {
 		float bonus = 0;
 		if (isMeleeDamageEnchant) {
 			EntityDamageEvent event = entity.getLastDamageCause();
@@ -190,7 +190,7 @@ public class CustomEnchantment extends Enchantment {
 			bonus = currentDamageBonus;
 			currentDamageBonus = 0f;
 		} else if (inheritable != null) {
-			return inheritable.getDamageBonus(entity);
+			return inheritable.getDamageBonus(entity, attacker);
 		}
 		return bonus;
 	}

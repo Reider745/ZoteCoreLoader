@@ -16,10 +16,12 @@ public class CollisionComponent extends ComponentsTag {
     @Override
     public void load(EntityContentFactory factory, Object json) {
         if(json instanceof JSONObject object){
-            width = object.getInt("width");
-            height = object.getInt("height");
+            CollisionComponent component = new CollisionComponent();
 
-            factory.collision = this;
+            component.width = object.getInt("width");
+            component.height = object.getInt("height");
+
+            factory.collision = component;
         }else
             Logger.warning("Not support CollisionComponent "+json.getClass());
     }

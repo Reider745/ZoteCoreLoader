@@ -15,6 +15,7 @@ import com.reider745.network.InnerCorePacket;
 
 public class Main {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
+    public static boolean block_not_vanilla = false;
 
     public static class LoadingStages {
         public static void preload(Server server) throws Exception {
@@ -31,14 +32,21 @@ public class Main {
     }
 
     public static void main(String[] args) throws Throwable {
+        // Отключает блокировку входа с ванильного майнкрафта, полезно при разработки фич не связанные с inner core
+        // Внимание ломает вход с inner core!
+        block_not_vanilla = Arrays.stream(args).anyMatch("--vanilla_not_block"::equals);
         JarEditor loader = new JarEditor();
 
-        loader.registerHooksInitializationForClass(NetworkHooks.class);
-        loader.registerHooksInitializationForClass(GlobalBlockPalette.class);
+        if(!block_not_vanilla) {
+            loader.registerHooksInitializationForClass(GlobalBlockPalette.class);
+            loader.registerHooksInitializationForClass(NetworkHooks.class);
+            loader.registerHooksInitializationForClass(PlayerHooks.class);
+        }
+
         loader.registerHooksInitializationForClass(ServerHooks.class);
         loader.registerHooksInitializationForClass(CraftingTransactionPacket.class);
         loader.registerHooksInitializationForClass(RhinoOverrides.class);
-        loader.registerHooksInitializationForClass(PlayerHooks.class);
+
         loader.registerHooksInitializationForClass(RuntimeItemsHooks.class);
         loader.registerHooksInitializationForClass(BlocksHooks.class);
         loader.registerHooksInitializationForClass(LevelHooks.class);

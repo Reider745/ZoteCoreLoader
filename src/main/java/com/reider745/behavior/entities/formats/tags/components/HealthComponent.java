@@ -17,10 +17,12 @@ public class HealthComponent extends ComponentsTag {
     @Override
     public void load(EntityContentFactory factory, Object json) {
         if(json instanceof JSONObject object){
-            defaultValue = object.getInt("value");
-            max = object.getInt("max");
+            HealthComponent healthComponent = new HealthComponent();
 
-            factory.health = this;
+            healthComponent.defaultValue = object.getInt("value");
+            healthComponent.max = object.getInt("max");
+
+            factory.health = healthComponent;
         }else
             Logger.warning("Not support HealthComponent " + json.getClass());
     }

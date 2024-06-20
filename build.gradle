@@ -5,7 +5,7 @@ version 'SNAPSHOT'
 
 application {
     mainClass = 'com.reider745.Main'
-    //applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
+    // applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
 }
 
 repositories {

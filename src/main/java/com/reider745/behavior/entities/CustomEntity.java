@@ -1,13 +1,20 @@
 package com.reider745.behavior.entities;
 
+import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.BaseEntity;
 import cn.nukkit.entity.custom.EntityDefinition;
+import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.particle.Particle;
+import cn.nukkit.level.particle.SmokeParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.DataPacket;
+import com.reider745.InnerCoreServer;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationComponentsTag;
 
 import java.util.Optional;
@@ -18,7 +25,15 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
         super(chunk, nbt);
     }
 
-    private Vector3 targetPos = null;
+    private int tickJump = -1;
+    private final int maxTimeJump = 20;// Сколько времени нужно для прыжка
+    private int tickMove = 0;
+    private final int maxTimeMove = 80;
+
+    public boolean isSolid(double x, double y, double z){
+        final Block block = this.level.getBlock((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
+        return block.getId() != BlockID.AIR && block.isSolid();
+    }
 
     @Override
     public Vector3 updateMove(int tickDiff) {
@@ -28,54 +43,83 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
             this.motionZ = 0;
 
             final double gravity_value = this.getGravity() * 4;
-            final Vector3 pos = this.getPosition();
+            final Vector3 pos = this.getPosition().clone();
 
-            if(factory.isPhysics && this.level.getBlockIdAt((int) pos.x, (int) (pos.y - gravity_value), (int) pos.z) == BlockID.AIR) {// Гравитация
+            if(factory.isPhysics && !isSolid(pos.x, pos.y - gravity_value,pos.z)) {// Гравитация
                 this.motionY -= gravity_value;
-
-                this.move(this.motionX, this.motionY, this.motionZ);
-                this.updateMovement();
-                return null;
             }
 
             if(factory.isMovement){// Движение
-                if(targetPos == null)
+                tickMove++;
+                if(target == null || tickMove >= maxTimeMove)
                     targetPositionMovementUpdate();
 
-
-
-                if(pos.distance(targetPos) < .4){
-                    targetPos = null;
+                if(pos.distance(target) < 1){
+                    target = null;
                 }else{
-                    final Vector3 move = pos.subtract(targetPos).
-                            divide(targetPos.distance(pos) * 2);
+                    Vector3 move = target.subtract(pos)
+                            .divide(target.distance(pos) * 2);
 
                     motionX += move.x * factory.movement;
                     motionZ += move.z * factory.movement;
                 }
             }
 
-            final Vector3 move = new Vector3(this.motionX, this.motionY, this.motionZ);
+
+
+            if(factory.isJump){// Прыжки
+                if(tickJump == -1){// Условие определяющие начало прыжка
+                    final Vector3 check = new Vector3(this.motionX, 0, this.motionZ)
+                            .multiply(4)
+                            .add(pos);
+
+                    this.level.addParticle(
+                            new SmokeParticle(check),
+                            this.getServer().getOnlinePlayers().values()
+                    );
+                    if(isSolid(check.x, check.y, check.z))
+                        tickJump = 0;
+                }else{
+                    tickJump++;
+
+                    final double max_minus = maxTimeJump / 2d;
+                    final double minus = (tickJump - max_minus);
+
+                    if (motionY < 0)
+                        this.motionY = 0;
+
+                    this.motionY += gravity_value * ((minus * minus) / (max_minus * max_minus));
+
+
+                    if(tickJump > maxTimeJump){
+                        tickJump = -1;
+                    }
+                }
+            }
+
+            final Vector3 move = new Vector3(this.motionX, this.motionY, this.motionZ)
+                    .multiply(2)
+                    .add(pos);
 
             this.move(this.motionX, this.motionY, this.motionZ);
             this.updateMovement();
 
-            return pos.add(move);
+            return move;
         }
         return null;
     }
 
     public void targetPositionMovementUpdate(){// Определение новой позиции
         final Random random = new Random();
-        final Vector3 target = this.getPosition().clone();
+        final Vector3 pos = this.getPosition();
+        final Vector3 target = pos.clone();
 
+        target.x += random.nextInt(5) - random.nextInt(10);
+        //target.y += random.nextInt(5) - random.nextInt(10);
+        target.z += random.nextInt(5) - random.nextInt(10);
 
-
-        target.x += random.nextInt(5) - random.nextInt(5);
-        target.y += random.nextInt(5) - random.nextInt(5);
-        target.z += random.nextInt(5) - random.nextInt(5);
-
-        this.targetPos = target;
+        this.target = target;
+        this.tickMove = 0;
     }
 
     @Override
@@ -95,7 +139,9 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
     }
 
     private void initDef(){
+        this.setMaxHealth(factory.health.max);
         this.setHealth(factory.health.defaultValue);
+        this.fireProof = !factory.isFireImmune;
     }
 
     @Override
@@ -111,11 +157,6 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
     @Override
     public float getHeight() {
         return getFactory().collision.height;
-    }
-
-    @Override
-    public int getMaxHealth() {
-        return getFactory().health.max;
     }
 
     @Override
@@ -149,6 +190,13 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
 
         int tickDiff = currentTick - this.lastUpdate;
         this.lastUpdate = currentTick;
+        this.entityBaseTick(tickDiff);
+
+        /*if(currentTick % 20 == 0){
+            for(Block block : this.getBlocksAround()){
+                this.level.setBlock(block, Block.get(1));
+            }
+        }*/
 
         Optional.ofNullable(this.updateMove(tickDiff))
                 .ifPresent(this::lookAt);

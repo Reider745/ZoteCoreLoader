@@ -6,6 +6,7 @@ import cn.nukkit.network.CompressionProvider;
 import cn.nukkit.network.Network;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.BinaryStream;
+import cn.nukkit.utils.Config;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.VarInt;
 import com.reider745.InnerCoreServer;
@@ -26,13 +27,13 @@ import java.util.LinkedList;
 public class NetworkHooks implements HookClass {
     private static final LinkedList<String> canSendInfo = new LinkedList<>();
 
-    public static void close(Player player){
+    public static void close(Player player) {
         canSendInfo.remove(NativeNetworking.getId(player));
     }
 
     @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
     public static void processBatch(Network network, byte[] payload, Collection<DataPacket> packets,
-            CompressionProvider compression, int raknetProtocol, Player player) {
+                                    CompressionProvider compression, int raknetProtocol, Player player) {
         MainLogger log = Server.getInstance().getLogger();
 
         int maxSize = 3145728; // 3 * 1024 * 1024
@@ -80,29 +81,29 @@ public class NetworkHooks implements HookClass {
                 DataPacket pk = network.getPacket(packetId, InnerCoreServer.PROTOCOL);
 
                 if (InnerCoreServer.isDebugInnerCoreNetwork())
-                    System.out.println("received batch packet id=" + packetId+", pk: "+(pk == null));
+                    System.out.println("received batch packet id=" + packetId + ", pk: " + (pk == null));
 
                 if (pk != null) {
                     pk.protocol = player == null ? Integer.MAX_VALUE : player.protocol;
                     pk.setBuffer(buf, buf.length - bais.available());
 
                     if (pk instanceof BasePacket) {
-                        if(player == null){
+                        if (player == null) {
                             /*
                             TODO: Иногда player бывает null, иза этого не проходит подключение по нативному протоклу
                             Возможное решение:
                             Хранить все пакеты с null player
                             Хукнуть setPlayer из cn.nukkit.network.session.RakNetPlayerSession и в нем обрабатывать пакеты
                              */
-                            log.error("processBatch player null, ignore packet "+packetId);
+                            log.error("processBatch player null, ignore packet " + packetId);
                             break;
                         }
                         ((BasePacket) pk).player = player;
                     }
 
-                    if(player != null){
+                    if (player != null) {
                         final String id = NativeNetworking.getId(player);
-                        if(!canSendInfo.contains(id)){
+                        if (!canSendInfo.contains(id)) {
                             canSendInfo.add(id);
                             player.dataPacket(InnerCorePacket.sendInfo);
                         }
