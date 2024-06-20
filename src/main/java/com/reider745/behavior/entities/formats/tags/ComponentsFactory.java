@@ -4,6 +4,7 @@ import com.reider745.behavior.entities.ComponentsTag;
 import com.reider745.behavior.entities.EntityContentFactory;
 import com.reider745.behavior.entities.TagContentFactory;
 import com.reider745.behavior.entities.formats.tags.components.*;
+import com.reider745.behavior.entities.formats.tags.components.attack.MeleeAttackComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.NearestAttackableTarget;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationRandomStroll;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationWalkComponent;
@@ -37,6 +38,7 @@ public class ComponentsFactory extends TagContentFactory {
 
         add(new AttackComponent());
         add(new NearestAttackableTarget());
+        add(new MeleeAttackComponent());
     }
 
     @Override
@@ -51,7 +53,7 @@ public class ComponentsFactory extends TagContentFactory {
             final String key = it.next();
             final ComponentsTag tag = tags.get(key);
             if(tag == null){
-                //Logger.warning("Not support ComponentsFactory "+key);
+                Logger.warning("Not support ComponentsFactory "+key);
                 continue;
             }
 
