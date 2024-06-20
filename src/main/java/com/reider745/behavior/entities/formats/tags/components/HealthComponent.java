@@ -19,8 +19,8 @@ public class HealthComponent extends ComponentsTag {
         if(json instanceof JSONObject object){
             HealthComponent healthComponent = new HealthComponent();
 
-            healthComponent.defaultValue = object.getInt("value");
-            healthComponent.max = object.getInt("max");
+            healthComponent.defaultValue = object.optInt("value", 20);
+            healthComponent.max = object.optInt("max", healthComponent.defaultValue);
 
             factory.health = healthComponent;
         }else

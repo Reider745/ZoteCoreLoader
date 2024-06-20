@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.BaseEntity;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.custom.EntityDefinition;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
@@ -16,6 +17,7 @@ import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import com.reider745.InnerCoreServer;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationComponentsTag;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.Random;
@@ -26,13 +28,36 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
     }
 
     private int tickJump = -1;
-    private final int maxTimeJump = 20;// Сколько времени нужно для прыжка
-    private int tickMove = 0;
+    private final int maxTimeJump = 15;// Сколько времени нужно для прыжка
+    public int tickMove = 0;
     private final int maxTimeMove = 80;
 
-    public boolean isSolid(double x, double y, double z){
+    public Block isSolid(double x, double y, double z){
         final Block block = this.level.getBlock((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
-        return block.getId() != BlockID.AIR && block.isSolid();
+        /*this.level.addParticle(
+                new SmokeParticle(new Vector3(x, y, z)),
+                this.getServer().getOnlinePlayers().values()
+        );*/
+        return block.getId() != BlockID.AIR && block.isSolid() ? block : null;
+    }
+
+    public Block raycast(Vector3 pos, Vector3 move, int iterations){
+        double x = pos.x;
+        for(int i = 0;i < iterations;i++){
+            final Block check = isSolid(pos.x, pos.y, pos.z);
+            if(check != null) {
+                // this.level.setBlock(check, Block.get(BlockID.NETHERITE_BLOCK));
+                return check;
+            }
+            pos.x += move.x;
+            pos.y += move.y;
+            pos.z += move.z;
+        }
+        return null;
+    }
+
+    public Block raycast(Vector3 pos, Vector3 move){
+        return raycast(pos, move, 3);
     }
 
     @Override
@@ -45,7 +70,7 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
             final double gravity_value = this.getGravity() * 4;
             final Vector3 pos = this.getPosition().clone();
 
-            if(factory.isPhysics && !isSolid(pos.x, pos.y - gravity_value,pos.z)) {// Гравитация
+            if(factory.isPhysics && isSolid(pos.x, pos.y - gravity_value,pos.z) == null) {// Гравитация
                 this.motionY -= gravity_value;
             }
 
@@ -62,6 +87,10 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
 
                     motionX += move.x * factory.movement;
                     motionZ += move.z * factory.movement;
+
+                    // Если припятсвие в два блока меняем точку назначения
+                    if(raycast(pos, move) != null && raycast(pos.add(0, 1, 0), move) != null)
+                        targetPositionMovementUpdate();
                 }
             }
 
@@ -69,15 +98,10 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
 
             if(factory.isJump){// Прыжки
                 if(tickJump == -1){// Условие определяющие начало прыжка
-                    final Vector3 check = new Vector3(this.motionX, 0, this.motionZ)
-                            .multiply(4)
-                            .add(pos);
+                    final Vector3 check = new Vector3(this.motionX, 0, this.motionZ);
 
-                    this.level.addParticle(
-                            new SmokeParticle(check),
-                            this.getServer().getOnlinePlayers().values()
-                    );
-                    if(isSolid(check.x, check.y, check.z))
+                    // Проверка на один блок перед ним и на 0 гравитацию
+                    if(raycast(pos, check) != null && raycast(pos.add(0, 1, 0), check) == null && motionY == 0)
                         tickJump = 0;
                 }else{
                     tickJump++;
@@ -88,7 +112,7 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
                     if (motionY < 0)
                         this.motionY = 0;
 
-                    this.motionY += gravity_value * ((minus * minus) / (max_minus * max_minus));
+                    this.motionY += (gravity_value / 2) * ((minus * minus) / (max_minus * max_minus));
 
 
                     if(tickJump > maxTimeJump){
@@ -109,17 +133,16 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
         return null;
     }
 
-    public void targetPositionMovementUpdate(){// Определение новой позиции
-        final Random random = new Random();
-        final Vector3 pos = this.getPosition();
-        final Vector3 target = pos.clone();
 
-        target.x += random.nextInt(5) - random.nextInt(10);
-        //target.y += random.nextInt(5) - random.nextInt(10);
-        target.z += random.nextInt(5) - random.nextInt(10);
-
+    public void setTargetBlock(@NotNull Vector3 target) {
         this.target = target;
-        this.tickMove = 0;
+    }
+
+    public void targetPositionMovementUpdate(){// Определение новой позиции
+        if(factory.navigationRandomStroll != null)
+            factory.navigationRandomStroll.update(this);
+        else
+            this.target = this.getPosition();
     }
 
     @Override
@@ -215,7 +238,9 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
             super.setOnFire(seconds);
     }
 
-    public boolean isInTickingRange() {
-        return true;
+    @Override
+    public void setNameTagVisible(boolean value) {
+        if(factory.isNameable)
+            super.setNameTagVisible(value);
     }
 }

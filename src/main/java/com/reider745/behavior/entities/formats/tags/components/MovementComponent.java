@@ -14,7 +14,7 @@ public class MovementComponent extends ComponentsTag {
     @Override
     public void load(EntityContentFactory factory, Object json) {
         if(json instanceof JSONObject object){
-            factory.movement = object.getFloat("value");
+            factory.movement = object.optFloat("value", .75f);
         }else
             Logger.warning("Not support MovementComponent "+json.getClass());
     }

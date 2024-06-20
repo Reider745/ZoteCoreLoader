@@ -25,8 +25,13 @@ public class FileUtils {
         }
     }
 
+    public static String comment(String input) {
+        return input.replaceAll("//.*", "")
+                .replaceAll("/\\*(.|\\R)*?\\*/", "");
+    }
+
     public static JSONObject readJSON(File file) throws JSONException, IOException {
-        return new JSONObject(readFileText(file));
+        return new JSONObject(comment(readFileText(file)));
     }
 
     public static String readFileText(File file) throws IOException {

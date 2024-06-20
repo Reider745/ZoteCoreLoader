@@ -8,23 +8,35 @@ import com.reider745.behavior.entities.formats.tags.DescriptionsFactory;
 import com.reider745.behavior.entities.formats.tags.components.CollisionComponent;
 import com.reider745.behavior.entities.formats.tags.components.HealthComponent;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationComponentsTag;
+import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationRandomStroll;
+import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationWalkComponent;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class EntityContentFactory {
     public DescriptionsFactory.DescriptionTag description;
     public CollisionComponent collision = new CollisionComponent();
     public HealthComponent health = new HealthComponent();
+
+    public NavigationRandomStroll navigationRandomStroll = new NavigationRandomStroll();
     public ArrayList<NavigationComponentsTag> navigations_compononets = new ArrayList<>();
+    public NavigationWalkComponent navigationWalkComponent = new NavigationWalkComponent();
+
+    public List<String> family = new ArrayList<>();
 
     public boolean isFireImmune = false;
     public boolean isJump = false;
     public boolean isMovement = false;
     public boolean isPhysics = false;
+    public boolean isNameable;
 
     public float movement = .5f;
+    public int damage = 0;
 
     public static final HashMap<String, EntityContentFactory> factoryMap = new HashMap<>();
 
@@ -49,7 +61,7 @@ public class EntityContentFactory {
     }
 
     public void build(){
-        Logger.info("Register entity "+description.identifier);
+        Logger.warning("Register entity "+description.identifier);
 
         factoryMap.put(description.identifier, this);
         EntityManager.get()

@@ -11,7 +11,6 @@ import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
-import com.reider745.hooks.BiomesHooks;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
@@ -38,7 +37,6 @@ import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.mcpe161.InnerCore;
 
-import org.json.JSONObject;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -343,8 +341,10 @@ public class InnerCoreServer {
     }
 
     public void start() {
-        BehaviorPack pack = new BehaviorPack(new File(InnerCoreServer.dataPath, "pack").getAbsolutePath());
-        pack.load();
+        for(File file : Objects.requireNonNull(new File(InnerCoreServer.dataPath, "behavior_packs").listFiles())) {
+            BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
+            pack.load();
+        }
     }
 
     public static Object getProperty(String variable) {

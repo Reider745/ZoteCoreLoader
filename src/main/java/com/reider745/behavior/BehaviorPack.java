@@ -1,5 +1,6 @@
 package com.reider745.behavior;
 
+import com.reider745.InnerCoreServer;
 import com.reider745.behavior.entities.EntitiesContent;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
@@ -66,7 +67,9 @@ public class BehaviorPack {
                     for (int i = 0; i < content.length(); i++) {
                         JSONObject json = content.getJSONObject(i);
 
-                        loadFileContext(this.path + json.getString("path"));
+                        final String path = json.getString("path");
+                        if(!path.equals("manifest.json") && path.endsWith(".json"))
+                            loadFileContext(this.path + path);
                     }
                 }
             } catch (IOException e) {
@@ -82,9 +85,20 @@ public class BehaviorPack {
         }
     }
 
+    public boolean isJsonObject(String path){
+        try {
+            FileUtils.readJSON(new File(path));
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
 
     public void loadFileContext(String path){
         try{
+            if(!isJsonObject(path))
+                return;
+
             final JSONObject contents = FileUtils.readJSON(new File(path));
 
             for(BehaviorContent content : contents_api){
@@ -95,7 +109,8 @@ public class BehaviorPack {
             }
 
             throw new RuntimeException("Not support "+path);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Logger.warning(path);
             throw new RuntimeException(e);
         }
     }
