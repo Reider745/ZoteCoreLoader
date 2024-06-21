@@ -1,16 +1,20 @@
 package com.reider745.behavior.entities.formats.tags.components.attack;
 
 import cn.nukkit.entity.Entity;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import com.reider745.behavior.api.VanillaMobsFamily;
 import com.reider745.behavior.entities.ComponentsTag;
+import com.reider745.behavior.entities.CustomEntity;
 import com.reider745.behavior.entities.EntityContentFactory;
+import com.reider745.behavior.entities.formats.tags.components.IUpdateEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class NearestAttackableTarget extends ComponentsTag {
+public class NearestAttackableTarget extends ComponentsTag implements IUpdateEntity {
     public interface Condition {
         boolean test(Entity entity);
     }
@@ -27,7 +31,7 @@ public class NearestAttackableTarget extends ComponentsTag {
         public boolean test(Entity entity) {
             switch (other){
                 case "other" -> {
-                    return VanillaMobsFamily.getFor(entity.getNetworkId()).contains(this.value);
+                    return VanillaMobsFamily.getFor(entity).contains(this.value);
                 }
             }
             throw new RuntimeException("not support NearestAttackableTarget.IsFamilyCondition");
@@ -55,6 +59,14 @@ public class NearestAttackableTarget extends ComponentsTag {
                 }
             }
         }
+
+        public boolean test(CustomEntity customEntity, Entity entity){
+            for(Condition condition : filters){
+                if(entity.distance(customEntity) < max_dist && condition.test(entity))
+                    return true;
+            }
+            return false;
+        }
     }
 
     public int priority = 1;
@@ -78,5 +90,46 @@ public class NearestAttackableTarget extends ComponentsTag {
             factory.nearestAttackableTarget = self;
         }else
             Logger.warning("Not support NearestAttackableTarget "+json.getClass());
+    }
+
+    @Override
+    public void onUpdate(CustomEntity entity) {
+        boolean isTarget = false;
+
+        for(Filters filters : list){
+            for(Entity check : entity.level.getEntities()){
+                if(filters.test(entity, check)){
+                    entity.setTargetBlock(check.getPosition());
+                    entity.setTarget(check);
+                    isTarget = true;
+                    break;
+                }
+            }
+            if(isTarget) break;
+        }
+
+        if(!isTarget){
+            entity.setTargetBlock(null);
+            entity.setTarget(null);
+            return;
+        }
+
+        final Entity target = entity.getTarget();
+        final EntityContentFactory factory = entity.getFactory();
+
+        if(factory.meleeAttackComponent != null && target != null && entity.distance(target) < 1.5){
+            if(entity.tickDamage >= entity.timeDamage){
+                entity.tickDamage = 0;
+                target.attack(
+                        new EntityDamageByEntityEvent(
+                                entity, target,
+                                EntityDamageEvent.DamageCause.ENTITY_ATTACK,
+                                factory.damage
+                        )
+                );
+            }else
+                entity.tickDamage++;
+        }else
+            entity.tickDamage = 0;
     }
 }

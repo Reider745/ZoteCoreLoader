@@ -5,6 +5,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.BaseEntity;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityBoss;
 import cn.nukkit.entity.custom.EntityDefinition;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
@@ -15,12 +16,14 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.utils.DummyBossBar;
 import com.reider745.InnerCoreServer;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationComponentsTag;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.CustomEntity {
     public CustomEntity(FullChunk chunk, CompoundTag nbt) {
@@ -31,6 +34,8 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
     private final int maxTimeJump = 15;// Сколько времени нужно для прыжка
     public int tickMove = 0;
     private final int maxTimeMove = 80;
+    public int tickDamage = 0;
+    public final int timeDamage = 30;
 
     public Block isSolid(double x, double y, double z){
         final Block block = this.level.getBlock((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
@@ -139,10 +144,15 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
     }
 
     public void targetPositionMovementUpdate(){// Определение новой позиции
-        if(factory.navigationRandomStroll != null)
-            factory.navigationRandomStroll.update(this);
-        else
-            this.target = this.getPosition();
+        if(followTarget != null){
+            this.target = followTarget.getPosition();
+            return;
+        }else if(factory.navigationRandomStroll != null) {
+            factory.navigationRandomStroll.onUpdate(this);
+            return;
+        }
+
+        this.target = this.getPosition();
     }
 
     @Override
@@ -201,7 +211,7 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
         }
 
         for(NavigationComponentsTag tag : factory.navigations_compononets)
-            tag.update(this);
+            tag.onUpdate(this);
 
         if (!this.isAlive()) {
             if (++this.deadTicks >= 23) {
@@ -215,11 +225,8 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
         this.lastUpdate = currentTick;
         this.entityBaseTick(tickDiff);
 
-        /*if(currentTick % 20 == 0){
-            for(Block block : this.getBlocksAround()){
-                this.level.setBlock(block, Block.get(1));
-            }
-        }*/
+        if(factory.nearestAttackableTarget != null)
+            factory.nearestAttackableTarget.onUpdate(this);
 
         Optional.ofNullable(this.updateMove(tickDiff))
                 .ifPresent(this::lookAt);
@@ -242,5 +249,36 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
     public void setNameTagVisible(boolean value) {
         if(factory.isNameable)
             super.setNameTagVisible(value);
+    }
+
+    @Override
+    public String getName() {
+        return "entity."+factory.description.identifier+".name";
+    }
+
+    private final ConcurrentHashMap<Player, DummyBossBar> bossBars = new ConcurrentHashMap<>();
+
+    @Override
+    public void spawnTo(Player player) {
+        if(getFactory().boss != null) {
+            DummyBossBar bossBar = new DummyBossBar.Builder(player)
+                    .text(this.getName())
+                    .length(this.getMaxHealth())
+                    .build();
+            bossBar.create();
+            bossBars.put(player, bossBar);
+        }
+        super.spawnTo(player);
+    }
+
+    @Override
+    public void despawnFrom(Player player) {
+        if(factory.boss != null){
+            DummyBossBar dummyBossBar = bossBars.get(player);
+            if(dummyBossBar != null){
+                dummyBossBar.destroy();
+            }
+        }
+        super.despawnFrom(player);
     }
 }

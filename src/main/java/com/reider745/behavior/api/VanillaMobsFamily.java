@@ -1,5 +1,7 @@
 package com.reider745.behavior.api;
 
+import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.network.protocol.AddEntityPacket;
 import com.reider745.InnerCoreServer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -34,8 +36,6 @@ public class VanillaMobsFamily {
 
                 vanills.put(key, list);
             }
-
-            System.out.println(vanills);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -53,5 +53,11 @@ public class VanillaMobsFamily {
         final List<String> EMPTY = new ArrayList<>();
         if(key == null) return EMPTY;
         return getFor(key);
+    }
+
+    public static List<String> getFor(Entity entity){
+        if(entity instanceof Player)
+            return getFor("minecraft:player");
+        return getFor(entity.getNetworkId());
     }
 }

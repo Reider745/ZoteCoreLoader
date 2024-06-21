@@ -5,6 +5,7 @@ import cn.nukkit.entity.custom.EntityDefinition;
 import cn.nukkit.entity.custom.EntityManager;
 import cn.nukkit.level.Position;
 import com.reider745.behavior.entities.formats.tags.DescriptionsFactory;
+import com.reider745.behavior.entities.formats.tags.components.BossComponent;
 import com.reider745.behavior.entities.formats.tags.components.CollisionComponent;
 import com.reider745.behavior.entities.formats.tags.components.HealthComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.MeleeAttackComponent;
@@ -24,13 +25,14 @@ public class EntityContentFactory {
     public DescriptionsFactory.DescriptionTag description;
     public CollisionComponent collision = new CollisionComponent();
     public HealthComponent health = new HealthComponent();
+    public BossComponent boss = null;
 
     public NavigationRandomStroll navigationRandomStroll = new NavigationRandomStroll();
     public ArrayList<NavigationComponentsTag> navigations_compononets = new ArrayList<>();
     public NavigationWalkComponent navigationWalkComponent = new NavigationWalkComponent();
 
-    public NearestAttackableTarget nearestAttackableTarget = new NearestAttackableTarget();
-    public MeleeAttackComponent meleeAttackComponent = new MeleeAttackComponent();
+    public NearestAttackableTarget nearestAttackableTarget = null;
+    public MeleeAttackComponent meleeAttackComponent = null;
 
     public List<String> family = new ArrayList<>();
 

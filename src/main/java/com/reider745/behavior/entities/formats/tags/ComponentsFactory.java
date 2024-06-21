@@ -28,6 +28,7 @@ public class ComponentsFactory extends TagContentFactory {
         add(new HealthComponent());
         add(new FamilyComponent());
         add(new NameableComponent());
+        add(new BossComponent());
 
         add(new GravityComponent());
         add(new JumpComponent());

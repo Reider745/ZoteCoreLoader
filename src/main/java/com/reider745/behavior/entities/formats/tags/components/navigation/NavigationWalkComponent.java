@@ -35,7 +35,7 @@ public class NavigationWalkComponent extends NavigationComponentsTag {
     }
 
     @Override
-    public void update(CustomEntity entity) {
+    public void onUpdate(CustomEntity entity) {
 
     }
 }

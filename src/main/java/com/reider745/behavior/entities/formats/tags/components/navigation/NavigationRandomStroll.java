@@ -37,7 +37,7 @@ public class NavigationRandomStroll extends NavigationComponentsTag {
     }
 
     @Override
-    public void update(CustomEntity entity) {
+    public void onUpdate(CustomEntity entity) {
         final Random random = new Random();
         final Vector3 pos = entity.getPosition();
         final Vector3 target = pos.clone();
