@@ -1,5 +1,6 @@
 package com.reider745.behavior.entities.formats.tags.components.attack;
 
+import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
@@ -94,12 +95,14 @@ public class NearestAttackableTarget extends ComponentsTag implements IUpdateEnt
 
     @Override
     public void onUpdate(CustomEntity entity) {
+        if(entity.getServer().getDifficulty() == 0)
+            return;
+
         boolean isTarget = false;
 
         for(Filters filters : list){
             for(Entity check : entity.level.getEntities()){
-                if(filters.test(entity, check)){
-                    entity.setTargetBlock(check.getPosition());
+                if(filters.test(entity, check) && entity.raycast(check) == null && (!check.isPlayer || !((Player) check).isCreative())){
                     entity.setTarget(check);
                     isTarget = true;
                     break;
@@ -108,8 +111,7 @@ public class NearestAttackableTarget extends ComponentsTag implements IUpdateEnt
             if(isTarget) break;
         }
 
-        if(!isTarget){
-            entity.setTargetBlock(null);
+        if(!isTarget && entity.getTarget() != null){
             entity.setTarget(null);
             return;
         }

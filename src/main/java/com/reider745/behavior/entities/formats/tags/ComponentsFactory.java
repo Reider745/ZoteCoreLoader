@@ -4,6 +4,7 @@ import com.reider745.behavior.entities.ComponentsTag;
 import com.reider745.behavior.entities.EntityContentFactory;
 import com.reider745.behavior.entities.TagContentFactory;
 import com.reider745.behavior.entities.formats.tags.components.*;
+import com.reider745.behavior.entities.formats.tags.components.attack.HurtByTargetComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.MeleeAttackComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.NearestAttackableTarget;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationRandomStroll;
@@ -11,7 +12,6 @@ import com.reider745.behavior.entities.formats.tags.components.navigation.Naviga
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -24,13 +24,15 @@ public class ComponentsFactory extends TagContentFactory {
 
     static {
         add(new FireImmuneComponent());
-        add(new CollisionComponent());
         add(new HealthComponent());
         add(new FamilyComponent());
         add(new NameableComponent());
         add(new BossComponent());
+        add(new BurnsInDaylight());
 
         add(new GravityComponent());
+        add(new CollisionComponent());
+        add(new PushableComponent());
         add(new JumpComponent());
         add(new MovementBasicComponent());
         add(new MovementComponent());
@@ -40,6 +42,7 @@ public class ComponentsFactory extends TagContentFactory {
         add(new AttackComponent());
         add(new NearestAttackableTarget());
         add(new MeleeAttackComponent());
+        add(new HurtByTargetComponent());
     }
 
     @Override

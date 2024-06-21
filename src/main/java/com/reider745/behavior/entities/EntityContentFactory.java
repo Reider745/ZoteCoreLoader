@@ -8,6 +8,7 @@ import com.reider745.behavior.entities.formats.tags.DescriptionsFactory;
 import com.reider745.behavior.entities.formats.tags.components.BossComponent;
 import com.reider745.behavior.entities.formats.tags.components.CollisionComponent;
 import com.reider745.behavior.entities.formats.tags.components.HealthComponent;
+import com.reider745.behavior.entities.formats.tags.components.IUpdateEntity;
 import com.reider745.behavior.entities.formats.tags.components.attack.MeleeAttackComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.NearestAttackableTarget;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationComponentsTag;
@@ -28,7 +29,7 @@ public class EntityContentFactory {
     public BossComponent boss = null;
 
     public NavigationRandomStroll navigationRandomStroll = new NavigationRandomStroll();
-    public ArrayList<NavigationComponentsTag> navigations_compononets = new ArrayList<>();
+    public ArrayList<IUpdateEntity> updates = new ArrayList<>();
     public NavigationWalkComponent navigationWalkComponent = new NavigationWalkComponent();
 
     public NearestAttackableTarget nearestAttackableTarget = null;
@@ -40,21 +41,24 @@ public class EntityContentFactory {
     public boolean isJump = false;
     public boolean isMovement = false;
     public boolean isPhysics = false;
-    public boolean isNameable;
+    public boolean isHurtByTarget = false;
+    public boolean isNameable = false;
+    public boolean isPushable = false;
 
     public float movement = .5f;
     public int damage = 0;
 
     public static final HashMap<String, EntityContentFactory> factoryMap = new HashMap<>();
 
-    public void addNavigationComponent(NavigationComponentsTag tag){
-        for (int i = 0; i < navigations_compononets.size(); i++) {
-            if (navigations_compononets.get(i).getPriority() < tag.getPriority()) {
-                navigations_compononets.add(i, tag);
+
+    public void addUpdate(IUpdateEntity tag){
+        for (int i = 0; i < updates.size(); i++) {
+            if (updates.get(i).getPriority() < tag.getPriority()) {
+                updates.add(i, tag);
                 return;
             }
         }
-        navigations_compononets.add(tag);
+        updates.add(tag);
     }
 
     public EntityDefinition getEntityDefinition() {

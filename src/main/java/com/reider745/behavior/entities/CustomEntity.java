@@ -2,27 +2,23 @@ package com.reider745.behavior.entities;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockCarpet;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.BaseEntity;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.EntityBoss;
 import cn.nukkit.entity.custom.EntityDefinition;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
-import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.level.particle.Particle;
-import cn.nukkit.level.particle.SmokeParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.DummyBossBar;
-import com.reider745.InnerCoreServer;
-import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationComponentsTag;
+import com.reider745.behavior.entities.formats.tags.components.IUpdateEntity;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.CustomEntity {
@@ -46,14 +42,25 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
         return block.getId() != BlockID.AIR && block.isSolid() ? block : null;
     }
 
+    public Block raycast(Entity ent1, Entity ent2){
+        final Vector3 pos1 = ent1.getPosition()
+                .add(0, getHeight() * .75);
+        final Vector3 pos2 = ent2.getPosition();
+        final int iterations = (int) (pos2.distance(pos1) * 3d);
+        return raycast(pos1, pos2.subtract(pos1).divide(iterations), iterations);
+    }
+
+    public Block raycast(Entity ent2){
+        return raycast(this, ent2);
+    }
+
     public Block raycast(Vector3 pos, Vector3 move, int iterations){
-        double x = pos.x;
         for(int i = 0;i < iterations;i++){
             final Block check = isSolid(pos.x, pos.y, pos.z);
             if(check != null) {
-                // this.level.setBlock(check, Block.get(BlockID.NETHERITE_BLOCK));
                 return check;
             }
+
             pos.x += move.x;
             pos.y += move.y;
             pos.z += move.z;
@@ -62,12 +69,49 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
     }
 
     public Block raycast(Vector3 pos, Vector3 move){
-        return raycast(pos, move, 3);
+        return raycast(pos, move, 4);
+    }
+
+
+    // Jump for PNX 2.0
+    public double getJumpingMotion(double jumpY) {
+        if (this.isInsideOfWater()) {
+            if (jumpY > 0 && jumpY < 0.2) {
+                return 0.25;
+            } else if (jumpY < 0.51) {
+                return 0.45;
+            } else if (jumpY < 1.01) {
+                return 0.6;
+            } else {
+                return 0.7;
+            }
+        } else {
+            if (jumpY > 0 && jumpY < 0.2) {
+                return 0.15;
+            } else if (jumpY < 0.51) {
+                return 0.35;
+            } else if (jumpY < 1.01) {
+                return 0.5;
+            } else {
+                return 0.6;
+            }
+        }
+    }
+
+    private boolean canJump(Block block) {
+        if (block.isSolid()) return true;
+        else if (block instanceof BlockCarpet) return true;
+        else return block.getId() == BlockID.FLOWER_POT_BLOCK || block.getId() == BlockID.CAKE_BLOCK;
     }
 
     @Override
     public Vector3 updateMove(int tickDiff) {
         if (this.isMovement() && !isImmobile()) {
+            if(factory.isPushable){
+                this.move(this.motionX, this.motionY, this.motionZ);
+                this.updateMovement();
+            }
+
             this.motionX = 0;
             this.motionY = 0;
             this.motionZ = 0;
@@ -75,14 +119,15 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
             final double gravity_value = this.getGravity() * 4;
             final Vector3 pos = this.getPosition().clone();
 
-            if(factory.isPhysics && isSolid(pos.x, pos.y - gravity_value,pos.z) == null) {// Гравитация
+            if(factory.isPhysics && isSolid(pos.x, pos.y - 0.001,pos.z) == null) {
                 this.motionY -= gravity_value;
             }
 
             if(factory.isMovement){// Движение
                 tickMove++;
-                if(target == null || tickMove >= maxTimeMove)
+                if(target == null || tickMove >= maxTimeMove) {
                     targetPositionMovementUpdate();
+                }
 
                 if(pos.distance(target) < 1){
                     target = null;
@@ -93,9 +138,12 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
                     motionX += move.x * factory.movement;
                     motionZ += move.z * factory.movement;
 
-                    // Если припятсвие в два блока меняем точку назначения
-                    if(raycast(pos, move) != null && raycast(pos.add(0, 1, 0), move) != null)
-                        targetPositionMovementUpdate();
+                    if(this.getHeight() <= 1){
+                        if(raycast(pos, move) != null && raycast(pos.add(0, 1.2, 0), move) != null)
+                            targetPositionMovementUpdate();
+                    }else
+                        if(raycast(pos.add(0, 1.2, 0), move) != null)
+                            targetPositionMovementUpdate();
                 }
             }
 
@@ -106,19 +154,26 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
                     final Vector3 check = new Vector3(this.motionX, 0, this.motionZ);
 
                     // Проверка на один блок перед ним и на 0 гравитацию
-                    if(raycast(pos, check) != null && raycast(pos.add(0, 1, 0), check) == null && motionY == 0)
+                    if(raycast(pos.add(0, 0.2), check, 9) != null && raycast(pos.add(0, 1.2), check, 9) == null && motionY == 0) {
                         tickJump = 0;
+                    }
                 }else{
+
                     tickJump++;
 
-                    final double max_minus = maxTimeJump / 2d;
-                    final double minus = (tickJump - max_minus);
+                    final var xzLength = Math.sqrt(motionX * motionX + motionZ * motionZ);
+                    final var k = factory.movement / xzLength * 0.33;
+                    final var dx = motionX * k;
+                    final var dz = motionZ * k;
+
+                    final Block[] collisionBlocks = this.level.getCollisionBlocks(
+                            this.getBoundingBox().getOffsetBoundingBox(dx, 0, dz), false, false, this::canJump);
 
                     if (motionY < 0)
                         this.motionY = 0;
 
-                    this.motionY += (gravity_value / 2) * ((minus * minus) / (max_minus * max_minus));
-
+                    final double maxY = Arrays.stream(collisionBlocks).map(b -> b.getCollisionBoundingBox().getMaxY()).max(Double::compareTo).orElse(0.0d);
+                    motionY += getJumpingMotion(maxY - this.getY()) / 6d;
 
                     if(tickJump > maxTimeJump){
                         tickJump = -1;
@@ -210,7 +265,7 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
             return false;
         }
 
-        for(NavigationComponentsTag tag : factory.navigations_compononets)
+        for(IUpdateEntity tag : factory.updates)
             tag.onUpdate(this);
 
         if (!this.isAlive()) {
@@ -269,6 +324,20 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
             bossBars.put(player, bossBar);
         }
         super.spawnTo(player);
+    }
+
+    @Override
+    public void setTarget(Entity target) {
+        this.setTargetBlock(target);
+        super.setTarget(target);
+    }
+
+    @Override
+    public boolean attack(EntityDamageEvent source) {
+        if(source instanceof EntityDamageByEntityEvent event){
+             this.setTarget(event.getDamager());
+        }
+        return super.attack(source);
     }
 
     @Override
