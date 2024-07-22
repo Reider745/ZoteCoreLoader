@@ -89,6 +89,9 @@ pack-version-code: 159
 # Maximum number of packets sent to the client
 # max-packet-sending: 150
 
+# Additional updatable threads
+threading_additional_thread_count: 8
+
 # Additional information in the log
 # debug-logger: on
 # info-logger: on

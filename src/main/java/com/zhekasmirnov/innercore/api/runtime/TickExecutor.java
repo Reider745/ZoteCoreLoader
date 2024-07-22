@@ -22,7 +22,7 @@ public class TickExecutor {
     }
 
     public void setAdditionalThreadCount(int count) {
-        count = Math.max(0, Math.min(7, count));
+        count = Math.max(0, Math.min(16, count));
         if (threadCount != count) {
             threadCount = count;
             if (executor != null) {

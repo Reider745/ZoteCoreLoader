@@ -341,10 +341,12 @@ public class InnerCoreServer {
     }
 
     public void start() {
-        for(File file : Objects.requireNonNull(new File(InnerCoreServer.dataPath, "behavior_packs").listFiles())) {
-            BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
-            pack.load();
-        }
+        try{
+            for(File file : Objects.requireNonNull(new File(InnerCoreServer.dataPath, "behavior_packs").listFiles())) {
+                BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
+                pack.load();
+            }
+        }catch (Exception e){}
     }
 
     public static Object getProperty(String variable) {
@@ -470,6 +472,10 @@ public class InnerCoreServer {
 
     public static int getMaxPacketSending(){
         return getPropertyInt("max-packet-sending", 200);
+    }
+
+    public static int getAdditionalThreadCount() {
+        return getPropertyInt("threading_additional_thread_count", 16);
     }
 
     public static boolean isUnsupportedOptionsAllowed() {

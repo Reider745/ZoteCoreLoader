@@ -187,7 +187,7 @@ public class NativeCallback {
     // read config and setup thread priorities
     private static void setupThreadPriorityFromConfig() {
         TickExecutor.getInstance()
-                .setAdditionalThreadCount(InnerCoreConfig.getInt("threading.additional_thread_count", 0));
+                .setAdditionalThreadCount(InnerCoreServer.getAdditionalThreadCount());
         // we divide by 4 to fit into standard 1-40 priority range
         TickExecutor.getInstance()
                 .setAdditionalThreadPriority(InnerCoreConfig.getInt("threading.additional_thread_priority", 12) / 4);

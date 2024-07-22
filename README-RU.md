@@ -91,6 +91,9 @@ stop-on-critical-ticking-error: false
 # Если количесвто пакетов привышает это, то игрок кикается с сервера
 max-packet-sending: 200
 
+# Дополнительные потоки Updatable
+threading_additional_thread_count: 8
+
 # Дополнительная информация в лог
 # debug-logger: on
 # info-logger: on
