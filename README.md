@@ -106,6 +106,7 @@ threading_additional_thread_count: 8
 + state — outputs block statuses by the runtime ID
 + profilecallback [enabled] [showParameters] — debugging and profiling of callbacks
 + dimensions_list - displays a list of dimensions
++ tps - displays the load on the tick inner core
 
 > All commands are for operators and cannot be called by players.
 

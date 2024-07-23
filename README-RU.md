@@ -108,6 +108,7 @@ threading_additional_thread_count: 8
 + state — выводит стейты блока по рантайм идентификатору
 + profilecallback [enabled] [showParameters] — отладка и профайлинг калбеков
 + dimensions_list - выводит список измерений
++ tps - отображает нагрузку на tick inner core
 
 > Все команды предназначены для операторов и не могут быть вызваны игроками.
 

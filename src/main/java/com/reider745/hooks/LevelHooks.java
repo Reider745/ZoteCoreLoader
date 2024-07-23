@@ -218,11 +218,6 @@ public class LevelHooks implements HookClass {
         return item;
     }
 
-    @Inject
-    public static void useItemOn(Level self, Vector3 vector3, Item item, BlockFace face, float fx, float fy, float fz, Player player, boolean sound){
-        EventListener.itemUseVector.put(player.getUniqueId(), new Vector3(fx, fy, fz));
-    }
-
     @Inject(className = "cn.nukkit.level.EnumLevel")
     public static void initLevels(){
         DimensionsMethods.initLevels();
@@ -357,80 +352,5 @@ public class LevelHooks implements HookClass {
                 }
             }
         };
-    }
-
-    @Inject
-    public static boolean setBlock(Level self, int x, int y, int z, int layer, Block block, boolean direct, boolean update){
-        if (!self.isYInRange(y) || layer < 0 || layer > self.requireProvider().getMaximumLayer()) {
-            return false;
-        }
-        BaseFullChunk chunk = self.getChunk(x >> 4, z >> 4, true);
-        Block blockPrevious;
-        blockPrevious = chunk.getAndSetBlock(x & 0xF, y, z & 0xF, layer, block);
-        if (blockPrevious.getFullId() == block.getFullId()) {
-            return false;
-        }
-        block.x = x;
-        block.y = y;
-        block.z = z;
-        block.level = self;
-        block.layer = layer;
-
-        try {
-            final Int2ObjectMap<Consumer<Block>> callbackBlockSet = ReflectHelper.getField(self, "callbackBlockSet");
-            for (Consumer<Block> callback : callbackBlockSet.values()) {
-                callback.accept(block);
-            }
-        } catch (Exception e) {
-            Server.getInstance().getLogger().error("Error while calling block set callback", e);
-        }
-
-        int cx = x >> 4;
-        int cz = z >> 4;
-
-        if (direct) {
-            self.sendBlocks(self.getChunkPlayers(cx, cz).values().toArray(Player.EMPTY_ARRAY), new Block[]{block}, UpdateBlockPacket.FLAG_ALL_PRIORITY, block.layer);
-        } else {
-            ReflectHelper.<Void>invoke(self, "addBlockChange", new Object[]{
-                    Level.chunkHash(cx, cz), x, y, z
-            }, long.class, int.class, int.class, int.class);
-        }
-
-        for (ChunkLoader loader : self.getChunkLoaders(cx, cz)) {
-            loader.onBlockChanged(block);
-        }
-        if (update) {
-            if (blockPrevious.isTransparent() != block.isTransparent() || blockPrevious.getLightLevel() != block.getLightLevel()) {
-                self.addLightUpdate(x, y, z);
-            }
-            //TODO: Молимся бакам что-бы тут нечего не сломалось, при первойже возможности переписать этот участок
-            try {
-                NativeCallback.onBlockChanged(x, y, z,
-                        blockPrevious.getId(), blockPrevious.getDamage(),
-                        block.getId(), block.getDamage(),
-                        FakeDimensions.getFakeIdForLevel(self),
-                        0,
-                        self
-                );
-            }catch (Exception ignore){
-                ignore.printStackTrace();
-            }
-
-            BlockUpdateEvent ev = new BlockUpdateEvent(block);
-            self.getServer().getPluginManager().callEvent(ev);
-            if (!ev.isCancelled()) {
-                for (Entity entity : self.getNearbyEntities(new SimpleAxisAlignedBB(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1))) {
-                    entity.scheduleUpdate();
-                }
-                block = ev.getBlock();
-                block.onUpdate(Level.BLOCK_UPDATE_NORMAL);
-                block.getLevelBlockAtLayer(layer == 0 ? 1 : 0).onUpdate(Level.BLOCK_UPDATE_NORMAL);
-                if (block.isTransparent()) {
-                    self.antiXrayOnBlockChange(null, block, 1);
-                }
-                self.updateAround(new Vector3(x, y, z));
-            }
-        }
-        return true;
     }
 }

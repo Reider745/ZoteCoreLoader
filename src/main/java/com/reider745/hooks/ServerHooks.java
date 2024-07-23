@@ -12,6 +12,7 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
+import com.reider745.commands.TpsCommand;
 import com.reider745.entity.EntityMotion;
 import com.reider745.event.EventListener;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -71,12 +72,21 @@ public class ServerHooks implements HookClass {
         };
     }
 
+    private static long start_pre = 0;
+
     @Inject
     public static void checkTickUpdates(Server server, int tick) {
+        int indexTime = server.getTick() % 20;
+        TpsCommand.nukkitTimes[indexTime] = System.currentTimeMillis() - start_pre;
+
         try {
             try {
+                long start = System.currentTimeMillis();
+
                 EntityMotion.tick();
                 NativeCallback.onTick();
+
+                TpsCommand.innerCoreTimes[indexTime] = System.currentTimeMillis() - start;
 
                 EventListener.isFirstTickEnd = true;
             } catch (Exception e) {
@@ -86,6 +96,7 @@ public class ServerHooks implements HookClass {
             Logger.warning("IC-TICK", e);
         }
 
+        start_pre = System.currentTimeMillis();
     }
 
     @Inject(type = TypeHook.AFTER)

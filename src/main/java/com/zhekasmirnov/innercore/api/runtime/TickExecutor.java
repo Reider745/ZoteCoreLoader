@@ -51,7 +51,7 @@ public class TickExecutor {
 
     public void execute(Runnable runnable) {
         if (executor != null) {
-            executor.execute(runnable);
+            executor.submit(runnable);
         } else {
             runnable.run();
         }
@@ -60,7 +60,7 @@ public class TickExecutor {
     public void execute(Collection<Runnable> runnables) {
         if (executor != null) {
             for (Runnable runnable : runnables) {
-                executor.execute(runnable);
+                executor.submit(runnable);
             }
         } else {
             for (Runnable runnable : runnables) {
@@ -72,23 +72,11 @@ public class TickExecutor {
     public void blockUntilExecuted() {
         if (executor != null) {
             try {
-                // execute all runnables on main thread as well
-                BlockingQueue<Runnable> queue = executor.getQueue();
-                while (queue.size() > 0) {
-                    Runnable runnable = queue.poll(0, TimeUnit.MILLISECONDS);
-                    if (runnable != null) {
-                        runnable.run();
-                    } else {
-                        break;
-                    }
-                }
-                // wait until additional threads complete
-                while (executor.getActiveCount() > 0) {
-                    Thread.sleep(2);
-                }
-            } catch (InterruptedException e) {
+                while(executor.awaitTermination(1, TimeUnit.MILLISECONDS)){}
+            }catch (InterruptedException e){
                 e.printStackTrace();
             }
+
         }
     }
 }

@@ -55,10 +55,8 @@ public class EntityMethod {
     public static Player fetchOnline(long entity) {
         Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
 
-        Iterator<Map.Entry<UUID, Player>> it = players.entrySet().iterator();
-        while (it.hasNext()){
-            Map.Entry<UUID, Player> entry = it.next();
-            if(entry.getValue().getId() == entity)
+        for (Map.Entry<UUID, Player> entry : players.entrySet()) {
+            if (entry.getValue().getId() == entity)
                 return entry.getValue();
         }
 

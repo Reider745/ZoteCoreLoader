@@ -99,8 +99,6 @@ public class EventListener implements Listener {
             level.sendBlocks(players, new Vector3[]{new Vector3(x, y, z)}, UpdateBlockPacket.FLAG_ALL);
     }
 
-    public static final LinkedHashMap<UUID, Vector3> itemUseVector = new LinkedHashMap<>();
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
         if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
@@ -111,7 +109,7 @@ public class EventListener implements Listener {
         final Player player = event.getPlayer();
 
         if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
-            final Vector3 pos = itemUseVector.get(player.getUniqueId());
+            final Vector3 pos = event.getTouchVector();
 
             pos.x = Math.abs(pos.x) + block.x;
             pos.y = Math.abs(pos.y) + block.y;
@@ -413,17 +411,17 @@ public class EventListener implements Listener {
         consumeEvent(event, () -> NativeCallback.onEntityPickUpDrop(entity, dropEntity, count));
     }
 
-    /*@EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockUpdate(BlockGrowEvent event) {
-        final Block block = event.getBlock();
-        final Block newBlock = event.getNewState();
-        final Level level = block.getLevel();
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockChange(BlockChangeEvent event){
+        final Block block = event.getBlockPrevious();
+        final Block newBlock = event.getBlock();
+        final Level level = newBlock.getLevel();
 
         consumeEvent(event,
-                () -> NativeCallback.onBlockChanged((int) block.x, (int) block.y, (int) block.z, block.getId(),
+                () -> NativeCallback.onBlockChanged((int) newBlock.x, (int) newBlock.y, (int) newBlock.z, block.getId(),
                         block.getDamage(), newBlock.getId(), newBlock.getDamage(), FakeDimensions.getFakeIdForLevel(level),
-                        newBlock.getFullId(), block.getLevel()));
-    }*/
+                        newBlock.getFullId(), level));
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityTeleport(EntityTeleportEvent event) {
