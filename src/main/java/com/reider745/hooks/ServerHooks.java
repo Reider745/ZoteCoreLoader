@@ -42,6 +42,9 @@ public class ServerHooks implements HookClass {
                 && (variable.equals("multiversion-min-protocol") || variable.equals("multiversion-max-protocol")))
             return InnerCoreServer.PROTOCOL;
 
+        if(variable.equals("rak-packet-limit"))
+            return InnerCoreServer.getMaxPacketSending();
+
         Config properties = server.getProperties();
         return properties.exists(variable)
                 ? (!properties.get(variable).equals("") ? Integer.parseInt(String.valueOf(properties.get(variable)))

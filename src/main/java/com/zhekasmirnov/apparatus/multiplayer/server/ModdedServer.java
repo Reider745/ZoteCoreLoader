@@ -226,6 +226,12 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         }
     }
 
+    public void onConnection(ConnectedClient client){
+        for (OnClientConnectedListener listener : onClientConnectedListeners) {
+            listener.onClientConnected(client);
+        }
+    }
+
     @Override
     public void onStateChanged(ConnectedClient client, ConnectedClient.ClientState newState) {
         switch (newState) {
@@ -239,9 +245,6 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
                     initializingClients.remove(client);
                     connectedClients.add(client);
                     connectedClientByPlayerUid.put(client.getPlayerUid(), client);
-                }
-                for (OnClientConnectedListener listener : onClientConnectedListeners) {
-                    listener.onClientConnected(client);
                 }
                 break;
             case INIT_FAILED:

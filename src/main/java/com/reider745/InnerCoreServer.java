@@ -14,7 +14,6 @@ import com.reider745.event.InnerCorePlugin;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
-import com.reider745.hooks.bugfix.DimensionsFix;
 import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
@@ -309,7 +308,6 @@ public class InnerCoreServer {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
 
-        DimensionsFix.init();
         GlobalBlockPalette.init();
         RuntimeItemsHooks.register();
         CustomBlock.init();

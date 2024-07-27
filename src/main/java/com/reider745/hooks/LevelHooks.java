@@ -329,14 +329,16 @@ public class LevelHooks implements HookClass {
     //Синхронизация времени
     @Inject
     public static void setTime(Level self, int time){
-        if(isUsePath(self) && time != getSyncLevel().getTime())
-            getSyncLevel().setTime(time);
+        final Level def = getSyncLevel();
+        if(isUsePath(self) && def != null && time != def.getTime())
+            def.setTime(time);
     }
 
     @Inject
     public static void doTick(Level self, int currentTick){
-        if(isUsePath(self))
-            self.setTime(getSyncLevel().getTime());
+        final Level def = getSyncLevel();
+        if(isUsePath(self) && def != null)
+            self.setTime(def.getTime());
     }
 
     @Inject(className = "cn.nukkit.level.format.generic.BaseLevelProvider")

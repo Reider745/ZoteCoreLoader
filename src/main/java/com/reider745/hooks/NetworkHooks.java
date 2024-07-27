@@ -16,6 +16,7 @@ import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
+import com.reider745.network.LoginPacketFix;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 
 import java.io.ByteArrayInputStream;
@@ -134,5 +135,6 @@ public class NetworkHooks implements HookClass {
     @Inject(type = TypeHook.AFTER_NOT_REPLACE)
     public static void registerPackets(Network network) {
         network.registerPacket(InnerCoreServer.PROTOCOL, InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
+        network.registerPacket(InnerCoreServer.PROTOCOL, LoginPacketFix.NETWORK_ID, LoginPacketFix.class);
     }
 }

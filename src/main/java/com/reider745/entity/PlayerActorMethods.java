@@ -346,7 +346,8 @@ public class PlayerActorMethods {
         if (!isValid(player, false)) {
             return false;
         }
-        return Server.getInstance().isOp(player.getName());
+
+        return player.isOp();
     }
 
     public static void setCanFly(Player player, boolean canFly) {

@@ -43,6 +43,8 @@ import com.reider745.network.InnerCorePacket;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
+import com.zhekasmirnov.apparatus.multiplayer.Network;
+import com.zhekasmirnov.apparatus.multiplayer.server.ModdedServer;
 import oshi.hardware.NetworkIF;
 
 import java.util.ArrayList;
@@ -470,7 +472,9 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLoginEvent(PlayerJoinEvent event) {
-        ConnectedClient client = PlayerHooks.getForPlayer(event.getPlayer());
+        final Player player = event.getPlayer();
+        final ConnectedClient client = PlayerHooks.getForPlayer(player);
+
         if (client == null || client.getClientState() != ConnectedClient.ClientState.OPEN) {
             String message = "You are should connect via Inner Core!";
             if(client != null)
@@ -479,10 +483,13 @@ public class EventListener implements Listener {
             return;
         }
 
+        client.playerUid = EntityMethod.getIdForEntity(player);
+        Network.getSingleton().getServer().onConnection(client);
+
         final String username = event.getPlayer().getName();
         consumeEvent(event, () -> NativeCallback.onPlayerLogin(client, username, (message) -> {
             if(message != null)
-                event.getPlayer().kick(message);
+                player.kick(message);
         }), true);
     }
 
