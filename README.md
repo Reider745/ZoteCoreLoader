@@ -92,6 +92,9 @@ pack-version-code: 159
 # Additional updatable threads
 threading_additional_thread_count: 8
 
+# Override player UUID
+override-player-uuid: on
+
 # Additional information in the log
 # debug-logger: on
 # info-logger: on

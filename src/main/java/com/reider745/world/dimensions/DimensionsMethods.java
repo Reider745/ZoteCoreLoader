@@ -167,7 +167,7 @@ public class DimensionsMethods {
                     dimensionsId.put(key, json.getInt(key));
             }
         }catch (IOException e){
-            Logger.error("Save dimensions id", e);
+            Logger.error("Read dimensions id", e);
             throw new RuntimeException("Error loaded ZoteCoreLoader");
         }
 

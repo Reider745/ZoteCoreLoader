@@ -473,7 +473,7 @@ public class InnerCoreServer {
     }
 
     public static int getAdditionalThreadCount() {
-        return getPropertyInt("threading_additional_thread_count", 16);
+        return getPropertyInt("threading_additional_thread_count", 0);
     }
 
     public static boolean isUnsupportedOptionsAllowed() {
@@ -495,6 +495,10 @@ public class InnerCoreServer {
 
     public static boolean shouldPlayersReceiveExceptionForms() {
         return getPropertyBoolean("display-ticking-errors-to-players", true);
+    }
+
+    public static boolean canOverridePlayerUUID(){
+        return getPropertyBoolean("override-player-uuid", true);
     }
 
     public static String getName() {

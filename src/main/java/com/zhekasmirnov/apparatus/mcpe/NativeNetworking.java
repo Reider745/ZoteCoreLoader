@@ -1,6 +1,7 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
 import cn.nukkit.Player;
+import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
 import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.multiplayer.channel.codec.StringChannelCodec;
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NativeNetworking {
     public interface ConnectionListener {
-        void onNativeChannelConnected(NativeDataChannel channel, Player sender);
+        void onNativeChannelConnected(NativeDataChannel channel, RakNetPlayerSession sender);
     }
 
     private static final List<ConnectionListener> connectionListeners = new ArrayList<>();
@@ -39,18 +40,18 @@ public class NativeNetworking {
         private static final int packetPollTimeout = 20 * 1000;
         private static final int initialPacketPollTimeout = 75 * 1000;
 
-        private final Player client;
+        private final RakNetPlayerSession client;
         private boolean isClosed = false;
         private long channelOpenedTime = 0;
 
         private final BlockingQueue<DataPacket> packets = new LinkedBlockingQueue<>();
         private final BlockingQueue<DataPacket> pongs = new LinkedBlockingQueue<>();
 
-        private NativeChannelImpl(Player client) {
+        private NativeChannelImpl(RakNetPlayerSession client) {
             this.client = client;
         }
 
-        public Player getClient() {
+        public RakNetPlayerSession getClient() {
             return client;
         }
 
@@ -161,8 +162,8 @@ public class NativeNetworking {
         }
     }
 
-    public static String getId(Player client){
-        return client.getSocketAddress().getAddress().toString();
+    public static String getId(RakNetPlayerSession client){
+        return client.getChannel().remoteAddress().getAddress().toString();
     }
 
     private static NativeChannelImpl clientToServerChannel = null;
@@ -202,9 +203,12 @@ public class NativeNetworking {
         }
     }
 
-    public static void onServerPacketReceived(Player sender, String name, int formatId, byte[] bytes) throws IOException {
+    public static void onServerPacketReceived(RakNetPlayerSession sender, String name, int formatId, byte[] bytes) throws IOException {
         synchronized (serverToClientChannelMap) {
             Java8BackComp.computeIfAbsent(serverToClientChannelMap, getId(sender), key -> {
+                if(InnerCoreServer.isDebugInnerCoreNetwork())
+                    System.out.println("Create new native connection");
+
                 NativeChannelImpl channel = new NativeChannelImpl(sender);
                 for (ConnectionListener listener : connectionListeners) {
                     listener.onNativeChannelConnected(new NativeDataChannel(channel), sender);

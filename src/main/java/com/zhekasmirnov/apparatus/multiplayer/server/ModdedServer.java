@@ -2,6 +2,7 @@ package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import android.util.Pair;
 import cn.nukkit.Player;
+import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
@@ -138,7 +139,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         onShutdownListeners.add(listener);
     }
 
-    public void onClientConnected(DataChannel channel, Player cl) {
+    public void onClientConnected(DataChannel channel, RakNetPlayerSession cl) {
         ConnectedClient client = new ConnectedClient(this, channel, cl);
         client.setDisconnectListener(this);
         client.setStateChangedListener(this);
@@ -187,7 +188,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
     }
 
     @Override
-    public void onNativeChannelConnected(NativeDataChannel channel, Player sender) {
+    public void onNativeChannelConnected(NativeDataChannel channel, RakNetPlayerSession sender) {
         if (EngineConfig.isDeveloperMode()) {
             Logger.debug("client connected via native protocol");
         }

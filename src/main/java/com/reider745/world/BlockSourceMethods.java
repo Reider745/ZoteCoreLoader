@@ -3,6 +3,7 @@ package com.reider745.world;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityItem;
@@ -24,6 +25,7 @@ import com.reider745.hooks.ItemUtils;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class BlockSourceMethods {
@@ -158,8 +160,38 @@ public class BlockSourceMethods {
         return 0;
     }
 
+    private static final HashMap<Integer, String> TILES_TYPES = new HashMap<>();
+
+    static {
+        TILES_TYPES.put(BlockID.CHEST, BlockEntity.CHEST);
+        TILES_TYPES.put(BlockID.TRAPPED_CHEST, BlockEntity.CHEST);
+        TILES_TYPES.put(BlockID.ENDER_CHEST, BlockEntity.ENDER_CHEST);
+        TILES_TYPES.put(BlockID.FURNACE, BlockEntity.FURNACE);
+        TILES_TYPES.put(BlockID.BLAST_FURNACE, BlockEntity.BLAST_FURNACE);
+        TILES_TYPES.put(BlockID.SMOKER, BlockEntity.SMOKER);
+        TILES_TYPES.put(BlockID.MONSTER_SPAWNER, BlockEntity.MOB_SPAWNER);
+        TILES_TYPES.put(BlockID.ENCHANT_TABLE, BlockEntity.ENCHANT_TABLE);
+        TILES_TYPES.put(BlockID.ITEM_FRAME_BLOCK, BlockEntity.ITEM_FRAME);
+        TILES_TYPES.put(BlockID.HOPPER_BLOCK, BlockEntity.HOPPER);
+        TILES_TYPES.put(BlockID.DROPPER, BlockEntity.DROPPER);
+    }
+
     public static BlockEntity getBlockEntity(Level level, int x, int y, int z) {
-        return level.getBlockEntity(new BlockVector3(x, y, z));
+        BlockEntity entity = level.getBlockEntity(new BlockVector3(x, y, z));
+
+        // TODO: Некоторые моды просто не знают, что блок может быть, а BlockEntity может и не быть(например StorageInterface)
+        if(entity == null){
+            final String type = TILES_TYPES.get(getBlockId(level, x, y, z));
+            if(type != null){
+                entity = BlockEntity.createBlockEntity(type, new Position(x, y, z).setLevel(level), new CompoundTag(type)
+                        .putString("id", type)
+                        .putInt("x", x)
+                        .putInt("y", y)
+                        .putInt("z", z));
+            }
+        }
+
+        return entity;
     }
 
     public static int getDimension(Level level) {

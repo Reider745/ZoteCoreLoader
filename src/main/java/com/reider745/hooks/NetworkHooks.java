@@ -5,10 +5,9 @@ import cn.nukkit.Server;
 import cn.nukkit.network.CompressionProvider;
 import cn.nukkit.network.Network;
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.utils.BinaryStream;
-import cn.nukkit.utils.Config;
-import cn.nukkit.utils.MainLogger;
-import cn.nukkit.utils.VarInt;
+import cn.nukkit.network.protocol.ProtocolInfo;
+import cn.nukkit.network.session.RakNetPlayerSession;
+import cn.nukkit.utils.*;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
@@ -18,9 +17,14 @@ import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
 import com.reider745.network.LoginPacketFix;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import org.cloudburstmc.netty.channel.raknet.packet.RakMessage;
 
 import java.io.ByteArrayInputStream;
 import java.net.ProtocolException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -29,12 +33,22 @@ public class NetworkHooks implements HookClass {
     private static final LinkedList<String> canSendInfo = new LinkedList<>();
 
     public static void close(Player player) {
-        canSendInfo.remove(NativeNetworking.getId(player));
+        try {
+            canSendInfo.remove(NativeNetworking.getId((RakNetPlayerSession) player.getNetworkSession()));
+        } catch (Exception e) {
+            Logger.error("Error convert", e);
+        }
     }
 
-    @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
+    @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;Lcn/nukkit/network/session/RakNetPlayerSession;)V", type = TypeHook.BEFORE_REPLACE)
     public static void processBatch(Network network, byte[] payload, Collection<DataPacket> packets,
-                                    CompressionProvider compression, int raknetProtocol, Player player) {
+                                    CompressionProvider compression, int raknetProtocol, Player player, RakNetPlayerSession session) {
+        final String id = NativeNetworking.getId(session);
+        if (!canSendInfo.contains(id)) {
+            canSendInfo.add(id);
+            session.sendPacketNotPlayer(InnerCorePacket.sendInfo);
+        }
+
         MainLogger log = Server.getInstance().getLogger();
 
         int maxSize = 3145728; // 3 * 1024 * 1024
@@ -88,26 +102,8 @@ public class NetworkHooks implements HookClass {
                     pk.protocol = player == null ? Integer.MAX_VALUE : player.protocol;
                     pk.setBuffer(buf, buf.length - bais.available());
 
-                    if (pk instanceof BasePacket) {
-                        if (player == null) {
-                            /*
-                            TODO: Иногда player бывает null, иза этого не проходит подключение по нативному протоклу
-                            Возможное решение:
-                            Хранить все пакеты с null player
-                            Хукнуть setPlayer из cn.nukkit.network.session.RakNetPlayerSession и в нем обрабатывать пакеты
-                             */
-                            log.error("processBatch player null, ignore packet " + packetId);
-                            break;
-                        }
-                        ((BasePacket) pk).player = player;
-                    }
-
-                    if (player != null) {
-                        final String id = NativeNetworking.getId(player);
-                        if (!canSendInfo.contains(id)) {
-                            canSendInfo.add(id);
-                            player.dataPacket(InnerCorePacket.sendInfo);
-                        }
+                    if (pk instanceof BasePacket packet) {
+                        packet.session = session;
                     }
 
                     try {

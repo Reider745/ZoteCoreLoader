@@ -11,13 +11,20 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.behavior.entities.CustomEntity;
 import com.reider745.behavior.entities.EntityContentFactory;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.horizon.util.FileUtils;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Hooks(className = "cn.nukkit.entity.item.EntityArmorStand")
 public class EntityOverrides implements HookClass {
@@ -36,6 +43,8 @@ public class EntityOverrides implements HookClass {
     }
 
     private static Field fieldId;
+    private static final HashMap<String, Long> playerIdForUUID = new HashMap<>();
+    private static long id_start = Long.MIN_VALUE;
 
     static {
         try {
@@ -44,14 +53,45 @@ public class EntityOverrides implements HookClass {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        try{
+            final File file = new File("players_uuid.json");
+            if(file.exists()){
+                final JSONObject json = FileUtils.readJSON(file);
+
+                for(String key : json.keySet()) {
+                    Long id = json.getLong(key);
+                    id_start = Math.max(id_start, id);
+                    playerIdForUUID.put(key, id);
+                }
+            }
+        }catch (IOException e){
+            Logger.error("Read players uuid", e);
+            throw new RuntimeException("Error loaded ZoteCoreLoader");
+        }
+    }
+
+    public static Long getOrCreate(UUID uuid) throws IOException {
+        final String strUUID = uuid.toString();
+        Long id = playerIdForUUID.get(strUUID);
+
+        if(id == null){
+            id = ++id_start;
+            playerIdForUUID.put(strUUID, id);
+            FileUtils.writeJSON(new File("players_uuid.json"), new JSONObject(playerIdForUUID));
+        }
+
+        return id;
     }
 
     @Inject(className = "cn.nukkit.entity.Entity")
     public static void scheduleUpdate(Entity self){
         try {
             if(self.isPlayer)
-                fieldId.set(self, (long) self.getUniqueId().toString().hashCode());
-        } catch (IllegalAccessException ignore) {}
+                fieldId.set(self, getOrCreate(self.getUniqueId()));
+        } catch (IllegalAccessException | IOException e) {
+            self.getServer().getLogger().logException(e);
+        }
     }
 
 

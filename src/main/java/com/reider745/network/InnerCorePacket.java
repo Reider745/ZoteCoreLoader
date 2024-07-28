@@ -3,6 +3,7 @@ package com.reider745.network;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
@@ -43,10 +44,10 @@ public class InnerCorePacket extends BasePacket {
             if(InnerCoreServer.isDebugInnerCoreNetwork())
                 System.out.println("Recived packet for native protocol "+name);
 
-            NativeNetworking.onServerPacketReceived(player, name, format_id, bytes);
+            NativeNetworking.onServerPacketReceived(session, name, format_id, bytes);
         } catch (Exception e) {
-            Server.getInstance().getLogger().warning("Native protocol decoding error! player: "+(player == null), e);
-            if(player != null) player.kick(e.getMessage());
+            Server.getInstance().getLogger().warning("Native protocol decoding error! player: "+(this.session == null), e);
+            if(this.session != null) this.session.disconnect(e.getMessage());
         }
     }
 
@@ -62,13 +63,14 @@ public class InnerCorePacket extends BasePacket {
         this.put(bytes);
     }
 
-    public static void sendPacketToClient(Player player, String name, int format_id, byte[] data) {
-        InnerCorePacket packet = new InnerCorePacket();
+    public static void sendPacketToClient(RakNetPlayerSession session, String name, int format_id, byte[] data) {
+        final InnerCorePacket packet = new InnerCorePacket();
+
         packet.name = name;
         packet.format_id = format_id;
         packet.bytes_length = data.length;
         packet.bytes = data;
 
-        player.dataPacket(packet);
+        session.sendPacketNotPlayer(packet);
     }
 }

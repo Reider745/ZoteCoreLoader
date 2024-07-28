@@ -1,6 +1,7 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import cn.nukkit.Player;
+import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
@@ -50,7 +51,7 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         void onStateChanged(ConnectedClient client, ClientState newState);
     }
 
-    public ConnectedClient(ModdedServer server, DataChannel channel, Player client) {
+    public ConnectedClient(ModdedServer server, DataChannel channel, RakNetPlayerSession client) {
         this.server = server;
         this.channel = new ChannelInterface(channel);
         this.channel.addListener(this);
