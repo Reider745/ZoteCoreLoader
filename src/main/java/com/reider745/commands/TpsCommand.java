@@ -17,11 +17,21 @@ public class TpsCommand extends Command {
 
         long innerCoreSum = 0;
         for(long time : innerCoreTimes)
-            innerCoreSum += Math.min(20, 1000 / time);
+            if(time != 0)
+                innerCoreSum += Math.min(20, 1000 / time);
+            else{
+                commandSender.sendMessage("Not enough information");
+                return true;
+            }
 
         long nukkitSum = 0;
         for(long time : nukkitTimes)
-            nukkitSum += Math.min(20, 1000 / time);
+            if(time != 0)
+                nukkitSum += Math.min(20, 1000 / time);
+            else{
+                commandSender.sendMessage("Not enough information");
+                return true;
+            }
 
         if(innerCoreSum != 0 && nukkitSum != 0) {
             commandSender.sendMessage("Inner core tps: " + (innerCoreSum / 20.0f));

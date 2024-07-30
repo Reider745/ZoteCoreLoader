@@ -66,9 +66,11 @@ public class Callback {
         Scriptable parent;
         if (funcs != null) {
             long profilingNanos = !profilingEnabled || isTick ? 0 : System.nanoTime();
-            for (CallbackFunction callback : funcs) {
-                parent = callback.function.getParentScope();
-                callback.function.call(ctx, parent, parent, params);
+            synchronized (funcs) {
+                for (CallbackFunction callback : funcs) {
+                    parent = callback.function.getParentScope();
+                    callback.function.call(ctx, parent, parent, params);
+                }
             }
             if (profilingNanos != 0) {
                 profilingNanos = System.nanoTime() - profilingNanos;
@@ -96,13 +98,15 @@ public class Callback {
             if (profilingEnabled && !isTick) {
                 result.add(() -> profilingNanos.set(System.nanoTime()));
             }
-            for (CallbackFunction func0 : funcs) {
-                result.add(new Runnable() {
-                    public void run() {
-                        Scriptable parent = func0.function.getParentScope();
-                        func0.function.call(Compiler.assureContextForCurrentThread(), parent, parent, params);
-                    }
-                });
+            synchronized (funcs) {
+                for (CallbackFunction func0 : funcs) {
+                    result.add(new Runnable() {
+                        public void run() {
+                            Scriptable parent = func0.function.getParentScope();
+                            func0.function.call(Compiler.assureContextForCurrentThread(), parent, parent, params);
+                        }
+                    });
+                }
             }
             if (profilingNanos.get() != 0) {
                 result.add(() -> Logger.debug("Profiling/" + name, funcs.size() + " functions in "
