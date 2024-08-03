@@ -660,6 +660,12 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        public static NativeArray getAllLocal() {
+            InnerCoreServer.useClientMethod("Entity.getAllLocal");
+            return new NativeArray(0);
+        }
+
+        @JSStaticFunction
         public static float[] getPosition(Object entity) {
             float[] pos = new float[3];
             NativeAPI.getPosition(unwrapEntity(entity), pos);
@@ -2795,6 +2801,19 @@ public class AdaptedScriptAPI extends API {
             super(com.zhekasmirnov.apparatus.ecs.ECS.getEntityManager());
         }
     }
+
+    public static class GameController extends NativeGameController {
+        @JSStaticFunction
+        public static void attack(Object entity){
+            attack(Entity.unwrapEntity(entity));
+        }
+
+        @JSStaticFunction
+        public static void interact(Object entity, double x, double y, double z){
+            interact(Entity.unwrapEntity(entity), (float) x, (float) y, (float) z);
+        }
+    }
+
 
     @JSStaticFunction
     public static Function requireMethodFromNativeAPI(String _className, final String methodName,

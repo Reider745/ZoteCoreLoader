@@ -506,13 +506,13 @@ public class InnerCoreServer {
     }
 
     public static String getVersionName() {
-        return getPropertyString("pack-version", "2.3.1b115 test");
+        return getPropertyString("pack-version", "2.3.1b120");
     }
 
     public static int getVersionCode() {
         List<Integer> versions = getVersionsCode();
         if(versions.isEmpty())
-            return 159;
+            return 160;
         return versions.get(0);
     }
 

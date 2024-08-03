@@ -115,9 +115,9 @@ override-player-uuid: on
 
 ## Technical information
 
-| Ключ | Значение |
-|---|---|
-| Protocol version | 422 (1.16.200) |
-| Commit Apparatus | `73194cfd` |
+| Ключ                    | Значение |
+|-------------------------|---|
+| Protocol version        | 422 (1.16.200) |
+| Commit InnerCore-1.16   | `96197c3b3426c6fa022332b7825cd018370d2a7c` |
 | Commit Instant Referrer | `a264591` |
-| Commit Nukkit-MOT | `191f6ea2b29c083d41470125fd6cd1fb3d698399` |
+| Commit Nukkit-MOT       | `e85deb189b829c9e23908a6443dd06d67f340a90` |
