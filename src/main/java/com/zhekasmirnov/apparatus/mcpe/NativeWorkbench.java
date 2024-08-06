@@ -158,11 +158,16 @@ public class NativeWorkbench {
                 if (accepted) {
                     craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL, new ShapelessRecipe(result, ingredients));
                 }
+
+                if(NativeWorkbench.craftingManager != null)
+                    craftingManager.rebuildPacket();
             }
         }
     }
 
     private static final ArrayList<IApply> recipes = new ArrayList<>();
+    private static RuntimeItemMapping runtimeItemMapping = null;
+    private static CraftingManager craftingManager = null;
 
     private static void addShapedRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
             String[] pattern, int[] ingredients) {
@@ -174,7 +179,12 @@ public class NativeWorkbench {
         final HashMap<Character, ItemStack> ingredients_ = new HashMap<>();
         for (int i = 0; i < ingredients.length; i += 3)
             ingredients_.put((char) ingredients[i], new ItemStack(ingredients[i + 1], 1, ingredients[i + 2]));
-        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtra, pattern, ingredients_));
+
+        final RecipeRegistry recipe = new RecipeRegistry(resultId, resultCount, resultData, resultExtra, pattern, ingredients_);
+        if(craftingManager != null)
+            recipe.apply(runtimeItemMapping, craftingManager);
+        else
+            recipes.add(recipe);
     }
 
     public static void addShapedRecipe(ItemStack result, String[] pattern, int[] ingredients) {
@@ -188,7 +198,11 @@ public class NativeWorkbench {
             return;
         }
 
-        recipes.add(new RecipeRegistry(resultId, resultCount, resultData, resultExtra, ingredients));
+        final RecipeRegistry recipe = new RecipeRegistry(resultId, resultCount, resultData, resultExtra, ingredients);
+        if(craftingManager != null)
+            recipe.apply(runtimeItemMapping, craftingManager);
+        else
+            recipes.add(recipe);
     }
 
     public static void addShapelessRecipe(ItemStack result, int[] ingredients) {
@@ -197,16 +211,21 @@ public class NativeWorkbench {
 
 
     public static void removeRecipeByResult(int resultId, int resultCount, int resultData) {
-        recipes.add(new RecipeRemove(resultId, resultCount, resultData));
+        final RecipeRemove recipe = new RecipeRemove(resultId, resultCount, resultData);
+        if(craftingManager != null)
+            recipe.apply(runtimeItemMapping, craftingManager);
+        else
+            recipes.add(recipe);
     }
     public static void init() {
-        final RuntimeItemMapping mapping = RuntimeItems.getMapping(InnerCoreServer.PROTOCOL);
+        runtimeItemMapping = RuntimeItems.getMapping(InnerCoreServer.PROTOCOL);
         final CraftingManager craftingManager = Server.getInstance().getCraftingManager();
 
         for (IApply recipe : recipes)
-            recipe.apply(mapping, craftingManager);
+            recipe.apply(runtimeItemMapping, craftingManager);
 
         recipes.clear();
         craftingManager.rebuildPacket();
+        NativeWorkbench.craftingManager = craftingManager;
     }
 }

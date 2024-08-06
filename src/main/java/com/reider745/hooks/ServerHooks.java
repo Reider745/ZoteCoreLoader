@@ -76,10 +76,11 @@ public class ServerHooks implements HookClass {
     }
 
     private static long start_pre = 0;
+    private static int indexTime = 0;
 
     @Inject
     public static void checkTickUpdates(Server server, int tick) {
-        int indexTime = server.getTick() % 20;
+        indexTime = (indexTime + 1) % 20;
         TpsCommand.nukkitTimes[indexTime] = System.currentTimeMillis() - start_pre;
 
         try {

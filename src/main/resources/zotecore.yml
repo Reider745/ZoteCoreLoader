@@ -6,7 +6,7 @@ pack-version-code: 160
 
 # Sets the list of mods and configs to load, you can specify
 # name, folder name of a modpack from /modpacks or a path.
-# modpack: StoneBlock
+# modpack: LoveZote
 
 # Use vanilla crafting table interface, instead of custom one.
 # Attention: currently not recommended and recipes dislayed with bugs.
