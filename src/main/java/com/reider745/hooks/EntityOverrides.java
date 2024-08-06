@@ -43,8 +43,8 @@ public class EntityOverrides implements HookClass {
     }
 
     private static Field fieldId;
-    private static final HashMap<String, Long> playerIdForUUID = new HashMap<>();
-    private static long id_start = Long.MIN_VALUE;
+    private static final HashMap<String, Integer> playerIdForUUID = new HashMap<>();
+    private static int id_start = Integer.MIN_VALUE;
 
     static {
         try {
@@ -60,7 +60,7 @@ public class EntityOverrides implements HookClass {
                 final JSONObject json = FileUtils.readJSON(file);
 
                 for(String key : json.keySet()) {
-                    Long id = json.getLong(key);
+                    Integer id = json.getInt(key);
                     id_start = Math.max(id_start, id);
                     playerIdForUUID.put(key, id);
                 }
@@ -71,9 +71,9 @@ public class EntityOverrides implements HookClass {
         }
     }
 
-    public static Long getOrCreate(UUID uuid) throws IOException {
+    public static int getOrCreate(UUID uuid) throws IOException {
         final String strUUID = uuid.toString();
-        Long id = playerIdForUUID.get(strUUID);
+        Integer id = playerIdForUUID.get(strUUID);
 
         if(id == null){
             id = ++id_start;
@@ -88,7 +88,7 @@ public class EntityOverrides implements HookClass {
     public static void scheduleUpdate(Entity self){
         try {
             if(self.isPlayer)
-                fieldId.set(self, getOrCreate(self.getUniqueId()));
+                fieldId.set(self, (long) getOrCreate(self.getUniqueId()));
         } catch (IllegalAccessException | IOException e) {
             self.getServer().getLogger().logException(e);
         }
