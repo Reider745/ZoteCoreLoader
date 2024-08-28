@@ -425,6 +425,7 @@ public class InnerCoreServer {
             StringBuilder builder = new StringBuilder();
             builder.append("Available modpacks: ");
             for (ModPack modpack : modpacks) {
+                builder.append(',');
                 builder.append(modpack.getRootDirectory().getName());
             }
             builder.append('.');

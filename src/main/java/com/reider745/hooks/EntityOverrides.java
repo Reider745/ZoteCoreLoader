@@ -1,10 +1,13 @@
 package com.reider745.hooks;
 
+import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.custom.EntityDefinition;
 import cn.nukkit.entity.custom.EntityManager;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.network.protocol.PlayerListPacket;
 import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
@@ -87,8 +90,17 @@ public class EntityOverrides implements HookClass {
     @Inject(className = "cn.nukkit.entity.Entity")
     public static void scheduleUpdate(Entity self){
         try {
-            if(self.isPlayer)
+            if(self instanceof Player player) {
+                final long id_pre = self.getId();
                 fieldId.set(self, (long) getOrCreate(self.getUniqueId()));
+
+                final PlayerListPacket pk = new PlayerListPacket();
+                pk.type = PlayerListPacket.TYPE_REMOVE;
+                pk.entries = new PlayerListPacket.Entry[]{
+                        new PlayerListPacket.Entry(player.getUniqueId(), id_pre, player.getDisplayName(), player.getSkin(), "")
+                };
+                player.dataPacket(pk);
+            }
         } catch (IllegalAccessException | IOException e) {
             self.getServer().getLogger().logException(e);
         }
