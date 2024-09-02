@@ -529,7 +529,7 @@ public class ItemContainer implements WorkbenchField, ObjectSaverRegistry.IHashS
                         networkEntity.send("bindings", new JSONObject(dirtyBindingsMap));
                         dirtyBindingsMap.clear();
                     }catch (Exception e){
-                        Logger.error(dirtyBindingsMap.toString(), e);
+                        //Logger.error(dirtyBindingsMap.toString(), e);
                     }
                 }
             }

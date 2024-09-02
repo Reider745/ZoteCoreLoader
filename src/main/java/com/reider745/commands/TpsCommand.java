@@ -23,25 +23,27 @@ public class TpsCommand extends Command {
             long innerCoreSum = 0;
             for(long time : innerCoreTimes)
                 if(time != 0) {
-                    innerCoreSum += Math.min(20, 1000 / time);
+                    innerCoreSum += time;
                     aboba1++;
                 }
 
             long nukkitSum = 0;
             for(long time : nukkitTimes)
                 if(time != 0) {
-                    nukkitSum += Math.min(20, 1000 / time);
+                    nukkitSum += time;
                     aboba2++;
                 }
 
-            if(innerCoreSum != 0)
-                commandSender.sendMessage("Inner core tps: " + (innerCoreSum / aboba1));
-            else
+            if(innerCoreSum != 0) {
+                final float avgTime = innerCoreSum / aboba1;
+                commandSender.sendMessage("Inner core tps: " + Math.min(20, 1000 / avgTime)  + ", ms: "+avgTime);
+            }else
                 commandSender.sendMessage("Inner core tps: 20.0");
 
-            if(nukkitSum != 0)
-                commandSender.sendMessage("Nukkit tps: " + (nukkitSum / aboba2));
-            else
+            if(nukkitSum != 0) {
+                final float avgTime = nukkitSum / aboba1;
+                commandSender.sendMessage("Nukkit tps: " + Math.min(20, 1000 / avgTime)  + ", ms: "+avgTime);
+            }else
                 commandSender.sendMessage("Nukkit tps: 20.0");
         }catch (Exception e){
             commandSender.sendMessage("Not enough information");
