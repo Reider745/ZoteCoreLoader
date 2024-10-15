@@ -22,14 +22,13 @@ public class BlocksHooks implements HookClass {
     @Override
     public void rebuildField(CtClass ctClass, CtField field) {
         String name = field.getName();
-        if (name.equals("MAX_BLOCK_ID") || name.equals("usesFakeWater"))
+        if (name.equals("MAX_BLOCK_ID"))
             field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
     }
 
     @Inject
     public static void init() {
         ReflectHelper.setField(Block.class, "MAX_BLOCK_ID", 16000);
-        ReflectHelper.setField(Block.class, "usesFakeWater", new boolean[MAX_ID]);
     }
 
     @Inject

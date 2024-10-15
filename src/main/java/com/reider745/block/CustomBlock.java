@@ -37,6 +37,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
         Block.solid[id] = block.isSolid();
         Block.transparent[id] = block.isTransparent();
+        diffusesSkyLight[id] = block.diffusesSkyLight();
         Block.hardness[id] = block.getHardness();
         Block.light[id] = block.getLightLevel();
 
