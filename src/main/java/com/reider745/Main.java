@@ -71,7 +71,7 @@ public class Main {
         //Js engine
         //add("com.reider745.jsengine.graalvm.hooks.ArgumentsPatch");
         add("com.reider745.hooks.RhinoOverrides");
-        loader.addInit("com.reider745.jsengine.rhino.hooks.RhinoOverrides", ctClass -> {
+        loader.addInit("com.reider745.hooks.RhinoOverrides", ctClass -> {
             try {
                 CtMethod reflectMethod = ctClass.getDeclaredMethod("reflect");
                 reflectMethod.insertAt(reflectMethod.getMethodInfo().getLineNumber(76),
