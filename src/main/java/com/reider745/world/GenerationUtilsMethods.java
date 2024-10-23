@@ -8,7 +8,7 @@ import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
 import com.reider745.api.CallbackHelper;
-import com.reider745.world.dimensions.Noise;
+import com.reider745.world.dimensions.NoiseOctaveMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import java.util.ArrayList;
 
@@ -123,7 +123,7 @@ public class GenerationUtilsMethods {
         float result = 0;
         float mul = 2 * ((1 << numOctaves) - 1) / (float) (1 << numOctaves);
         for (int i = 0; i < numOctaves; i++) {
-            result += Noise.noise_value(null, x * scale, y * scale, z * scale, seed) / mul;
+            result += NoiseOctaveMethods.NoiseOctaveDescription.base_noise_value(null, x * scale, y * scale, z * scale, seed) / mul;
             mul *= 2;
             scale *= 2;
         }
