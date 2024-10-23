@@ -24,17 +24,6 @@ import java.util.ArrayList;
 public class RhinoOverrides implements HookClass {
     private static final Logger logger = LogManager.getLogger(MainLogger.class);
 
-    @Override
-    public void init(CtClass ctClass) {
-        try {
-            CtMethod reflectMethod = ctClass.getDeclaredMethod("reflect");
-            reflectMethod.insertAt(reflectMethod.getMethodInfo().getLineNumber(76),
-                    "method = org.mozilla.javascript.MembersPatch.override(cl, method);");
-        } catch (NotFoundException | CannotCompileException e) {
-            System.out.println("Rhino has been updated and overrides for `JavaMembers.reflect` method are no longer available.");
-        }
-    }
-
     @Inject(className = "org.mozilla.javascript.ScriptRuntime")
     public static String[] getTopPackageNames() {
         return new String[] { "java", "javax", "org", "com", "edu", "net", "android", "cn"};

@@ -30,21 +30,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Hooks(className = "cn.nukkit.entity.item.EntityArmorStand")
-public class EntityOverrides implements HookClass {
-    @Override
-    public void init(CtClass ctClass) {
-        try {
-            CtMethod onInteractMethod = ctClass.getDeclaredMethod("onInteract");
-            onInteractMethod.insertAt(onInteractMethod.getMethodInfo().getLineNumber(70),
-                    "if (flag && item instanceof com.reider745.item.CustomArmorItem) {"
-                            + "i = ((com.reider745.item.CustomArmorItem) item).getArmorSlot();"
-                            + "isArmorSlot = true;"
-                            + "}");
-        } catch (NotFoundException | CannotCompileException e) {
-            System.out.println("Nukkit-MOT has been updated and overrides for `EntityArmorStand.onInteract` method are no longer available.");
-        }
-    }
-
+public class EntityOverrides {
     private static Field fieldId;
     private static final HashMap<String, Integer> playerIdForUUID = new HashMap<>();
     private static int id_start = Integer.MIN_VALUE;

@@ -20,7 +20,7 @@ import org.json.JSONObject;
 import java.util.*;
 
 @Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
-public class GlobalBlockPalette implements HookClass {
+public class GlobalBlockPalette  {
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
     private static final ArrayList<Pair<Integer, Long>> assignedRuntimeIds = new ArrayList<>();

@@ -19,18 +19,19 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
 @Hooks(className = "cn.nukkit.Server")
-public class ServerHooks implements HookClass {
+public class ServerHooks {
+    public static InnerCoreServer innerCoreServer = new InnerCoreServer();
 
     @Inject
     public static void start(Server self) throws Exception {
-        Main.LoadingStages.afterload(self);
-        Main.LoadingStages.start(self);
+        innerCoreServer.afterload();
+        innerCoreServer.start();
     }
 
     @Inject(className = "cn.nukkit.dispenser.DispenseBehaviorRegister", type = TypeHook.AFTER)
     public static void init() {
         try {
-			Main.LoadingStages.preload(Server.getInstance());
+            innerCoreServer.preload(Server.getInstance());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

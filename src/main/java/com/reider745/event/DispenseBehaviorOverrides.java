@@ -25,17 +25,6 @@ import cn.nukkit.math.Vector3;
 public class DispenseBehaviorOverrides implements HookClass {
 	public static int dispenseSlot = -1;
 
-	@Override
-	public void init(CtClass ctClass) {
-		try {
-			CtMethod dispenseMethod = ctClass.getDeclaredMethod("dispense");
-			dispenseMethod.insertAt(dispenseMethod.getMethodInfo().getLineNumber(310),
-					"com.reider745.event.DispenseBehaviorOverrides.dispenseSlot = slot;");
-		} catch (NotFoundException | CannotCompileException e) {
-			System.out.println("Nukkit-MOT has been updated and overrides for `BlockDispenser.dispense` method are no longer available.");
-		}
-	}
-
 	public static class BlockDispenseEvent extends BlockEvent implements Cancellable {
 		public BlockDispenseEvent(BlockDispenser block) {
 			super(block);

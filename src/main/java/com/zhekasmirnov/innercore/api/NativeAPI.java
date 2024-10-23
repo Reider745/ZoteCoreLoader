@@ -10,7 +10,6 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
 import com.reider745.api.ClientOnly;
 import com.reider745.entity.EntityMethod;
-import com.reider745.hooks.BiomesHooks;
 import com.reider745.item.ItemMethod;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.WorldMethod;

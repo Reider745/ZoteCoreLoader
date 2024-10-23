@@ -38,6 +38,7 @@ import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.utils.BinaryStream;
 import com.reider745.InnerCoreServer;
 import com.reider745.Main;
+import com.reider745.hooks.ServerHooks;
 import com.reider745.item.ItemMethod;
 import com.reider745.network.InnerCorePacket;
 import com.reider745.world.BiomesMethods;
@@ -551,7 +552,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void stopServer(ServerStopEvent event){
         try {
-            Main.innerCoreServer.left();
+            ServerHooks.innerCoreServer.left();
         } catch (Exception e) {
             e.printStackTrace();
         }

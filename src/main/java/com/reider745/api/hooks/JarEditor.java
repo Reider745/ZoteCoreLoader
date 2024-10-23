@@ -1,10 +1,10 @@
 package com.reider745.api.hooks;
 
+import com.reider745.Main;
 import com.reider745.api.hooks.annotation.*;
 import javassist.*;
 import javassist.bytecode.*;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class JarEditor {
-    private final Loader classLoader;
+    private final HookClassLoader classLoader;
     private final ClassPool classPool = new ClassPool();
     private final ClassPath classPath;
 
     public JarEditor() {
-        classLoader = new Loader(JarEditor.class.getClassLoader(), classPool);
+        classLoader = new HookClassLoader(Main.class.getClassLoader(), classPool);
         classPath = new LoaderClassPath(classLoader);
 
         classPool.insertClassPath(classPath);
@@ -26,15 +26,16 @@ public class JarEditor {
     public static final class RetNull {
     }
 
-    private static record HookData(String className, String method, String signature, Method handler, TypeHook typeHook, boolean controller, ArgumentTypes argumentsMap) {
+    private static record HookData(String className, String method, String signature, CtMethod handler, TypeHook typeHook, boolean controller, ArgumentTypes argumentsMap) {
     }
 
     private static final String NAME_CONTROLLER = HookController.class.getName();
     private static final String NAME_ARGUMENTS_MAP = Arguments.class.getName();
     private static final HashMap<String, ArrayList<HookData>> ALL_HOOKS = new HashMap<>();
+    private static final HashMap<String, String> loadedHookClass = new HashMap<>();
 
-    private void addHookInitialization(String className, String method, String sig, Method replaced, TypeHook typeHook,
-            boolean controller, ArgumentTypes argumentMap) {
+    private void addHookInitialization(String className, String method, String sig, CtMethod replaced, TypeHook typeHook,
+                                       boolean controller, ArgumentTypes argumentMap) {
         ArrayList<HookData> hooks = ALL_HOOKS.get(className);
 
         if (hooks == null)
@@ -50,22 +51,21 @@ public class JarEditor {
         return (String) className;
     }
 
-    public JarEditor registerHooksInitializationForClass(Class<? extends HookClass> clazz)
-            throws InstantiationException, IllegalAccessException, NotFoundException, NoSuchMethodException,
-            SecurityException, IllegalArgumentException, InvocationTargetException {
-        Constructor<?> hookConstructor = clazz.getDeclaredConstructor(new Class[0]);
-        try {
-            hookConstructor.setAccessible(true);
-        } catch (SecurityException e) {
-        }
-        HookClass instance = (HookClass) hookConstructor.newInstance();
+    public HookClassLoader getClassLoader() {
+        return classLoader;
+    }
 
-        for (Annotation annotationClass : clazz.getAnnotations()) {
+    public JarEditor registerHooksInitializationForClass(String clazz)
+            throws InstantiationException, IllegalAccessException, NotFoundException, NoSuchMethodException,
+            SecurityException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException {
+        CtClass ctClass = classPool.get(clazz);
+
+        for (Object annotationClass : ctClass.getAnnotations()) {
             if (annotationClass instanceof Hooks hooks) {
                 String classNameDefault = getClassName(hooks.className());
 
-                for (Method method : clazz.getMethods()) {
-                    for (Annotation annotationMethod : method.getAnnotations()) {
+                for (CtMethod method : ctClass.getMethods()) {
+                    for (Object annotationMethod : method.getAnnotations()) {
                         if (annotationMethod instanceof Inject inject) {
                             String methodName = inject.method();
                             String classNameInjector = getClassName(inject.className());
@@ -89,26 +89,68 @@ public class JarEditor {
                     }
                 }
 
-                if (!classNameDefault.isBlank()) {
-                    instance.init(classPool.get(classNameDefault));
-                }
-                replaceField(classNameDefault, instance);
+                loadedHookClass.put(clazz, classNameDefault);
             }
         }
         return this;
+    }
+
+    public CtClass get(String name) throws NotFoundException {
+        return classPool.get(name);
+    }
+
+
+    public interface IInit {
+        void call(CtClass ctClass);
+    }
+
+    private HashMap<String, IInit> inits = new HashMap<>();
+    public void addInit(String name, IInit init){
+        inits.put(name, init);
+    }
+
+    public interface IRebuildField {
+        void call(CtClass ctClass, CtField field);
+    }
+
+    private HashMap<String, IRebuildField> rebuildFields = new HashMap<>();
+    public void addRebuildField(String name, IRebuildField init){
+        rebuildFields.put(name, init);
     }
 
     public void init(boolean debug) {
         ALL_HOOKS.forEach((key, list) -> {
             if(debug)
                 System.out.println("===== " + key + " =====");
+
             list.forEach(data -> addHook(data.className, data.method, data.signature, data.handler, data.typeHook,
                     data.controller, data.argumentsMap, debug));
+
+        });
+
+        loadedHookClass.forEach((clazz, classNameDefault) -> {
+            try{
+                replaceField(classNameDefault, rebuildFields.get(clazz));
+                IInit init = inits.get(clazz);
+                if(init != null)
+                    init.call(classPool.get(classNameDefault));
+
+                Class<?> clazzLoad = classLoader.loadClass(clazz);
+                if(clazzLoad.getSuperclass().getName().equals("com.reider745.api.hooks.HookClass")){
+                    Constructor<?> hookConstructor = clazzLoad.getDeclaredConstructor(new Class[0]);
+                    hookConstructor.setAccessible(true);
+                    HookClass instance = (HookClass) hookConstructor.newInstance();
+
+                    instance.init();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         });
     }
 
-    private String getCode(Method replaced, String[] arguments, String[] argumentTypes, String returnType,
-            TypeHook typeHook, boolean isStatic, boolean controller, ArgumentTypes argumentMapMode) {
+    private String getCode(CtMethod replaced, String[] arguments, String[] argumentTypes, String returnType,
+                           TypeHook typeHook, boolean isStatic, boolean controller, ArgumentTypes argumentMapMode) throws NotFoundException {
         String funcName = replaced.getDeclaringClass().getName() + "." + replaced.getName();
         String code = "";
         int offset = 0;
@@ -199,12 +241,12 @@ public class JarEditor {
     }
 
     private static boolean canMethodHook(String methodSignature, String signature, boolean isController, boolean isStatic,
-            Method method, String[] types) {
+                                         CtMethod method, String[] types) throws NotFoundException {
         if (!signature.isBlank()) {
             return methodSignature.equals(signature);
         }
 
-        Class<?>[] parameters = method.getParameterTypes();
+        CtClass[] parameters = method.getParameterTypes();
         if (parameters.length > (isController ? 1 : 0)) {
             int offset = isStatic ? 1 : 0;
 
@@ -212,7 +254,7 @@ public class JarEditor {
                 return false;
 
             for (int i = offset; i < parameters.length; i++) {
-                Class<?> parameter = parameters[i];
+                CtClass parameter = parameters[i];
                 if (!parameter.getName().equals(types[i - offset]))
                     return false;
             }
@@ -249,39 +291,39 @@ public class JarEditor {
         return types;
     }
 
-    private boolean isController(Method replaced) {
-        Class<?>[] parameters = replaced.getParameterTypes();
+    private boolean isController(CtMethod replaced) throws NotFoundException {
+        CtClass[] parameters = replaced.getParameterTypes();
         return parameters.length != 0 && parameters[0].getName().equals(NAME_CONTROLLER);
     }
 
-    private boolean isMapArguments(Method replaced, String[] types, boolean isStatic, boolean isController) {
-        Class<?>[] parameters = replaced.getParameterTypes();
+    private boolean isMapArguments(CtMethod replaced, String[] types, boolean isStatic, boolean isController) throws NotFoundException {
+        CtClass[] parameters = replaced.getParameterTypes();
         if (isController) {
             return parameters.length <= 1 + (isStatic ? 0 : 1);
         }
         return false;
     }
 
-    private void replaceField(String className, HookClass fieldReplaced) {
+    private void replaceField(String className, IRebuildField fieldReplaced) {
+        if(fieldReplaced == null) return;
         try {
             CtClass ctClass = classPool.get(className);
 
             CtField[] ctField = ctClass.getDeclaredFields();
             try {
                 for (CtField field : ctField) {
-                    fieldReplaced.rebuildField(ctClass, field);
+                    fieldReplaced.call(ctClass, field);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             ctClass.rebuildClassFile();
-        } catch (Exception e) {
-        }
+        } catch (Exception ignore) {}
     }
 
-    private void addHook(String className, String method, String signature, Method replaced, TypeHook typeHook,
-            boolean controller, ArgumentTypes argumentMap, boolean debug) {
+    private void addHook(String className, String method, String signature, CtMethod replaced, TypeHook typeHook,
+                         boolean controller, ArgumentTypes argumentMap, boolean debug) {
         try {
             // String[] argumentTypes = Arguments.parseSignature(sig);
 
@@ -310,7 +352,7 @@ public class JarEditor {
                                 controller, argumentMap);
                         switch (typeHook) {
                             case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, RETURN, AFTER_REPLACE ->
-                                ctmBuffer.insertBefore(code);
+                                    ctmBuffer.insertBefore(code);
                             case AFTER, AFTER_NOT_REPLACE -> ctmBuffer.insertAfter(code);
                             default -> throw new RuntimeException("Hook type not found or does not exist. "
                                     + "Please make sure you have correctly specified the hook type and that it exists in your project.");
@@ -357,7 +399,7 @@ public class JarEditor {
                             switch (typeHook) {
                                 case RETURN -> ctmBuffer.setBody("{ " + code + " }");
                                 case BEFORE, BEFORE_NOT_REPLACE, BEFORE_REPLACE, AFTER_REPLACE ->
-                                    ctmBuffer.insertBefore(code);
+                                        ctmBuffer.insertBefore(code);
                                 case AFTER, AFTER_NOT_REPLACE -> ctmBuffer.insertAfter(code);
                                 default -> throw new RuntimeException("Hook type not found or does not exist. "
                                         + "Please make sure you have correctly specified the hook type and that it exists in your project.");
@@ -366,7 +408,7 @@ public class JarEditor {
                             ctmBuffer.getMethodInfo().rebuildStackMap(ClassPool.getDefault());
                             if(debug)
                                 System.out.println("Success register hook for " + ctmBuffer.getName()
-                                    + ctmBuffer.getSignature() + " " + typeHook.name());
+                                        + ctmBuffer.getSignature() + " " + typeHook.name());
                             return;
                         } else {
                             signatures.add(methodName + methodSignature);
@@ -382,7 +424,7 @@ public class JarEditor {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Failed register hook for " + method + signature + " " + typeHook.name());
+        System.out.println("Failed register hook for " + method + signature + " " + typeHook.name()+", "+className);
     }
 
     public static Method get(Class<?> clazz, String method) {
@@ -395,6 +437,7 @@ public class JarEditor {
 
     public JarEditor run(String mainClass, String... args) {
         try {
+            Thread.currentThread().setContextClassLoader(classLoader);
             classLoader.loadClass(mainClass).getMethod("main", String[].class).invoke(null, new Object[] { args });
         } catch (Exception e) {
             e.printStackTrace();

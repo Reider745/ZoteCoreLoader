@@ -16,19 +16,13 @@ import javassist.*;
 import java.util.List;
 
 @Hooks(className = "cn.nukkit.block.Block")
-public class BlocksHooks implements HookClass {
+public class BlocksHooks {
     private static final int MAX_ID = 16000;
-
-    @Override
-    public void rebuildField(CtClass ctClass, CtField field) {
-        String name = field.getName();
-        if (name.equals("MAX_BLOCK_ID"))
-            field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
-    }
 
     @Inject
     public static void init() {
         ReflectHelper.setField(Block.class, "MAX_BLOCK_ID", 16000);
+        // ReflectHelper.setField(Block.class, "usesFakeWater", new boolean[MAX_ID]);
     }
 
     @Inject

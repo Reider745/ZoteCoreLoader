@@ -25,15 +25,6 @@ public class HookClassLoader extends ClassLoader {
     private ProtectionDomain domain;
     public boolean doDelegation;
 
-    public HookClassLoader() {
-        this((ClassPool) null);
-    }
-
-    public HookClassLoader(ClassPool classPool) {
-        this.doDelegation = true;
-        this.init(classPool);
-    }
-
     public HookClassLoader(ClassLoader parent, ClassPool classPool) {
         super(parent);
         this.doDelegation = true;
@@ -71,32 +62,34 @@ public class HookClassLoader extends ClassLoader {
         translator.start(classPool);
     }
 
-    public void run(String[] args) throws Throwable {
-        if (args.length >= 1) {
-            this.run(args[0], (String[]) Arrays.copyOfRange(args, 1, args.length));
-        }
-    }
-
-    public void run(String className, String[] args) throws Throwable {
-        Class<?> c = this.loadClass(className);
-
-        try {
-            c.getDeclaredMethod("main", String[].class).invoke((Object) null, new Object[] { args });
-        } catch (InvocationTargetException var5) {
-            throw var5.getTargetException();
-        }
-    }
-
     private static ArrayList<String> DENIED_FIND_CLASSES = new ArrayList<>();
 
     static {
         DENIED_FIND_CLASSES.add("jdk.internal.reflect.ConstructorAccessorImpl");
         DENIED_FIND_CLASSES.add("jdk.internal.reflect.MethodAccessorImpl");
+
+        /*DENIED_FIND_CLASSES.add("com.reider745.api.hooks.HookClass");
+        DENIED_FIND_CLASSES.add("com.reider745.api.hooks.annotation.Hooks");
+        DENIED_FIND_CLASSES.add("com.reider745.api.hooks.annotation.Inject");
+        DENIED_FIND_CLASSES.add("com.reider745.api.hooks.HookController");
+        DENIED_FIND_CLASSES.add("com.reider745.api.hooks.TypeHook");
+        DENIED_FIND_CLASSES.add("javassist.CtClass");
+        DENIED_FIND_CLASSES.add("javassist.CtField");
+        DENIED_FIND_CLASSES.add("javassist.NotFoundException");
+        DENIED_FIND_CLASSES.add("javassist.CannotCompileException");
+        DENIED_FIND_CLASSES.add("javassist.CtMethod");
+        DENIED_FIND_CLASSES.add("javassist.bytecode.MethodInfo");
+        DENIED_FIND_CLASSES.add("javassist.bytecode.MethodInfo");
+        DENIED_FIND_CLASSES.add("com.reider745.api.hooks.JarEditor");*/
     }
 
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         name = name.intern();
         synchronized (name) {
+            if(name.startsWith("com.reider745.api.hooks") || name.startsWith("javassist.") || name.startsWith("jdk.") || name.startsWith("java.")) {
+                return getParent().loadClass(name);
+            }
+
             Class<?> c = this.findLoadedClass(name);
             if (c == null) {
                 c = this.loadClassByDelegation(name);
@@ -114,7 +107,12 @@ public class HookClassLoader extends ClassLoader {
         }
     }
 
+    @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
+        if(name.startsWith("com.reider745.api.hooks") || name.startsWith("javassist.") || name.startsWith("jdk.") || name.startsWith("java.")) {
+            return getParent().loadClass(name);
+        }
+
         byte[] bytecode;
 
         try {
@@ -205,20 +203,5 @@ public class HookClassLoader extends ClassLoader {
     protected Class<?> delegateToParent(String classname) throws ClassNotFoundException {
         ClassLoader cl = this.getParent();
         return cl != null ? cl.loadClass(classname) : this.findSystemClass(classname);
-    }
-
-    public static String PATH_TO_ASSETS = null;
-
-    @Nullable
-    @Override
-    public URL getResource(String name) {
-        if (PATH_TO_ASSETS != null) {
-            try {
-                return new URL("file:///" + PATH_TO_ASSETS + "/" + name);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return super.getResource(name);
     }
 }

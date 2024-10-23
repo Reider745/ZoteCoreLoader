@@ -54,12 +54,6 @@ import java.util.function.Consumer;
 
 @Hooks(className = "cn.nukkit.level.Level")
 public class LevelHooks implements HookClass {
-    @Override
-    public void rebuildField(CtClass ctClass, CtField field) {
-        if (field.getName().equals("randomTickBlocks"))
-            field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
-    }
-
     @SuppressWarnings("unchecked")
     @Inject
     public static Item useBreakOn(Level level, Vector3 vector, BlockFace face, Item item, Player player,
