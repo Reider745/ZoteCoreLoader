@@ -25,12 +25,25 @@ public class BlockVariant {
 
     public BlockVariant(int uid, int data, String name, String[] textures, int[] textureIds, boolean inCreative) {
         this.name = name;
-        this.textures = textures;
-        this.textureIds = textureIds;
         this.inCreative = inCreative;
 
         this.uid = uid;
         this.data = data;
+
+        this.textures = new String[6];
+        this.textureIds = new int[6];
+
+        String lastTexture = "missing_block";
+        int lastMeta = 0;
+
+        for (int i = 0; i < 6; i++)
+            if(i < textures.length) {
+                this.textures[i] = lastTexture = textures[i];
+                this.textureIds[i] = lastMeta = textureIds[i];
+            } else {
+                this.textures[i] = lastTexture;
+                this.textureIds[i] = lastMeta;
+            }
 
         validate();
     }
@@ -74,14 +87,7 @@ public class BlockVariant {
         NameTranslation.sendNameToGenerateCache(uid, data, name);
     }
 
-    private void validate() {
-        for (int i = 0; i < 6; i++) {
-            if (textures[i] == null) {
-                textures[i] = "missing_block";
-                textureIds[i] = 0;
-            }
-        }
-    }
+    private void validate() {}
 
     public GuiBlockModel getGuiBlockModel() {
         return GuiBlockModel.createModelForBlockVariant(this);

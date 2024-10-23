@@ -30,6 +30,6 @@ public class ScriptableChannelCodec extends ChannelCodec<Scriptable> {
 
     @Override
     public int getFormatId() {
-        return 0;
+        return FORMAT_ID;
     }
 }

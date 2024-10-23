@@ -221,11 +221,6 @@ public abstract class WorkbenchRecipe {
         return api.isPrevented() ? null : result;
     }
 
-    @Deprecated(since = "Zote")
-    public ItemInstance provideRecipe(WorkbenchField field) {
-        return provideRecipeForPlayer(field, NativeAPI.getPlayer());
-    }
-
 
 
     private String prefix;

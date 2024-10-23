@@ -17,7 +17,9 @@ import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
+import cn.nukkit.event.level.ChunkLoadEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
+import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.event.server.ServerCommandEvent;
@@ -33,6 +35,7 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.utils.BinaryStream;
@@ -562,6 +565,37 @@ public class EventListener implements Listener {
     public void onItemDespawn(ItemDespawnEvent event){
         if(!ItemMethod.canShouldDespawn(event.getEntity().getItem().getId()))
             event.setCancelled();
+    }
+
+    private static final ArrayList<Integer> statesEvents = new ArrayList<>();
+    public static void addChunkStateChagedListener(int state) {
+        if(state < -1 || state > 9) return;
+        if(!statesEvents.contains(state)) statesEvents.add(state);
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event){
+        final FullChunk chunk = event.getChunk();
+
+        final int dimension = FakeDimensions.getFakeIdForLevel(event.getLevel());
+        final int x = chunk.getX(), z = chunk.getZ();
+
+        for(int i = 1, preState = 0;i < 10;i+=1, preState++){
+            NativeCallback.onChunkStateChaged(dimension, x, z, i, preState, false);
+        }
+    }
+
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event){
+        if(statesEvents.contains(-1) || statesEvents.contains(0)){
+            final FullChunk chunk = event.getChunk();
+            NativeCallback.onChunkStateChaged(
+                    FakeDimensions.getFakeIdForLevel(event.getLevel()),
+                    chunk.getX(), chunk.getZ(),
+                    0, 9,
+                    true
+            );
+        }
     }
 
     // TODO: onPathNavigationDone

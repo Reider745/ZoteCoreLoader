@@ -26,6 +26,7 @@ public class ChannelInterface {
         getCodec(String.class);
         getCodec(JSONObject.class);
         getCodec(Scriptable.class);
+        getCodec(byte[].class);
     }
 
     @SuppressWarnings("unchecked")

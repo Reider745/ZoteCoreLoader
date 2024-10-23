@@ -39,6 +39,7 @@ import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 import com.zhekasmirnov.innercore.api.nbt.NativeListTag;
 import com.zhekasmirnov.innercore.api.nbt.NbtDataType;
 import com.zhekasmirnov.innercore.api.particles.ParticleRegistry;
+import com.zhekasmirnov.innercore.api.runtime.ChunkManager;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
@@ -220,6 +221,16 @@ public class AdaptedScriptAPI extends API {
                         e);
             }
         }
+    }
+
+    @JSStaticFunction
+    public static void addListenerChunkStateChaged(Function listener, NativeArray states){
+        ChunkManager.addListenerChunkStateChaged(listener, states);
+    }
+
+    @JSStaticFunction
+    public static void addLocalListenerChunkStateChaged(Function listener, NativeArray states){
+        ChunkManager.addLocalListenerChunkStateChaged(listener, states);
     }
 
     @APIStaticModule
@@ -2394,6 +2405,18 @@ public class AdaptedScriptAPI extends API {
     public static void runOnClientThread(Object _action) {
         Runnable action = (Runnable) Context.jsToJava(_action, Runnable.class);
         MainThreadQueue.localThread.enqueue(action);
+    }
+
+    @APIStaticModule
+    public static class MCOptions {
+        @JSStaticFunction
+        public static NativeOptions.Option get(String name){
+            return NativeOptions.get(name);
+        }
+
+        public static NativeArray getOptions(){
+            return new NativeArray(NativeOptions.getOptions());
+        }
     }
 
     @APIStaticModule

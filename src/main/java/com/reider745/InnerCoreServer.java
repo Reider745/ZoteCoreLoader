@@ -503,11 +503,11 @@ public class InnerCoreServer {
     }
 
     public static String getName() {
-        return getPropertyString("pack", "Inner Core Test");
+        return getPropertyString("pack", "Inner Core");
     }
 
     public static String getVersionName() {
-        return getPropertyString("pack-version", "2.3.1b120");
+        return getPropertyString("pack-version", "2.3.1b122");
     }
 
     public static int getVersionCode() {
@@ -518,7 +518,7 @@ public class InnerCoreServer {
     }
 
     public static List<Integer> getVersionsCode() {
-        final String args = getPropertyString("pack-version-code", "159");
+        final String args = getPropertyString("pack-version-code", "162");
         final String[] versions_s = args.split(",");
         final List<Integer> versions = new ArrayList<>();
 

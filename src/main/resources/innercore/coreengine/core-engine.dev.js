@@ -463,6 +463,12 @@ var GameAPI = {
     isDedicatedServer: function(){
         return isDedicatedServer();
     },
+    getOption: function(name){
+        return MCOptions.get(name);
+    },
+    getOptions: function(){
+        return MCOptions.getOptions();
+    },
     prevent: function() {
         preventDefault();
     },
@@ -1645,7 +1651,7 @@ var BlockRegistry = {
             });
 
             // vanilla bucket is patched in such way, that it will call this callback only for custom liquids in front of dispenser
-            ItemRegistry.registerDispenseFunction(emptyId, function(coords, item, region, slot) {
+            Callback.addCallback("ItemDispensed", function(coords, item, region, slot) {
                 if (item.data !== 0) return;
                 var dispenser = region.getBlockEntity(coords.x, coords.y, coords.z);
                 if (!dispenser) return;
@@ -3378,6 +3384,12 @@ var WorldAPI = {
         Level.setBlockChangeCallbackEnabled(id, enabled);
     },
     blockChangeCallbacks: [],
+    addListenerChunkStateChaged: function(listener, states) {
+        Level.addListenerChunkStateChaged(listener, states);
+    },
+    addLocalListenerChunkStateChaged: function(listener, states) {
+        Level.addLocalListenerChunkStateChaged(listener, states);
+    },
     registerBlockChangeCallback: function(ids, callback) {
         if (!Array.isArray(ids)) {
             ids = [ids];

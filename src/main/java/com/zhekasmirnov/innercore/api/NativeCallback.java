@@ -6,6 +6,7 @@ import cn.nukkit.inventory.CraftingGrid;
 import cn.nukkit.level.Level;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ClientOnly;
 import com.reider745.api.ZoteOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.PlayerHooks;
@@ -829,6 +830,11 @@ public class NativeCallback {
         }
     }
 
+    @ClientOnly
+    public static void onOptionsChanged(){
+        Callback.invokeCallbackV("OptionsChanged", EMPTY_ARGS);
+    }
+
     /* WORLD GENERATION CALLBACKS */
 
     public static void onPreChunkPostProcessed(int x, int z) {
@@ -845,6 +851,15 @@ public class NativeCallback {
 
     public static void onCustomDimensionTransfer(long entity, int from, int to) {
         Callback.invokeAPICallback("CustomDimensionTransfer", entity, from, to);
+    }
+
+    public static void onChunkStateChaged(int dimension, int chunkX, int chunkZ, int state, int preState, boolean discarded) {
+        ChunkManager.onChunkStateChaged(dimension, chunkX, chunkZ, state, preState, discarded);
+    }
+
+    @ClientOnly
+    public static void onLocalChunkStateChaged(int dimension, int chunkX, int chunkZ, int state, int preState, boolean discarded) {
+        ChunkManager.onLocalChunkStateChaged(dimension, chunkX, chunkZ, state, preState, discarded);
     }
 
     /* NETWORK CALLBACKS */

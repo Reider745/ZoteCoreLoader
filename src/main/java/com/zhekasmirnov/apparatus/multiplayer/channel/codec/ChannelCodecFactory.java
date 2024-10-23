@@ -15,6 +15,9 @@ public class ChannelCodecFactory {
         if (Scriptable.class.isAssignableFrom(clazz)) {
             return Scriptable.class;
         }
+        if (byte[].class.isAssignableFrom(clazz)) {
+            return byte[].class;
+        }
         return clazz;
     }
 
@@ -28,6 +31,9 @@ public class ChannelCodecFactory {
         if (Scriptable.class.isAssignableFrom(clazz)) {
             return new ScriptableChannelCodec(channel);
         }
+        if (byte[].class.isAssignableFrom(clazz)) {
+            return new BytesChannelCodec(channel);
+        }
         throw new IllegalArgumentException("cannot create channel codec for data class: " + clazz.getSimpleName());
     }
 
@@ -39,6 +45,8 @@ public class ChannelCodecFactory {
                 return new JsonChannelCodec(channel);
             case ScriptableChannelCodec.FORMAT_ID:
                 return new ScriptableChannelCodec(channel);
+            case BytesChannelCodec.FORMAT_ID:
+                return new BytesChannelCodec(channel);
         }
         throw new IllegalArgumentException("cannot create channel codec for format id: " + formatId);
     }
