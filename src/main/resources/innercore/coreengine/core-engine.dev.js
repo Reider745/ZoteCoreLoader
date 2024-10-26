@@ -3384,11 +3384,64 @@ var WorldAPI = {
         Level.setBlockChangeCallbackEnabled(id, enabled);
     },
     blockChangeCallbacks: [],
-    addListenerChunkStateChaged: function(listener, states) {
-        Level.addListenerChunkStateChaged(listener, states);
+    serverStateChangeCallbacks: [],
+    localStateChangeCallbacks: [],
+
+    addListenerChunkStateChanged: function(listener, states) {
+        for(let i in states){
+            let state = states[i];
+
+            let listeners =  this.serverStateChangeCallbacks[state] || [];
+            listeners.push(listener);
+            this.serverStateChangeCallbacks[state] = listeners;
+
+            Level.setChunkStateChangeCallbackEnabled(state);
+        }
     },
-    addLocalListenerChunkStateChaged: function(listener, states) {
-        Level.addLocalListenerChunkStateChaged(listener, states);
+    onChunkLoadingStateChanged: function(chunkX, chunkZ, dimension, preState, state, discarded) {
+        let listeners = this.serverStateChangeCallbacks[state];
+
+        for(let i in listeners)
+            listeners[i](chunkX, chunkZ, dimension, preState, state, discarded);
+    },
+
+    addLocalListenerChunkStateChanged: function(listener, states) {
+        for(let i in states){
+            let state = states[i];
+
+            let listeners =  this.localStateChangeCallbacks[state] || [];
+            listeners.push(listener);
+            this.localStateChangeCallbacks[state] = listeners;
+
+            Level.setChunkStateChangeCallbackEnabled(state);
+        }
+    },
+    onLocalChunkLoadingStateChanged: function(chunkX, chunkZ, dimension, preState, state, discarded) {
+        let listeners = this.localStateChangeCallbacks[state];
+        
+        for(let i in listeners)
+            listeners[i](chunkX, chunkZ, dimension, preState, state, discarded);
+    },
+
+    registerBlockChangeCallback: function(ids, callback) {
+        if (!Array.isArray(ids)) {
+            ids = [ids];
+        }
+        for (var i in ids) {
+            var id = ids[i];
+            if (typeof(id) == "string") {
+                var numericID = BlockRegistry.getNumericId(id);
+                if (numericID == -1) {
+                    Logger.Log("invalid block name id " + id);
+                    continue;
+                }
+                id = numericID;
+            }
+            Level.setBlockChangeCallbackEnabled(id, true);
+            var callbacks = this.blockChangeCallbacks[id] || [];
+            callbacks.push(callback);
+            this.blockChangeCallbacks[id] = callbacks;
+        }
     },
     registerBlockChangeCallback: function(ids, callback) {
         if (!Array.isArray(ids)) {
@@ -3701,6 +3754,19 @@ WorldAPI.setLoaded(true); // always keep it loaded, for God sake, native will ha
 Callback.addCallback("BlockChanged", function(coords, block1, block2, int1, int2, region) {
     WorldAPI.onBlockChanged(coords, block1, block2, region, int1, int2);
 });
+
+Callback.addCallback("ChunkLoadingStateChanged", function(chunkX, chunkZ, dimension, preState, state, discarded){
+    if(discarded)
+        WorldAPI.onChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, -1, discarded);
+    WorldAPI.onChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, state, discarded);
+});
+
+Callback.addCallback("LocalChunkLoadingStateChanged", function(chunkX, chunkZ, dimension, preState, state, discarded){
+    if(discarded)
+        WorldAPI.onLocalChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, -1, discarded);
+    WorldAPI.onLocalChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, state, discarded);
+});
+
 var AnimatorToken = {
     __current: 1,
     genToken: function() {

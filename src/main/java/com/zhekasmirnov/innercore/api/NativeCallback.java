@@ -854,12 +854,12 @@ public class NativeCallback {
     }
 
     public static void onChunkStateChaged(int dimension, int chunkX, int chunkZ, int state, int preState, boolean discarded) {
-        ChunkManager.onChunkStateChaged(dimension, chunkX, chunkZ, state, preState, discarded);
+        Callback.invokeAPICallback("ChunkLoadingStateChanged", chunkX, chunkZ, dimension, preState, state, discarded);
     }
 
     @ClientOnly
     public static void onLocalChunkStateChaged(int dimension, int chunkX, int chunkZ, int state, int preState, boolean discarded) {
-        ChunkManager.onLocalChunkStateChaged(dimension, chunkX, chunkZ, state, preState, discarded);
+        Callback.invokeAPICallback("LocalChunkLoadingStateChanged", chunkX, chunkZ, dimension, preState, state, discarded);
     }
 
     /* NETWORK CALLBACKS */

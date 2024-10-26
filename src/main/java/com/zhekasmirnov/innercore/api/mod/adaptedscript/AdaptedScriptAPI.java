@@ -39,7 +39,6 @@ import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 import com.zhekasmirnov.innercore.api.nbt.NativeListTag;
 import com.zhekasmirnov.innercore.api.nbt.NbtDataType;
 import com.zhekasmirnov.innercore.api.particles.ParticleRegistry;
-import com.zhekasmirnov.innercore.api.runtime.ChunkManager;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
@@ -223,18 +222,14 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-    @JSStaticFunction
-    public static void addListenerChunkStateChaged(Function listener, NativeArray states){
-        ChunkManager.addListenerChunkStateChaged(listener, states);
-    }
-
-    @JSStaticFunction
-    public static void addLocalListenerChunkStateChaged(Function listener, NativeArray states){
-        ChunkManager.addLocalListenerChunkStateChaged(listener, states);
-    }
 
     @APIStaticModule
     public static class Level {
+        @JSStaticFunction
+        public static void setChunkStateChangeCallbackEnabled(int state) {
+            NativeAPI.setChunkStateChangedCallbackEnabled(state, true);
+        }
+
         @JSStaticFunction
         public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
             NativeAPI.setBlockChangeCallbackEnabled(id, enabled);

@@ -127,13 +127,13 @@ public class ClassLoaderPatch {
                     Dex2jar.from(file).to(jarFile.toPath());
                 }
             }
-            addClasspath(classLoader, jarFile);
+            //addClasspath(classLoader, jarFile);
             return;
         } catch (CannotCompileException | NotFoundException | IOException | BadBytecode e) {
             Logger.error("ClassLoaderPath", "Java library is broken or it class file is not supported yet!");
             Logger.error("ClassLoaderPath", e);
         }
-        addClasspath(classLoader, file);
+        //addClasspath(classLoader, file);
     }
 
     @SuppressWarnings("unused")

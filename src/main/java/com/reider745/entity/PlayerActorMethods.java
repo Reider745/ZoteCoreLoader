@@ -22,7 +22,7 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 public class PlayerActorMethods {
     public static boolean isValid(Player player, boolean checkOnline) {
-        if (!EntityMethod.isValid(player)) {
+        if (!EntityMethod.isValid(player) || player.getInventory() == null) {
             return false;
         }
         if (checkOnline) {

@@ -10,6 +10,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CallbackHelper;
 import com.reider745.api.ClientOnly;
 import com.reider745.entity.EntityMethod;
+import com.reider745.event.EventListener;
 import com.reider745.item.ItemMethod;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.WorldMethod;
@@ -1086,5 +1087,9 @@ public class NativeAPI {
 
     public static void setTarget(long entity, long target) {
         EntityMethod.setTarget(entity, target);
+    }
+
+    public static void setChunkStateChangedCallbackEnabled(int state, boolean b) {
+        EventListener.setChunkStateChangedCallbackEnabled(state, b);
     }
 }

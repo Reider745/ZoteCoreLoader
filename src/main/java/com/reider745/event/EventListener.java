@@ -51,10 +51,7 @@ import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ModdedServer;
 import oshi.hardware.NetworkIF;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import com.reider745.api.CallbackHelper;
 import com.reider745.api.CustomManager;
@@ -567,10 +564,10 @@ public class EventListener implements Listener {
             event.setCancelled();
     }
 
-    private static final ArrayList<Integer> statesEvents = new ArrayList<>();
-    public static void addChunkStateChagedListener(int state) {
+    private static final HashMap<Integer, Boolean> statesEvents = new HashMap<>();
+    public static void setChunkStateChangedCallbackEnabled(int state, boolean enabled) {
         if(state < -1 || state > 9) return;
-        if(!statesEvents.contains(state)) statesEvents.add(state);
+        statesEvents.put(state, enabled);
     }
 
     @EventHandler
@@ -581,13 +578,14 @@ public class EventListener implements Listener {
         final int x = chunk.getX(), z = chunk.getZ();
 
         for(int i = 1, preState = 0;i < 10;i+=1, preState++){
-            NativeCallback.onChunkStateChaged(dimension, x, z, i, preState, false);
+            if(statesEvents.containsKey(i))
+                NativeCallback.onChunkStateChaged(dimension, x, z, i, preState, false);
         }
     }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event){
-        if(statesEvents.contains(-1) || statesEvents.contains(0)){
+        if(statesEvents.containsKey(-1) || statesEvents.containsKey(0)){
             final FullChunk chunk = event.getChunk();
             NativeCallback.onChunkStateChaged(
                     FakeDimensions.getFakeIdForLevel(event.getLevel()),

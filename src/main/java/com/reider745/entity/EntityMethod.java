@@ -22,6 +22,7 @@ import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.Identifier;
@@ -38,10 +39,7 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.constants.EntityType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -110,7 +108,7 @@ public class EntityMethod {
     }
 
     public static boolean isValid(Entity entity) {
-        return entity != null && entity.isValid() && !entity.isClosed();
+        return entity != null && entity.isValid();
     }
 
     private static <T> T validateThen(long entityUid, Function<Entity, T> then, T defaultValue) {
@@ -420,14 +418,25 @@ public class EntityMethod {
         return validateThen(entityUid, entity -> getEntityTypeDirect(entity), -1);
     }
 
+    private static final HashMap<Integer, String> ids = new HashMap<>();
+
+    static {
+        AddEntityPacket.setupLegacyIdentifiers(ids, InnerCoreServer.PROTOCOL);
+    }
+
     public static String getEntityTypeName(long entityUid) {
-        return validateThen(entityUid, entity -> {
+        final Entity entity = getEntityById(entityUid);
+        if(entity != null){
             Identifier identifier = entity.getIdentifier();
-            if (identifier == null && entity.isPlayer) {
-                identifier = Identifier.of("minecraft", "player");
+            if (identifier == null) {
+                final String result = ids.get(entity.getNetworkId());
+                if(result != null)
+                    return result;
+                return "";
             }
-            return identifier != null ? identifier + "<>" : null;
-        }, null);
+            return identifier + "<>";
+        }
+        return "";
     }
 
     public static CompoundTag getEntityCompoundTag(long entityUid) {

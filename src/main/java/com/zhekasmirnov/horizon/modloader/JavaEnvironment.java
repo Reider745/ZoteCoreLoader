@@ -36,5 +36,15 @@ public class JavaEnvironment {
                 }
             }
         }
+
+        for (JavaLibrary javaLibrary : javaLibraries) {
+            if (!javaLibrary.isInitialized()) {
+                try {
+                    javaLibrary.postInitialize();
+                } catch (Throwable err) {
+                    Logger.error("LOAD", "failed to load java library " + javaLibrary.getDirectory(), err);
+                }
+            }
+        }
     }
 }

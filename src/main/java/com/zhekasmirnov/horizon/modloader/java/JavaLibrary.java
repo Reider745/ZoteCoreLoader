@@ -43,8 +43,10 @@ public class JavaLibrary {
         return this.initialized;
     }
 
+    private static final List<URL> urls = new ArrayList<>();
+    private static URLClassLoader classLoader;
+
     public void initialize() {
-        final List<URL> urls = new ArrayList<>();
         for (File dexFile : this.dexFiles) {
             try {
                 final String filePath = dexFile.getAbsolutePath();
@@ -54,11 +56,16 @@ public class JavaLibrary {
                 throw new RuntimeException(e);
             }
         }
-
-        final URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), InnerCoreServer.class.getClassLoader());
-        RhinoOverrides.ClassLoaderPool.addClassLoader(classLoader);
+        
         for (File dexFile : this.dexFiles)
-            ClassLoaderPatch.addDexPath(classLoader, dexFile, true);
+            ClassLoaderPatch.addDexPath(null, dexFile, true);
+    }
+
+    public void postInitialize() {
+        if(classLoader == null){
+            classLoader = new URLClassLoader(urls.toArray(new URL[0]), InnerCoreServer.class.getClassLoader());
+            RhinoOverrides.ClassLoaderPool.addClassLoader(classLoader);
+        }
 
         HashMap<String, Object> data = new HashMap<>();
         for (String name : this.directory.getBootClassNames()) {
