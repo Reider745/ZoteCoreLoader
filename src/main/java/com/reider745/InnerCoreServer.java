@@ -17,7 +17,7 @@ import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
 
 import com.reider745.item.ItemMethod;
-import com.reider745.item.NukkitIdConvertor;
+import com.reider745.item.NukkitIdConverter;
 import com.reider745.world.FakeDimensions;
 import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
@@ -25,6 +25,7 @@ import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
 import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
@@ -204,7 +205,7 @@ public class InnerCoreServer {
         final File dataFolderFile = new File(dataPath);
 
         CallbackHelper.init();
-        NukkitIdConvertor.init();
+        NukkitIdConverter.init();
         DimensionsMethods.init();
         FakeDimensions.init();
 
@@ -557,5 +558,13 @@ public class InnerCoreServer {
     public static void useIncomprehensibleMethod(String name) {
         handleUnsupportedMethod("I don't really understand what this method does (" + name
                 + "), which is why you're reading this right now");
+    }
+
+    public static void printStackTrace(){
+        try {
+            throw new RuntimeException("Aboba");
+        }catch (Exception e){
+            System.out.println(ICLog.getStackTrace(e));
+        }
     }
 }

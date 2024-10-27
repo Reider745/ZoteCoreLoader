@@ -227,7 +227,7 @@ public class AdaptedScriptAPI extends API {
     public static class Level {
         @JSStaticFunction
         public static void setChunkStateChangeCallbackEnabled(int state) {
-            NativeAPI.setChunkStateChangedCallbackEnabled(state, true);
+            NativeAPI.setChunkStateChangeCallbackEnabled(state, true);
         }
 
         @JSStaticFunction

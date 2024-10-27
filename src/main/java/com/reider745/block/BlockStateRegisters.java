@@ -14,6 +14,8 @@ public class BlockStateRegisters {
 
     private static Map<String, Integer> stateIdByName;
     private static final Map<Integer, String> nameByStateId = new HashMap<>();
+    private static final HashMap<String, Integer> runtimeIdForIdAndData = new HashMap<>();
+    private static final HashMap<Integer, int[]> blockForRuntime = new HashMap<>();
 
     public static void init(HashMap<String, Integer> stateIdByName){
         BlockStateRegisters.stateIdByName = stateIdByName;
@@ -22,7 +24,7 @@ public class BlockStateRegisters {
             nameByStateId.put(stateIdByName.get(key), key);
     }
 
-    public static void addState(final long hash, JSONObject json){
+    public static void addState(final long hash, JSONObject json, int runtimeId, int legacyId, int data, int newId){
         final Map<String, Integer> state = new HashMap<>();
         Iterator<String> it = json.keys();
         while (it.hasNext()){
@@ -31,19 +33,18 @@ public class BlockStateRegisters {
         }
 
         statesForHash.put(hash, state);
-    }
-
-    private static final HashMap<String, Integer> runtimeIdForIdAndData = new HashMap<>();
-
-    public static void addRuntimeIdAndData(final long hash, final int runtimeId, final int id, final int data){
-        Map<String, Integer> state = statesForHash.get(hash);
-        Map<Map<String, Integer>, Integer> states = runtimeIdsForStatesAndId.getOrDefault(id, new HashMap<>());
+        final Map<Map<String, Integer>, Integer> states = runtimeIdsForStatesAndId.getOrDefault(legacyId, new HashMap<>());
+        states.put(state, runtimeId);
+        runtimeIdsForStatesAndId.put(legacyId, states);
+        blockForRuntime.put(runtimeId, new int[]{newId, data});
 
         statesForRuntimeId.put(runtimeId, state);
-        states.put(state, runtimeId);
-        runtimeIdsForStatesAndId.put(id, states);
         dataForRuntimeId.put(runtimeId, data);
-        runtimeIdForIdAndData.put(id+":"+data, runtimeId);
+        runtimeIdForIdAndData.put(legacyId+":"+data, runtimeId);
+    }
+
+    public static int[] getBlockForRuntimeId(final int runtimeId){
+        return blockForRuntime.get(runtimeId);
     }
 
     public static int getDataForRuntimeId(final int runtimeId){
@@ -80,9 +81,9 @@ public class BlockStateRegisters {
     } // [state1, value1, state2, value2, ...]
     public static int runtimeIdByStates(int id, int[] statesAndValues){
         final Map<String, Integer> state = new HashMap<>();
-        for(int i = 0;i < statesAndValues.length;i+=2)
-            state.put(nameByStateId.get(statesAndValues[i]), statesAndValues[i+1]);
-        final Integer res = runtimeIdsForStatesAndId.get(id).get(state);
-        return res == null ? -1 : res;
-    }// -1 is returned in case it is not found
+        for(int i = 0;i < statesAndValues.length;i+=2) {
+            state.put(nameByStateId.get(statesAndValues[i]), statesAndValues[i + 1]);
+        }
+        return runtimeIdsForStatesAndId.get(id).getOrDefault(state, -1);
+    }// -1 is returned in case it is not found: 47,
 }

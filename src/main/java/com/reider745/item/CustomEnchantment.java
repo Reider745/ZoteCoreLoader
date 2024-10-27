@@ -244,7 +244,7 @@ public class CustomEnchantment extends Enchantment {
 	public void doPostHurt(Entity attacker, Entity entity) {
 		if (isProtectionEnchant) {
 			Item nukkitItem = EntityMethod.getEntityCarriedItem(attacker.getId());
-			NukkitIdConvertor.EntryItem item = NukkitIdConvertor.getInnerCoreForNukkit(nukkitItem.getId(),
+			NukkitIdConverter.EntryItem item = NukkitIdConverter.getInnerCoreForNukkit(nukkitItem.getId(),
 					nukkitItem.getDamage());
 			EntityDamageEvent event = entity.getLastDamageCause();
 			int damage = event != null ? (int) event.getFinalDamage() : 0;

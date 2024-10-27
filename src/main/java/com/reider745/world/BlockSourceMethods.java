@@ -19,6 +19,8 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.PlaySoundPacket;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.block.BlockNukkitIdConverter;
+import com.reider745.block.BlockStateRegisters;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.GlobalBlockPalette;
 import com.reider745.hooks.ItemUtils;
@@ -72,7 +74,7 @@ public class BlockSourceMethods {
     public static int getBlockId(Level level, int x, int y, int z) {
         if(y >= 0 && y <= 255)
             return level.getBlock(x, y, z).getId();
-        return  0;
+        return 0;
     }
 
     public static boolean isChunkLoaded(Level level, int x, int z) {
@@ -110,7 +112,6 @@ public class BlockSourceMethods {
 
     public static int getBrightness(Level level, int x, int y, int z) {
         int time = level.getTime();
-        ;
         if (!(time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE) && level.canBlockSeeSky(new Vector3(x, y, z)))
             return 15;
         return level.getBlockLightAt(x, y, z);
@@ -141,8 +142,8 @@ public class BlockSourceMethods {
 
     public static void setBlockByRuntimeId(Level level, int x, int y, int z, int runtimeId, boolean allowUpdate,
             int updateType) {
-        int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
-        setBlock(level, x, y, z, legacyId >> 6, legacyId & 0x3F, allowUpdate, updateType);
+        int[] block = BlockStateRegisters.getBlockForRuntimeId(runtimeId);
+        setBlock(level, x, y, z, block[0], block[1], allowUpdate, updateType);
     }
 
     public static void setExtraBlock(Level level, int x, int y, int z, int id, int data, boolean allowUpdate,
@@ -152,8 +153,8 @@ public class BlockSourceMethods {
 
     public static void setExtraBlockByRuntimeId(Level level, int x, int y, int z, int runtimeId, boolean allowUpdate,
             int updateType) {
-        int legacyId = GlobalBlockPalette.getLegacyFullId(runtimeId);
-        setExtraBlock(level, x, y, z, legacyId >> 6, legacyId & 0x3F, allowUpdate, updateType);
+        int[] block = BlockStateRegisters.getBlockForRuntimeId(runtimeId);
+        setExtraBlock(level, x, y, z, block[0], block[1], allowUpdate, updateType);
     }
 
     public static int getGrassColor(Level level, int x, int y, int z) {

@@ -4,7 +4,7 @@ import com.zhekasmirnov.innercore.api.NativeItemInstance;
 
 import java.util.*;
 
-public class NukkitIdConvertor {
+public class NukkitIdConverter {
 
     public static void init() {
         // cn.nukkit.item.ItemBucket

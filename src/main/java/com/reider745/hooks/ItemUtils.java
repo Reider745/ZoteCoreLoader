@@ -18,7 +18,7 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.item.CustomArmorItem;
 import com.reider745.item.CustomEnchantment;
-import com.reider745.item.NukkitIdConvertor;
+import com.reider745.item.NukkitIdConverter;
 import com.reider745.item.Repairs;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -183,7 +183,7 @@ public class ItemUtils implements HookClass {
     }
 
     public static Item get(int id, int count, int meta) {
-        NukkitIdConvertor.EntryItem entry = NukkitIdConvertor.getNukkitForInnerCore(id, meta);
+        NukkitIdConverter.EntryItem entry = NukkitIdConverter.getNukkitForInnerCore(id, meta);
         return Item.get(entry.id, entry.data, count);
     }
 

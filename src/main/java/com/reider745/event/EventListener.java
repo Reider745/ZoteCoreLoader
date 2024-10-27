@@ -35,20 +35,15 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
-import cn.nukkit.utils.BinaryStream;
-import com.reider745.InnerCoreServer;
-import com.reider745.Main;
+import com.reider745.block.BlockNukkitIdConverter;
 import com.reider745.hooks.ServerHooks;
 import com.reider745.item.ItemMethod;
-import com.reider745.network.InnerCorePacket;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
-import com.zhekasmirnov.apparatus.multiplayer.server.ModdedServer;
 import oshi.hardware.NetworkIF;
 
 import java.util.*;
@@ -60,13 +55,12 @@ import com.reider745.entity.EntityMethod;
 import com.reider745.entity.EntityMotion;
 import com.reider745.hooks.ItemUtils;
 import com.reider745.hooks.PlayerHooks;
-import com.reider745.item.NukkitIdConvertor;
-import com.reider745.item.NukkitIdConvertor.EntryItem;
+import com.reider745.item.NukkitIdConverter;
+import com.reider745.item.NukkitIdConverter.EntryItem;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 
 public class EventListener implements Listener {
     public static final Object DEALING_LOCK = new Object();
@@ -512,7 +506,7 @@ public class EventListener implements Listener {
         Item nukkitItem = itemEntity.getItem();
 
         if (nukkitItem != null) {
-            EntryItem item = NukkitIdConvertor.getInnerCoreForNukkit(nukkitItem.getId(), nukkitItem.getDamage());
+            EntryItem item = NukkitIdConverter.getInnerCoreForNukkit(nukkitItem.getId(), nukkitItem.getDamage());
             CustomManager manager = CustomManager.getFor(item.id);
             if (manager != null && manager.containsKey("fire_resistant")) {
                 boolean fireproof = manager.get("fire_resistant", false);

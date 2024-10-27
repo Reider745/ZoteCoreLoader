@@ -1089,7 +1089,7 @@ public class NativeAPI {
         EntityMethod.setTarget(entity, target);
     }
 
-    public static void setChunkStateChangedCallbackEnabled(int state, boolean b) {
+    public static void setChunkStateChangeCallbackEnabled(int state, boolean b) {
         EventListener.setChunkStateChangedCallbackEnabled(state, b);
     }
 }

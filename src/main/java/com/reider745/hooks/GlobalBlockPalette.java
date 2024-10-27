@@ -7,9 +7,9 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.io.ByteStreams;
-import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
+import com.reider745.block.BlockNukkitIdConverter;
 import com.reider745.block.BlockStateRegisters;
 import com.reider745.block.CustomBlock;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
 public class GlobalBlockPalette  {
@@ -75,23 +76,25 @@ public class GlobalBlockPalette  {
 
         final HashMap<Long, Integer> stateHashToLegacyIdData = new HashMap<>();
         final HashMap<Long, JSONObject> debug_hash = new HashMap<>();
+
+        AtomicInteger runtimeId = new AtomicInteger(1);
+
         try {
-            final JSONArray json = new JSONArray(new String(ByteStreams
-                    .toByteArray(Server.class.getClassLoader().getResourceAsStream("network-id-dump.json"))));
+            final JSONArray json = BlockNukkitIdConverter.json;
             for (Object elem : json) {
                 final JSONObject e = (JSONObject) elem;
 
-                final int legacyId = e.getInt("newId");
+                final int newId = e.getInt("newId");
                 final int legacyData = e.getInt("data");
                 final JSONObject states = e.getJSONObject("states");
 
-                final long hash = computeStateHash(legacyId, states, stateIdByName);
+                final long hash = computeStateHash(newId, states, stateIdByName);
                 if (stateHashToLegacyIdData.containsKey(hash))
                     throw new RuntimeException("hash collision: " + hash + " " + e);
 
                 debug_hash.put(hash, e);
-                BlockStateRegisters.addState(hash, states);
-                stateHashToLegacyIdData.put(hash, (legacyId << 16) | legacyData);
+                BlockStateRegisters.addState(hash, states, runtimeId.getAndIncrement(), e.getInt("oldId"), legacyData, newId);
+                stateHashToLegacyIdData.put(hash, (newId << 16) | legacyData);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,7 +115,7 @@ public class GlobalBlockPalette  {
                     /*if (stateHashToLegacyIdData.containsKey(hash))
                         throw new RuntimeException("hash collision: " + hash + " " + debug_hash.get(hash).toString());*/
 
-                    BlockStateRegisters.addState(hash, state);
+                    BlockStateRegisters.addState(hash, state, runtimeId.getAndIncrement(), id, i, id);
 
                     debug_hash.put(hash, new JSONObject().put("block", id + ":" + i));
                     stateHashToLegacyIdData.put(hash, (id << 16) | i);
@@ -145,7 +148,7 @@ public class GlobalBlockPalette  {
                 runtimeIdToLegacy.put(i, (legacyId << 6) | legacyData);
             }
 
-            BlockStateRegisters.addRuntimeIdAndData(hash, i, legacyId, legacyData);
+            //BlockStateRegisters.addRuntimeIdAndData(hash, runtimeId.getAndIncrement(), legacyId, legacyData);
             assignedRuntimeIds.add(new Pair<>(i, hash));
         }
     }
