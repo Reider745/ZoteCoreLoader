@@ -6,6 +6,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
+import com.reider745.hooks.NetworkHooks;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 
 import java.util.*;
@@ -71,6 +72,6 @@ public class InnerCorePacket extends BasePacket {
         packet.bytes_length = data.length;
         packet.bytes = data;
 
-        session.sendPacketNotPlayer(packet);
+        NetworkHooks.sendPacketNotPlayer(session, packet);
     }
 }

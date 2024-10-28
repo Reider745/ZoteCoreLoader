@@ -57,7 +57,7 @@ public class JarEditor {
 
     public JarEditor registerHooksInitializationForClass(String clazz)
             throws InstantiationException, IllegalAccessException, NotFoundException, NoSuchMethodException,
-            SecurityException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException {
+            SecurityException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, CannotCompileException {
         CtClass ctClass = classPool.get(clazz);
 
         for (Object annotationClass : ctClass.getAnnotations()) {
@@ -85,6 +85,93 @@ public class JarEditor {
                                 this.addHookInitialization(className,
                                         methodName.isBlank() ? method.getName() : methodName, signature, method,
                                         inject.type(), isController(method), inject.argumentMap());
+                        } else if(annotationMethod instanceof ShadowGetField shadowGetField) {
+                            final String name = shadowGetField.field();
+
+                            String className = shadowGetField.className();
+                            if(className.isEmpty()) className = classNameDefault;
+
+                            final CtClass ctClass1 = classPool.get(className);
+                            final CtField field = ctClass1.getDeclaredField(name);
+
+                            int modi = field.getModifiers();
+                            if((modi & Modifier.PUBLIC) == 0 && (modi & Modifier.PROTECTED) == 0)
+                                field.setModifiers(modi & ~Modifier.PRIVATE | Modifier.PUBLIC);
+                            else if((modi & Modifier.PROTECTED) != 0){
+                                field.setModifiers(modi & ~Modifier.PROTECTED | Modifier.PUBLIC);
+                            }
+
+                            final CtClass[] args = method.getParameterTypes();
+
+                            if(args[0].getName().equals(ctClass1.getName())) {
+                                method.setBody("{return $1." + name + ";}");
+                            }else
+                                method.setBody("{return "+className+"."+name+";}");
+                        } else if(annotationMethod instanceof ShadowSetField shadowSetField) {
+                            final String name = shadowSetField.field();
+                            String className = shadowSetField.className();
+                            if(className.isEmpty()) className = classNameDefault;
+                            final CtClass ctClass1 = classPool.get(className);
+                            final CtField field = ctClass1.getDeclaredField(name);
+
+                            int modi = field.getModifiers();
+                            if((modi & Modifier.PUBLIC) == 0 && (modi & Modifier.PROTECTED) == 0)
+                                field.setModifiers(modi & ~Modifier.PRIVATE | Modifier.PUBLIC);
+                            else if((modi & Modifier.PROTECTED) != 0){
+                                field.setModifiers(modi & ~Modifier.PROTECTED | Modifier.PUBLIC);
+                            }
+
+                            if((modi & Modifier.FINAL) == 0)
+                                field.setModifiers(modi & ~Modifier.FINAL);
+
+                            final CtClass[] args = method.getParameterTypes();
+
+                            if(args[0].getName().equals(ctClass1.getName())) {
+                                method.setBody("{$1." + name + " = $2;}");
+                            }else
+                                method.setBody("{return "+className+"."+name+" = $1;}");
+                        } else if(annotationMethod instanceof ShadowMethod shadowMethod) {
+                            String name = shadowMethod.method();
+                            if(name.isEmpty()) name = method.getName();
+
+                            String className = shadowMethod.className();
+                            if(className.isEmpty()) className = classNameDefault;
+
+                            final CtClass ctClass1 = classPool.get(className);
+                            CtMethod methodOrg = null;
+
+                            final CtMethod[] methods = ctClass1.getDeclaredMethods();
+                            for(CtMethod method_ : methods){
+                                final String sig = shadowMethod.signature();
+                                if(method_.getName().equals(name) && (sig.isEmpty() || method_.getSignature().equals(sig))){
+                                    methodOrg = method_;
+                                    break;
+                                }
+                            }
+
+
+                            int modi = methodOrg.getModifiers();
+                            if((modi & Modifier.PUBLIC) == 0 && (modi & Modifier.PROTECTED) == 0)
+                                methodOrg.setModifiers(modi & ~Modifier.PRIVATE | Modifier.PUBLIC);
+                            else if((modi & Modifier.PROTECTED) != 0){
+                                methodOrg.setModifiers(modi & ~Modifier.PROTECTED | Modifier.PUBLIC);
+                            }
+
+                            final CtClass[] args = method.getParameterTypes();
+                            final CtClass[] orgArgs = methodOrg.getParameterTypes();
+                            String arg = "";
+                            final boolean isStatic = args.length == orgArgs.length;
+
+                            for(int i = isStatic ? 1 : 2;i < args.length + 1;i++) {
+                                if (!arg.isEmpty())
+                                    arg += ", ";
+                                arg += "$" + i;
+                            }
+
+                            if(isStatic){
+                                method.setBody("{"+className+"."+name+"("+arg+");}");
+                            }else
+                                method.setBody("{$1."+name+"("+arg+");}");
                         }
                     }
                 }

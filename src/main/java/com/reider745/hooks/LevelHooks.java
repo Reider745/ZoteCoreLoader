@@ -31,22 +31,16 @@ import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.TextFormat;
 import cn.nukkit.utils.Utils;
-import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
-import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
+import com.reider745.api.hooks.annotation.ShadowGetField;
+import com.reider745.api.hooks.annotation.ShadowMethod;
 import com.reider745.event.EventListener;
-import com.reider745.world.FakeDimensions;
 import com.reider745.world.dimensions.DimensionsMethods;
-import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
-
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.Modifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -348,5 +342,73 @@ public class LevelHooks implements HookClass {
                 }
             }
         };
+    }
+
+    @ShadowGetField(field = "callbackBlockSet")
+    public static Int2ObjectMap<Consumer<Block>> getCallbackBlockSet(Level self){
+        return null;
+    }
+
+    @ShadowMethod(signature = "(JIII)V")
+    public static void addBlockChange(Level self, long index, int x, int y, int z){}
+
+    @Inject
+    public static boolean setBlock(Level self, int x, int y, int z, int layer, Block block, boolean direct, boolean update) {
+        if (!self.isYInRange(y) || layer < 0 || layer > self.requireProvider().getMaximumLayer()) {
+            return false;
+        }
+        BaseFullChunk chunk = self.getChunk(x >> 4, z >> 4, true);
+        Block blockPrevious;
+        blockPrevious = chunk.getAndSetBlock(x & 0xF, y, z & 0xF, layer, block);
+        if (blockPrevious.getFullId() == block.getFullId()) {
+            return false;
+        }
+        block.x = x;
+        block.y = y;
+        block.z = z;
+        block.level = self;
+        block.layer = layer;
+
+        try {
+            for (Consumer<Block> callback : getCallbackBlockSet(self).values()) {
+                callback.accept(block);
+            }
+        } catch (Exception e) {
+            Server.getInstance().getLogger().error("Error while calling block set callback", e);
+        }
+
+        int cx = x >> 4;
+        int cz = z >> 4;
+
+        if (direct) {
+            self.sendBlocks(self.getChunkPlayers(cx, cz).values().toArray(Player.EMPTY_ARRAY), new Block[]{block}, UpdateBlockPacket.FLAG_ALL_PRIORITY, block.layer);
+        } else {
+            addBlockChange(self, Level.chunkHash(cx, cz), x, y, z);
+        }
+
+        for (ChunkLoader loader : self.getChunkLoaders(cx, cz)) {
+            loader.onBlockChanged(block);
+        }
+        if (update) {
+            if (blockPrevious.isTransparent() != block.isTransparent() || blockPrevious.getLightLevel() != block.getLightLevel()) {
+                self.addLightUpdate(x, y, z);
+            }
+            BlockUpdateEvent ev = new BlockUpdateEvent(block);
+            self.getServer().getPluginManager().callEvent(ev);
+            EventListener.onBlockChange(self, blockPrevious, block);
+            if (!ev.isCancelled()) {
+                for (Entity entity : self.getNearbyEntities(new SimpleAxisAlignedBB(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1))) {
+                    entity.scheduleUpdate();
+                }
+                block = ev.getBlock();
+                block.onUpdate(Level.BLOCK_UPDATE_NORMAL);
+                block.getLevelBlockAtLayer(layer == 0 ? 1 : 0).onUpdate(Level.BLOCK_UPDATE_NORMAL);
+                if (block.isTransparent()) {
+                    self.antiXrayOnBlockChange(null, block, 1);
+                }
+                self.updateAround(new Vector3(x, y, z));
+            }
+        }
+        return true;
     }
 }

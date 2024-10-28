@@ -14,21 +14,20 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
+import com.reider745.api.hooks.annotation.ShadowGetField;
 import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
 import com.reider745.network.LoginPacketFix;
 import com.reider745.world.BiomesMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import org.cloudburstmc.netty.channel.raknet.packet.RakMessage;
 
 import java.io.ByteArrayInputStream;
 import java.net.ProtocolException;
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Hooks(className = "cn.nukkit.network.Network")
 public class NetworkHooks implements HookClass {
@@ -42,16 +41,51 @@ public class NetworkHooks implements HookClass {
         }
     }
 
-    @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;Lcn/nukkit/network/session/RakNetPlayerSession;)V", type = TypeHook.BEFORE_REPLACE)
+    @ShadowGetField(className = "cn.nukkit.network.session.RakNetPlayerSession", field = "outbound")
+    public static Queue<DataPacket> getOutbound(RakNetPlayerSession session){
+        return null;
+    }
+
+    @ShadowGetField(className = "cn.nukkit.network.session.RakNetPlayerSession", field = "inbound")
+    public static Queue<DataPacket> getInbound(RakNetPlayerSession session){
+        return null;
+    }
+
+    public static void sendPacketNotPlayer(RakNetPlayerSession session, BasePacket packet){
+        if (!session.getChannel().isActive()) {
+            return;
+        }
+
+        if (packet.packetId() != ProtocolInfo.toNewProtocolID(ProtocolInfo.BATCH_PACKET)) {
+            packet.tryEncode();
+        }
+        getOutbound(session).offer(packet);
+    }
+
+    // TODO: Костыль для получения RakNetPlayerSession в стоковом Nukkit-Mot
+    private static final ConcurrentHashMap<Object, RakNetPlayerSession> sessions = new ConcurrentHashMap<>();
+
+    @Inject(className = "cn.nukkit.network.session.RakNetPlayerSession")
+    public static void channelRead0(RakNetPlayerSession self, ChannelHandlerContext channelHandlerContext, RakMessage msg){
+        sessions.put(getInbound(self), self);
+    }
+
+    @Inject(className = "cn.nukkit.network.session.RakNetPlayerSession")
+    public static void disconnect(RakNetPlayerSession self, String reason) {
+        sessions.remove(getInbound(self));
+    }
+
+    @Inject(signature = "([BLjava/util/Collection;Lcn/nukkit/network/CompressionProvider;ILcn/nukkit/Player;)V", type = TypeHook.BEFORE_REPLACE)
     public static void processBatch(Network network, byte[] payload, Collection<DataPacket> packets,
-                                    CompressionProvider compression, int raknetProtocol, Player player, RakNetPlayerSession session) {
+                                    CompressionProvider compression, int raknetProtocol, Player player) {
+        final RakNetPlayerSession session = sessions.get(packets);
         final String id = NativeNetworking.getId(session);
         if (!canSendInfo.contains(id)) {
             canSendInfo.add(id);
-            session.sendPacketNotPlayer(InnerCorePacket.sendInfo);
+            sendPacketNotPlayer(session, InnerCorePacket.sendInfo);
         }
 
-        MainLogger log = Server.getInstance().getLogger();
+        final MainLogger log = Server.getInstance().getLogger();
 
         int maxSize = 3145728; // 3 * 1024 * 1024
         if (player != null && player.getSkin() == null) {
