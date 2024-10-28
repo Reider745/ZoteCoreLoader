@@ -1,21 +1,27 @@
 package com.reider745.world;
 
-import cn.nukkit.event.level.ChunkPopulateEvent;
-import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.math.NukkitRandom;
+import cn.nukkit.nbt.NBTIO;
+import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.BiomeDefinitionListPacket;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ReflectHelper;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import io.netty.util.collection.LongObjectHashMap;
 import io.netty.util.collection.LongObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class BiomesMethods {
     public static class NukkitCustomBiome extends Biome {
@@ -34,12 +40,15 @@ public class BiomesMethods {
 
         protected void reg(int id){
             register(id, this);
+            final Int2ObjectMap<String> runtimeId2Identifier = ReflectHelper.getField(Biome.class, "runtimeId2Identifier");
+            runtimeId2Identifier.put(id, getName());
+            Logger.debug("Register custom biome: "+id+", name: "+getName());
         }
     }
 
     private static final PointersStorage<NukkitCustomBiome> customBiomesPointers = new PointersStorage<>("biomes", new PointerGenFastest(), false);
     private static final HashMap<Integer, NukkitCustomBiome> customBiomes = new HashMap<>();
-    /*private static final CompoundTag TAG_419;
+    private static final CompoundTag TAG_419;
     private static byte[] sendBiomes;
 
     static {
@@ -49,7 +58,7 @@ public class BiomesMethods {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }*/
+    }
 
     private static final ArrayList<Integer> AvailableIDS = new ArrayList<>();
 
@@ -76,11 +85,11 @@ public class BiomesMethods {
             throw new RuntimeException("MAX BIOMES!");
         }
         NukkitCustomBiome biome = new NukkitCustomBiome(null, name);
-        biome.reg(AvailableIDS.remove(0));
+        biome.reg(AvailableIDS.remove(AvailableIDS.size()-1));
         customBiomes.put(biome.getId(), biome);
 
         // без этого дерьма работает
-        /*try{
+        try{
             final CompoundTag tag = new CompoundTag();
             tag.putFloat("ash", .0f);
             tag.putFloat("blue_spores", .0f);
@@ -102,7 +111,7 @@ public class BiomesMethods {
             sendBiomes = NBTIO.write(TAG_419, ByteOrder.LITTLE_ENDIAN, true);
         }catch (Exception e){
             throw new RuntimeException(e);
-        }*/
+        }
         return customBiomesPointers.addPointer(biome);
     }
 
@@ -110,10 +119,10 @@ public class BiomesMethods {
         return customBiomesPointers.get(pointer).getId();
     }
 
-    /*public static void encode(BiomeDefinitionListPacket self) {
+    public static void encode(BiomeDefinitionListPacket self){
         self.reset();
         self.put(sendBiomes);
-    }*/
+    }
 
     private static final LongObjectMap<Biome[][]> populatingChunks = new LongObjectHashMap<>();
 
@@ -135,8 +144,9 @@ public class BiomesMethods {
             final Biome[] biomes_z = biomes[x];
             for (int z = 0; z < 16; z++) {
                 final Biome biome = biomes_z[z];
-                if(biome != null)
-                    fullChunk.setBiomeId(x, z, biome.getId());//кнч очень полезно создавть матрицу Biome, может на int все ебануть?
+                if(biome != null) {
+                    fullChunk.setBiomeId(x, z, biome.getId());
+                }
             }
         }
         populatingChunks.remove(id);

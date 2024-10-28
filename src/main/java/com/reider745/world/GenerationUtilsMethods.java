@@ -33,18 +33,17 @@ public class GenerationUtilsMethods {
         blackListSurface.add(BlockID.LEAVES2);
         blackListSurface.add(BlockID.SNOW_LAYER);
         blackListSurface.add(BlockID.DOUBLE_PLANT);
+        blackListSurface.add(BlockID.WATER);
+        blackListSurface.add(BlockID.STILL_WATER);
     }
 
-    public static int findSurface(int x, int y, int z){
-        Level level = CallbackHelper.getForCurrentThread();
+    public static int findSurface(int x, int ignore_y, int z){
+        final Level level = CallbackHelper.getForCurrentThread();
         if(level == null) throw new RuntimeException("Region null");
-        for(int i = y;i < 256;i++){
-            if(!blackListSurface.contains(level.getBlockIdAt(x, i, z)) && level.getBlockIdAt(x, i+1, z) == 0)
-                return i-1;
-        }
+        int y = level.getHighestBlockAt(x, z, false);
         for(int i = y;i > 0;i--){
-            if(!blackListSurface.contains(level.getBlockIdAt(x, i, z)) && level.getBlockIdAt(x, i+1, z) == 0)
-                return i-1;
+            if(!blackListSurface.contains(level.getBlock(x, i, z).getId()))
+                return i;
         }
         return y;
     }
