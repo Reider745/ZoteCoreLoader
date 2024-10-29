@@ -47,6 +47,7 @@ import com.zhekasmirnov.apparatus.multiplayer.Network;
 import oshi.hardware.NetworkIF;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.reider745.api.CallbackHelper;
 import com.reider745.api.CustomManager;
@@ -96,6 +97,16 @@ public class EventListener implements Listener {
             level.sendBlocks(players, new Vector3[]{new Vector3(x, y, z)}, UpdateBlockPacket.FLAG_ALL);
     }
 
+    private static final ConcurrentHashMap<Player, Vector3> vectorPositions = new ConcurrentHashMap<>();
+
+    public static void setPosition(Player player, Vector3 pos){
+        vectorPositions.put(player, pos);
+    }
+
+    public static void remove(Player player){
+        vectorPositions.remove(player);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
         if (event.equals(dealingEvent) || Boolean.TRUE.equals(dealingEvent)) {
@@ -106,7 +117,7 @@ public class EventListener implements Listener {
         final Player player = event.getPlayer();
 
         if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
-            final Vector3 pos = event.getTouchVector();
+            final Vector3 pos = vectorPositions.get(player);
 
             pos.x = Math.abs(pos.x) + block.x;
             pos.y = Math.abs(pos.y) + block.y;

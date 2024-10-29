@@ -53,7 +53,7 @@ public class NetworkPlayerHandler {
             }
         }
 
-        if (!isTickCallbackDisabled) {
+        if (!isTickCallbackDisabled && EntityMethod.isValid(actor.getUid())) {
             try {
                 Callback.invokeCallback(isLocal ? "LocalPlayerTick" : "ServerPlayerTick", actor.getUid(), isDead);
             } catch (Throwable err) {

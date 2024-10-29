@@ -111,6 +111,10 @@ public class EntityMethod {
         return entity != null && entity.isValid();
     }
 
+    public static boolean isValid(long entity) {
+        return isValid(getEntityById(entity));
+    }
+
     private static <T> T validateThen(long entityUid, Function<Entity, T> then, T defaultValue) {
         Entity entity = getEntityById(entityUid);
         if (isValid(entity)) {

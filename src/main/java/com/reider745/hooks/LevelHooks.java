@@ -18,6 +18,8 @@ import cn.nukkit.level.ChunkLoader;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.level.format.LevelProvider;
+import cn.nukkit.level.format.anvil.Anvil;
 import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.level.format.generic.BaseLevelProvider;
 import cn.nukkit.level.particle.DestroyBlockParticle;
@@ -410,5 +412,21 @@ public class LevelHooks implements HookClass {
             }
         }
         return true;
+    }
+
+    @Inject
+    public static void useItemOn(Level self, Vector3 vector, Item item, BlockFace face, float fx, float fy, float fz, Player player, boolean playSound) {
+        // TODO: Событие нажатия на блок от Nukkit-Mot не дает координаты с плавающей точкой
+        EventListener.setPosition(player, new Vector3(fx, fy, fz));
+    }
+
+    // TODO: Удаление поддержки leveldb(не стабилен, ломает пользовательские биомы)
+    /*
+        Ломает сохранение пользовательских биомов
+        Имеет утечки памяти
+     */
+    @Inject(className = "cn.nukkit.level.format.LevelProviderManager")
+    public static Class<? extends LevelProvider> getProviderByName(String name){
+        return Anvil.class;
     }
 }

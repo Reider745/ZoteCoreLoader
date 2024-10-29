@@ -80,12 +80,13 @@ public class BiomesMethods {
         return json;
     }
 
+    // TODO: Проблема клиент не правильно обрабатывает пользовательские биомы(вероятнее всего проблема на стороне клиента)
     public static long nativeRegister(String name) {
         if(AvailableIDS.isEmpty()){
             throw new RuntimeException("MAX BIOMES!");
         }
         NukkitCustomBiome biome = new NukkitCustomBiome(null, name);
-        biome.reg(AvailableIDS.remove(AvailableIDS.size()-1));
+        biome.reg(AvailableIDS.remove(0));
         customBiomes.put(biome.getId(), biome);
 
         // без этого дерьма работает
