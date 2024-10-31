@@ -10,6 +10,7 @@ import cn.nukkit.math.Vector3;
 import com.reider745.api.CallbackHelper;
 import com.reider745.world.dimensions.NoiseOctaveMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
+
 import java.util.ArrayList;
 
 public class GenerationUtilsMethods {
@@ -64,7 +65,7 @@ public class GenerationUtilsMethods {
     private static NukkitRandom rand = null;
 
     public static void generateOreNative(int x, int y, int z, int id, int data, int clusterSize, boolean whitelist, int[] blockIds, int seed){
-        Level level = CallbackHelper.getForCurrentThread();
+        final Level level = CallbackHelper.getForCurrentThread();
 
         if(level == null) throw new RuntimeException("Region null");
         if(rand == null) rand = new NukkitRandom();

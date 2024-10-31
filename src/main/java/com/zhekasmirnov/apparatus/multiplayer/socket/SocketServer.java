@@ -86,10 +86,10 @@ public class SocketServer {
                             }
                         }
                     } catch (IOException exception) {
-                        Logger.error("socket server error", "error in creating channel", exception);
+                        Logger.error("socket server error", "error in creating channel, sleep socket", exception);
                         try {
-                            socket.close();
-                        } catch (IOException e) {
+                            Thread.sleep(1000L);
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }

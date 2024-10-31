@@ -239,7 +239,7 @@ public class EventListener implements Listener {
         final Entity entity = event.getEntity();
 
         EntityMotion.remove(entity);
-        NativeCallback.onEntityRemoved(EntityMethod.getIdForEntity(entity));
+        if(entity.level != null) NativeCallback.onEntityRemoved(EntityMethod.getIdForEntity(entity));
     }
 
     public static int convertDamageCauseToEnum(DamageCause cause) {

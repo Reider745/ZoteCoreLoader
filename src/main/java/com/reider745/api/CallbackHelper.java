@@ -1,5 +1,6 @@
 package com.reider745.api;
 
+import cn.nukkit.Server;
 import cn.nukkit.event.Event;
 import cn.nukkit.level.Level;
 import com.reider745.api.hooks.HookController;
@@ -43,11 +44,9 @@ public class CallbackHelper {
 
         @Override
         public void run() {
-            while (true) {
+            while (Server.getInstance().isRunning()) {
                 synchronized (applys) {
-                    Iterator<ICallbackApply> it = applys.iterator();
-                    while (it.hasNext())
-                        it.next().apply();
+                    for (ICallbackApply apply : applys) apply.apply();
                     applys.clear();
                 }
                 try {
@@ -55,6 +54,8 @@ public class CallbackHelper {
                 } catch (InterruptedException e) {
                 }
             }
+
+            Logger.warning("Disable thread: "+getName());
         }
     }
 
@@ -173,7 +174,7 @@ public class CallbackHelper {
 
     @SuppressWarnings("unchecked")
     public static void setValueForCurrent(Object value) {
-        Thread thread = Thread.currentThread();
+        final Thread thread = Thread.currentThread();
         if (thread instanceof ThreadCustomValue custom) {
             try {
                 custom.value = value;
@@ -184,9 +185,9 @@ public class CallbackHelper {
     }
 
     public static Level getForCurrentThread() {
-        Thread thread = Thread.currentThread();
-        if (thread instanceof ThreadCustomValue threadCallback && threadCallback.getValue() instanceof Level) {
-            return (Level) threadCallback.getValue();
+        final Thread thread = Thread.currentThread();
+        if (thread instanceof ThreadCustomValue threadCallback && threadCallback.getValue() instanceof Level level) {
+            return level;
         }
         return null;
     }

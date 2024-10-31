@@ -65,7 +65,7 @@ public class NativeBlockSource {
 
     public static NativeBlockSource getCurrentWorldGenRegion() {
         Level level = CallbackHelper.getForCurrentThread();
-        if(level == null) Server.getInstance().getDefaultLevel();
+        if(level == null) level = Server.getInstance().getDefaultLevel();
         return level != null ? new NativeBlockSource(level, false) : null;
     }
 

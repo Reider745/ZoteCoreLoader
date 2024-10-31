@@ -83,16 +83,12 @@ public class WorldGen {
     }
 
     private static int dimensionIdToGenerationMode(int id) {
-        switch (id) {
-            case 0:
-                return MODE_SURFACE;
-            case 1:
-                return MODE_NETHER;
-            case 2:
-                return MODE_END;
-            default:
-                return MODE_CUSTOM;
-        }
+        return switch (id) {
+            case 0 -> MODE_SURFACE;
+            case 1 -> MODE_NETHER;
+            case 2 -> MODE_END;
+            default -> MODE_CUSTOM;
+        };
     }
 
     public static void generateChunk(int x, int z, int level) {
@@ -103,15 +99,18 @@ public class WorldGen {
             return;
         }
 
+        for (int lvl : allLevels) {
+            generateChunk(x, z, dimension, lvl);
+        }
+
         // if feature is not supported, call every generation level at once
-        if (!MinecraftVersions.getCurrent()
-                .isFeatureSupported(MinecraftVersion.FEATURE_VANILLA_WORLD_GENERATION_LEVELS)) {
+        /*if (!MinecraftVersions.getCurrent().isFeatureSupported(MinecraftVersion.FEATURE_VANILLA_WORLD_GENERATION_LEVELS)) {
             for (int lvl : allLevels) {
                 generateChunk(x, z, dimension, lvl);
             }
         } else {
             generateChunk(x, z, dimension, level);
-        }
+        }*/
     }
 
     public static void generateChunk(int x, int z, int dimensionId, int level) {
