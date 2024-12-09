@@ -1,24 +1,21 @@
-package com.reider745.hooks;
+package com.reider745.hooks.entity;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.lang.TextContainer;
-import cn.nukkit.network.SourceInterface;
-import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.TextFormat;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.entity.EntityMethod;
 import com.reider745.event.EventListener;
 import com.reider745.api.hooks.annotation.Hooks;
-import com.reider745.network.InnerCorePacket;
+import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
+import com.zhekasmirnov.apparatus.multiplayer.channel.data.SocketDataChannel;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 
 import java.util.Arrays;
@@ -28,7 +25,6 @@ import org.mozilla.javascript.RhinoException;
 
 @Hooks(className = "cn.nukkit.Player")
 public class PlayerHooks implements HookClass {
-
     private static boolean equalsAddress(String address1, String address2) {
         if (address1 == null || address2 == null || address1.isBlank() || address2.isBlank()) {
             return false;
@@ -67,49 +63,51 @@ public class PlayerHooks implements HookClass {
     }
 
     public static ConnectedClient getForPlayer(Player player) {
-        List<ConnectedClient> clients = Network.getSingleton().getServer().getConnectedClients();
-        for (ConnectedClient client : clients)
-            if (equalsAddress(player.getSocketAddress().toString(),
-                    client.getChannelInterface().getChannel().getClient()))
-                return client;
+        ConnectedClient result = null;
+        if(player.getNetworkSession() instanceof RakNetPlayerSessionHooks session)
+            result = session.getInnerCoreConnectionClient();
 
-        clients = Network.getSingleton().getServer().getInitializingClients();
-        for (ConnectedClient client : clients)
-            if (equalsAddress(player.getSocketAddress().toString(),
-                    client.getChannelInterface().getChannel().getClient()))
-                return client;
+        if(InnerCoreServer.isEnableSockets()) {
+            List<ConnectedClient> clients = Network.getSingleton().getServer().getConnectedClients();
+            for (ConnectedClient client : clients)
+                if (client.getChannelInterface().getChannel().getProtocolId() == SocketDataChannel.PROTOCOL_ID && equalsAddress(player.getSocketAddress().toString(),
+                        client.getChannelInterface().getChannel().getClient()))
+                    return client;
 
-        return null;
+            clients = Network.getSingleton().getServer().getInitializingClients();
+            for (ConnectedClient client : clients)
+                if (client.getChannelInterface().getChannel().getProtocolId() == SocketDataChannel.PROTOCOL_ID && equalsAddress(player.getSocketAddress().toString(),
+                        client.getChannelInterface().getChannel().getClient()))
+                    return client;
+
+            return result;
+        }
+
+        return result;
     }
 
     @Inject(type = TypeHook.BEFORE_NOT_REPLACE)
     public static void close(Player player, TextContainer message, String reason, boolean notify) {
-        NetworkHooks.close(player);
         EventListener.remove(player);
-        ConnectedClient client = getForPlayer(player);
+
+        final ConnectedClient client = getForPlayer(player);
         try {
             if (client != null)
                 client.disconnect();
-        } catch (Throwable ignore) {
-        }
-    }
-
-    @Inject
-    public static void dataPacket(Player player, DataPacket packet) {
-        if (InnerCoreServer.isDebugInnerCoreNetwork() && packet.packetId() != 21)
-            System.out.println("sending packet player=" + EntityMethod.getIdForEntity(player) + " id=" + packet.packetId()
-                    + " pid=" + packet.pid() + " channel=" + packet.getChannel());
+        } catch (Throwable ignore) {}
     }
 
     public static void showExceptionForm(Player player, String title, String message, Throwable exc) {
         if (!InnerCoreServer.shouldPlayersReceiveExceptionForms() || !EntityMethod.isValid(player)) {
             return;
         }
-        FormWindowSimple form = new FormWindowSimple(title, message, Arrays.asList(new ElementButton("Rejoin")));
+
+        final FormWindowSimple form = new FormWindowSimple(title, message, Arrays.asList(new ElementButton("Rejoin")));
         if (exc instanceof RhinoException rhino) {
             form.setContent(form.getContent() + "\n\n" + TextFormat.RED + exc.getLocalizedMessage() + "\n"
                     + rhino.getScriptStackTrace().replace('\t', ' '));
         }
+
         player.removeAllWindows();
         player.showFormWindow(form, EventListener.FORM_REJOIN_EXCEPTION);
     }

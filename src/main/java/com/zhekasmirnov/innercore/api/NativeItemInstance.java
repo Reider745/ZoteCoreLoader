@@ -3,7 +3,7 @@ package com.zhekasmirnov.innercore.api;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.reider745.item.NukkitIdConverter;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 

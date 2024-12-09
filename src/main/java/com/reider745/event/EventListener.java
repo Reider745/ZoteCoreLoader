@@ -37,8 +37,10 @@ import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
-import com.reider745.block.BlockNukkitIdConverter;
+import cn.nukkit.scheduler.AsyncTask;
+import com.reider745.InnerCoreServer;
 import com.reider745.hooks.ServerHooks;
+import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.reider745.item.ItemMethod;
 import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
@@ -54,8 +56,8 @@ import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
 import com.reider745.entity.EntityMethod;
 import com.reider745.entity.EntityMotion;
-import com.reider745.hooks.ItemUtils;
-import com.reider745.hooks.PlayerHooks;
+import com.reider745.hooks.item.ItemUtils;
+import com.reider745.hooks.entity.PlayerHooks;
 import com.reider745.item.NukkitIdConverter;
 import com.reider745.item.NukkitIdConverter.EntryItem;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
@@ -182,42 +184,47 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChunkPopulate(ChunkPopulateEvent event) {
-        final FullChunk fullChunk = event.getChunk();
-        final Level level = event.getLevel();
+        Server.getInstance().getScheduler().scheduleAsyncTask(InnerCoreServer.plugin, new AsyncTask() {
+            @Override
+            public void onRun() {
+                final FullChunk fullChunk = event.getChunk();
+                final Level level = event.getLevel();
 
-        final int X = fullChunk.getX();
-        final int Z = fullChunk.getZ();
+                final int X = fullChunk.getX();
+                final int Z = fullChunk.getZ();
 
-        final CallbackHelper.ICallbackApply applyPre = () -> NativeCallback.onPreChunkPostProcessed(X, Z);
-        final CallbackHelper.ICallbackApply applyPost = () -> NativeCallback.onChunkPostProcessed(X, Z);
+                final CallbackHelper.ICallbackApply applyPre = () -> NativeCallback.onPreChunkPostProcessed(X, Z);
+                final CallbackHelper.ICallbackApply applyPost = () -> NativeCallback.onChunkPostProcessed(X, Z);
 
-        final int id = FakeDimensions.getFakeIdForLevel(level);
-        BiomesMethods.onChunkPopulate(fullChunk, X, Z, id);
+                final int id = FakeDimensions.getFakeIdForLevel(level);
+                BiomesMethods.onChunkPopulate(fullChunk, X, Z, id);
 
-        try {
-            switch (id) {
-                case Level.DIMENSION_OVERWORLD -> {
-                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK, level, applyPre);
-                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVERWORLD, level, applyPost);
-                }
-                case Level.DIMENSION_NETHER -> {
-                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_NETHER, level, applyPre);
-                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_NETHER, level, applyPost);
-                }
+                try {
+                    switch (id) {
+                        case Level.DIMENSION_OVERWORLD -> {
+                            CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK, level, applyPre);
+                            CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_OVERWORLD, level, applyPost);
+                        }
+                        case Level.DIMENSION_NETHER -> {
+                            CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_NETHER, level, applyPre);
+                            CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_NETHER, level, applyPost);
+                        }
 
-                case Level.DIMENSION_THE_END -> {
-                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_END, level, applyPre);
-                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, applyPost);
-                }
+                        case Level.DIMENSION_THE_END -> {
+                            CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_END, level, applyPre);
+                            CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_END, level, applyPost);
+                        }
 
-                default -> {
-                    CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_CUSTOM, level, applyPost);
-                    CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_CUSTOM, level, applyPre);
+                        default -> {
+                            CallbackHelper.applyRegion(CallbackHelper.Type.GENERATION_CHUNK_CUSTOM, level, applyPost);
+                            CallbackHelper.applyRegion(CallbackHelper.Type.PRE_GENERATION_CHUNK_CUSTOM, level, applyPre);
+                        }
+                    }
+                } catch (Exception e) {
+                    Logger.error("EventListener.onChunkPopulate(event)", e);
                 }
             }
-        } catch (Exception e) {
-            Logger.error("EventListener.onChunkPopulate(event)", e);
-        }
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -239,7 +246,7 @@ public class EventListener implements Listener {
         final Entity entity = event.getEntity();
 
         EntityMotion.remove(entity);
-        if(entity.level != null) NativeCallback.onEntityRemoved(EntityMethod.getIdForEntity(entity));
+        if(entity.isValid()) NativeCallback.onEntityRemoved(EntityMethod.getIdForEntity(entity));
     }
 
     public static int convertDamageCauseToEnum(DamageCause cause) {
@@ -482,6 +489,10 @@ public class EventListener implements Listener {
             event.getPlayer().kick(message);
             return;
         }
+
+        final RakNetPlayerSessionHooks sessionHooks = (RakNetPlayerSessionHooks) player.getNetworkSession();
+        sessionHooks.setInnerCoreConnectionClient(client);
+        client.setSession(sessionHooks);
 
         client.playerUid = EntityMethod.getIdForEntity(player);
         Network.getSingleton().getServer().onConnection(client);

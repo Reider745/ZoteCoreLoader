@@ -142,7 +142,12 @@ public class ItemContainer implements WorkbenchField, ObjectSaverRegistry.IHashS
                 ItemContainer container = (ItemContainer) target;
                 ServerEventListener listener = container.serverEventListenerMap.get(extra);
                 if (listener != null) {
-                    listener.receive(container, client, packetData);
+                    try{
+                        listener.receive(container, client, packetData);
+                    }catch (Exception e){
+                        ICLog.e("NETWORK", "ItemContainer: "+extra, e);
+                    }
+
                 }
             })
             .setClientAddPacketFactory((target, entity, client) -> {

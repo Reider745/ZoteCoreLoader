@@ -6,7 +6,7 @@ import cn.nukkit.item.food.FoodNormal;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;

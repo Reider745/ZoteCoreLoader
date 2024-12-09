@@ -113,12 +113,4 @@ public class ServerHooks {
     public static String getVersion(Server server) {
         return 'v' + Utils.getVersionByProtocol(ProtocolInfo.v1_16_200);
     }
-
-    @Inject(
-            className = "cn.nukkit.level.generator.Normal",
-            type = TypeHook.AFTER_NOT_REPLACE
-    )
-    public static void populateChunk(Normal self, int chunkX, int chunkZ) {
-        self.populateStructure(chunkX, chunkZ);
-    }
 }

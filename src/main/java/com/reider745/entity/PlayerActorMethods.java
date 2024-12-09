@@ -16,7 +16,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.event.EventListener;
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 

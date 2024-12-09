@@ -9,7 +9,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 import com.reider745.api.ZoteOnly;
 import com.reider745.entity.EntityMethod;
-import com.reider745.hooks.PlayerHooks;
+import com.reider745.hooks.entity.PlayerHooks;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.Minecraft;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;

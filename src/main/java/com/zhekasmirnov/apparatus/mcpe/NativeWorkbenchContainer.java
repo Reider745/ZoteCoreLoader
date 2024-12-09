@@ -1,6 +1,6 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;

@@ -3,6 +3,7 @@ package com.reider745.world;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.MathHelper;
 import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.NukkitRandom;
@@ -70,6 +71,9 @@ public class GenerationUtilsMethods {
         if(level == null) throw new RuntimeException("Region null");
         if(rand == null) rand = new NukkitRandom();
 
+        final FullChunk chunk = level.getChunk(x >> 4, z >> 4);
+        if(chunk == null) throw new RuntimeException("Chunk null");
+
         final float piScaled = rand.nextFloat() * (float) Math.PI;
         final double scaleMaxX = (float) (x + 8) + MathHelper.sin(piScaled) * (float) clusterSize / 8.0F;
         final double scaleMinX = (float) (x + 8) - MathHelper.sin(piScaled) * (float) clusterSize / 8.0F;
@@ -77,7 +81,6 @@ public class GenerationUtilsMethods {
         final double scaleMinZ = (float) (z + 8) - MathHelper.cos(piScaled) * (float) clusterSize / 8.0F;
         final double scaleMaxY = y + rand.nextBoundedInt(3) - 2;
         final double scaleMinY = y + rand.nextBoundedInt(3) - 2;
-        final Block ore = Block.get(id, data);
 
         for (int i = 0; i < clusterSize; ++i) {
             final float sizeIncr = (float) i / (float) clusterSize;
@@ -96,9 +99,10 @@ public class GenerationUtilsMethods {
 
             for (int xSeg = minX; xSeg <= maxX; ++xSeg) {
                 final double xVal = ((double) xSeg + 0.5D - scaleX) / (randVec1 / 2.0D);
+                final int x_pos = Math.abs(xSeg % 16);
 
                 if (xVal * xVal < 1.0D) {
-                    for (int ySeg = minY; ySeg <= maxY; ++ySeg) {
+                    for (int ySeg = Math.max(minY, level.getMinBlockY()); ySeg <= Math.min(maxY, level.getMaxBlockY()); ++ySeg) {
                         final double yVal = ((double) ySeg + 0.5D - scaleY) / (randVec2 / 2.0D);
 
                         if (xVal * xVal + yVal * yVal < 1.0D) {
@@ -106,9 +110,11 @@ public class GenerationUtilsMethods {
                                 final double zVal = ((double) zSeg + 0.5D - scaleZ) / (randVec1 / 2.0D);
 
                                 if (xVal * xVal + yVal * yVal + zVal * zVal < 1.0D) {
-                                    int block_replace = level.getBlock(xSeg, ySeg, zSeg).getId();
+                                    final int z_pos = Math.abs(zSeg % 16);
+
+                                    final int block_replace = chunk.getBlockId(x_pos, ySeg, z_pos);
                                     if (block_replace != BlockID.AIR && isReplace(blockIds, block_replace, whitelist)) {
-                                        level.setBlock(new Vector3(xSeg, ySeg, zSeg), ore);
+                                        chunk.setBlock(x_pos, ySeg, z_pos, id, data);
                                     }
                                 }
                             }

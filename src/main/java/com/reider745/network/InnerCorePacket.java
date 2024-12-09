@@ -1,15 +1,10 @@
 package com.reider745.network;
 
-import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
-import com.reider745.api.ClientOnly;
-import com.reider745.hooks.NetworkHooks;
+import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
-
-import java.util.*;
 
 public class InnerCorePacket extends BasePacket {
     public static final byte NETWORK_ID = -64;
@@ -64,7 +59,7 @@ public class InnerCorePacket extends BasePacket {
         this.put(bytes);
     }
 
-    public static void sendPacketToClient(RakNetPlayerSession session, String name, int format_id, byte[] data) {
+    public static void sendPacketToClient(RakNetPlayerSessionHooks session, String name, int format_id, byte[] data) {
         final InnerCorePacket packet = new InnerCorePacket();
 
         packet.name = name;
@@ -72,6 +67,6 @@ public class InnerCorePacket extends BasePacket {
         packet.bytes_length = data.length;
         packet.bytes = data;
 
-        NetworkHooks.sendPacketNotPlayer(session, packet);
+        session.sendPacketNotPlayer(packet);
     }
 }

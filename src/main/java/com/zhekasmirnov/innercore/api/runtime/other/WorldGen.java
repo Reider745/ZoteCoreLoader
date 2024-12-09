@@ -99,9 +99,7 @@ public class WorldGen {
             return;
         }
 
-        for (int lvl : allLevels) {
-            generateChunk(x, z, dimension, lvl);
-        }
+        generateChunk(x, z, dimension, level);
 
         // if feature is not supported, call every generation level at once
         /*if (!MinecraftVersions.getCurrent().isFeatureSupported(MinecraftVersion.FEATURE_VANILLA_WORLD_GENERATION_LEVELS)) {

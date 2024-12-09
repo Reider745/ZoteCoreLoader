@@ -1,4 +1,4 @@
-package com.reider745.hooks;
+package com.reider745.hooks.block;
 
 import android.util.Pair;
 import cn.nukkit.Server;

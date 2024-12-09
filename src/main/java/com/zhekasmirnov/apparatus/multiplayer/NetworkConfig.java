@@ -82,7 +82,7 @@ public class NetworkConfig {
         setLocalNativeProtocolForced(EngineConfig.getBoolean("network.local_native_protocol_forced", false));
         // enable socket server
         setDefaultPort(InnerCoreServer.getPropertyInt("socket-port", 2304));
-        setSocketConnectionAllowed(InnerCoreServer.getPropertyBoolean("socket-server-enable", true));
+        setSocketConnectionAllowed(InnerCoreServer.isEnableSockets());
         InnerCorePacket.sendInfo = getServerDetectionPacket();
     }
 

@@ -1,6 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;

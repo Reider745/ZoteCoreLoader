@@ -1,9 +1,9 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import cn.nukkit.Player;
-import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
 import com.reider745.entity.EntityMethod;
+import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import com.zhekasmirnov.apparatus.multiplayer.channel.ChannelInterface;
 import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
@@ -25,6 +25,7 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     private final ModdedServer server;
     private final ChannelInterface channel;
+    private RakNetPlayerSessionHooks session;
     public long playerUid = -1;
 
     private ClientState state = ClientState.CREATED;
@@ -51,10 +52,15 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         void onStateChanged(ConnectedClient client, ClientState newState);
     }
 
-    public ConnectedClient(ModdedServer server, DataChannel channel, RakNetPlayerSession client) {
+    public ConnectedClient(ModdedServer server, DataChannel channel, RakNetPlayerSessionHooks session) {
         this.server = server;
         this.channel = new ChannelInterface(channel);
         this.channel.addListener(this);
+
+        if(session != null) {
+            this.session = session;
+            session.setInnerCoreConnectionClient(this);
+        }
 
         this.addInitializationPacketListener("system.player_entity",
                 (ConnectedClient cl, Object data, Class<?> dataType) -> {
@@ -81,6 +87,14 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
 
     public boolean isClosed() {
         return state == ClientState.CLOSED;
+    }
+
+    public RakNetPlayerSessionHooks getSession() {
+        return session;
+    }
+
+    public void setSession(RakNetPlayerSessionHooks session) {
+        this.session = session;
     }
 
     public void setDisconnectListener(OnDisconnectListener disconnectListener) {

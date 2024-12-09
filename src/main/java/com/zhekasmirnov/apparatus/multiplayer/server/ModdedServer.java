@@ -1,9 +1,8 @@
 package com.zhekasmirnov.apparatus.multiplayer.server;
 
 import android.util.Pair;
-import cn.nukkit.Player;
-import cn.nukkit.network.session.RakNetPlayerSession;
 import com.reider745.InnerCoreServer;
+import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.NetworkConfig;
@@ -139,7 +138,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         onShutdownListeners.add(listener);
     }
 
-    public void onClientConnected(DataChannel channel, RakNetPlayerSession cl) {
+    public void onClientConnected(DataChannel channel, RakNetPlayerSessionHooks cl) {
         ConnectedClient client = new ConnectedClient(this, channel, cl);
         client.setDisconnectListener(this);
         client.setStateChangedListener(this);
@@ -158,7 +157,6 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
         }
 
         client.getChannelInterface().addListener((String name, Object data, Class<?> dataType) -> {
-
             int separatorIndex = name.indexOf('#');
             String meta = null;
             if (separatorIndex != -1) {
@@ -188,7 +186,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
     }
 
     @Override
-    public void onNativeChannelConnected(NativeDataChannel channel, RakNetPlayerSession sender) {
+    public void onNativeChannelConnected(NativeDataChannel channel, RakNetPlayerSessionHooks sender) {
         if (EngineConfig.isDeveloperMode()) {
             Logger.debug("client connected via native protocol");
         }

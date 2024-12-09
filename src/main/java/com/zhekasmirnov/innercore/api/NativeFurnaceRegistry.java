@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 /**

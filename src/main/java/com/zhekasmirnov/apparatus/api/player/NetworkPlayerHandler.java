@@ -1,7 +1,7 @@
 package com.zhekasmirnov.apparatus.api.player;
 
 import com.reider745.entity.EntityMethod;
-import com.reider745.hooks.PlayerHooks;
+import com.reider745.hooks.entity.PlayerHooks;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
 import com.zhekasmirnov.apparatus.multiplayer.Network;

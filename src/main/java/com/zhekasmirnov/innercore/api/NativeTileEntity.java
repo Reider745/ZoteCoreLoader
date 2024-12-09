@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;

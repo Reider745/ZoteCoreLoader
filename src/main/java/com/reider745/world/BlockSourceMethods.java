@@ -19,11 +19,9 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.PlaySoundPacket;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.block.BlockNukkitIdConverter;
 import com.reider745.block.BlockStateRegisters;
 import com.reider745.entity.EntityMethod;
-import com.reider745.hooks.GlobalBlockPalette;
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 
 import java.util.Arrays;

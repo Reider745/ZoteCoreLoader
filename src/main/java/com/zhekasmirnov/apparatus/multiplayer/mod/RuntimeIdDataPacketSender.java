@@ -2,7 +2,7 @@ package com.zhekasmirnov.apparatus.multiplayer.mod;
 
 import android.util.Pair;
 
-import com.reider745.hooks.GlobalBlockPalette;
+import com.reider745.hooks.block.GlobalBlockPalette;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

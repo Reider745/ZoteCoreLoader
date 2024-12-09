@@ -1,4 +1,4 @@
-package com.reider745.hooks;
+package com.reider745.hooks.item;
 
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemDurable;

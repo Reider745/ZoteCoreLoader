@@ -5,7 +5,7 @@ import com.reider745.api.hooks.HookController;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
-import com.reider745.hooks.ItemUtils;
+import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
 import cn.nukkit.block.BlockDispenser;
@@ -15,10 +15,6 @@ import cn.nukkit.event.block.BlockEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.BlockFace.Axis;
-import javassist.CannotCompileException;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
 import cn.nukkit.math.Vector3;
 
 @Hooks(className = "cn.nukkit.block.BlockDispenser")

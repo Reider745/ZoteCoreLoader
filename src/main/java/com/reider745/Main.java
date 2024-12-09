@@ -41,11 +41,11 @@ public class Main {
         }
 
         //items and blocks
-        add("com.reider745.hooks.GlobalBlockPalette");
-        add("com.reider745.hooks.ItemUtils");
-        add("com.reider745.hooks.RuntimeItemsHooks");
-        add("com.reider745.hooks.BlocksHooks");
-        loader.addRebuildField("com.reider745.hooks.BlocksHooks", (ctClass, field) -> {
+        add("com.reider745.hooks.block.GlobalBlockPalette");
+        add("com.reider745.hooks.item.ItemUtils");
+        add("com.reider745.hooks.item.RuntimeItemsHooks");
+        add("com.reider745.hooks.block.BlocksHooks");
+        loader.addRebuildField("com.reider745.hooks.block.BlocksHooks", (ctClass, field) -> {
             String name = field.getName();
             if (name.equals("MAX_BLOCK_ID") || name.equals("usesFakeWater"))
                 field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
@@ -65,8 +65,8 @@ public class Main {
         add("com.reider745.network.CraftingTransactionPacket");
 
         //entity
-        add("com.reider745.hooks.EntityOverrides");
-        add("com.reider745.hooks.PlayerHooks");
+        add("com.reider745.hooks.entity.EntityOverrides");
+        add("com.reider745.hooks.entity.PlayerHooks");
 
         //Js engine
         //add("com.reider745.jsengine.graalvm.hooks.ArgumentsPatch");
@@ -85,7 +85,7 @@ public class Main {
         //technical
         add("com.reider745.hooks.AndroidHooks");
         add("com.reider745.hooks.GlobalBanList");
-        add("com.reider745.hooks.NetworkHooks");
+        add("com.reider745.hooks.network.NetworkHooks");
         add("com.reider745.hooks.LevelHooks");
         loader.addRebuildField("com.reider745.hooks.LevelHooks", (ctClass, field) -> {
             if (field.getName().equals("randomTickBlocks"))

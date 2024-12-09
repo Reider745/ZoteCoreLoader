@@ -11,8 +11,8 @@ import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
-import com.reider745.hooks.GlobalBlockPalette;
-import com.reider745.hooks.RuntimeItemsHooks;
+import com.reider745.hooks.block.GlobalBlockPalette;
+import com.reider745.hooks.item.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
 
@@ -326,6 +326,9 @@ public class InnerCoreServer {
         endLoad = true;
 
         NativeCallback.onLevelCreated();
+
+        if(isEnableSockets())
+            Logger.warning("Socket connections are enabled, it is possible that the connection is not stable");
     }
 
     public void reload() {
@@ -509,6 +512,10 @@ public class InnerCoreServer {
 
     public static String getVersionName() {
         return getPropertyString("pack-version", "2.3.1b122");
+    }
+
+    public static boolean isEnableSockets() {
+        return InnerCoreServer.getPropertyBoolean("socket-server-enable", true);
     }
 
     public static int getVersionCode() {

@@ -1,4 +1,4 @@
-package com.reider745.hooks;
+package com.reider745.hooks.entity;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
@@ -6,20 +6,14 @@ import cn.nukkit.entity.custom.EntityDefinition;
 import cn.nukkit.entity.custom.EntityManager;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.PlayerListPacket;
 import com.reider745.api.ReflectHelper;
-import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.behavior.entities.CustomEntity;
 import com.reider745.behavior.entities.EntityContentFactory;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
-import javassist.CannotCompileException;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
 import org.json.JSONObject;
 
 import java.io.File;
