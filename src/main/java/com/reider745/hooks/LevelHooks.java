@@ -140,9 +140,10 @@ public class LevelHooks implements HookClass {
             level.getServer().getPluginManager().callEvent(ev);
 
             if (!ev.isCancelled()) {
-                EventListener.onBlockBreak(ev, false);
                 if (isNukkitPrevent)
                     ev.setCancelled();
+                else
+                    EventListener.onBlockBreak(ev, false);
             }
 
             if (ev.isCancelled()) {
