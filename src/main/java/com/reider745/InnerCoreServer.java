@@ -11,7 +11,7 @@ import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
-import com.reider745.hooks.block.GlobalBlockPalette;
+import com.reider745.hooks.block.BlockPalette;
 import com.reider745.hooks.item.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
@@ -309,7 +309,7 @@ public class InnerCoreServer {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
 
-        GlobalBlockPalette.init();
+        BlockPalette.init();
         RuntimeItemsHooks.register();
         CustomBlock.init();
         CustomItem.init();

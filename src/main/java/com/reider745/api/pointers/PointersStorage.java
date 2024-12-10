@@ -2,6 +2,8 @@ package com.reider745.api.pointers;
 
 import com.reider745.api.pointers.pointer_gen.IBasePointerGen;
 import com.reider745.api.pointers.pointer_gen.PointerGenSlowest;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +22,7 @@ public class PointersStorage<T> {
     private final INewPointer<T> newPointer;
 
     public PointersStorage(String type, IBasePointerGen pointerGen, INewPointer<T> newPointer, boolean clear) {
-        System.out.println("Loaded pointer storage, type - " + type);
+        Logger.info("Loaded pointer storage, type - " + type);
         this.pointerGen = pointerGen;
 
         if (storages.containsKey(type))

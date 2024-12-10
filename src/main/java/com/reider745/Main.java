@@ -41,7 +41,7 @@ public class Main {
         }
 
         //items and blocks
-        add("com.reider745.hooks.block.GlobalBlockPalette");
+        add("com.reider745.hooks.block.BlockPalette");
         add("com.reider745.hooks.item.ItemUtils");
         add("com.reider745.hooks.item.RuntimeItemsHooks");
         add("com.reider745.hooks.block.BlocksHooks");

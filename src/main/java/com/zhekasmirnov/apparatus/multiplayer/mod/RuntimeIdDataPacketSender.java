@@ -2,7 +2,7 @@ package com.zhekasmirnov.apparatus.multiplayer.mod;
 
 import android.util.Pair;
 
-import com.reider745.hooks.block.GlobalBlockPalette;
+import com.reider745.hooks.block.BlockPalette;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -27,9 +27,9 @@ public class RuntimeIdDataPacketSender {
     }
 
     private static byte[] getRuntimeIdDataToSend() {
-        ByteBuffer buffer = ByteBuffer.allocate(GlobalBlockPalette.getAssignedRuntimeIds().size() * 16);
+        ByteBuffer buffer = ByteBuffer.allocate(BlockPalette.getAssignedRuntimeIds().size() * 16);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        for (Pair<Integer, Long> runtimeId :GlobalBlockPalette.getAssignedRuntimeIds()) {
+        for (Pair<Integer, Long> runtimeId : BlockPalette.getAssignedRuntimeIds()) {
             buffer.putLong(runtimeId.second);
             buffer.putInt(runtimeId.first);
             buffer.putInt(0);
