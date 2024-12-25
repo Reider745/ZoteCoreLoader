@@ -3,6 +3,8 @@ package com.reider745.hooks;
 import cn.nukkit.Server;
 import cn.nukkit.level.generator.Normal;
 import cn.nukkit.network.protocol.ProtocolInfo;
+import cn.nukkit.plugin.JavaPluginLoader;
+import cn.nukkit.plugin.PluginClassLoader;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.Utils;
 
@@ -17,6 +19,8 @@ import com.reider745.entity.EntityMotion;
 import com.reider745.event.EventListener;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
+
+import java.io.File;
 
 @Hooks(className = "cn.nukkit.Server")
 public class ServerHooks {
@@ -112,5 +116,10 @@ public class ServerHooks {
     @Inject
     public static String getVersion(Server server) {
         return 'v' + Utils.getVersionByProtocol(ProtocolInfo.v1_16_200);
+    }
+
+    @Inject(type = TypeHook.AFTER, method = "<init>", className = "cn.nukkit.plugin.PluginClassLoader")
+    public static void newPluginClassLoader(PluginClassLoader self, JavaPluginLoader loader, ClassLoader parent, File file) {
+        RhinoOverrides.ClassLoaderPool.addClassLoader(self);
     }
 }

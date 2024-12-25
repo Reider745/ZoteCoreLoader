@@ -21,6 +21,8 @@ import cn.nukkit.event.level.ChunkLoadEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
+import cn.nukkit.event.plugin.PluginDisableEvent;
+import cn.nukkit.event.plugin.PluginEnableEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.event.server.ServerCommandEvent;
 import cn.nukkit.event.server.ServerStopEvent;
@@ -39,6 +41,7 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.AsyncTask;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ZoteOnly;
 import com.reider745.hooks.ServerHooks;
 import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.reider745.item.ItemMethod;
@@ -46,6 +49,7 @@ import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
+import com.zhekasmirnov.innercore.api.runtime.Callback;
 import oshi.hardware.NetworkIF;
 
 import java.util.*;
@@ -604,6 +608,18 @@ public class EventListener implements Listener {
                     true
             );
         }
+    }
+
+    @ZoteOnly
+    @EventHandler
+    public void onPluginEnable(PluginEnableEvent event) {
+        Callback.invokeCallback("PluginEnable", event.getPlugin());
+    }
+
+    @ZoteOnly
+    @EventHandler
+    public void onPluginDisable(PluginDisableEvent event) {
+        Callback.invokeCallback("PluginDisable", event.getPlugin());
     }
 
     // TODO: onPathNavigationDone
