@@ -27,6 +27,7 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class BlockSourceMethods {
 
@@ -285,13 +286,20 @@ public class BlockSourceMethods {
     }
 
     public static long spawnExpOrbs(Level level, float x, float y, float z, int amount) {
-        Vector3 source = new Vector3(x, y, z);
-        CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3(0, 0, 0));
-        Entity entity = Entity.createEntity("XpOrb", new Position(x, y, z, level), nbt);
-        if (entity != null) {
-            entity.spawnToAll();
-            return EntityMethod.getIdForEntity(entity);
+        if(amount > 0) {
+            final Position source = new Position(x, y, z, level);
+            final CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3(0, 0, 0));
+
+            nbt.putShort("Value", amount);
+            nbt.putShort("PickupDelay", 10);
+
+            final Entity entity = Entity.createEntity("XpOrb", level.getChunk(source.getChunkX(), source.getChunkZ()), nbt);
+            if (entity != null) {
+                entity.spawnToAll();
+                return EntityMethod.getIdForEntity(entity);
+            }
         }
+        
         return -1;
     }
 
