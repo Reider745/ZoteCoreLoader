@@ -424,8 +424,8 @@ public class LevelHooks implements HookClass {
         Ломает сохранение пользовательских биомов
         Имеет утечки памяти
      */
-    @Inject(className = "cn.nukkit.level.format.LevelProviderManager")
+    /*@Inject(className = "cn.nukkit.level.format.LevelProviderManager")
     public static Class<? extends LevelProvider> getProviderByName(String name){
         return Anvil.class;
-    }
+    }*/
 }
