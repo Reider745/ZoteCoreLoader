@@ -515,7 +515,7 @@ public class InnerCoreServer {
     }
 
     public static boolean isEnableSockets() {
-        return InnerCoreServer.getPropertyBoolean("socket-server-enable", true);
+        return InnerCoreServer.getPropertyBoolean("socket-server-enable", false);
     }
 
     public static int getVersionCode() {
