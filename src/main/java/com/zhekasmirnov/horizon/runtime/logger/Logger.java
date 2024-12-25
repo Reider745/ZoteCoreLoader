@@ -17,7 +17,7 @@ public class Logger {
     private static Func debugMessage = (message) -> {};
     private static Func infoMessage = (message) -> {};
 
-    static {
+    public static void initConfig() {
         if(InnerCoreServer.isDebugLogger())
             debugMessage = (message) -> Server.getInstance().getLogger().info(message);
         if(InnerCoreServer.isInfoLogger())

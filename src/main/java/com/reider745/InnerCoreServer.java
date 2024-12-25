@@ -221,6 +221,8 @@ public class InnerCoreServer {
         plugin.onLoad();
         plugin.setEnabled();
 
+        Logger.initConfig();
+
         final File innerCoreDirectory = new File(dataPath, "innercore");
         if (!innerCoreDirectory.exists()) {
             server.getLogger().info("Extracting internal package...");
