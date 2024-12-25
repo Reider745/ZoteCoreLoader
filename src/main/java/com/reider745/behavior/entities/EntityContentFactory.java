@@ -1,22 +1,18 @@
 package com.reider745.behavior.entities;
 
-import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.custom.EntityDefinition;
 import cn.nukkit.entity.custom.EntityManager;
-import cn.nukkit.level.Position;
+import cn.nukkit.math.Vector3;
 import com.reider745.behavior.entities.formats.tags.DescriptionsFactory;
 import com.reider745.behavior.entities.formats.tags.components.BossComponent;
-import com.reider745.behavior.entities.formats.tags.components.CollisionComponent;
-import com.reider745.behavior.entities.formats.tags.components.HealthComponent;
+import com.reider745.behavior.entities.formats.tags.components.collision.CollisionComponent;
+import com.reider745.behavior.entities.formats.tags.components.life.HealthComponent;
 import com.reider745.behavior.entities.formats.tags.components.IUpdateEntity;
 import com.reider745.behavior.entities.formats.tags.components.attack.MeleeAttackComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.NearestAttackableTarget;
-import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationComponentsTag;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationRandomStroll;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationWalkComponent;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,11 +40,13 @@ public class EntityContentFactory {
     public boolean isHurtByTarget = false;
     public boolean isNameable = false;
     public boolean isPushable = false;
+    public boolean canClimb = false;
 
     public float movement = .5f;
     public int damage = 0;
 
     public static final HashMap<String, EntityContentFactory> factoryMap = new HashMap<>();
+    public Vector3 liftForce = new Vector3(0, 0, 0);
 
 
     public void addUpdate(IUpdateEntity tag){
@@ -72,7 +70,7 @@ public class EntityContentFactory {
     }
 
     public void build(){
-        Logger.warning("Register entity "+description.identifier);
+        Logger.info("Register entity "+description.identifier);
 
         factoryMap.put(description.identifier, this);
         EntityManager.get()

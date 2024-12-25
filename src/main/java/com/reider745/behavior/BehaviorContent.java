@@ -5,5 +5,5 @@ import org.json.JSONObject;
 public abstract class BehaviorContent {
     public abstract String getTagName();
     public abstract String getDefaultDirectory();
-    public abstract void load(JSONObject json);
+    public abstract void load(JSONObject json, String file);
 }

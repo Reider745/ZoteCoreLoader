@@ -4,11 +4,18 @@ import com.reider745.behavior.entities.ComponentsTag;
 import com.reider745.behavior.entities.EntityContentFactory;
 import com.reider745.behavior.entities.TagContentFactory;
 import com.reider745.behavior.entities.formats.tags.components.*;
+import com.reider745.behavior.entities.formats.tags.components.attack.AttackComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.HurtByTargetComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.MeleeAttackComponent;
 import com.reider745.behavior.entities.formats.tags.components.attack.NearestAttackableTarget;
-import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationRandomStroll;
-import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationWalkComponent;
+import com.reider745.behavior.entities.formats.tags.components.collision.BalloonComponent;
+import com.reider745.behavior.entities.formats.tags.components.collision.CollisionComponent;
+import com.reider745.behavior.entities.formats.tags.components.collision.GravityComponent;
+import com.reider745.behavior.entities.formats.tags.components.life.BreathableComponent;
+import com.reider745.behavior.entities.formats.tags.components.life.BurnsInDaylight;
+import com.reider745.behavior.entities.formats.tags.components.life.FireImmuneComponent;
+import com.reider745.behavior.entities.formats.tags.components.life.HealthComponent;
+import com.reider745.behavior.entities.formats.tags.components.navigation.*;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONObject;
 
@@ -43,6 +50,9 @@ public class ComponentsFactory extends TagContentFactory {
         add(new NearestAttackableTarget());
         add(new MeleeAttackComponent());
         add(new HurtByTargetComponent());
+        add(new BalloonComponent());
+        add(new BreathableComponent());
+        add(new CanClimbComponent());
     }
 
     @Override
@@ -57,7 +67,7 @@ public class ComponentsFactory extends TagContentFactory {
             final String key = it.next();
             final ComponentsTag tag = tags.get(key);
             if(tag == null){
-                Logger.warning("Not support ComponentsFactory "+key);
+                Logger.warning("Not support entities ComponentsFactory "+key);
                 continue;
             }
 

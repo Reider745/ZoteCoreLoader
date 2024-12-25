@@ -31,11 +31,11 @@ public class EntitiesContent extends BehaviorContent {
     }
 
     @Override
-    public void load(JSONObject json) {
+    public void load(JSONObject json, String file) {
         final String version_name = json.getString("format_version");
         final EntitiesVersion version = versions.get(version_name);
         if(version == null)
-            throw new RuntimeException("not support version "+version_name);
+            throw new RuntimeException("Not support entities version "+version_name);
 
         version.load(json.getJSONObject(getTagName())).build();
     }

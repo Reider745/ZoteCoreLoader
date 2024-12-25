@@ -15,7 +15,7 @@ public class LootsContent extends BehaviorContent {
     }
 
     @Override
-    public void load(JSONObject json) {
+    public void load(JSONObject json, String file) {
 
     }
 }

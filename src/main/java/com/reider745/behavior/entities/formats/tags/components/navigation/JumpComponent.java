@@ -1,4 +1,4 @@
-package com.reider745.behavior.entities.formats.tags.components;
+package com.reider745.behavior.entities.formats.tags.components.navigation;
 
 import com.reider745.behavior.entities.ComponentsTag;
 import com.reider745.behavior.entities.EntityContentFactory;

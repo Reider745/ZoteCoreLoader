@@ -1,7 +1,7 @@
 package com.reider745.behavior;
 
-import com.reider745.InnerCoreServer;
 import com.reider745.behavior.entities.EntitiesContent;
+import com.reider745.behavior.spawnrules.SpawnRulesContent;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
 import org.json.JSONArray;
@@ -16,6 +16,7 @@ public class BehaviorPack {
 
     static {
         contents_api.add(new EntitiesContent());
+        contents_api.add(new SpawnRulesContent());
     }
 
     private final String path;
@@ -103,12 +104,12 @@ public class BehaviorPack {
 
             for(BehaviorContent content : contents_api){
                 if(contents.has(content.getTagName())){
-                    content.load(contents);
+                    content.load(contents, path);
                     return;
                 }
             }
 
-            throw new RuntimeException("Not support "+path);
+            Logger.warning("Not support content: "+path);
         } catch (Exception e) {
             Logger.warning(path);
             throw new RuntimeException(e);

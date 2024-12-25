@@ -347,10 +347,14 @@ public class InnerCoreServer {
     public void start() {
         try{
             for(File file : Objects.requireNonNull(new File(InnerCoreServer.dataPath, "behavior_packs").listFiles())) {
-                BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
-                pack.load();
+                try{
+                    BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
+                    pack.load();
+                }catch (Exception e) {
+                    Logger.error("Error loaded behavior pack " + file.getAbsolutePath());
+                }
             }
-        }catch (Exception e){}
+        }catch (Exception ignore){}
     }
 
     public static Object getProperty(String variable) {

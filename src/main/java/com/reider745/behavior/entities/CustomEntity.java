@@ -119,6 +119,10 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
             final double gravity_value = this.getGravity() * 4;
             final Vector3 pos = this.getPosition().clone();
 
+            motionX += factory.liftForce.x / 20;
+            motionY += factory.liftForce.y / 20;
+            motionZ += factory.liftForce.z / 20;
+
             if(factory.isPhysics && isSolid(pos.x, pos.y - 0.001,pos.z) == null) {
                 this.motionY -= gravity_value;
             }
@@ -138,12 +142,14 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
                     motionX += move.x * factory.movement;
                     motionZ += move.z * factory.movement;
 
-                    if(this.getHeight() <= 1){
-                        if(raycast(pos, move) != null && raycast(pos.add(0, 1.2, 0), move) != null)
-                            targetPositionMovementUpdate();
-                    }else
-                        if(raycast(pos.add(0, 1.2, 0), move) != null)
-                            targetPositionMovementUpdate();
+                    if(factory.canClimb) {
+                        if(this.getHeight() <= 1){
+                            if(raycast(pos, move) != null && raycast(pos.add(0, 1.2, 0), move) != null)
+                                targetPositionMovementUpdate();
+                        }else
+                            if(raycast(pos.add(0, 1.2, 0), move) != null)
+                                targetPositionMovementUpdate();
+                    }
                 }
             }
 
@@ -158,7 +164,6 @@ public class CustomEntity extends BaseEntity implements cn.nukkit.entity.custom.
                         tickJump = 0;
                     }
                 }else{
-
                     tickJump++;
 
                     final var xzLength = Math.sqrt(motionX * motionX + motionZ * motionZ);

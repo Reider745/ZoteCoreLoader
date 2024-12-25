@@ -1,8 +1,9 @@
-package com.reider745.behavior.entities.formats.tags.components;
+package com.reider745.behavior.entities.formats.tags.components.life;
 
 import com.reider745.behavior.entities.ComponentsTag;
 import com.reider745.behavior.entities.CustomEntity;
 import com.reider745.behavior.entities.EntityContentFactory;
+import com.reider745.behavior.entities.formats.tags.components.IUpdateEntity;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONObject;
 

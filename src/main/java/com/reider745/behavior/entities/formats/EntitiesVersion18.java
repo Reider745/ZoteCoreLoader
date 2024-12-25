@@ -5,7 +5,6 @@ import com.reider745.behavior.entities.EntityContentFactory;
 import com.reider745.behavior.entities.TagContentFactory;
 import com.reider745.behavior.entities.formats.tags.ComponentsFactory;
 import com.reider745.behavior.entities.formats.tags.DescriptionsFactory;
-import com.reider745.behavior.entities.formats.tags.components.HealthComponent;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
