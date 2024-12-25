@@ -31,6 +31,8 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cn.nukkit.block.BlockEntityHolder.log;
+
 @Hooks(className = "cn.nukkit.item.Item")
 public class ItemUtils implements HookClass {
 
@@ -110,23 +112,30 @@ public class ItemUtils implements HookClass {
             Supplier<Item> constructor = Item.NAMESPACED_ID_ITEM.get(namespacedId);
             if (constructor != null) {
                 try {
-                    return constructor.get();
+                    Item item = constructor.get();
+                    if (meta.isPresent()) {
+                        int metaValue = meta.getAsInt();
+                        if (metaValue != 0) {
+                            item.setDamage(metaValue);
+                        }
+                    }
+                    // Avoid the upcoming changes to the original item object
+                    return item.clone();
                 } catch (Exception e) {
-                    System.out.printf("Could not create a new instance of {} using the namespaced id {}", constructor,
-                            namespacedId, e);
+                    log.warn("Could not create a new instance of {} using the namespaced id {}", constructor, namespacedId, e);
                 }
             }
 
             // common item
             int id = RuntimeItems.getLegacyIdFromLegacyString(namespacedId);
             if (id > 0) {
-                return Item.get(id, meta.orElse(0));
+                return get(id, meta.orElse(0));
             } else if (namespaceGroup != null && !namespaceGroup.equals("minecraft:")) {
                 return Item.AIR_ITEM.clone();
             }
         } else if (numericIdGroup != null) {
             int id = Integer.parseInt(numericIdGroup);
-            return Item.get(id, meta.orElse(0));
+            return get(id, meta.orElse(0));
         }
 
         if (name == null) {
@@ -149,7 +158,7 @@ public class ItemUtils implements HookClass {
                 }
             }
         }
-        return Item.get(id, meta.orElse(0));
+        return get(id, meta.orElse(0));
     }
 
     @Inject(signature = "()Ljava/lang/Short;", type = TypeHook.BEFORE)
