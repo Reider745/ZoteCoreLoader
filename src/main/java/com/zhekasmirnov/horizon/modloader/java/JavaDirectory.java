@@ -2,6 +2,7 @@ package com.zhekasmirnov.horizon.modloader.java;
 
 import android.content.Context;
 import com.googlecode.d2j.dex.Dex2jar;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.utils.FileTools;
 
@@ -18,7 +19,7 @@ public class JavaDirectory {
 
     public JavaDirectory(/* Mod */ Object mod, File directory) {
         this.mod = mod;
-        System.out.println("java dir=" + directory);
+        Logger.info("java dir=" + directory);
         if (!directory.isDirectory()) {
             throw new IllegalStateException("non-directory file passed to JavaDirectory constructor: " + directory);
         }
