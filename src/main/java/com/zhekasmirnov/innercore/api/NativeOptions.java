@@ -4,6 +4,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 
 @ClientOnly
+@Deprecated
 public class NativeOptions {
     protected static long getOptionByName(String name){
         InnerCoreServer.useClientMethod("NativeOptions.getOptionByName");
@@ -70,6 +71,8 @@ public class NativeOptions {
         public static final int INT_SLIDER = 6;
     }
 
+    @Deprecated
+    @ClientOnly
     public static class Option {
         private final long ptr;
 

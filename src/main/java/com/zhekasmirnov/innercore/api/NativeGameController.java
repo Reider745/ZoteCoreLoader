@@ -1,10 +1,12 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ClientOnly;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 
-
+@Deprecated
+@ClientOnly
 public class NativeGameController {
     @JSStaticFunction// Can break a block that breaks instantly
     public static boolean startDestroyBlock(int x, int y, int z, int side){
