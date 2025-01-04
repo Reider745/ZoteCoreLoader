@@ -1,7 +1,6 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Server;
-import cn.nukkit.level.generator.Normal;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.JavaPluginLoader;
 import cn.nukkit.plugin.PluginClassLoader;
@@ -9,8 +8,6 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.Utils;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.Main;
-import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.Hooks;
@@ -80,13 +77,11 @@ public class ServerHooks {
         };
     }
 
-    private static long start_pre = 0;
     private static int indexTime = 0;
 
     @Inject
     public static void checkTickUpdates(Server server, int tick) {
         indexTime = (indexTime + 1) % 20;
-        TpsCommand.nukkitTimes[indexTime] = System.currentTimeMillis() - start_pre;
 
         try {
             try {
@@ -104,8 +99,6 @@ public class ServerHooks {
         }catch (Throwable e){
             Logger.warning("IC-TICK", e);
         }
-
-        start_pre = System.currentTimeMillis();
     }
 
     @Inject(type = TypeHook.AFTER)
