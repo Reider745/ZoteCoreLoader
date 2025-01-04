@@ -118,7 +118,7 @@ public class ServerHooks {
         return 'v' + Utils.getVersionByProtocol(ProtocolInfo.v1_16_200);
     }
 
-    @Inject(type = TypeHook.AFTER, method = "<init>", className = "cn.nukkit.plugin.PluginClassLoader")
+    @Inject(type = TypeHook.AFTER_NOT_REPLACE, method = "<init>", className = "cn.nukkit.plugin.PluginClassLoader")
     public static void newPluginClassLoader(PluginClassLoader self, JavaPluginLoader loader, ClassLoader parent, File file) {
         RhinoOverrides.ClassLoaderPool.addClassLoader(self);
     }
