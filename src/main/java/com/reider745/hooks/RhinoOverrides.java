@@ -2,6 +2,8 @@ package com.reider745.hooks;
 
 import cn.nukkit.utils.MainLogger;
 import com.reider745.api.ReflectHelper;
+import com.reider745.api.hooks.annotation.ShadowGetField;
+import com.reider745.api.hooks.annotation.ShadowSetField;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -96,9 +98,17 @@ public class RhinoOverrides implements HookClass {
         return true;
     }
 
+    @ShadowGetField(className = "org.mozilla.javascript.Context", field = "applicationClassLoader")
+    public static ClassLoader getApplicationClassLoaderField(Context self) {
+        return null;
+    }
+
+    @ShadowSetField(className = "org.mozilla.javascript.Context", field = "applicationClassLoader")
+    public static void setApplicationClassLoaderField(Context self, ClassLoader loader) {}
+
     @Inject(className = "org.mozilla.javascript.Context")
     public static ClassLoader getApplicationClassLoader(Context self) throws ClassNotFoundException {
-        ClassLoader applicationClassLoader = ReflectHelper.getField(self, "applicationClassLoader");
+        ClassLoader applicationClassLoader = getApplicationClassLoaderField(self);
         if (applicationClassLoader == null) {
             ContextFactory f = self.getFactory();
             ClassLoader loader = f.getApplicationClassLoader();
@@ -124,7 +134,7 @@ public class RhinoOverrides implements HookClass {
                 }
             }
             applicationClassLoader = new ClassLoaderPool(loader);
-            ReflectHelper.setField(self, "applicationClassLoader", applicationClassLoader);
+            setApplicationClassLoaderField(self, applicationClassLoader);
         }
         return applicationClassLoader;
     }

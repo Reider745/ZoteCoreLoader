@@ -1,9 +1,14 @@
 package com.zhekasmirnov.horizon.util;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +61,11 @@ public class FileUtils {
         FileUtils.writeFileText(file, result);
     }
 
+    public static void writeJSON(File file, JSONArray jsonObject) throws IOException {
+        String result = jsonObject.toString();
+        FileUtils.writeFileText(file, result);
+    }
+
     public static String cleanupPath(String path) {
         path = path.replaceAll("\\\\", "/");
         while (path.startsWith("/")) {
@@ -99,6 +109,44 @@ public class FileUtils {
             }
         } else {
             flag.delete();
+        }
+    }
+
+    public static void copy(File src, File dst) throws IOException {
+        FileInputStream inputStream = new FileInputStream(src);
+        FileOutputStream outputStream = new FileOutputStream(dst);
+
+        ReadableByteChannel inputChannel = Channels.newChannel(inputStream);
+        WritableByteChannel outputChannel = Channels.newChannel(outputStream);
+
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
+        while (inputChannel.read(buffer) != -1) {
+            buffer.flip();
+            outputChannel.write(buffer);
+            buffer.compact();
+        }
+        buffer.flip();
+        while (buffer.hasRemaining()) {
+            outputChannel.write(buffer);
+        }
+    }
+
+
+    public static void copyFileTree(File srcDir, File dstDir, Object dialog, String prefix) throws IOException {
+        if (!dstDir.isDirectory() && !dstDir.mkdirs()) {
+            throw new IOException("mkdirs failed: " + dstDir);
+        }
+        for (String name : srcDir.list()) {
+            if (dialog != null) {
+                return;
+            }
+            File srcFile = new File(srcDir, name);
+            File dstFile = new File(dstDir, name);
+            if (srcFile.isDirectory()) {
+                copyFileTree(srcFile, dstFile, dialog, prefix + name + "/");
+            } else {
+                copy(srcFile, dstFile);
+            }
         }
     }
 }

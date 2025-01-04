@@ -20,7 +20,7 @@ public class ResourcePackManager {
 
     static {
         // TODO: FileTools.assureDir(FileTools.DIR_MINECRAFT + "minecraftpe");
-        // TODO: FileTools.assureDir(FileTools.DIR_MINECRAFT + "resource_packs");
+        FileTools.assureDir(FileTools.DIR_MINECRAFT + "resource_packs");
 
         instance = new ResourcePackManager();
     }
