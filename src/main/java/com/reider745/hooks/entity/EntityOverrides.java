@@ -4,12 +4,15 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.custom.EntityDefinition;
 import cn.nukkit.entity.custom.EntityManager;
+import cn.nukkit.entity.item.EntityItem;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.PlayerListPacket;
 import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
+import com.reider745.api.hooks.annotation.ShadowSetField;
 import com.reider745.behavior.entities.CustomEntity;
 import com.reider745.behavior.entities.EntityContentFactory;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -132,6 +135,9 @@ public class EntityOverrides {
         }
         return null;
     }
+
+    @ShadowSetField(className = "cn.nukkit.entity.item.EntityItem", field = "item")
+    public static void setItemDrop(EntityItem entity, Item item) {}
 
     // @Inject(className = "cn.nukkit.entity.EntityHumanType", type = TypeHook.BEFORE, signature = "(Lcn/nukkit/item/Item;Lcn/nukkit/entity/Entity;FZLcn/nukkit/event/entity/EntityDamageEvent$DamageCause;)Lcn/nukkit/item/Item;")
     // public static void damageArmor(HookController<EntityHumanType> controller, EntityHumanType human, Item armor, Entity damager,

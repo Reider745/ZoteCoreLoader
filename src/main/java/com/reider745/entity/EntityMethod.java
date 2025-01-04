@@ -27,8 +27,8 @@ import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.Identifier;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.api.ReflectHelper;
 import com.reider745.event.EventListener;
+import com.reider745.hooks.entity.EntityOverrides;
 import com.reider745.hooks.item.ItemUtils;
 import com.reider745.world.BlockSourceMethods;
 import com.reider745.world.FakeDimensions;
@@ -328,7 +328,7 @@ public class EntityMethod {
         // TODO: It will actually doesn't update item, hardcode again.
         validateThen(entityUid, entity -> {
             if (entity instanceof EntityItem drop) {
-                ReflectHelper.setField(drop, "item", ItemUtils.get(id, count, data, extra));
+                EntityOverrides.setItemDrop(drop, ItemUtils.get(id, count, data, extra));
             }
         });
     }
