@@ -231,6 +231,8 @@ public class EventListener implements Listener {
         });
     }
 
+    private final Set<Long> ENTITIES = Collections.synchronizedSet(new HashSet<>());
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySpawn(EntitySpawnEvent event) {
         final Entity entity = event.getEntity();
@@ -242,15 +244,22 @@ public class EventListener implements Listener {
             NativeCallback.onExpOrbsSpawned(entity.getLevel(), xpOrb.getExp(), (float) entity.x, (float) entity.y,
                     (float) entity.z, id);
         }
+
+        ENTITIES.add(id);
         NativeCallback.onEntityAdded(id);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDespawn(EntityDespawnEvent event) {
         final Entity entity = event.getEntity();
+        final long id = EntityMethod.getIdForEntity(entity);
 
         EntityMotion.remove(entity);
-        if(entity.isValid()) NativeCallback.onEntityRemoved(EntityMethod.getIdForEntity(entity));
+
+        if(entity.isValid() && ENTITIES.contains(id)) {
+            ENTITIES.remove(id);
+            NativeCallback.onEntityRemoved(id);
+        }
     }
 
     public static int convertDamageCauseToEnum(DamageCause cause) {
