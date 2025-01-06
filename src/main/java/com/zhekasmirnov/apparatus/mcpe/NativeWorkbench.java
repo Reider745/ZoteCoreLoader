@@ -17,7 +17,11 @@ import java.util.*;
 
 public class NativeWorkbench {
     interface IApply {
-        void apply(RuntimeItemMapping mapping, CraftingManager craftingManager);
+        IApply apply(RuntimeItemMapping mapping, CraftingManager craftingManager);
+        default void rebuildPacket() {
+            if(NativeWorkbench.craftingManager != null)
+                craftingManager.rebuildPacket();
+        }
     }
 
     private static final ArrayList<UUID> removedRecipes = new ArrayList<>();
@@ -47,21 +51,22 @@ public class NativeWorkbench {
         }
 
         @Override
-        public void apply(RuntimeItemMapping mapping, CraftingManager craftingManager) {
+        public IApply apply(RuntimeItemMapping mapping, CraftingManager craftingManager) {
             final Item itemInstance = ItemUtils.get(this.resultId, this.resultCount, this.resultData);
             final Collection<Recipe> recipes = getRecipes(craftingManager);
             boolean removeRecipe = false;
 
-            // TODO: Удаляет все крафты этого предмета, в том числе ели их несколько
             for(Recipe recipe : recipes){
                 if(recipe instanceof CraftingRecipe craftingRecipe && recipe.getResult().equals(itemInstance)){
                     removedRecipes.add(craftingRecipe.getId());
                     removeRecipe = true;
+                    break;
                 }
             }
 
             if(!removeRecipe)
                 Logger.warning("Not remove recipe " + itemInstance);
+            return this;
         }
     }
 
@@ -95,14 +100,14 @@ public class NativeWorkbench {
         }
 
         @Override
-        public void apply(RuntimeItemMapping mapping, CraftingManager craftingManager) {
+        public IApply apply(RuntimeItemMapping mapping, CraftingManager craftingManager) {
             Item result = ItemUtils.get(this.resultId, this.resultCount, this.resultData, this.resultExtra);
             try {
                 mapping.toRuntime(result.getId(), result.getDamage());
             } catch (IllegalArgumentException e) {
                 Logger.warning("NativeWorkbench",
                         "Unknown legacy2Runtime mapping: id=" + this.resultId + ", meta=" + this.resultData);
-                return;
+                return this;
             }
 
             boolean accepted = true;
@@ -154,10 +159,9 @@ public class NativeWorkbench {
                 if (accepted) {
                     craftingManager.registerRecipe(InnerCoreServer.RECIPES_PROTOCOL, new ShapelessRecipe(result, ingredients));
                 }
-
-                if(NativeWorkbench.craftingManager != null)
-                    craftingManager.rebuildPacket();
             }
+
+            return this;
         }
     }
 
@@ -167,18 +171,14 @@ public class NativeWorkbench {
 
     private static void addShapedRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
             String[] pattern, int[] ingredients) {
-        if (resultId == 0) {
-            Logger.error("Recipe result id 0");
-            return;
-        }
-
         final HashMap<Character, ItemStack> ingredients_ = new HashMap<>();
         for (int i = 0; i < ingredients.length; i += 3)
             ingredients_.put((char) ingredients[i], new ItemStack(ingredients[i + 1], 1, ingredients[i + 2]));
 
         final RecipeRegistry recipe = new RecipeRegistry(resultId, resultCount, resultData, resultExtra, pattern, ingredients_);
         if(craftingManager != null)
-            recipe.apply(runtimeItemMapping, craftingManager);
+            recipe.apply(runtimeItemMapping, craftingManager)
+                    .rebuildPacket();
         else
             recipes.add(recipe);
     }
@@ -196,7 +196,8 @@ public class NativeWorkbench {
 
         final RecipeRegistry recipe = new RecipeRegistry(resultId, resultCount, resultData, resultExtra, ingredients);
         if(craftingManager != null)
-            recipe.apply(runtimeItemMapping, craftingManager);
+            recipe.apply(runtimeItemMapping, craftingManager)
+                    .rebuildPacket();
         else
             recipes.add(recipe);
     }
@@ -209,7 +210,8 @@ public class NativeWorkbench {
     public static void removeRecipeByResult(int resultId, int resultCount, int resultData) {
         final RecipeRemove recipe = new RecipeRemove(resultId, resultCount, resultData);
         if(craftingManager != null)
-            recipe.apply(runtimeItemMapping, craftingManager);
+            recipe.apply(runtimeItemMapping, craftingManager)
+                    .rebuildPacket();
         else
             recipes.add(recipe);
     }

@@ -86,6 +86,7 @@ public class Main {
         add("com.reider745.hooks.AndroidHooks");
         add("com.reider745.hooks.GlobalBanList");
         add("com.reider745.hooks.network.NetworkHooks");
+        add("com.reider745.hooks.network.CraftingDataPacketHooks");
         add("com.reider745.hooks.LevelHooks");
         loader.addRebuildField("com.reider745.hooks.LevelHooks", (ctClass, field) -> {
             if (field.getName().equals("randomTickBlocks"))
