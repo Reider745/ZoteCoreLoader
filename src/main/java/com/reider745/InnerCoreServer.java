@@ -36,10 +36,13 @@ import com.zhekasmirnov.innercore.modpack.ModPackStorage;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.mcpe161.InnerCore;
+import org.json.JSONObject;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -525,23 +528,72 @@ public class InnerCoreServer {
     }
 
     public static int getVersionCode() {
-        List<Integer> versions = getVersionsCode();
+        final List<String> versions = getVersionsCode();
+
         if(versions.isEmpty())
             return 165;
-        return versions.get(0);
+
+        for(String version : versions)
+            try {
+                return Integer.parseInt(version);
+            } catch (Exception ignore) {}
+
+        return 165;
     }
 
-    public static List<Integer> getVersionsCode() {
-        final String args = getPropertyString("pack-version-code", "165");
-        final String[] versions_s = args.split(",");
-        final List<Integer> versions = new ArrayList<>();
+    public static class PackInfo {
+        private final String httpRequest;
 
-        for (String version : versions_s)
+        private Long lastTimeRequest;
+        private int version = -1;
+
+        public PackInfo(String httpRequest) {
+            this.httpRequest = httpRequest;
+            getVersion();
+        }
+
+        public int getVersion() {
+            // Каждые 15 минут проверяем
+            if(lastTimeRequest == null || System.currentTimeMillis() - lastTimeRequest >= 1000 * 60 * 15) {
+                try {
+                    final HttpURLConnection connection = (java.net.HttpURLConnection) new URL(httpRequest).openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setConnectTimeout(2000);
+                    connection.setReadTimeout(2000);
+
+                    if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        final JSONObject manifest = new JSONObject(new String(connection.getInputStream().readAllBytes()));
+                        version = manifest.getInt("packVersionCode");
+                    }
+                } catch (Exception ignore) {}
+                lastTimeRequest = System.currentTimeMillis();
+            }
+            return version;
+        }
+    }
+
+    private static final PackInfo PACK_TEST = new PackInfo("https://gitlab.com/zhekasmirnov/horizon-cloud-config/-/raw/master/innercore-test/manifest.json?ref_type=heads");
+    private static final PackInfo PACK_STABLY = new PackInfo("https://gitlab.com/zhekasmirnov/horizon-cloud-config/-/raw/master/innercore/manifest.json?ref_type=heads");
+
+    public static boolean canConnectionFor(int clientVersion) {
+        for(String version : getVersionsCode()) {
+            if(version.equals("any") ||
+                    (version.equals("last-test") && PACK_TEST.getVersion() == clientVersion) ||
+                    (version.equals("last-stably") && PACK_STABLY.getVersion() == clientVersion))
+                return true;
+
             try {
-                versions.add(Integer.parseInt(version));
-            } catch (Exception ignore){}
+                if(Integer.parseInt(version) == clientVersion)
+                    return true;
+            } catch (Exception ignore) {}
+        }
 
-        return versions;
+        return false;
+    }
+
+    public static List<String> getVersionsCode() {
+        final String args = getPropertyString("pack-version-code", "165");
+        return Arrays.asList(args.replaceAll(" ", "").split(","));
     }
 
     private static void handleUnsupportedMethod(String message) {

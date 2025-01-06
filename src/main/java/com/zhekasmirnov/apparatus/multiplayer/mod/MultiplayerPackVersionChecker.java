@@ -11,7 +11,6 @@ import java.util.List;
 
 public class MultiplayerPackVersionChecker {
     static {
-        List<Integer> versions = InnerCoreServer.getVersionsCode();
         Network.getSingleton().addClientInitializationPacket("system.inner_core_build", () -> {
                 JSONObject packInfo = new JSONObject();
                 try {
@@ -40,7 +39,7 @@ public class MultiplayerPackVersionChecker {
                         throw new InitializationPacketException(message);
                     }*/
 
-                    if (!versions.contains(packVersionCode)) {
+                    if (!InnerCoreServer.canConnectionFor(packVersionCode)) {
                         String message = "\n\n{{loc: multiplayer_innercore_version_mismatch}}\n" +
                                 "client (your) version: " +
                                 packName + " " + packVersionName +
