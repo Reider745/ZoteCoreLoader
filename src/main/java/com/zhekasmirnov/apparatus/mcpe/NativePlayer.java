@@ -183,4 +183,9 @@ public class NativePlayer {
     public boolean isFlying() {
         return PlayerActorMethods.isFlying(player);
     }
+
+    @ZoteOnly
+    public String getUserName() {
+        return PlayerActorMethods.getUserName(player);
+    }
 }

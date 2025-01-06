@@ -379,4 +379,12 @@ public class PlayerActorMethods {
         }
         return player.getAdventureSettings().get(Type.FLYING);
     }
+
+    public static String getUserName(Player player) {
+        if (!isValid(player, false)) {
+            return null;
+        }
+
+        return player.getUsername();
+    }
 }
