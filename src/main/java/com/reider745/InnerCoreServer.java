@@ -517,7 +517,7 @@ public class InnerCoreServer {
     }
 
     public static String getVersionName() {
-        return getPropertyString("pack-version", "2.3.1b122o1");
+        return getPropertyString("pack-version", "2.3.1b123");
     }
 
     public static boolean isEnableSockets() {
@@ -527,12 +527,12 @@ public class InnerCoreServer {
     public static int getVersionCode() {
         List<Integer> versions = getVersionsCode();
         if(versions.isEmpty())
-            return 164;
+            return 165;
         return versions.get(0);
     }
 
     public static List<Integer> getVersionsCode() {
-        final String args = getPropertyString("pack-version-code", "164");
+        final String args = getPropertyString("pack-version-code", "165");
         final String[] versions_s = args.split(",");
         final List<Integer> versions = new ArrayList<>();
 
