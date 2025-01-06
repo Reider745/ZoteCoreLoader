@@ -47,7 +47,7 @@ public class ServerHooks {
         if(variable.equals("rak-packet-limit"))
             return InnerCoreServer.getMaxPacketSending();
 
-        Config properties = server.getProperties();
+        final Config properties = server.getProperties();
         return properties.exists(variable)
                 ? (!properties.get(variable).equals("") ? Integer.parseInt(String.valueOf(properties.get(variable)))
                         : defaultValue)
@@ -65,7 +65,7 @@ public class ServerHooks {
         if(variable.equals("enable-raw-ores"))// Исключительно для новых версий, поэтому без права на включение
             return false;
 
-        Config properties = server.getProperties();
+        final Config properties = server.getProperties();
         Object value = properties.exists(variable) ? properties.get(variable) : defaultValue;
 
         if (value instanceof Boolean)
@@ -75,6 +75,17 @@ public class ServerHooks {
             case "on", "true", "1", "yes" -> true;
             default -> false;
         };
+    }
+
+    @Inject
+    public static String getPropertyString(Server server, String variable, String defaultValue) {
+        final Config properties = server.getProperties();
+        final String value = properties.exists(variable) ? properties.get(variable).toString() : defaultValue;
+
+        if(variable.equals("level-type") && (value.isEmpty() || value.equals("normal") || value.equals("default"))) {
+            return "oldnormal";
+        }
+        return value;
     }
 
     private static int indexTime = 0;
