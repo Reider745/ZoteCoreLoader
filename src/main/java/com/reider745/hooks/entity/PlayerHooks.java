@@ -67,7 +67,7 @@ public class PlayerHooks implements HookClass {
         if(player.getNetworkSession() instanceof RakNetPlayerSessionHooks session)
             result = session.getInnerCoreConnectionClient();
 
-        if(InnerCoreServer.isEnabledSockets()) {
+        if(InnerCoreServer.isSocketEnabled()) {
             List<ConnectedClient> clients = Network.getSingleton().getServer().getConnectedClients();
             for (ConnectedClient client : clients)
                 if (client.getChannelInterface().getChannel().getProtocolId() == SocketDataChannel.PROTOCOL_ID && equalsAddress(player.getSocketAddress().toString(),

@@ -152,10 +152,10 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
         if (remainingInitializationPackets.isEmpty()) {
             setClientState(ClientState.OPEN);
         }
-
         if(InnerCoreServer.isDebugInnerCoreNetwork()) {
-            System.out.println(remainingInitializationPackets.size());
+            System.out.println("INIT - " + remainingInitializationPackets.size());
             remainingInitializationPackets.forEach(System.out::println);
+            System.out.println("======");
         }
 
         server.addWatchdogAction(server.getConfig().getInitializationTimeout(), () -> {

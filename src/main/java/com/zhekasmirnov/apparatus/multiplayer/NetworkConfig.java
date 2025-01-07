@@ -82,7 +82,7 @@ public class NetworkConfig {
         setLocalNativeProtocolForced(EngineConfig.getBoolean("network.local_native_protocol_forced", false));
         // enable socket server
         setDefaultPort(InnerCoreServer.getPropertyInt("socket-port", 2304));
-        setSocketConnectionAllowed(InnerCoreServer.isEnabledSockets());
+        setSocketConnectionAllowed(InnerCoreServer.isSocketEnabled());
         InnerCorePacket.sendInfo = getServerDetectionPacket();
     }
 
@@ -91,7 +91,7 @@ public class NetworkConfig {
         json.put("server", true);
         json.put("socket_port", defaultPort);
         json.put("biomes", BiomesMethods.getCustomBiomes());
-        json.put("socket_enabled", InnerCoreServer.isEnabledSockets());
+        json.put("socket_enabled", InnerCoreServer.isSocketEnabled());
         byte[] bytes = json.toString().getBytes();
 
         InnerCorePacket packet = new InnerCorePacket();

@@ -115,7 +115,7 @@ public class NetworkHooks implements HookClass {
         network.registerPacket(InnerCoreServer.PROTOCOL, LoginPacketFix.NETWORK_ID, LoginPacketFix.class);
     }
 
-    @Inject(className = "cn.nukkit.network.protocol.BiomeDefinitionListPacket")
+    @Inject(className = "cn.nukkit.network.protocol.BiomeDefinitionListPacket", type = TypeHook.BEFORE_REPLACE)
     public static void encode(BiomeDefinitionListPacket self) {
         BiomesMethods.encode(self);
     }

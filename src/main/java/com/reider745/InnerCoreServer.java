@@ -332,7 +332,7 @@ public class InnerCoreServer {
 
         NativeCallback.onLevelCreated();
 
-        if(isEnabledSockets())
+        if(isSocketEnabled())
             Logger.warning("Socket connections are enabled, it is possible that the connection is not stable");
     }
 
@@ -523,7 +523,7 @@ public class InnerCoreServer {
         return getPropertyString("pack-version", "2.3.1b123");
     }
 
-    public static boolean isEnabledSockets() {
+    public static boolean isSocketEnabled() {
         return InnerCoreServer.getPropertyBoolean("socket-server-enabled", false);
     }
 
