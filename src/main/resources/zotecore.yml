@@ -39,7 +39,7 @@ pack-version-code: 165
 # Whether socket server enabled or not.
 # Server socket requires an additional port, connection
 # through server sockets is more unstable.
-# socket-server-enable: off
+# socket-server-enabled: off
 
 # Server socket port, usually should be between 10000 and 24999.
 # But keep in mind that the client uses port 2304 by default.
