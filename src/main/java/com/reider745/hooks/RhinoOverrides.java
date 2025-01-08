@@ -2,8 +2,7 @@ package com.reider745.hooks;
 
 import cn.nukkit.utils.MainLogger;
 import com.reider745.api.ReflectHelper;
-import com.reider745.api.hooks.annotation.ShadowGetField;
-import com.reider745.api.hooks.annotation.ShadowSetField;
+import com.reider745.api.hooks.annotation.*;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -14,11 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.TypeHook;
-import com.reider745.api.hooks.annotation.Hooks;
-import com.reider745.api.hooks.annotation.Inject;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.*;
 
 import java.util.ArrayList;
 
@@ -105,6 +100,17 @@ public class RhinoOverrides implements HookClass {
 
     @ShadowSetField(className = "org.mozilla.javascript.Context", field = "applicationClassLoader")
     public static void setApplicationClassLoaderField(Context self, ClassLoader loader) {}
+
+    @ShadowMethod(className = "org.mozilla.javascript.NativeJavaPackage")
+    public static Object getPkgProperty(NativeJavaPackage self, String name, Scriptable start, boolean createPkg) {return null;}
+
+    @Inject(className = "org.mozilla.javascript.NativeJavaPackage")
+    public static Object get(NativeJavaPackage self, String name, Scriptable start) {
+        try {
+            return getPkgProperty(self, name, start, true);
+        }catch (NullPointerException ignore) {}
+        return NativeJavaPackage.NOT_FOUND;
+    }
 
     @Inject(className = "org.mozilla.javascript.Context")
     public static ClassLoader getApplicationClassLoader(Context self) throws ClassNotFoundException {

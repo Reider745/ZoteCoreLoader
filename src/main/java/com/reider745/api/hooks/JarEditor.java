@@ -168,10 +168,17 @@ public class JarEditor {
                                 arg += "$" + i;
                             }
 
+                            String returnStr;
+
+                            if(method.getReturnType().getName().equals("void"))
+                                returnStr = "";
+                            else
+                                returnStr = "return ";
+
                             if(isStatic){
-                                method.setBody("{"+className+"."+name+"("+arg+");}");
+                                method.setBody("{"+returnStr+className+"."+name+"("+arg+");}");
                             }else
-                                method.setBody("{$1."+name+"("+arg+");}");
+                                method.setBody("{"+returnStr+"$1."+name+"("+arg+");}");
                         }
                     }
                 }
