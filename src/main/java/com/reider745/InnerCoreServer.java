@@ -453,7 +453,7 @@ public class InnerCoreServer {
     }
 
     public static boolean isLegacyWorkbench() {
-        return getPropertyBoolean("use-legacy-workbench-override", true);
+        return getPropertyBoolean("use-legacy-workbench-override", false);
     }
 
     public static boolean isUnsafeScriptingAllowed() {
