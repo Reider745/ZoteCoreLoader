@@ -1,6 +1,7 @@
 package com.reider745.network;
 
 import cn.nukkit.Server;
+import cn.nukkit.network.protocol.BatchPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.network.RakNetPlayerSessionHooks;
@@ -35,7 +36,7 @@ public class InnerCorePacket extends BasePacket {
             name = this.getString();
             format_id = this.getVarInt();
             bytes_length = this.getVarInt();
-            bytes = this.get();
+            bytes = this.get(bytes_length);
 
             if(InnerCoreServer.isDebugInnerCoreNetwork())
                 System.out.println("Recived packet for native protocol "+name);
