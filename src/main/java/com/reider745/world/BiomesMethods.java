@@ -2,15 +2,25 @@ package com.reider745.world;
 
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.generator.OldNormal;
+import cn.nukkit.level.util.BitArrayVersion;
+import cn.nukkit.level.util.PalettedBlockStorage;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.nbt.tag.StringTag;
 import cn.nukkit.network.protocol.BiomeDefinitionListPacket;
+import cn.nukkit.utils.Utils;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ReflectHelper;
+import com.reider745.api.hooks.TypeHook;
+import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.collection.LongObjectHashMap;
 import io.netty.util.collection.LongObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -18,6 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,12 +60,15 @@ public class BiomesMethods {
     private static final PointersStorage<NukkitCustomBiome> customBiomesPointers = new PointersStorage<>("biomes", new PointerGenFastest(), false);
     private static final HashMap<Integer, NukkitCustomBiome> customBiomes = new HashMap<>();
     private static final CompoundTag TAG_419;
+    private static final CompoundTag biomeDefinitions;
     private static byte[] sendBiomes;
 
     static {
         try {
             TAG_419 = NBTIO.read((byte[]) Objects.requireNonNull(ReflectHelper.getField(BiomeDefinitionListPacket.class, "TAG_419")), ByteOrder.LITTLE_ENDIAN, true);
             sendBiomes = NBTIO.write(TAG_419, ByteOrder.LITTLE_ENDIAN, true);
+
+            biomeDefinitions = ReflectHelper.getField(Biome.class, "biomeDefinitions");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -85,30 +99,37 @@ public class BiomesMethods {
         if(AvailableIDS.isEmpty()){
             throw new RuntimeException("MAX BIOMES!");
         }
-        NukkitCustomBiome biome = new NukkitCustomBiome(null, name);
+
+        final NukkitCustomBiome biome = new NukkitCustomBiome(null, name);
         biome.reg(AvailableIDS.remove(0));
         customBiomes.put(biome.getId(), biome);
 
         // без этого дерьма работает
         try{
             final CompoundTag tag = new CompoundTag();
-            tag.putFloat("ash", .0f);
             tag.putFloat("blue_spores", .0f);
-            tag.putFloat("red_spores", .0f);
-            tag.putFloat("temperature", .5f);
-            tag.putFloat("downfall", .5f);
             tag.putFloat("white_ash", .0f);
+            tag.putFloat("ash", .0f);
+            tag.putFloat("temperature", .7f);
+            tag.putFloat("red_spores", .0f);
+            tag.putFloat("downfall", .8f);
+
+            final ListTag<StringTag> tags = new ListTag<>();
+            tags.add(new StringTag("", "overworld"));
+            tag.put("tags", tags);
 
             final CompoundTag climate = new CompoundTag();
-            climate.putFloat("ash", .0f);
-            climate.putFloat("downfall", .5f);
-            climate.putFloat("red_spores", .0f);
-            climate.putFloat("temperature", .5f);
             climate.putFloat("blue_spores", .0f);
             climate.putFloat("white_ash", .0f);
+            climate.putFloat("ash", .0f);
+            climate.putFloat("temperature", .7f);
+            climate.putFloat("red_spores", .0f);
+            climate.putFloat("downfall", .8f);
             tag.put("minecraft:climate", climate);
 
             TAG_419.put(name, tag);
+            biomeDefinitions.put(name, tag);
+
             sendBiomes = NBTIO.write(TAG_419, ByteOrder.LITTLE_ENDIAN, true);
         }catch (Exception e){
             throw new RuntimeException(e);
@@ -146,7 +167,7 @@ public class BiomesMethods {
             for (int z = 0; z < 16; z++) {
                 final Biome biome = biomes_z[z];
                 if(biome != null) {
-                    fullChunk.setBiomeId(x, z, biome.getId());
+                    fullChunk.setBiome(x, z, biome);
                 }
             }
         }

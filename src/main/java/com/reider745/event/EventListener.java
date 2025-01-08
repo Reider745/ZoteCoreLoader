@@ -201,7 +201,6 @@ public class EventListener implements Listener {
                 final CallbackHelper.ICallbackApply applyPost = () -> NativeCallback.onChunkPostProcessed(X, Z);
 
                 final int id = FakeDimensions.getFakeIdForLevel(level);
-                BiomesMethods.onChunkPopulate(fullChunk, X, Z, id);
 
                 try {
                     switch (id) {

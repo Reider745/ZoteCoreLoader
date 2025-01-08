@@ -5,7 +5,6 @@ import cn.nukkit.Server;
 import cn.nukkit.network.CompressionProvider;
 import cn.nukkit.network.Network;
 import cn.nukkit.network.RakNetInterface;
-import cn.nukkit.network.protocol.BiomeDefinitionListPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.session.RakNetPlayerSession;
 import cn.nukkit.utils.*;
@@ -18,7 +17,6 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
 import com.reider745.network.LoginPacketFix;
-import com.reider745.world.BiomesMethods;
 import io.netty.channel.Channel;
 import org.cloudburstmc.netty.channel.raknet.RakChildChannel;
 
@@ -113,11 +111,6 @@ public class NetworkHooks implements HookClass {
     public static void registerPackets(Network network) {
         network.registerPacket(InnerCoreServer.PROTOCOL, InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
         network.registerPacket(InnerCoreServer.PROTOCOL, LoginPacketFix.NETWORK_ID, LoginPacketFix.class);
-    }
-
-    @Inject(className = "cn.nukkit.network.protocol.BiomeDefinitionListPacket", type = TypeHook.BEFORE_REPLACE)
-    public static void encode(BiomeDefinitionListPacket self) {
-        BiomesMethods.encode(self);
     }
 
     @Inject(className = "cn.nukkit.network.RakNetInterface$2", type = TypeHook.BEFORE_REPLACE)
