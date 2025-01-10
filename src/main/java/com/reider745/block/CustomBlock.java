@@ -323,7 +323,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
             NativeCallback.onRandomBlockTick((int) this.x, (int) this.y, (int) this.z, id, this.getDamage(),
                     this.level);
             return type;
-        } else if (type == Level.BLOCK_UPDATE_REDSTONE) {
+        } else if (type == Level.BLOCK_UPDATE_REDSTONE || type == Level.BLOCK_UPDATE_NORMAL) {
             RedstoneUpdateEvent ev = new RedstoneUpdateEvent(this);
             getLevel().getServer().getPluginManager().callEvent(ev);
             if (ev.isCancelled())

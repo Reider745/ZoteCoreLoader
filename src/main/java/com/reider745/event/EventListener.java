@@ -37,6 +37,8 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.particle.FlameParticle;
+import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.AsyncTask;
