@@ -316,14 +316,6 @@ public class NativeCallback {
         new TPSMeter("mod-thread", 20, 2000);
     }
 
-    private static void setupWorld() {
-        int updatableMode = (boolean) InnerCoreConfig.get("performance.time_based_limit") ? Updatable.MODE_TIME_BASED
-                : Updatable.MODE_COUNT_BASED;
-        Updatable.setPreferences(updatableMode,
-                updatableMode == Updatable.MODE_COUNT_BASED ? InnerCoreConfig.getInt("performance.max_update_count")
-                        : InnerCoreConfig.getInt("performance.max_update_time"));
-    }
-
     public static boolean isServerTickDisabledDueToError() {
         return isServerTickDisabledDueToError;
     }
@@ -350,9 +342,6 @@ public class NativeCallback {
 
             // run post loaded callback and actions
             onLevelPostLoaded(true);
-
-            // final setup
-            setupWorld();
         }
 
         // call mod tick
@@ -370,7 +359,6 @@ public class NativeCallback {
                 }
                 Updatable.getForServer().onTick();
                 executor.blockUntilExecuted();
-                Updatable.getForServer().onPostTick();
                 ConnectedClientList.onTick();
 
                 // run ecs

@@ -116,7 +116,6 @@ public class TickManager {
         }
         Updatable.getForServer().onTick();
         executor.blockUntilExecuted();
-        Updatable.getForServer().onPostTick();
     }
 
     public static class Tick {

@@ -10,6 +10,7 @@ import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.mozilla.javascript.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -17,19 +18,15 @@ import java.util.List;
  */
 
 public class Updatable {
+    private static final Object[] EMPTY_ARGS = new Object[]{};
+
     private final List<ScriptableObject> updatableObjects = new ArrayList<>();
     private final List<ScriptableObject> disabledDueToError = new ArrayList<>();
-    private final boolean isMultithreadingAllowed;
 
-    private Updatable(boolean isMultithreadingAllowed) {
-        this.isMultithreadingAllowed = isMultithreadingAllowed;
-    }
+    private Context currentContext;
 
     public void cleanUp() {
         updatableObjects.clear();
-        disabledDueToError.clear();
-        postedRemovedUpdatables.clear();
-        currentArrayPosition = 0;
         currentContext = null;
     }
 
@@ -42,55 +39,8 @@ public class Updatable {
         if (_update instanceof Function) {
             updatableObjects.add(obj);
         } else {
-            throw new IllegalArgumentException("cannot add updatable object: <obj>.update must be a function, not "
-                    + (_update != null ? _update.getClass() : null) + " " + _update);
+            throw new IllegalArgumentException("cannot add updatable object: <obj>.update must be a function, not " + (_update != null ? _update.getClass() : null) + " " + _update);
         }
-    }
-
-    public static void cleanUpAll() {
-        getForServer().cleanUp();
-        getForClient().cleanUp();
-    }
-
-    public static final int MODE_COUNT_BASED = 0;
-    public static final int MODE_TIME_BASED = 1;
-
-    private static int currentMode = 0;
-    private static int maxUpdateCallsPerTick = 128;
-    private static int maxUpdateTimePerTick = 50;
-
-    public static void setPreferences(int mode, int modeValue) {
-        switch (mode) {
-            case MODE_COUNT_BASED:
-                maxUpdateCallsPerTick = modeValue;
-                ICLog.d("THREADING", "updatable engine uses count-based mode, maxCount=" + modeValue);
-                break;
-            case MODE_TIME_BASED:
-                maxUpdateTimePerTick = modeValue;
-                ICLog.d("THREADING", "updatable engine uses time-based mode, maxTime=" + modeValue);
-                break;
-            default:
-                throw new IllegalArgumentException("invalid updatable engine mode: " + mode);
-        }
-
-        currentMode = mode;
-    }
-
-    private static boolean shouldBeRemoved(Scriptable obj) {
-        Object _remove = obj.get("remove", obj);
-        return (_remove instanceof Boolean && (boolean) _remove);
-    }
-
-    private static String updatableToString(Context ctx, Scriptable obj) {
-        Object _to_string = obj.get("_to_string", obj);
-        if (_to_string instanceof Function) {
-            try {
-                Function to_string = (Function) _to_string;
-                return "" + to_string.call(ctx, to_string.getParentScope(), obj, EMPTY_ARGS);
-            } catch (Throwable ignore) {
-            }
-        }
-        return "" + obj;
     }
 
     public static void reportError(Throwable err, String updatableStr) {
@@ -99,130 +49,66 @@ public class Updatable {
                 err));
     }
 
-    private static final Object[] EMPTY_ARGS = new Object[] {};
-
-    private Context currentContext = null;
-
-    private void executeUpdateWithContext(Context ctx, ScriptableObject obj) {
-        if(shouldBeRemoved(obj)){
-            postedRemovedUpdatables.add(obj);
-            return;
+    private static String updatableToString(Context ctx, Scriptable obj) {
+        Object _to_string = obj.get("_to_string", obj);
+        if (_to_string instanceof Function) {
+            try {
+                Function to_string = (Function) _to_string;
+                return "" + to_string.call(ctx, to_string.getParentScope(), obj, EMPTY_ARGS);
+            } catch (Throwable ignore) { }
         }
-
-        Object _update = obj.get("update", obj);
-        try {
-            Function update = (Function) _update;
-            update.call(ctx, update.getParentScope(), obj, EMPTY_ARGS);
-        } catch (Throwable err) {
-            disabledDueToError.add(obj);
-            postedRemovedUpdatables.add(obj);
-            Object _handle_error = obj.get("_handle_error", obj);
-            if (_handle_error instanceof Function) {
-                try {
-                    Function handle_error = (Function) _handle_error;
-                    handle_error.call(ctx, handle_error.getParentScope(), obj, new Object[] { err });
-                } catch (Throwable err2) {
-                    Logger.error("Error occurred in error handler for " + updatableToString(ctx, obj) + " hash="
-                            + obj.hashCode(), err2);
-                }
-            } else {
-                reportError(err, updatableToString(ctx, obj));
-            }
-            return;
-        }
-    }
-
-    private boolean executeUpdate(ScriptableObject obj) {
-        if (ScriptableObjectHelper.getBooleanProperty(obj, "noupdate", false)) {
-            return false;
-        }
-
-        TickExecutor executor = TickExecutor.getInstance();
-        if (isMultithreadingAllowed && executor.isAvailable()) {
-            TickExecutor.getInstance().execute(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (obj) {
-                        executeUpdateWithContext(Compiler.assureContextForCurrentThread(), obj);
-                    }
-                }
-            });
-        } else {
-            executeUpdateWithContext(currentContext, obj);
-        }
-
-        return true;
-    }
-
-    private int currentArrayPosition = 0;
-    private final ArrayList<ScriptableObject> postedRemovedUpdatables = new ArrayList<>();
-
-    private void removePosted() {
-        for (ScriptableObject updatable : postedRemovedUpdatables) {
-            updatableObjects.remove(updatable);
-        }
-        postedRemovedUpdatables.clear();
-    }
-
-    private boolean executeCurrentToNext() {
-        if (updatableObjects.size() == 0) {
-            return true;
-        }
-        currentArrayPosition = currentArrayPosition % updatableObjects.size();
-        boolean executed = executeUpdate(updatableObjects.get(currentArrayPosition));
-        currentArrayPosition++;
-        return executed;
-    }
-
-    private void onCountBasedTick() {
-        int callCount = maxUpdateCallsPerTick;
-
-        int calls = 0;
-        for (int i = 0; i < callCount && i < updatableObjects.size();) {
-            if (calls++ >= updatableObjects.size()) {
-                break;
-            }
-            if (executeCurrentToNext()) {
-                i++;
-            }
-        }
-    }
-
-    private void onTimeBasedTick() {
-        int callCount = updatableObjects.size();
-        long timeStart = System.currentTimeMillis();
-
-        for (int i = 0; i < callCount; i++) {
-            executeCurrentToNext();
-            long timeCur = System.currentTimeMillis();
-            if (timeCur - timeStart > maxUpdateTimePerTick) {
-                break;
-            }
-        }
+        return "" + obj;
     }
 
     public void onTick() {
         if (currentContext == null) {
             currentContext = Compiler.assureContextForCurrentThread();
         }
-        if (currentMode == MODE_COUNT_BASED || isMultithreadingAllowed && TickExecutor.getInstance().isAvailable()) {
-            onCountBasedTick();
-        } else if (currentMode == MODE_TIME_BASED) {
-            onTimeBasedTick();
+
+        final Iterator<ScriptableObject> iterator = updatableObjects.iterator();
+
+        while (iterator.hasNext()) {
+            final ScriptableObject updatable = iterator.next();
+
+            if(ScriptableObjectHelper.getBooleanProperty(updatable, "noupdate", false)) {
+                continue;
+            }
+
+            try {
+                ((Function) updatable.get("update")).call(currentContext, updatable.getParentScope(), updatable, EMPTY_ARGS);
+            } catch (Throwable e) {
+                iterator.remove();
+                disabledDueToError.add(updatable);
+
+                final Object _handle_error = updatable.get("_handle_error");
+                if(_handle_error instanceof Function) {
+                    try {
+                        Function handle_error = (Function) _handle_error;
+                        handle_error.call(currentContext, handle_error.getParentScope(), updatable, new Object[]{e});
+                    } catch (Throwable err2) {
+                        Logger.error("Error occurred in error handler for " + updatableToString(currentContext, updatable) + " hash="
+                                + updatable.hashCode(), err2);
+                    }
+                } else {
+                    reportError(e,  updatableToString(currentContext, updatable));
+                }
+
+                continue;
+            }
+
+            if(ScriptableObjectHelper.getBooleanProperty(updatable, "remove", false)) {
+                iterator.remove();
+            }
         }
     }
 
-    public void onPostTick() {
-        removePosted();
-    }
+    // for backward compatibility
+    @Deprecated
+    public static void setPreferences(int mode, int modeValue) {}
 
-    public void onTickSingleThreaded() {
-        onTick();
-        onPostTick();
-    }
 
-    private static final Updatable serverInstance = new Updatable(true);
-    private static final Updatable clientInstance = new Updatable(false);
+    private static final Updatable serverInstance = new Updatable();
+    private static final Updatable clientInstance = new Updatable();
 
     public static Updatable getForServer() {
         return serverInstance;
@@ -232,9 +118,12 @@ public class Updatable {
         return clientInstance;
     }
 
-    static {
-        setPreferences(MODE_COUNT_BASED, 256);
+    public static void cleanUpAll() {
+        getForServer().cleanUp();
+        getForClient().cleanUp();
+    }
 
+    static {
         WorldDataScopeRegistry.getInstance().addScope("_updatables", new ScriptableSaverScope() {
             @Override
             public ScriptableObject save() {
@@ -245,7 +134,7 @@ public class Updatable {
                     }
                 }
                 for (ScriptableObject updatable : getForServer().disabledDueToError) {
-                    if (ObjectSaverRegistry.getSaverFor(updatable) != null && !shouldBeRemoved(updatable)) {
+                    if (ObjectSaverRegistry.getSaverFor(updatable) != null && !ScriptableObjectHelper.getBooleanProperty(updatable, "remove", false)) {
                         updatableObjectsToSave.add(updatable);
                     }
                 }
@@ -266,11 +155,10 @@ public class Updatable {
                                 continue;
                             }
                         }
-                        ICLog.i("UPDATABLE",
-                                "loaded updatable data is not a scriptable object or it does not have update function, loading failed. obj="
-                                        + possibleUpdatable);
+                        ICLog.i("UPDATABLE", "loaded updatable data is not a scriptable object or it does not have update function, loading failed. obj=" + possibleUpdatable);
                     }
-                } else {
+                }
+                else {
                     ICLog.i("UPDATABLE", "assertion failed: updatable scope is not an array, loading failed");
                 }
 
