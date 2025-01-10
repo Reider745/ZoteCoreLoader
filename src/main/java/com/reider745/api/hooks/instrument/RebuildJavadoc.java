@@ -1,4 +1,4 @@
-package com.reider745.api.hooks;
+package com.reider745.api.hooks.instrument;
 
 import javassist.*;
 import javassist.bytecode.AccessFlag;

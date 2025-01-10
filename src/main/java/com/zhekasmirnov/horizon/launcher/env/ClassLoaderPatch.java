@@ -29,7 +29,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 import com.googlecode.d2j.dex.Dex2jar;
-import com.reider745.api.hooks.RebuildJavadoc;
+import com.reider745.api.hooks.instrument.RebuildJavadoc;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
 

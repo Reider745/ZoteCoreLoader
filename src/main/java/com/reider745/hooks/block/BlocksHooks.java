@@ -14,30 +14,23 @@ public class BlocksHooks {
         // ReflectHelper.setField(Block.class, "usesFakeWater", new boolean[MAX_ID]);
     }
 
-    // TODO: не поддерживается переопределение свойств накита
-
-    /*@Inject
-    public static boolean isSolid(Block self) {
-        return BlockMethods.isSolid(self.getId());
+    public static Boolean isSolid(Block self) {
+        return (Boolean) BlockMethods.getOrDefault(self.getId(), BlockMethods.SOLID, null);
     }
 
-    @Inject
-    public static double getHardness(Block self) {
-        return BlockMethods.getDestroyTime(self.getId());
+    public static Double getHardness(Block self) {
+        return (Double) BlockMethods.getOrDefault(self.getId(), BlockMethods.DESTROY_TIME, null);
     }
 
-    @Inject
-    public static double getResistance(Block self) {
-        return BlockMethods.getExplosionResistance(self.getId());
+    public static Double getResistance(Block self) {
+        return (Double) BlockMethods.getOrDefault(self.getId(), BlockMethods.EXPLOSION_RESISTANCE, null);
     }
 
-    @Inject
-    public static double getFrictionFactor(Block self) {
-        return BlockMethods.getFriction(self.getId());
+    public static Double getFrictionFactor(Block self) {
+        return (Double) BlockMethods.getOrDefault(self.getId(), BlockMethods.FRICTION, null);
     }
 
-    @Inject
-    public static int getLightLevel(Block self) {
-        return BlockMethods.getLightLevel(self.getId());
-    }*/
+    public static Integer getLightLevel(Block self) {
+        return (Integer) BlockMethods.getOrDefault(self.getId(), BlockMethods.LIGHT_LEVEL, null);
+    }
 }

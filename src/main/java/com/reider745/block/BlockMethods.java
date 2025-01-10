@@ -27,7 +27,7 @@ public class BlockMethods {
         return type;
     }
 
-    private static Object getOrDefault(int id, byte property, Object defaultValue) {
+    public static Object getOrDefault(int id, byte property, Object defaultValue) {
         Byte2ObjectOpenHashMap<Object> type = id2typeMap.get(id);
         return type != null ? type.getOrDefault(property, defaultValue) : defaultValue;
     }

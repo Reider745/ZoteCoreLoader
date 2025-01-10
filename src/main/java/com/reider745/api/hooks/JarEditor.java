@@ -5,6 +5,7 @@ import com.reider745.api.hooks.annotation.*;
 import javassist.*;
 import javassist.bytecode.*;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,12 +16,17 @@ public class JarEditor {
     private final HookClassLoader classLoader;
     private final ClassPool classPool = new ClassPool();
     private final ClassPath classPath;
+    private final ArrayList<String> initClasses = new ArrayList<>();
 
     public JarEditor() {
         classLoader = new HookClassLoader(Main.class.getClassLoader(), classPool);
         classPath = new LoaderClassPath(classLoader);
 
         classPool.insertClassPath(classPath);
+    }
+
+    public void addInitClass(String clazz) {
+        initClasses.add(clazz);
     }
 
     public static final class RetNull {
@@ -33,6 +39,10 @@ public class JarEditor {
     private static final String NAME_ARGUMENTS_MAP = Arguments.class.getName();
     private static final HashMap<String, ArrayList<HookData>> ALL_HOOKS = new HashMap<>();
     private static final HashMap<String, String> loadedHookClass = new HashMap<>();
+
+    public ClassPool getClassPool() {
+        return classPool;
+    }
 
     private void addHookInitialization(String className, String method, String sig, CtMethod replaced, TypeHook typeHook,
                                        boolean controller, ArgumentTypes argumentMap) {
@@ -195,7 +205,7 @@ public class JarEditor {
 
 
     public interface IInit {
-        void call(CtClass ctClass);
+        void call(CtClass ctClass) throws IOException, NotFoundException, CannotCompileException, BadBytecode;
     }
 
     private HashMap<String, IInit> inits = new HashMap<>();
@@ -532,7 +542,14 @@ public class JarEditor {
     public JarEditor run(String mainClass, String... args) {
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
-            classLoader.loadClass(mainClass).getMethod("main", String[].class).invoke(null, new Object[] { args });
+            for(String initClass : initClasses) {
+                classLoader.loadClass(initClass)
+                        .getMethod("preInit", String.class, String[].class)
+                        .invoke(null, mainClass, args);
+            }
+            classLoader.loadClass(mainClass)
+                    .getMethod("main", String[].class)
+                    .invoke(null, new Object[] { args });
         } catch (Exception e) {
             e.printStackTrace();
         }

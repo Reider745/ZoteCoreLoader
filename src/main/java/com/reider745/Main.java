@@ -4,12 +4,10 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
+import cn.nukkit.utils.BinaryStream;
 import com.reider745.api.hooks.JarEditor;
 
-import javassist.CannotCompileException;
-import javassist.CtMethod;
-import javassist.Modifier;
-import javassist.NotFoundException;
+import javassist.*;
 import javassist.bytecode.LineNumberAttribute;
 
 public class Main {
@@ -44,6 +42,50 @@ public class Main {
         add("com.reider745.hooks.block.BlockPalette");
         add("com.reider745.hooks.item.ItemUtils");
         add("com.reider745.hooks.item.RuntimeItemsHooks");
+        loader.addInit("com.reider745.hooks.block.BlocksHooks", ctClass -> {
+            final ClassPool pool = loader.getClassPool();
+            final BinaryStream stream = new BinaryStream(Main.class.getClassLoader().getResourceAsStream("blocksDump.bin").readAllBytes());
+
+            final int countClass = stream.getShort();
+            for(int i = 0;i < countClass;i++) {
+                final CtClass classPatch = pool.get(stream.getString());
+                final int countMethods = stream.getByte();
+
+                for(int a = 0;a < countMethods;a++) {
+                    final CtMethod methodPatch = classPatch.getDeclaredMethod(stream.getString());
+
+                    if(methodPatch.getName().equals("isSolid")) {
+                        methodPatch.insertBefore("Boolean val = com.reider745.hooks.block.BlocksHooks.isSolid(this);\n" +
+                                "if(val != null)\n" +
+                                "return val.booleanValue();");
+                    }
+
+                    if(methodPatch.getName().equals("getHardness")) {
+                        methodPatch.insertBefore("Double val = com.reider745.hooks.block.BlocksHooks.getHardness(this);\n" +
+                                "if(val != null)\n" +
+                                "return val.doubleValue();");
+                    }
+
+                    if(methodPatch.getName().equals("getResistance")) {
+                        methodPatch.insertBefore("Double val = com.reider745.hooks.block.BlocksHooks.getResistance(this);\n" +
+                                "if(val != null)\n" +
+                                "return val.doubleValue();");
+                    }
+
+                    if(methodPatch.getName().equals("getFrictionFactor")) {
+                        methodPatch.insertBefore("Double val = com.reider745.hooks.block.BlocksHooks.getFrictionFactor(this);\n" +
+                                "if(val != null)\n" +
+                                "return val.doubleValue();");
+                    }
+
+                    if(methodPatch.getName().equals("getLightLevel")) {
+                        methodPatch.insertBefore("Integer val = com.reider745.hooks.block.BlocksHooks.getLightLevel(this);\n" +
+                                "if(val != null)\n" +
+                                "return val.intValue();");
+                    }
+                }
+            }
+        });
         add("com.reider745.hooks.block.BlocksHooks");
         loader.addRebuildField("com.reider745.hooks.block.BlocksHooks", (ctClass, field) -> {
             String name = field.getName();
