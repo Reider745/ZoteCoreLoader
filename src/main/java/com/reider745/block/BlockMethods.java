@@ -1,23 +1,27 @@
 package com.reider745.block;
 
 import cn.nukkit.block.Block;
+import com.reider745.InnerCoreServer;
+import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
+// TODO: не поддерживается переопределение свойств накита
 public class BlockMethods {
     private static final Int2ObjectOpenHashMap<Byte2ObjectOpenHashMap<Object>> id2typeMap = new Int2ObjectOpenHashMap<>();
-    private static final byte SOLID = 0;
-    private static final byte CAN_CONTAIN_LIQUID = 1;
-    private static final byte DESTROY_TIME = 2;
-    private static final byte TRANSLUCENCY = 3;
-    private static final byte EXPLOSION_RESISTANCE = 4;
-    private static final byte FRICTION = 5;
-    private static final byte LIGHT_LEVEL = 6;
+
+    public static final byte SOLID = 0;
+    public static final byte CAN_CONTAIN_LIQUID = 1;
+    public static final byte DESTROY_TIME = 2;
+    public static final byte TRANSLUCENCY = 3;
+    public static final byte EXPLOSION_RESISTANCE = 4;
+    public static final byte FRICTION = 5;
+    public static final byte LIGHT_LEVEL = 6;
 
     private static Byte2ObjectOpenHashMap<Object> assureId2Type(int id) {
         Byte2ObjectOpenHashMap<Object> type = id2typeMap.get(id);
         if (type == null) {
-            type = new Byte2ObjectOpenHashMap<Object>();
+            type = new Byte2ObjectOpenHashMap<>();
             id2typeMap.put(id, type);
         }
         return type;
@@ -26,6 +30,23 @@ public class BlockMethods {
     private static Object getOrDefault(int id, byte property, Object defaultValue) {
         Byte2ObjectOpenHashMap<Object> type = id2typeMap.get(id);
         return type != null ? type.getOrDefault(property, defaultValue) : defaultValue;
+    }
+
+    public static Byte2ObjectOpenHashMap<Object> getProperties(int id) {
+        return id2typeMap.computeIfAbsent(id, id_ -> {
+            throw new RuntimeException("Not found");
+        });
+    }
+
+    private interface IApply<T> {
+        T apply(Block block);
+    }
+
+    private static <T>T validateThen(int id, IApply<T> function, T fallback) {
+        final Block block = Block.get(id);
+        if(block != null)
+            return function.apply(block);
+        return fallback;
     }
 
     public static int getMaterial(int id) {
@@ -45,14 +66,20 @@ public class BlockMethods {
     }
 
     public static float getDestroyTime(int id) {
+        if(InnerCoreServer.canEndLoadMods())
+            return validateThen(id, block -> (float) block.getHardness(),1f);
         return (float) getOrDefault(id, DESTROY_TIME, 1f);
     }
 
     public static float getExplosionResistance(int id) {
+        if(InnerCoreServer.canEndLoadMods())
+            return validateThen(id, block -> (float) block.getResistance(), 1f);
         return (float) getOrDefault(id, EXPLOSION_RESISTANCE, 1f);
     }
 
     public static float getFriction(int id) {
+        if(InnerCoreServer.canEndLoadMods())
+            return validateThen(id, block -> (float) block.getFrictionFactor(), 0.6f);
         return (float) getOrDefault(id, FRICTION, 0.6f);
     }
 
@@ -61,6 +88,8 @@ public class BlockMethods {
     }
 
     public static int getLightLevel(int id) {
+        if(InnerCoreServer.canEndLoadMods())
+            return validateThen(id, block -> block.getLightLevel(), Block.light[id]);
         return (int) getOrDefault(id, LIGHT_LEVEL, Block.light[id]);
     }
 

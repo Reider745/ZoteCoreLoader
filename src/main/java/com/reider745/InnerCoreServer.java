@@ -326,8 +326,6 @@ public class InnerCoreServer {
         NativeFurnaceRegistry.init();
         CommandsHelper.init();
 
-        ItemMethod.isPostLoad = true;
-
         endLoad = true;
 
         NativeCallback.onLevelCreated();

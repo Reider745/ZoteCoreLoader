@@ -15,6 +15,7 @@ import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
 
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -148,8 +149,9 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     private int id;
     private String name;
 
-    private boolean TickingTile;
-    private boolean NeighbourChange;
+    private final boolean TickingTile;
+    private final boolean NeighbourChange;
+    private final Byte2ObjectOpenHashMap<Object> properties;
 
     protected CustomBlock(int id, int meta) {
         this(id, meta, getBlockManager(id));
@@ -168,6 +170,12 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
         TickingTile = manager.get("TickingTile:" + meta, false);
         NeighbourChange = manager.get("NeighbourChange", false);
+
+        properties = BlockMethods.getProperties(id);
+    }
+
+    public <T>T getOrDefault(byte property, T defaultValue) {
+        return (T) properties.getOrDefault(property, defaultValue);
     }
 
     public static int getIdForText(String block) {
@@ -186,32 +194,37 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
 
     @Override
     public boolean isSolid() {
-        return BlockMethods.isSolid(id);
+        return (boolean) getOrDefault(BlockMethods.SOLID, true);
     }
 
     @Override
     public double getResistance() {
-        return BlockMethods.getExplosionResistance(id);
+        return (double) getOrDefault(BlockMethods.EXPLOSION_RESISTANCE, 1f);
+    }
+
+    @Override
+    public double getHardness() {
+        return (double) getOrDefault(BlockMethods.DESTROY_TIME, 1f);
     }
 
     @Override
     public double getFrictionFactor() {
-        return BlockMethods.getFriction(id);
+        return (double) getOrDefault(BlockMethods.FRICTION, 0.6f);
     }
 
     @Override
     public int getLightLevel() {
-        return BlockMethods.getLightLevel(id);
+        return (int) getOrDefault(BlockMethods.LIGHT_LEVEL, Block.light[id]);
     }
 
     @Override
     public boolean isTransparent() {
-        return BlockMethods.getTranslucency(id) >= 1f;
+        return ((float) getOrDefault(BlockMethods.TRANSLUCENCY, 0f))  >= 1f;
     }
 
     @Override
     public boolean canBeFlowedInto() {
-        return BlockMethods.canContainLiquid(id);
+        return (boolean) getOrDefault(BlockMethods.CAN_CONTAIN_LIQUID, false);
     }
 
     @Override

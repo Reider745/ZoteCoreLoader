@@ -14,7 +14,9 @@ public class BlocksHooks {
         // ReflectHelper.setField(Block.class, "usesFakeWater", new boolean[MAX_ID]);
     }
 
-    @Inject
+    // TODO: не поддерживается переопределение свойств накита
+
+    /*@Inject
     public static boolean isSolid(Block self) {
         return BlockMethods.isSolid(self.getId());
     }
@@ -37,5 +39,5 @@ public class BlocksHooks {
     @Inject
     public static int getLightLevel(Block self) {
         return BlockMethods.getLightLevel(self.getId());
-    }
+    }*/
 }

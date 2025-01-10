@@ -2,6 +2,7 @@ package com.reider745.item;
 
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
+import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
 import com.reider745.hooks.item.ItemUtils;
@@ -14,8 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ItemMethod {
-    public static boolean isPostLoad = false;
-
     public static class PropertiesNames {
         public static final String ID = "id";
         public static final String MAX_DAMAGE = "max_damage";
@@ -48,7 +47,7 @@ public class ItemMethod {
     }
 
     public static int getMaxDamageForId(int id, int data) {
-        if (isPostLoad)
+        if (InnerCoreServer.canEndLoadMods())
             return ItemUtils.get(id, data).getMaxDurability();
         CustomManager manager = getCustomManager(id);
         if (manager != null)
@@ -78,7 +77,7 @@ public class ItemMethod {
     }
 
     public static int getMaxStackForId(int id, int data) {
-        if (isPostLoad)
+        if (InnerCoreServer.canEndLoadMods())
             return ItemUtils.get(id, data).getMaxStackSize();
         CustomManager manager = getCustomManager(id);
         if (manager != null)
