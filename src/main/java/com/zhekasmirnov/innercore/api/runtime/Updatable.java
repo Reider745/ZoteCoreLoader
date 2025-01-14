@@ -10,7 +10,6 @@ import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import org.mozilla.javascript.*;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -23,12 +22,9 @@ public class Updatable {
     private final List<ScriptableObject> updatableObjects = new ArrayList<>();
     private final List<ScriptableObject> disabledDueToError = new ArrayList<>();
 
-    private Context currentContext;
+    private Context currentContext = null;
 
-    public void cleanUp() {
-        updatableObjects.clear();
-        currentContext = null;
-    }
+    private Updatable() {}
 
     public List<ScriptableObject> getAllUpdatableObjects() {
         return updatableObjects;
@@ -43,69 +39,62 @@ public class Updatable {
         }
     }
 
-    public static void reportError(Throwable err, String updatableStr) {
-        Logger.error("UPDATABLE ERROR", new RuntimeException("Updatable " + updatableStr
-                + " was disabled due to error, corresponding object will be disabled. To re-enable it re-enter the world.",
-                err));
-    }
-
-    private static String updatableToString(Context ctx, Scriptable obj) {
-        Object _to_string = obj.get("_to_string", obj);
-        if (_to_string instanceof Function) {
-            try {
-                Function to_string = (Function) _to_string;
-                return "" + to_string.call(ctx, to_string.getParentScope(), obj, EMPTY_ARGS);
-            } catch (Throwable ignore) { }
-        }
-        return "" + obj;
-    }
-
     public void onTick() {
         if (currentContext == null) {
             currentContext = Compiler.assureContextForCurrentThread();
         }
 
-        final Iterator<ScriptableObject> iterator = updatableObjects.iterator();
+        // Keep amount to update a fixed number of objects, excluding new ones; as before, they will be executed on next game tick
+        int updatableAmount = updatableObjects.size();
+        for (int offset = 0; currentContext != null && offset < updatableAmount; offset++) {
+            ScriptableObject updatable = updatableObjects.get(offset);
 
-        while (iterator.hasNext()) {
-            final ScriptableObject updatable = iterator.next();
+            if (!ScriptableObjectHelper.getBooleanProperty(updatable, "noupdate", false)) {
+                try {
+                    ((Function) updatable.get("update")).call(currentContext, updatable.getParentScope(), updatable, EMPTY_ARGS);
+                } catch (Throwable e) {
+                    updatableObjects.remove(offset--);
+                    updatableAmount--;
+                    disabledDueToError.add(updatable);
 
-            if(ScriptableObjectHelper.getBooleanProperty(updatable, "noupdate", false)) {
-                continue;
-            }
-
-            try {
-                ((Function) updatable.get("update")).call(currentContext, updatable.getParentScope(), updatable, EMPTY_ARGS);
-            } catch (Throwable e) {
-                iterator.remove();
-                disabledDueToError.add(updatable);
-
-                final Object _handle_error = updatable.get("_handle_error");
-                if(_handle_error instanceof Function) {
-                    try {
+                    Object _handle_error = updatable.get("_handle_error");
+                    if (_handle_error instanceof Function) {
                         Function handle_error = (Function) _handle_error;
-                        handle_error.call(currentContext, handle_error.getParentScope(), updatable, new Object[]{e});
-                    } catch (Throwable err2) {
-                        Logger.error("Error occurred in error handler for " + updatableToString(currentContext, updatable) + " hash="
-                                + updatable.hashCode(), err2);
+                        try {
+                            handle_error.call(currentContext, handle_error.getParentScope(), updatable, new Object[] { e });
+                            continue;
+                        } catch (Throwable th) {
+                            Logger.error("UPDATABLE ERROR", "Error occurred in error handler for " + updatableToString(currentContext, updatable) + " hash=" + updatable.hashCode(), th);
+                        }
                     }
-                } else {
-                    reportError(e,  updatableToString(currentContext, updatable));
-                }
 
-                continue;
+                    reportError(e, updatableToString(currentContext, updatable));
+                    continue;
+                }
             }
 
-            if(ScriptableObjectHelper.getBooleanProperty(updatable, "remove", false)) {
-                iterator.remove();
+            if (ScriptableObjectHelper.getBooleanProperty(updatable, "remove", false)) {
+                updatableObjects.remove(offset--);
+                updatableAmount--;
             }
         }
     }
 
+    public void cleanUp() {
+        updatableObjects.clear();
+        disabledDueToError.clear();
+        currentContext = null;
+    }
+
     // for backward compatibility
     @Deprecated
-    public static void setPreferences(int mode, int modeValue) {}
+    public void onPostTick() {}
 
+    @Deprecated
+    public void onTickSingleThreaded() {
+        onTick();
+        onPostTick();
+    }
 
     private static final Updatable serverInstance = new Updatable();
     private static final Updatable clientInstance = new Updatable();
@@ -118,9 +107,38 @@ public class Updatable {
         return clientInstance;
     }
 
+    public static void reportError(Throwable err, String updatableStr) {
+        Logger.error("UPDATABLE ERROR", "Updatable " + updatableStr + " was disabled due to error, corresponding object will be disabled. To re-enable it re-enter the world.", err);
+    }
+
+    private static String updatableToString(Context ctx, Scriptable obj) {
+        Object _to_string = obj.get("_to_string", obj);
+        if (_to_string instanceof Function) {
+            Function to_string = (Function) _to_string;
+            try {
+                return "" + to_string.call(ctx, to_string.getParentScope(), obj, EMPTY_ARGS);
+            } catch (Throwable ignore) {}
+        }
+        return "" + obj;
+    }
+
     public static void cleanUpAll() {
         getForServer().cleanUp();
         getForClient().cleanUp();
+    }
+
+    // for backward compatibility
+    @Deprecated
+    public static final int MODE_COUNT_BASED = 0;
+    @Deprecated
+    public static final int MODE_TIME_BASED = 1;
+
+    @Deprecated
+    public static void setPreferences(int mode, int modeValue) {
+        if (mode == MODE_COUNT_BASED || mode == MODE_TIME_BASED) {
+            return;
+        }
+        throw new IllegalArgumentException("invalid updatable engine mode: " + mode);
     }
 
     static {
@@ -157,8 +175,7 @@ public class Updatable {
                         }
                         ICLog.i("UPDATABLE", "loaded updatable data is not a scriptable object or it does not have update function, loading failed. obj=" + possibleUpdatable);
                     }
-                }
-                else {
+                } else {
                     ICLog.i("UPDATABLE", "assertion failed: updatable scope is not an array, loading failed");
                 }
 
