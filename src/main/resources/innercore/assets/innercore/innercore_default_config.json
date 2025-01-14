@@ -3,12 +3,6 @@
   "disable_loading_screen": false,
   "create_debug_dump": false,
 
-  "performance": {
-    "time_based_limit": false,
-    "max_update_count": 128,
-    "max_update_time": 40
-  },
-
   "threading": {
     "advanced": false,
     "priority_simple":5,

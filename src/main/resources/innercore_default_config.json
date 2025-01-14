@@ -13,12 +13,6 @@
   "version_name": "2.3.1b115",
   "version": 152,
 
-  "performance": {
-    "time_based_limit": false,
-    "max_update_count": 128,
-    "max_update_time": 40
-  },
-
   "threading": {
     "advanced": false,
     "priority_simple":5,
