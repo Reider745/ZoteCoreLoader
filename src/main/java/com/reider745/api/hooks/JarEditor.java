@@ -136,7 +136,7 @@ public class JarEditor {
 
                             final CtClass[] args = method.getParameterTypes();
 
-                            if(args.length == 1 && args[0].getName().equals(ctClass1.getName())) {
+                            if(args[0].getName().equals(ctClass1.getName())) {
                                 method.setBody("{$1." + name + " = $2;}");
                             }else
                                 method.setBody("{return "+className+"."+name+" = $1;}");
