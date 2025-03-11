@@ -86,7 +86,7 @@ public class HookClassLoader extends ClassLoader {
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         name = name.intern();
         synchronized (name) {
-            if(name.startsWith("com.reider745.api.hooks") || name.startsWith("javassist.") || name.startsWith("jdk.") || name.startsWith("java.")) {
+            if(name.startsWith("com.reider745.api.hooks") || name.startsWith("javassist.") || name.startsWith("jdk.") || name.startsWith("java.") || name.startsWith("com.reider745.patch")) {
                 return getParent().loadClass(name);
             }
 

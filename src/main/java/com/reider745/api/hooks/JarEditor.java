@@ -18,8 +18,8 @@ public class JarEditor {
     private final ClassPath classPath;
     private final ArrayList<String> initClasses = new ArrayList<>();
 
-    public JarEditor() {
-        classLoader = new HookClassLoader(Main.class.getClassLoader(), classPool);
+    public JarEditor(ClassLoader main) {
+        classLoader = new HookClassLoader(main, classPool);
         classPath = new LoaderClassPath(classLoader);
 
         classPool.insertClassPath(classPath);

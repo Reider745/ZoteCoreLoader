@@ -1,19 +1,34 @@
 package com.reider745;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cn.nukkit.utils.BinaryStream;
 import com.reider745.api.hooks.JarEditor;
 
+import com.reider745.patch.PatchPreLoader;
 import javassist.*;
 import javassist.bytecode.LineNumberAttribute;
 
 public class Main {
-    public static final JarEditor loader = new JarEditor();
+    public final PatchPreLoader patchLoader;
+    public final JarEditor loader;
 
-    public static void add(String name) throws ClassNotFoundException, NotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+    public Main(String patchFolder) throws MalformedURLException {
+        this.patchLoader = new PatchPreLoader(patchFolder);
+        this.loader = new JarEditor(patchLoader.getPatchLoader());
+    }
+
+
+
+    public void add(String name) throws ClassNotFoundException, NotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         try {
             loader.registerHooksInitializationForClass(name);
         } catch (Exception e) {
@@ -22,18 +37,7 @@ public class Main {
         }
     }
 
-    /*
-    Не Загружать лишних классов, только патчи!
-    Иначе классы могут загрузится в не нужном ClassLoader, что может привести к не предсказуемым последствиям
-     */
-    private static void printList(ClassLoader CL)  {
-        Instrumentation inst = InstrumentHook.getInstrumentation();
-        for (Class<?> clazz: inst.getAllLoadedClasses()) {
-            System.err.println(clazz.getName());
-        }
-    }
-
-    public static void main(String[] args) throws Throwable {
+    public void init(String[] args) throws NotFoundException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         if (Arrays.stream(args).anyMatch("--snowfall-everywhere"::equals)) {
             add("com.reider745.hooks.SnowfallEverywhere");
         }
@@ -153,8 +157,33 @@ public class Main {
         // bug fix
         //add("com.reider745.hooks.bugfix.DimensionsFix");
 
+        patchLoader.init();
 
         loader.init(Arrays.stream(args).anyMatch("--debug-hooks"::equals));
         loader.run("cn.nukkit.Nukkit", args);
+    }
+
+    /*
+    Не Загружать лишних классов, только патчи!
+    Иначе классы могут загрузится в не нужном ClassLoader, что может привести к не предсказуемым последствиям
+     */
+    private static void printList(ClassLoader CL)  {
+        Instrumentation inst = InstrumentHook.getInstrumentation();
+        for (Class<?> clazz: inst.getAllLoadedClasses()) {
+            System.err.println(clazz.getName());
+        }
+    }
+
+    public static Main INSTANCE;
+
+    public static void main(String[] args) throws Throwable {
+        String folderPatches = "patches";
+
+        for(String arg : args)
+            if(arg.startsWith("--patches="))
+                folderPatches = arg.replace("--patches=", "");
+
+        INSTANCE = new Main(folderPatches);
+        INSTANCE.init(args);
     }
 }

@@ -108,7 +108,6 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     }
 
     public static int getVariantCount(CustomManager manager) {
-        final ArrayList<Integer> 
         return 16;
     }
 
