@@ -5,15 +5,69 @@ import cn.nukkit.block.BlockMeta;
 import cn.nukkit.level.GlobalBlockPalette;
 import com.reider745.InnerCoreServer;
 import com.reider745.block.BlockStateRegisters;
+import com.zhekasmirnov.apparatus.minecraft.enums.EnumsContainer;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
+import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.annotations.JSStaticFunction;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BlockState {
+    private static final HashMap<String, Integer> ALL_STATES = new HashMap<>();
+    private static final HashMap<String, Integer> VANILLA_STATES = new HashMap<>();
+    private static final HashMap<Integer, Integer> CAPACITY_STATES = new HashMap<>();
+
+    static {
+        final EnumsContainer.Scope scope = GameEnums.getSingleton().getOrAddContainerForVersion(MinecraftVersions.getCurrent())
+                .getScope("block_states");
+
+        for(String name : scope.getAllEnumNames()) {
+            final int id = ((Number) scope.getEnum(name)).intValue();
+
+            ALL_STATES.put(name, id);
+            VANILLA_STATES.put(name, id);
+        }
+    }
+
+    public static int STATE_ID = 114;
+
+    public static int registerBlockState(String name, int capacity) {
+        if(VANILLA_STATES.containsKey(name))
+            throw new RuntimeException("You can't create a state with a vanilla name");
+
+        if(capacity <= 0)
+            throw new RuntimeException("capacity state <= 0");
+
+        final int id = ALL_STATES.computeIfAbsent(name, n -> STATE_ID++);
+        final Integer maxCapacity = CAPACITY_STATES.get(id);
+
+        if(maxCapacity == null) {
+            //registerBlockState(name, id, capacity);
+            CAPACITY_STATES.put(id, capacity);
+        } else if(maxCapacity < capacity) {
+            //setBlockStateCapacity(id, capacity);
+        }
+
+        return id;
+    }
+
+    @JSStaticFunction
+    public static int getIdByName(String name) {
+        return ALL_STATES.getOrDefault(name, -1);
+    }
+
+    @JSStaticFunction
+    public static String getNameById(int id) {
+        for(String name : ALL_STATES.keySet())
+            if(ALL_STATES.get(name) == id)
+                return name;
+        return null;
+    }
+
     public final int id;
     public final int data;
     public final int runtimeId;
@@ -53,7 +107,7 @@ public class BlockState {
             if (key0 instanceof Integer) {
                 key = (int) key0;
             } else if (key0 instanceof CharSequence) {
-                key = GameEnums.getInt(GameEnums.getSingleton().getEnum("block_states", key0.toString()), -1);
+                key = getIdByName(key0.toString());
             }
             if (key == -1) {
                 continue;
@@ -79,7 +133,7 @@ public class BlockState {
         for (Object key0 : scriptable.getIds()) {
             String key = key0.toString();
 
-            int state = GameEnums.getInt(GameEnums.getSingleton().getEnum("block_states", key), -1);
+            int state = getIdByName(key);
             if (state == -1) {
                 try {
                     state = Integer.parseInt(key);
@@ -156,7 +210,7 @@ public class BlockState {
             namedStates = new HashMap<>();
             Map<Integer, Integer> states = getStates();
             for (Map.Entry<Integer, Integer> entry : states.entrySet()) {
-                namedStates.put(GameEnums.getSingleton().getKeyForEnum("block_states", entry.getKey()), entry.getValue());
+                namedStates.put(getNameById(entry.getKey()), entry.getValue());
             }
         }
         return namedStates;

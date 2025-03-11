@@ -6,6 +6,8 @@ import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
+import java.util.ArrayList;
+
 // TODO: не поддерживается переопределение свойств накита
 public class BlockMethods {
     private static final Int2ObjectOpenHashMap<Byte2ObjectOpenHashMap<Object>> id2typeMap = new Int2ObjectOpenHashMap<>();
@@ -17,6 +19,7 @@ public class BlockMethods {
     public static final byte EXPLOSION_RESISTANCE = 4;
     public static final byte FRICTION = 5;
     public static final byte LIGHT_LEVEL = 6;
+    public static final byte STATES = 7;
 
     private static Byte2ObjectOpenHashMap<Object> assureId2Type(int id) {
         Byte2ObjectOpenHashMap<Object> type = id2typeMap.get(id);
@@ -169,6 +172,16 @@ public class BlockMethods {
         assureId2Type(id).put(CAN_CONTAIN_LIQUID, Boolean.valueOf(canContainLiquid));
     }
 
-    public static void setCanBeExtraBlock(int id, boolean canBeExtraBlock) {
+    public static void setCanBeExtraBlock(int id, boolean canBeExtraBlock) {}
+
+    public static void addBlockStateId(int id, int stateId) {
+        final Byte2ObjectOpenHashMap<Object> type = assureId2Type(id);
+        final ArrayList<Integer> states = (ArrayList<Integer>) type.computeIfAbsent(STATES, p -> new ArrayList<>());
+        states.add(stateId);
+        assureId2Type(id).put(STATES, states);
+    }
+
+    public static ArrayList<Integer> getStatesForId(int id) {
+        return (ArrayList<Integer>) assureId2Type(id).computeIfAbsent(STATES, p -> new ArrayList<>());
     }
 }

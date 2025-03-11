@@ -1770,6 +1770,16 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        public static void addBlockStateId(int id, int stateId) {
+            NativeBlock.addBlockStateId(id, stateId);
+        }
+
+        @JSStaticFunction
+        public static void addBlockState(int id, String name) {
+            NativeBlock.addBlockState(id, name);
+        }
+
+        @JSStaticFunction
         public static int getMaterial(int id) {
             return NativeBlock.getMaterial(id);
         }

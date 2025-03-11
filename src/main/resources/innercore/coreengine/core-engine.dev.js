@@ -1725,6 +1725,12 @@ var BlockRegistry = {
             ];
         });
     },
+    addBlockStateId: function(id, stateId) {
+        Block.addBlockStateId(id, stateId);
+    },
+    addBlockState: function(id, stateName) {
+        Block.addBlockState(id, stateName);
+    },
     isNativeTile: function(id) {
         return !IDRegistry.getNameByID(id);
     },

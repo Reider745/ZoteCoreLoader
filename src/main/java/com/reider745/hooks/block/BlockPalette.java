@@ -26,31 +26,6 @@ public class BlockPalette {
     private static final MainLogger logger = Server.getInstance().getLogger();
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
-    private static final ArrayList<Pair<Integer, Long>> assignedRuntimeIds = new ArrayList<>();
-
-    private static long computeStateHash(int id, int[][] allStatesSorted) {
-        long hash = (long) id;
-        // hash = hash * 314159L + (long) data;
-
-        for (int[] state : allStatesSorted) {
-            hash = hash * 314159L + (long) (state[1] | ((state[0] + 1) << 5));
-        }
-        return hash;
-    }
-
-    private static long computeStateHash(int id, JSONObject statesJson, Map<String, Integer> stateIdByName) {
-        ArrayList<int[]> states = new ArrayList<>();
-        for (String key : statesJson.keySet()) {
-            if (!stateIdByName.containsKey(key))
-                Server.getInstance().getLogger().error("state not found: " + key);
-            states.add(new int[] {
-                    stateIdByName.get(key).intValue(),
-                    statesJson.getInt(key)
-            });
-        }
-        states.sort(Comparator.comparingInt(a -> a[0]));
-        return computeStateHash(id, states.toArray(new int[0][0]));
-    }
 
     private static HashMap<String, Integer> getStateNameToId() {
         try {
@@ -66,24 +41,30 @@ public class BlockPalette {
         }
     }
 
-    public static ArrayList<Pair<Integer, Long>> getAssignedRuntimeIds() {
-        return assignedRuntimeIds;
-    }
-
-    private static int getFlagBitLength(int flagBit) {
-        int count = 0;
-        while(flagBit != 1) {
-            if (((flagBit & 1) == 1)) {
-                break;
+    private static HashMap<String, Integer> getStateCapacity() {
+        try {
+            final HashMap<String, Integer> capacity = new HashMap<>();
+            JSONObject json = new JSONObject(new String(ByteStreams
+                    .toByteArray(Server.class.getClassLoader().getResourceAsStream("state-capacity.json"))));
+            for (String key : json.keySet()) {
+                capacity.put(key, json.getInt(key));
             }
-            count++;
-            flagBit >>>= 1;
+            return capacity;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return count;
     }
 
-    private static int setDamage(int damage, int flagBit, int data) {
-        return damage & ~flagBit | data << getFlagBitLength(flagBit) & flagBit;
+    private static class BlockDescription {
+        private final int id, idAndData, newId;
+        private final JSONObject states;
+
+        public BlockDescription(int id, int idAndData, int newId, JSONObject states) {
+            this.id = id;
+            this.newId = newId;
+            this.idAndData = idAndData;
+            this.states = states;
+        }
     }
 
     public static void init() {
@@ -93,13 +74,11 @@ public class BlockPalette {
         runtimeIdToLegacy.defaultReturnValue(-1);
 
         final HashMap<String, Integer> stateIdByName = getStateNameToId();
-        final HashMap<Long, Map.Entry<Integer, JSONObject>> stateHashToLegacyIdData = new HashMap<>();
-        final AtomicInteger runtimeId = new AtomicInteger(1);
-
+        final HashMap<String, Integer> capacity = getStateCapacity();
+        final ArrayList<BlockDescription> sortStates = new ArrayList<>();
         final ArrayList<Integer> doors = new ArrayList<>();
 
         BlockStateRegisters.init(stateIdByName);
-
 
         try {
             // vanilla runtime block
@@ -110,17 +89,11 @@ public class BlockPalette {
                 final int legacyData = e.getInt("data");
                 final JSONObject states = e.getJSONObject("states");
 
-                final long hash = computeStateHash(newId, states, stateIdByName);
-                if (stateHashToLegacyIdData.containsKey(hash))
-                    throw new RuntimeException("hash collision: " + hash + " " + e);
-
                 if(e.getString("nameId").contains("_door") && !doors.contains(newId))
                     doors.add(newId);
 
-                BlockStateRegisters.addState(hash, states, runtimeId.getAndIncrement(), e.getInt("oldId"), legacyData, newId);
-                stateHashToLegacyIdData.put(hash, new AbstractMap.SimpleEntry<>(newId << 16 | legacyData, states));
+                sortStates.add(new BlockDescription(e.getInt("oldId"), newId << 16 | legacyData, newId, states));
             }
-
 
             // custom runtime block
             final JSONObject[] states = new JSONObject[16];
@@ -132,46 +105,54 @@ public class BlockPalette {
 
                 for (int i = 0; i < variants.size(); i++) {
                     final JSONObject state = states[i];
-                    final long hash = computeStateHash(id, state, stateIdByName);
-
-                    BlockStateRegisters.addState(hash, state, runtimeId.getAndIncrement(), id, i, id);
-                    stateHashToLegacyIdData.put(hash, new AbstractMap.SimpleEntry<>(id << 16 | i, state));
+                    sortStates.add(new BlockDescription(id, id << 16 | i, id, state));
                 }
             });
 
-            final ArrayList<Long> sortedStateHash = new ArrayList<>(stateHashToLegacyIdData.keySet());
-            sortedStateHash.sort((a, b) -> {
-                // uint64_t comparator
-                if (a < 0 && b >= 0)
-                    return 1;
-                if (a >= 0 && b < 0)
-                    return -1;
-                return Long.compare(a, b);
+            final List<String> sortedStates = new ArrayList<>(stateIdByName.keySet());
+            Collections.sort(sortedStates);
+
+            sortStates.sort((a, b) -> {
+                if (a.id != b.id) {
+                    return Integer.compare(a.id, b.id);
+                }
+
+                for (String name : sortedStates) {
+                    boolean hasStateA = a.states.has(name);
+                    boolean hasStateB = b.states.has(name);
+
+                    if (hasStateA != hasStateB) {
+                        return Boolean.compare(hasStateA, hasStateB);
+                    } else if (hasStateA) {
+                        int valueA = a.states.getInt(name);
+                        int valueB = b.states.getInt(name);
+                        if (valueA != valueB) {
+                            return Integer.compare(valueA, valueB);
+                        }
+                    }
+                }
+
+                return 0;
             });
 
+            for (int i = 0; i < sortStates.size(); i++) {
+                final BlockDescription description = sortStates.get(i);
 
-            for (int i = 0; i < sortedStateHash.size(); i++) {
-                final long hash = sortedStateHash.get(i);
-                final Map.Entry<Integer, JSONObject> entry = stateHashToLegacyIdData.get(hash);
-
-                final int idAndData = entry.getKey();
-                final JSONObject state = entry.getValue();
-
-                final int blockId = idAndData >> 16;
-                final int blockMeta = idAndData & 0xffff;
+                final int blockId = description.idAndData >> 16;
+                final int blockMeta = description.idAndData & 0xffff;
 
                 int legacyId = (blockId << 6) | blockMeta;
 
                 if(doors.contains(blockId)) {
-                    int doorMeta = state.getInt("direction");
+                    int doorMeta = description.states.getInt("direction");
 
-                    if(state.getInt("open_bit") == 1)
+                    if(description.states.getInt("open_bit") == 1)
                         doorMeta = doorMeta ^ BlockDoor.DOOR_OPEN_BIT;
 
-                    if(state.getInt("upper_block_bit") == 1)
+                    if(description.states.getInt("upper_block_bit") == 1)
                         doorMeta = doorMeta | BlockDoor.DOOR_TOP_BIT;
 
-                    if(state.getInt("door_hinge_bit") == 1)
+                    if(description.states.getInt("door_hinge_bit") == 1)
                         doorMeta = doorMeta | BlockDoor.DOOR_HINGE_BIT;
 
                     legacyId = (blockId << 6) | doorMeta;
@@ -181,9 +162,9 @@ public class BlockPalette {
                     legacyToRuntimeId.put(legacyId, i);
                     legacyToRuntimeId.putIfAbsent(legacyId, i);
                     runtimeIdToLegacy.put(i, legacyId);
-                }
 
-                assignedRuntimeIds.add(new Pair<>(i, hash));
+                    BlockStateRegisters.addState(description.states, i, description.id, blockMeta, description.newId);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

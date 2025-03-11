@@ -6,7 +6,6 @@ import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerModList;
 import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerPackVersionChecker;
-import com.zhekasmirnov.apparatus.multiplayer.mod.RuntimeIdDataPacketSender;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
 
 public class Apparatus {
@@ -16,7 +15,6 @@ public class Apparatus {
         MultiplayerPackVersionChecker.loadClass();
         MultiplayerModList.loadClass();
         IdConversionMap.loadClass();
-        RuntimeIdDataPacketSender.loadClass();
         ItemContainer.loadClass();
     }
 

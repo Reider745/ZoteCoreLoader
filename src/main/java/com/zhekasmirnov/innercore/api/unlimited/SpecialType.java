@@ -4,8 +4,10 @@ import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.innercore.api.NativeBlock;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.ScriptableObject;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -108,6 +110,7 @@ public class SpecialType {
     public boolean renderallfaces = false;
     public int mapcolor = 0;
     public String color_source = "";
+    public NativeArray states = ScriptableObjectHelper.createArray(Collections.singletonList("color"));
 
     @SuppressWarnings("deprecation")
     public void setupBlock(int id) {
@@ -135,6 +138,16 @@ public class SpecialType {
         } catch (IllegalArgumentException ignore) {
         }
         NativeBlock.setBlockColorSource(id, colorSource.id);
+
+        for(int i : states.getIndexIds()) {
+            final Object value = states.get(i);
+            if(value instanceof Number) {
+                NativeBlock.addBlockStateId(id, ((Number) value).intValue());
+            } else if(value instanceof CharSequence) {
+                NativeBlock.addBlockState(id, value.toString());
+            }
+
+        }
 
         for (int data = 0; data < 16; data++) {
             BlockVariant variant = BlockRegistry.getBlockVariant(id, data);
@@ -167,6 +180,7 @@ public class SpecialType {
             destroytime = ScriptableObjectHelper.getFloatProperty(properties, "destroytime", destroytime);
             translucency = ScriptableObjectHelper.getFloatProperty(properties, "translucency", translucency);
             color_source = ScriptableObjectHelper.getStringProperty(properties, "color_source", color_source);
+            states = ScriptableObjectHelper.getNativeArrayProperty(properties, "states", states);
         }
     }
 }

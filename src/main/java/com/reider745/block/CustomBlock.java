@@ -16,6 +16,7 @@ import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
 
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import org.apache.commons.math3.stat.inference.BinomialTest;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -106,13 +107,19 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         return manager.get("variants", new ArrayList<>());
     }
 
+    public static int getVariantCount(CustomManager manager) {
+        final ArrayList<Integer> 
+        return 16;
+    }
+
     @SuppressWarnings("unchecked")
     public static ArrayList<String> getVariants(CustomManager manager) {
-        ArrayList<String> variants = (ArrayList<String>) manager.get("variants", new ArrayList<>()).clone();
-        if (variants.size() >= 16)
+        final ArrayList<String> variants = (ArrayList<String>) manager.get("variants", new ArrayList<>()).clone();
+        final int count = getVariantCount(manager);
+        if (variants.size() >= count)
             return variants;
 
-        int size = 16 - variants.size();
+        int size = count - variants.size();
         String name = variants.get(0);
         for (int i = 0; i < size; i++)
             variants.add(name);

@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class BlockStateRegisters {
-    private static final Map<Long, Map<String, Integer>> statesForHash = new HashMap<>();
     private static final Map<Integer, Map<String, Integer>> statesForRuntimeId = new HashMap<>();
     private static final Map<Integer, Map<Map<String, Integer>, Integer>> runtimeIdsForStatesAndId = new HashMap<>();
     private static final Map<Integer, Integer> dataForRuntimeId = new HashMap<>();
@@ -24,7 +23,7 @@ public class BlockStateRegisters {
             nameByStateId.put(stateIdByName.get(key), key);
     }
 
-    public static void addState(final long hash, JSONObject json, int runtimeId, int legacyId, int data, int newId){
+    public static void addState(JSONObject json, int runtimeId, int legacyId, int data, int newId){
         final Map<String, Integer> state = new HashMap<>();
         Iterator<String> it = json.keys();
         while (it.hasNext()){
@@ -32,7 +31,6 @@ public class BlockStateRegisters {
             state.put(key, json.getInt(key));
         }
 
-        statesForHash.put(hash, state);
         final Map<Map<String, Integer>, Integer> states = runtimeIdsForStatesAndId.getOrDefault(legacyId, new HashMap<>());
         states.put(state, runtimeId);
         runtimeIdsForStatesAndId.put(legacyId, states);

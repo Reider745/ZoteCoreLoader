@@ -4,6 +4,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.BlockMethods;
 import com.reider745.block.CustomBlock;
+import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState;
 import com.zhekasmirnov.apparatus.ecs.ECS;
 import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
@@ -98,6 +99,14 @@ public class NativeBlock {
         variants.add(name);
         properties.put("variants", variants);
         return variants.size() - 1;
+    }
+
+    public static void addBlockStateId(int id, int stateId) {
+        BlockMethods.addBlockStateId(id, stateId);
+    }
+
+    public static void addBlockState(int id, String name) {
+        addBlockStateId(id, BlockState.getIdByName(name));
     }
 
     public static int getMaterial(int id) {
