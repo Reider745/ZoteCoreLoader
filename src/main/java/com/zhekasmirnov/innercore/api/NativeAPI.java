@@ -1092,4 +1092,16 @@ public class NativeAPI {
     public static void setChunkStateChangeCallbackEnabled(int state, boolean b) {
         EventListener.setChunkStateChangedCallbackEnabled(state, b);
     }
+
+    public static boolean isEntitySleeping(long entity) {
+        return EntityMethod.isEntitySleeping(entity);
+    }
+
+    public static void getEntityAABB(long entity, float[] aabb) {
+        EntityMethod.getEntityAABB(entity, aabb);
+    }
+
+    @ClientOnly
+    public static void playAnimation(long l, String name, float time, String controller, String query, String hz) {
+    }
 }

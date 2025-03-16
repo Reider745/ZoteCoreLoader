@@ -17,6 +17,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.NBTIO;
@@ -150,6 +151,22 @@ public class EntityMethod {
             if(inventory != null)
                 then.apply(entity, inventory);
         }
+    }
+
+    public static boolean isEntitySleeping(long entityUid) {
+        return validateThen(entityUid, entity -> entity instanceof Player player && player.isSleeping(), false);
+    }
+
+    public static void getEntityAABB(long entityUid, float[] aabb) {
+        validateThen(entityUid, entity -> {
+           final AxisAlignedBB box = entity.getBoundingBox();
+           aabb[0] = (float) box.getMinX();
+           aabb[1] = (float) box.getMinY();
+           aabb[2] = (float) box.getMinZ();
+           aabb[3] = (float) box.getMaxX();
+           aabb[4] = (float) box.getMaxY();
+           aabb[5] = (float) box.getMaxZ();
+        });
     }
 
     public static int getEntityDimension(long entityUid) {

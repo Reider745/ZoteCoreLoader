@@ -6,6 +6,7 @@ import android.util.Pair;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ClientOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.CustomItem;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
@@ -654,6 +655,26 @@ public class AdaptedScriptAPI extends API {
         public static int getDimension(Object entity) {
             return NativeAPI.getEntityDimension(unwrapEntity(entity));
         }
+
+        @JSStaticFunction
+        @ClientOnly
+        public static void playAnimation(Object entity, String name, double time, String controller, String query, String hz) {
+            NativeAPI.playAnimation(unwrapEntity(entity), name, (float) time, controller, query, hz);
+        }
+
+
+        @JSStaticFunction
+        public static boolean isSleeping(Object entity) {
+            return NativeAPI.isEntitySleeping(unwrapEntity(entity));
+        }
+
+        @JSStaticFunction
+        public static float[] getAABB(Object entity) {
+            float[] aabb = new float[6];
+            NativeAPI.getEntityAABB(unwrapEntity(entity), aabb);
+            return aabb;
+        }
+
 
         @JSStaticFunction
         public static ArrayList<Long> getAllArrayList() {
