@@ -1,6 +1,5 @@
 package com.reider745.hooks.block;
 
-import android.util.Pair;
 import cn.nukkit.Server;
 import cn.nukkit.block.BlockDoor;
 import cn.nukkit.block.BlockID;
@@ -11,61 +10,127 @@ import com.google.common.io.ByteStreams;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.BlockNukkitIdConverter;
-import com.reider745.block.BlockStateRegisters;
+import com.reider745.block.BlockStateStorage;
 import com.reider745.block.CustomBlock;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import org.json.JSONArray;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
 public class BlockPalette {
     private static final MainLogger logger = Server.getInstance().getLogger();
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
+    private static final Int2IntMap stateCapacity = new Int2IntOpenHashMap();
+    private static final Map<String, Integer> stateIdByName = new HashMap<>();
+    private static final Map<Integer, String> nameByStateId = new HashMap<>();
 
-    private static HashMap<String, Integer> getStateNameToId() {
+    static {
         try {
-            final HashMap<String, Integer> stateIdByName = new HashMap<>();
             JSONObject json = new JSONObject(new String(ByteStreams
                     .toByteArray(Server.class.getClassLoader().getResourceAsStream("state-name-to-id.json"))));
             for (String key : json.keySet()) {
-                stateIdByName.put(key, json.getInt(key));
+                final int id = json.getInt(key);
+                stateIdByName.put(key, id);
+                nameByStateId.put(id, key);
             }
-            return stateIdByName;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    private static HashMap<String, Integer> getStateCapacity() {
-        try {
-            final HashMap<String, Integer> capacity = new HashMap<>();
-            JSONObject json = new JSONObject(new String(ByteStreams
+            json = new JSONObject(new String(ByteStreams
                     .toByteArray(Server.class.getClassLoader().getResourceAsStream("state-capacity.json"))));
             for (String key : json.keySet()) {
-                capacity.put(key, json.getInt(key));
+                stateCapacity.put(stateIdByName.get(key).intValue(), json.getInt(key));
             }
-            return capacity;
+
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static class BlockDescription {
-        private final int id, idAndData, newId;
-        private final JSONObject states;
+    public static void registerBlockState(String name, int id, int capacity) {
+        stateIdByName.put(name, id);
+        nameByStateId.put(id, name);
+        setCapacityForId(id, capacity);
+    }
 
-        public BlockDescription(int id, int idAndData, int newId, JSONObject states) {
-            this.id = id;
-            this.newId = newId;
-            this.idAndData = idAndData;
-            this.states = states;
+    public static void setCapacityForId(int id, int capacity) {
+        stateCapacity.put(id, capacity);
+    }
+
+    public static int getCapacityForId(int id) {
+        return stateCapacity.get(id);
+    }
+
+    @Nullable
+    public static String getNameForId(int id) {
+        return nameByStateId.get(id);
+    }
+
+    public static int getIdByName(String name) {
+        return stateIdByName.get(name);
+    }
+
+    private record BlockDescription(int id, int newId, JSONObject states, int data) {
+    }
+
+    private static JSONObject cloneJSON(JSONObject json) {
+        final JSONObject cloneJson = new JSONObject();
+        for(String key : json.keySet())
+            cloneJson.put(key, json.get(key));
+        return cloneJson;
+    }
+
+    private static boolean containsJSON(List<JSONObject> list, JSONObject states) {
+        for(JSONObject check : list) {
+            boolean result = true;
+
+            for(String key : states.keySet())
+                if(!check.get(key).equals(states.get(key))) {
+                    result = false;
+                    break;
+                }
+
+            if(result) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void variantGenerations(List<Integer> states, List<JSONObject> variants, JSONObject temp, int offset) {
+        if (states.size() - offset >= 0) {
+            final Integer currentState = states.get(states.size() - offset);
+
+            for (int value = 0; value < getCapacityForId(currentState); value++) {
+                temp.put(getNameForId(currentState), value);
+                if(!containsJSON(variants, temp))
+                    variants.add(cloneJSON(temp));
+                variantGenerations(states, variants, temp, offset + 1);
+            }
+
+            temp.put(getNameForId(currentState), 0);
         }
     }
+
+    private static List<JSONObject> variantGenerations(List<Integer> states) {
+        final JSONObject temp = new JSONObject();
+        for(int state : states) {
+            temp.put(getNameForId(state), 0);
+        }
+
+        final List<JSONObject> variants = new ArrayList<>();
+        if(states.isEmpty()) {
+            variants.add(temp);
+        }
+
+        variantGenerations(states, variants, temp, 1);
+        return variants;
+    }
+
 
     public static void init() {
         final long start = System.currentTimeMillis();
@@ -73,12 +138,8 @@ public class BlockPalette {
         legacyToRuntimeId.defaultReturnValue(-1);
         runtimeIdToLegacy.defaultReturnValue(-1);
 
-        final HashMap<String, Integer> stateIdByName = getStateNameToId();
-        final HashMap<String, Integer> capacity = getStateCapacity();
         final ArrayList<BlockDescription> sortStates = new ArrayList<>();
         final ArrayList<Integer> doors = new ArrayList<>();
-
-        BlockStateRegisters.init(stateIdByName);
 
         try {
             // vanilla runtime block
@@ -92,20 +153,19 @@ public class BlockPalette {
                 if(e.getString("nameId").contains("_door") && !doors.contains(newId))
                     doors.add(newId);
 
-                sortStates.add(new BlockDescription(e.getInt("oldId"), newId << 16 | legacyData, newId, states));
+                sortStates.add(new BlockDescription(e.getInt("oldId"), newId, states, legacyData));
             }
 
             // custom runtime block
-            final JSONObject[] states = new JSONObject[16];
-            for(int i = 0;i < states.length;i++)
-                states[i] = new JSONObject().put("color", i);
-
             CustomBlock.blocks.forEach((id, manager) -> {
                 final ArrayList<String> variants = CustomBlock.getVariants(manager);
+                final List<JSONObject> states = variantGenerations(CustomBlock.getStates(manager));
 
-                for (int i = 0; i < variants.size(); i++) {
-                    final JSONObject state = states[i];
-                    sortStates.add(new BlockDescription(id, id << 16 | i, id, state));
+                if(id == 8275)
+                    System.out.println(states);
+
+                for (int data = 0; data < variants.size(); data++) {
+                    sortStates.add(new BlockDescription(id, id, states.get(data), data));
                 }
             });
 
@@ -135,11 +195,11 @@ public class BlockPalette {
                 return 0;
             });
 
-            for (int i = 0; i < sortStates.size(); i++) {
-                final BlockDescription description = sortStates.get(i);
+            for (int runtimeId = 0; runtimeId < sortStates.size(); runtimeId++) {
+                final BlockDescription description = sortStates.get(runtimeId);
 
-                final int blockId = description.idAndData >> 16;
-                final int blockMeta = description.idAndData & 0xffff;
+                final int blockId = description.newId;
+                final int blockMeta = description.data;
 
                 int legacyId = (blockId << 6) | blockMeta;
 
@@ -159,11 +219,11 @@ public class BlockPalette {
                 }
 
                 if (blockMeta < 64) {
-                    legacyToRuntimeId.put(legacyId, i);
-                    legacyToRuntimeId.putIfAbsent(legacyId, i);
-                    runtimeIdToLegacy.put(i, legacyId);
+                    legacyToRuntimeId.put(legacyId, runtimeId);
+                    legacyToRuntimeId.putIfAbsent(legacyId, runtimeId);
+                    runtimeIdToLegacy.put(runtimeId, legacyId);
 
-                    BlockStateRegisters.addState(description.states, i, description.id, blockMeta, description.newId);
+                    BlockStateStorage.addState(description.states, runtimeId, description.id, blockMeta, description.newId);
                 }
             }
         } catch (Exception e) {

@@ -8,7 +8,7 @@ import cn.nukkit.utils.TextFormat;
 
 import java.util.Map;
 
-import com.reider745.block.BlockStateRegisters;
+import com.reider745.block.BlockStateStorage;
 
 public class StateCommand extends Command {
     public StateCommand() {
@@ -24,7 +24,7 @@ public class StateCommand extends Command {
         if (!commandSender.isOp() || args.length < 1)
             return false;
 
-        Map<String, Integer> states = BlockStateRegisters.getStateFor(Integer.parseInt(args[0]));
+        Map<String, Integer> states = BlockStateStorage.getStateFor(Integer.parseInt(args[0]));
         if (states == null) {
             commandSender.sendMessage(TextFormat.RED + "There are no block with runtime identifier " + args[0] + "!");
         } else if (states.size() == 0) {

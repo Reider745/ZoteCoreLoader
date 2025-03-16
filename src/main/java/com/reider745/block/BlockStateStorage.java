@@ -1,27 +1,20 @@
 package com.reider745.block;
 
+import com.reider745.hooks.block.BlockPalette;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BlockStateRegisters {
+// TODO: Убрать использования имен на использование id стейтов
+public class BlockStateStorage {
     private static final Map<Integer, Map<String, Integer>> statesForRuntimeId = new HashMap<>();
     private static final Map<Integer, Map<Map<String, Integer>, Integer>> runtimeIdsForStatesAndId = new HashMap<>();
     private static final Map<Integer, Integer> dataForRuntimeId = new HashMap<>();
 
-    private static Map<String, Integer> stateIdByName;
-    private static final Map<Integer, String> nameByStateId = new HashMap<>();
     private static final HashMap<String, Integer> runtimeIdForIdAndData = new HashMap<>();
     private static final HashMap<Integer, int[]> blockForRuntime = new HashMap<>();
-
-    public static void init(HashMap<String, Integer> stateIdByName){
-        BlockStateRegisters.stateIdByName = stateIdByName;
-
-        for (String key : stateIdByName.keySet())
-            nameByStateId.put(stateIdByName.get(key), key);
-    }
 
     public static void addState(JSONObject json, int runtimeId, int legacyId, int data, int newId){
         final Map<String, Integer> state = new HashMap<>();
@@ -60,7 +53,7 @@ public class BlockStateRegisters {
     public static int getStateFromId(int runtimeId, int state){
         final Map<String, Integer> states = statesForRuntimeId.get(runtimeId);
         if(states == null) return 0;
-        return states.get(nameByStateId.get(state));
+        return states.get(BlockPalette.getNameForId(state));
     }
     public static int[] getAllStatesFromId(int runtimeId){
         final Map<String, Integer> state = statesForRuntimeId.get(runtimeId);
@@ -70,7 +63,7 @@ public class BlockStateRegisters {
         final int[] states = new int[size*2];
         int index = 0;
         for(String key : state.keySet()){
-            states[index] = stateIdByName.get(key);
+            states[index] = BlockPalette.getIdByName(key);
             states[index+1] = state.get(key);
             index+=2;
         }
@@ -80,7 +73,7 @@ public class BlockStateRegisters {
     public static int runtimeIdByStates(int id, int[] statesAndValues){
         final Map<String, Integer> state = new HashMap<>();
         for(int i = 0;i < statesAndValues.length;i+=2) {
-            state.put(nameByStateId.get(statesAndValues[i]), statesAndValues[i + 1]);
+            state.put(BlockPalette.getNameForId(statesAndValues[i]), statesAndValues[i + 1]);
         }
         return runtimeIdsForStatesAndId.get(id).getOrDefault(state, -1);
     }// -1 is returned in case it is not found: 47,

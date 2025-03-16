@@ -11,18 +11,21 @@ import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockFace;
 import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
+import com.reider745.hooks.block.BlockPalette;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
 
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
 import org.apache.commons.math3.stat.inference.BinomialTest;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class CustomBlock extends BlockSolidMeta implements RandomTick {
     public static HashMap<Integer, CustomManager> blocks = new HashMap<>();
@@ -107,8 +110,18 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         return manager.get("variants", new ArrayList<>());
     }
 
+
+    @SuppressWarnings("unchecked")
+    public static List<Integer> getStates(CustomManager manager) {
+        return (ArrayList<Integer>) manager.get("states", new ArrayList<>()).clone();
+    }
+
     public static int getVariantCount(CustomManager manager) {
-        return 16;
+        final List<Integer> states = getStates(manager);
+        int variants = 1;
+        for(int id : states)
+            variants *= BlockPalette.getCapacityForId(id);
+        return variants;
     }
 
     @SuppressWarnings("unchecked")
@@ -131,6 +144,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     public static CustomManager registerBlock(String textId, int id, String name, Class<?> item) {
         CustomManager manager = new CustomManager(id, item, "block");
         manager.put("name", name);
+        manager.put("states", BlockMethods.getStatesForId(id));
 
         blocks.put(id, manager);
         customBlocks.put("block_" + textId, id);

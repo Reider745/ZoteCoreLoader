@@ -4,7 +4,7 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.TextFormat;
 
-import com.reider745.block.BlockStateRegisters;
+import com.reider745.block.BlockStateStorage;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.ItemMethod;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class CustomBlocksCommands extends Command {
             ArrayList<String> variants = CustomBlock.getOrgVariants(id);
             for (int data = 0; data < variants.size(); data++)
                 list.append("\n" + ItemMethod.getNameForId(id, data, null) + " -> " + id + ":" + data
-                        + " (runtime=" + BlockStateRegisters.getStateFor(id, data) + ", named="
+                        + " (runtime=" + BlockStateStorage.getStateFor(id, data) + ", named="
                         + CustomBlock.getTextIdForNumber(id) + ")");
         }
 

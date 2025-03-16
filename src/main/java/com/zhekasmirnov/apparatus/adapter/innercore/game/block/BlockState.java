@@ -4,7 +4,8 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockMeta;
 import cn.nukkit.level.GlobalBlockPalette;
 import com.reider745.InnerCoreServer;
-import com.reider745.block.BlockStateRegisters;
+import com.reider745.block.BlockStateStorage;
+import com.reider745.hooks.block.BlockPalette;
 import com.zhekasmirnov.apparatus.minecraft.enums.EnumsContainer;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
@@ -46,10 +47,10 @@ public class BlockState {
         final Integer maxCapacity = CAPACITY_STATES.get(id);
 
         if(maxCapacity == null) {
-            //registerBlockState(name, id, capacity);
+            registerBlockState(name, id, capacity);
             CAPACITY_STATES.put(id, capacity);
         } else if(maxCapacity < capacity) {
-            //setBlockStateCapacity(id, capacity);
+            setBlockStateCapacity(id, capacity);
         }
 
         return id;
@@ -252,20 +253,29 @@ public class BlockState {
         return getStates().equals(that.getStates());
     }
 
+    private static void registerBlockState(String name, int id, int capacity) {
+        BlockPalette.registerBlockState(name, id, capacity);
+    }
+
+    private static void setBlockStateCapacity(int id, int capacity) {
+        BlockPalette.setCapacityForId(id, capacity);
+    }
+
+
     private static int getStateFromId(int runtimeId, int state){
-        return BlockStateRegisters.getStateFromId(runtimeId, state);
+        return BlockStateStorage.getStateFromId(runtimeId, state);
     }
     private static int[] getAllStatesFromId(int runtimeId){
-        return BlockStateRegisters.getAllStatesFromId(runtimeId);
+        return BlockStateStorage.getAllStatesFromId(runtimeId);
     }
     public static int runtimeIdByStates(int id, int[] statesAndValues){
-        return BlockStateRegisters.runtimeIdByStates(id, statesAndValues);
+        return BlockStateStorage.runtimeIdByStates(id, statesAndValues);
     }
     public static int getIdFromRuntimeId(int runtimeId){
         InnerCoreServer.useIncomprehensibleMethod("getIdFromRuntimeId");
         return 0;
     }
     public static int getDataFromRuntimeId(int runtimeId){
-        return BlockStateRegisters.getDataForRuntimeId(runtimeId);
+        return BlockStateStorage.getDataForRuntimeId(runtimeId);
     }
 }

@@ -19,7 +19,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.PlaySoundPacket;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.block.BlockStateRegisters;
+import com.reider745.block.BlockStateStorage;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
@@ -27,7 +27,6 @@ import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class BlockSourceMethods {
 
@@ -141,7 +140,7 @@ public class BlockSourceMethods {
 
     public static void setBlockByRuntimeId(Level level, int x, int y, int z, int runtimeId, boolean allowUpdate,
             int updateType) {
-        int[] block = BlockStateRegisters.getBlockForRuntimeId(runtimeId);
+        int[] block = BlockStateStorage.getBlockForRuntimeId(runtimeId);
         setBlock(level, x, y, z, block[0], block[1], allowUpdate, updateType);
     }
 
@@ -152,7 +151,7 @@ public class BlockSourceMethods {
 
     public static void setExtraBlockByRuntimeId(Level level, int x, int y, int z, int runtimeId, boolean allowUpdate,
             int updateType) {
-        int[] block = BlockStateRegisters.getBlockForRuntimeId(runtimeId);
+        int[] block = BlockStateStorage.getBlockForRuntimeId(runtimeId);
         setExtraBlock(level, x, y, z, block[0], block[1], allowUpdate, updateType);
     }
 
