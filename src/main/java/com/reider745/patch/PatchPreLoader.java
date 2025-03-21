@@ -37,26 +37,33 @@ public class PatchPreLoader {
     }
 
     public void init() {
-        for(File patch : Objects.requireNonNull(patches.listFiles((dir, name) -> name.endsWith(".jar")))) {
-            try {
-                final URLClassLoader mainLoader = new URLClassLoader(new URL[]{patch.toURL()});
-                final JSONObject description = new JSONObject(new String(mainLoader.getResourceAsStream("patch.json").readAllBytes()));
+        if(!patches.exists() && !patches.mkdir()) {
+            return;
+        }
 
-                final JSONArray list = description.optJSONArray("hooks", null);
-                if(list != null)
-                    for(int i = 0;i < list.length();i++)
-                        Main.INSTANCE.add(list.optString(i));
+        final File[] files = patches.listFiles((dir, name) -> name.endsWith(".jar"));
+        if(files != null) {
+            for (File patch : files) {
+                try {
+                    final URLClassLoader mainLoader = new URLClassLoader(new URL[]{patch.toURL()});
+                    final JSONObject description = new JSONObject(new String(mainLoader.getResourceAsStream("patch.json").readAllBytes()));
 
-                final String main = description.optString("main", null);
-                if(main != null) {
-                    Class<?> clazz = mainLoader.loadClass(main);
-                    clazz.getMethod("onPreLoader").invoke(clazz.getConstructor().newInstance());
+                    final JSONArray list = description.optJSONArray("hooks", null);
+                    if (list != null)
+                        for (int i = 0; i < list.length(); i++)
+                            Main.INSTANCE.add(list.optString(i));
 
-                    clazz = Main.INSTANCE.loader.getClassLoader().loadClass(main);
-                    clazz.getMethod("onMainLoader").invoke(clazz.getConstructor().newInstance());
+                    final String main = description.optString("main", null);
+                    if (main != null) {
+                        Class<?> clazz = mainLoader.loadClass(main);
+                        clazz.getMethod("onPreLoader").invoke(clazz.getConstructor().newInstance());
+
+                        clazz = Main.INSTANCE.loader.getClassLoader().loadClass(main);
+                        clazz.getMethod("onMainLoader").invoke(clazz.getConstructor().newInstance());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
