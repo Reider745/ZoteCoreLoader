@@ -158,13 +158,10 @@ public class BlockPalette {
 
             // custom runtime block
             CustomBlock.blocks.forEach((id, manager) -> {
-                final ArrayList<String> variants = CustomBlock.getVariants(manager);
+                //final ArrayList<String> variants = CustomBlock.getVariants(manager);
                 final List<JSONObject> states = variantGenerations(CustomBlock.getStates(manager));
 
-                if(id == 8275)
-                    System.out.println(states);
-
-                for (int data = 0; data < variants.size(); data++) {
+                for (int data = 0; data < states.size(); data++) {
                     sortStates.add(new BlockDescription(id, id, states.get(data), data));
                 }
             });
