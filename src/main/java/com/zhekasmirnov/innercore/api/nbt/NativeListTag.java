@@ -131,43 +131,53 @@ public class NativeListTag {
         return tag != null ? new NativeListTag(tag) : null;
     }
 
+    private <T extends Tag>void add(int key, T value) {
+        if(tag == null)
+            return;
+
+        if(key >= tag.size() + 1)
+            tag.add(value);
+        else
+            tag.add(key, value);
+    }
+
     public void putByte(int key, int value) {
-        tag.add(key, new ByteTag(String.valueOf(key), value));
+        add(key, new ByteTag(String.valueOf(key), value));
     }
 
     public void putShort(int key, int value) {
-        tag.add(key, new ShortTag(String.valueOf(key), value));
+        add(key, new ShortTag(String.valueOf(key), value));
     }
 
     public void putInt(int key, int value) {
-        tag.add(key, new IntTag(String.valueOf(key), value));
+        add(key, new IntTag(String.valueOf(key), value));
     }
 
     public void putInt64(int key, long value) {
-        tag.add(key, new LongTag(String.valueOf(key), value));
+        add(key, new LongTag(String.valueOf(key), value));
     }
 
     public void putFloat(int key, float value) {
-        tag.add(key, new FloatTag(String.valueOf(key), value));
+        add(key, new FloatTag(String.valueOf(key), value));
     }
 
     public void putDouble(int key, double value) {
-        tag.add(key, new DoubleTag(String.valueOf(key), value));
+        add(key, new DoubleTag(String.valueOf(key), value));
     }
 
     public void putString(int key, String value) {
-        tag.add(key, new StringTag(String.valueOf(key), value));
+        add(key, new StringTag(String.valueOf(key), value));
     }
 
     public void putCompoundTag(int key, NativeCompoundTag childrenTag) {
         if (childrenTag != null) {
-            tag.add(key, childrenTag.tag.copy());
+            add(key, childrenTag.tag.copy());
         }
     }
 
     public void putListTag(int key, NativeListTag childrenTag) {
         if (childrenTag != null) {
-            tag.add(key, childrenTag.tag.copy());
+            add(key, childrenTag.tag.copy());
         }
     }
 
