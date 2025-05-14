@@ -133,9 +133,15 @@ public class FileUtils {
 
 
     public static void copyFileTree(File srcDir, File dstDir, Object dialog, String prefix) throws IOException {
+        if(srcDir.isFile()) {
+            copy(srcDir, dstDir);
+            return;
+        }
+
         if (!dstDir.isDirectory() && !dstDir.mkdirs()) {
             throw new IOException("mkdirs failed: " + dstDir);
         }
+
         for (String name : srcDir.list()) {
             if (dialog != null) {
                 return;

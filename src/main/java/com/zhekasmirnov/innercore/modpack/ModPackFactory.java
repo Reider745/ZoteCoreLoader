@@ -1,16 +1,15 @@
 package com.zhekasmirnov.innercore.modpack;
 
 import com.zhekasmirnov.innercore.modpack.strategy.extract.*;
-import com.zhekasmirnov.innercore.modpack.strategy.request.ConfigDirectoryRequestStrategy;
-import com.zhekasmirnov.innercore.modpack.strategy.request.ConfigInModDirectoryRequestStrategy;
-import com.zhekasmirnov.innercore.modpack.strategy.request.DefaultDirectoryRequestStrategy;
-import com.zhekasmirnov.innercore.modpack.strategy.request.DirectoryRequestStrategy;
+import com.zhekasmirnov.innercore.modpack.strategy.request.*;
 import com.zhekasmirnov.innercore.modpack.strategy.update.CacheDirectoryUpdateStrategy;
 import com.zhekasmirnov.innercore.modpack.strategy.update.DirectoryDeniedUpdateStrategy;
 import com.zhekasmirnov.innercore.modpack.strategy.update.JsonMergeDirectoryUpdateStrategy;
 import com.zhekasmirnov.innercore.modpack.strategy.update.ResourceDirectoryUpdateStrategy;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModPackFactory {
     private final static ModPackFactory instance = new ModPackFactory();
@@ -37,8 +36,7 @@ public class ModPackFactory {
                         "cache", new DefaultDirectoryRequestStrategy(), new CacheDirectoryUpdateStrategy(),
                         new AllIgnoredDirectoryExtractStrategy()))
                 .addDirectory(new ModPackDirectory(ModPackDirectory.DirectoryType.RESOURCE_PACKS,
-                        new File(root, "resource_packs"), "resource_packs", new DefaultDirectoryRequestStrategy(),
-                        new ResourceDirectoryUpdateStrategy(), new AllFilesDirectoryExtractStrategy()))
+                        new File(root, "resource_packs"), "resource_packs", new NukkitResourcePackRequestStrategy(), new ResourceDirectoryUpdateStrategy(), new AllFilesDirectoryExtractStrategy()))
                 .addDirectory(new ModPackDirectory(ModPackDirectory.DirectoryType.BEHAVIOR_PACKS,
                         new File(root, "behavior_packs"), "behavior_packs", new DefaultDirectoryRequestStrategy(),
                         new ResourceDirectoryUpdateStrategy(), new AllFilesDirectoryExtractStrategy()))
@@ -69,7 +67,7 @@ public class ModPackFactory {
                 .addDirectory(newDefaultPackDirectory(ModPackDirectory.DirectoryType.CACHE, root, "cache",
                         new DefaultDirectoryRequestStrategy(), new AllIgnoredDirectoryExtractStrategy()))
                 .addDirectory(newDefaultPackDirectory(ModPackDirectory.DirectoryType.RESOURCE_PACKS, root,
-                        "resource_packs", new DefaultDirectoryRequestStrategy()))
+                        "resource_packs", new NukkitResourcePackRequestStrategy()))
                 .addDirectory(newDefaultPackDirectory(ModPackDirectory.DirectoryType.BEHAVIOR_PACKS, root,
                         "behavior_packs", new DefaultDirectoryRequestStrategy()))
                 .addDirectory(new ModPackDirectory(ModPackDirectory.DirectoryType.TEXTURE_PACKS,

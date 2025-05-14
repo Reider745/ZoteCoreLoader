@@ -115,8 +115,8 @@ public class ModLoader {
 
 
 
-    private List<File> resourcePackDirs = new ArrayList<>();
-    private List<File> behaviorPackDirs = new ArrayList<>();
+    private final List<File> resourcePackDirs = new ArrayList<>();
+    private final List<File> behaviorPackDirs = new ArrayList<>();
 
     public static void addMinecraftResourcePack(File directory) {
         if (!instance.resourcePackDirs.contains(directory)) {
@@ -139,9 +139,7 @@ public class ModLoader {
         DirectorySetRequestHandler globalResourcePacks = ModPackContext.getInstance().getCurrentModPack().getRequestHandler(ModPackDirectory.DirectoryType.RESOURCE_PACKS);
         for (String location : globalResourcePacks.getAllLocations()) {
             File packDir = globalResourcePacks.get(location);
-            if (packDir.isDirectory()) {
-                addMinecraftResourcePack(packDir);
-            }
+            addMinecraftResourcePack(packDir);
         }
 
         DirectorySetRequestHandler globalBehaviorPacks = ModPackContext.getInstance().getCurrentModPack().getRequestHandler(ModPackDirectory.DirectoryType.BEHAVIOR_PACKS);
@@ -234,7 +232,6 @@ public class ModLoader {
             while (target.exists()) {
                 target = new File(targetDir, target.getName() + "-");
             }
-            target.mkdirs();
             try {
                 FileUtils.copyFileTree(file, target, null, null);
             } catch (IOException e) {
