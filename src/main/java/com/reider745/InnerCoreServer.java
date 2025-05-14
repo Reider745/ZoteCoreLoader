@@ -352,7 +352,7 @@ public class InnerCoreServer {
                     BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
                     pack.load();
                 }catch (Exception e) {
-                    Logger.error("Error loaded behavior pack " + file.getAbsolutePath());
+                    Logger.error("Error loaded behavior pack " + file.getAbsolutePath(), e);
                 }
             }
         }catch (Exception ignore){}

@@ -83,8 +83,10 @@ public class BehaviorPack {
         for(BehaviorContent content : contents_api){
             final String pathFolder = this.path + content.getDefaultDirectory();
             final String[] files = new File(pathFolder).list();
-            for(String file : files)
-                loadFileContext(pathFolder+"/"+file);
+            if(files != null) {
+                for (String file : files)
+                    loadFileContext(pathFolder + "/" + file);
+            }
         }
     }
 
