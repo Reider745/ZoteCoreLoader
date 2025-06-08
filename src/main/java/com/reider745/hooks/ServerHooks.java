@@ -62,7 +62,7 @@ public class ServerHooks {
         if(variable.equals("load-all-worlds"))// Увы это может сломать сохраенения TileEntity, поэтому настройка заблокировна
             return true;
 
-        if(variable.equals("enable-raw-ores"))// Исключительно для новых версий, поэтому без права на включение
+        if(variable.equals("enable-raw-ores") || variable.equals("enable-new-paintings"))// Исключительно для новых версий, поэтому без права на включение
             return false;
 
         final Config properties = server.getProperties();
