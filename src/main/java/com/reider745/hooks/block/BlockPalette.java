@@ -1,6 +1,7 @@
 package com.reider745.hooks.block;
 
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockDoor;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -12,9 +13,9 @@ import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.BlockNukkitIdConverter;
 import com.reider745.block.BlockStateStorage;
 import com.reider745.block.CustomBlock;
+import com.reider745.block.wall.BlockWall;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -150,7 +151,7 @@ public class BlockPalette {
                 final int legacyData = e.getInt("data");
                 final JSONObject states = e.getJSONObject("states");
 
-                if(e.getString("nameId").contains("_door") && !doors.contains(newId))
+                if(!doors.contains(newId) && e.getString("nameId").contains("_door"))
                     doors.add(newId);
 
                 sortStates.add(new BlockDescription(e.getInt("oldId"), newId, states, legacyData));
@@ -194,17 +195,16 @@ public class BlockPalette {
 
             for (int runtimeId = 0; runtimeId < sortStates.size(); runtimeId++) {
                 final BlockDescription description = sortStates.get(runtimeId);
-
-                final int blockId = description.newId;
                 final int blockMeta = description.data;
 
-                int legacyId = (blockId << 6) | blockMeta;
+                int blockId = description.newId;
+                int legacyId = (blockId << Block.DATA_BITS) | blockMeta;
 
                 if(doors.contains(blockId)) {
                     int doorMeta = description.states.getInt("direction");
 
                     if(description.states.getInt("open_bit") == 1)
-                        doorMeta = doorMeta ^ BlockDoor.DOOR_OPEN_BIT;
+                        doorMeta = doorMeta | BlockDoor.DOOR_OPEN_BIT;
 
                     if(description.states.getInt("upper_block_bit") == 1)
                         doorMeta = doorMeta | BlockDoor.DOOR_TOP_BIT;
@@ -212,15 +212,32 @@ public class BlockPalette {
                     if(description.states.getInt("door_hinge_bit") == 1)
                         doorMeta = doorMeta | BlockDoor.DOOR_HINGE_BIT;
 
-                    legacyId = (blockId << 6) | doorMeta;
+                    legacyId = (blockId << Block.DATA_BITS) | doorMeta;
+                } else if(blockId == 139) {
+                    int wallMeta = 0;
+
+                    wallMeta = ((wallMeta & ~BlockWall.NORTH_MASK) | ((description.states.getInt("wall_connection_type_north") << Integer.numberOfTrailingZeros(BlockWall.NORTH_MASK)) & BlockWall.NORTH_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.WEST_MASK) | ((description.states.getInt("wall_connection_type_west") << Integer.numberOfTrailingZeros(BlockWall.WEST_MASK)) & BlockWall.WEST_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.EAST_MASK) | ((description.states.getInt("wall_connection_type_east") << Integer.numberOfTrailingZeros(BlockWall.EAST_MASK)) & BlockWall.EAST_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.SOUTH_MASK) | ((description.states.getInt("wall_connection_type_south") << Integer.numberOfTrailingZeros(BlockWall.SOUTH_MASK)) & BlockWall.SOUTH_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.POST_MASK) | ((description.states.getInt("wall_post_bit") << Integer.numberOfTrailingZeros(BlockWall.POST_MASK)) & BlockWall.POST_MASK));
+
+                    blockId = BlockWall.WallType.values()[description.states.getInt("wall_block_type")].id;
+                    legacyId = (blockId << Block.DATA_BITS) | wallMeta;
                 }
 
-                if (blockMeta < 64) {
+
+                if (blockMeta < Block.DATA_SIZE) {
+                    //if(!doors.contains(blockId) && legacyToRuntimeId.containsKey(legacyId))
+                        //throw new RuntimeException("Confilict: " + Arrays.toString(BlockStateStorage.getBlockForRuntimeId(legacyToRuntimeId.get(legacyId))) + ", blockId: " + blockId + ", runtimeId: " + runtimeId + ", status: " + description.states);
+
                     legacyToRuntimeId.put(legacyId, runtimeId);
                     legacyToRuntimeId.putIfAbsent(legacyId, runtimeId);
                     runtimeIdToLegacy.put(runtimeId, legacyId);
 
                     BlockStateStorage.addState(description.states, runtimeId, description.id, blockMeta, description.newId);
+                } else {
+                    throw new RuntimeException("Block " + description.id + " is too big, size: " + Block.DATA_SIZE + ", meta: " + blockMeta);
                 }
             }
         } catch (Exception e) {
@@ -231,16 +248,16 @@ public class BlockPalette {
     }
 
     public static int get(int id, int meta) {
-        final int legacyId = id << 6 | meta;
+        final int legacyId = id << Block.DATA_BITS | meta;
 
         int runtimeId = legacyToRuntimeId.get(legacyId);
         if (runtimeId == -1) {
-            runtimeId = legacyToRuntimeId.get(id << 6);
+            runtimeId = legacyToRuntimeId.get(id << Block.DATA_BITS);
 
             if (runtimeId == -1 && id != BlockID.INFO_UPDATE) {
                 logger.error("failed to locate state for id: " + id + ":" + meta);
 
-                runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << 6);
+                runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << Block.DATA_BITS);
                 if (runtimeId == -1)
                     throw new RuntimeException("failed to fallback to BlockID.INFO_UPDATE state " + id + " " + meta);
                 return runtimeId;

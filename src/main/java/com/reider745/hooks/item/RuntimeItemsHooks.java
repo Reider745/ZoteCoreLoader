@@ -10,6 +10,7 @@ import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.CustomBlock;
+import com.reider745.block.wall.BlockWall;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -24,7 +25,7 @@ public class RuntimeItemsHooks implements HookClass {
     private static HashMap<Integer, Boolean> protocols = new HashMap<>();
 
     @Inject
-    public static void generatePalette(RuntimeItemMapping self){
+    public static void generatePalette(RuntimeItemMapping self) {
         protocols.put(self.getProtocolId(), true);
     }
 
@@ -91,7 +92,8 @@ public class RuntimeItemsHooks implements HookClass {
             Method generatePalette = RuntimeItemMapping.class.getDeclaredMethod("generatePalette", new Class[0]);
             generatePalette.setAccessible(true);
             generatePalette.invoke(mapping, new Object[0]);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException |
+                 SecurityException e) {
             throw new UnsupportedOperationException(e);
         }
     }

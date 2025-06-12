@@ -93,7 +93,7 @@ public class Main {
         add("com.reider745.hooks.block.BlocksHooks");
         loader.addRebuildField("com.reider745.hooks.block.BlocksHooks", (ctClass, field) -> {
             String name = field.getName();
-            if (name.equals("MAX_BLOCK_ID") || name.equals("usesFakeWater"))
+            if (name.equals("MAX_BLOCK_ID") || name.equals("usesFakeWater") || name.equals("DATA_BITS") || name.equals("DATA_SIZE") || name.equals("DATA_MASK"))
                 field.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
         });
         add("com.reider745.event.DispenseBehaviorOverrides");
