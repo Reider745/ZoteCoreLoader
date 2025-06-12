@@ -134,7 +134,7 @@ public class BlockSourceMethods {
         Block block = level.getBlock(x, y, z);
         defDestroy(level, block);
         try{
-            level.setBlock(x, y, z, Block.get(id, data), false, allowUpdate);
+            level.setBlock(x, y, z, Block.get(id, data), true, allowUpdate);
         }catch (Exception e){}
     }
 
