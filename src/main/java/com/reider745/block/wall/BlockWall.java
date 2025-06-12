@@ -453,8 +453,8 @@ public abstract class BlockWall extends BlockTransparentMeta {
 
     public enum WallConnectionType {
         NONE,
-        TALL,
-        SHORT
+        SHORT,
+        TALL
     }
 
     public static BlockFace.Axis calculateAxis(Vector3 base, Vector3 side) {
