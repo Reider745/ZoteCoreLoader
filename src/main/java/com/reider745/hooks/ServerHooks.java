@@ -1,6 +1,8 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.defaults.VersionCommand;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.JavaPluginLoader;
 import cn.nukkit.plugin.PluginClassLoader;
@@ -125,5 +127,16 @@ public class ServerHooks {
     @Inject(type = TypeHook.AFTER_NOT_REPLACE, method = "<init>", className = "cn.nukkit.plugin.PluginClassLoader")
     public static void newPluginClassLoader(PluginClassLoader self, JavaPluginLoader loader, ClassLoader parent, File file) {
         RhinoOverrides.ClassLoaderPool.addClassLoader(self);
+    }
+
+    @Inject(
+            className = "cn.nukkit.command.defaults.VersionCommand",
+            signature = "(Lcn/nukkit/command/CommandSender;Ljava/lang/String;[Ljava/lang/String;)Z"
+    )
+    public static void execute(VersionCommand self, CommandSender sender, String commandLabel, String[] args){
+        if(sender.hasPermission("nukkit.command.version.plugins"))
+            sender.sendMessage("#########################################\n"+
+                    "ZoteCoreLoader\n"+
+                    "InnerCore: "+ InnerCoreServer.getVersionName()+":"+InnerCoreServer.getVersionsCode());
     }
 }
