@@ -49,6 +49,9 @@ public class BlocksHooks {
         registerWall(BlockWall.WallType.MOSSY_STONE_BRICK, BlockMossyStoneBrickWall.class);
         registerWall(BlockWall.WallType.MOSSY_COBBLESTONE, BlockMossyCobblestoneWall.class);
         registerWall(BlockWall.WallType.RED_SANDSTONE, BlockRedSandstoneWall.class);
+        registerWall(BlockWall.WallType.BLACKSTONE, BlockBlackstoneWall.class);
+        registerWall(BlockWall.WallType.POLISHED_BLACKSTONE, BlockPolishedBlackstoneWall.class);
+        registerWall(BlockWall.WallType.POLISHED_BLACKSTONE_BRICK, BlockPolishedBlackstoneBrickWall.class);
     }
 
     @ShadowGetField(className = "cn.nukkit.item.Item", field = "block")

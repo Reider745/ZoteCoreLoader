@@ -213,7 +213,7 @@ public class BlockPalette {
                         doorMeta = doorMeta | BlockDoor.DOOR_HINGE_BIT;
 
                     legacyId = (blockId << Block.DATA_BITS) | doorMeta;
-                } else if(blockId == 139) {
+                } else if(blockId == 139 || blockId == 532 || blockId == 552 || blockId == 533) {
                     int wallMeta = 0;
 
                     wallMeta = ((wallMeta & ~BlockWall.NORTH_MASK) | ((description.states.getInt("wall_connection_type_north") << Integer.numberOfTrailingZeros(BlockWall.NORTH_MASK)) & BlockWall.NORTH_MASK));
@@ -222,7 +222,8 @@ public class BlockPalette {
                     wallMeta = ((wallMeta & ~BlockWall.SOUTH_MASK) | ((description.states.getInt("wall_connection_type_south") << Integer.numberOfTrailingZeros(BlockWall.SOUTH_MASK)) & BlockWall.SOUTH_MASK));
                     wallMeta = ((wallMeta & ~BlockWall.POST_MASK) | ((description.states.getInt("wall_post_bit") << Integer.numberOfTrailingZeros(BlockWall.POST_MASK)) & BlockWall.POST_MASK));
 
-                    blockId = BlockWall.WallType.values()[description.states.getInt("wall_block_type")].id;
+                    if(description.states.has("wall_block_type"))
+                        blockId = BlockWall.WallType.values()[description.states.getInt("wall_block_type")].id;
                     legacyId = (blockId << Block.DATA_BITS) | wallMeta;
                 }
 

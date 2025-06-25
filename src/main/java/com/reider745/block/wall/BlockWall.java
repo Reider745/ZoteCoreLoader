@@ -42,7 +42,10 @@ public abstract class BlockWall extends BlockTransparentMeta {
         NETHER_BRICK(1234, "Nether brick wall"),
         PRISMARINE(1236, "Prismarine wall"),
         RED_SANDSTONE(1237, "Red sandstone wall"),
-        RED_NETHER_BRICK(1238, "Ren nether brick wall");
+        RED_NETHER_BRICK(1238, "Red nether brick wall"),
+        BLACKSTONE(BlockID.BLACKSTONE_WALL, "Blackstone wall"),
+        POLISHED_BLACKSTONE(BlockID.POLISHED_BLACKSTONE_WALL, "Polished blackstone wall"),
+        POLISHED_BLACKSTONE_BRICK(BlockID.POLISHED_BLACKSTONE_BRICK_WALL, "Polished blackstone brick wall");
 
         public final int id;
         public final String name;
