@@ -35,6 +35,103 @@ import static cn.nukkit.block.BlockEntityHolder.log;
 
 @Hooks(className = "cn.nukkit.item.Item")
 public class ItemUtils implements HookClass {
+    @Inject(type = TypeHook.AFTER)
+    public static void initCreativeItems() {
+        Item.addCreativeItem(407, Block.get(BlockID.NETHERITE_BLOCK).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.ANCIENT_DEBRIS).toItem());
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_INGOT));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_SCRAP));
+
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_HELMET));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_CHESTPLATE));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_LEGGINGS));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_BOOTS));
+
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_SWORD));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_AXE));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_HOE));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_PICKAXE));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHERITE_SHOVEL));
+
+        Item.addCreativeItem(407, Item.get(ItemID.CHAIN));
+        Item.addCreativeItem(407, Item.get(ItemID.CRIMSON_DOOR));
+        Item.addCreativeItem(407, Item.get(ItemID.CRIMSON_SIGN));
+        Item.addCreativeItem(407, Item.get(ItemID.WARPED_DOOR));
+        Item.addCreativeItem(407, Item.get(ItemID.WARPED_SIGN));
+        Item.addCreativeItem(407, Item.get(ItemID.SOUL_CAMPFIRE));
+        Item.addCreativeItem(407, Item.get(ItemID.WARPED_FUNGUS_ON_A_STICK));
+        Item.addCreativeItem(407, Item.get(ItemID.BANNER_PATTERN, 6));
+        Item.addCreativeItem(407, Item.get(ItemID.RECORD_PIGSTEP));
+        Item.addCreativeItem(407, Item.get(ItemID.NETHER_SPROUTS));
+
+        Item.addCreativeItem(407, Block.get(BlockID.BASALT).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.BLACKSTONE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CHISELED_POLISHED_BLACKSTONE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.BLACKSTONE_SLAB).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.BLACKSTONE_STAIRS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_SLAB).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_STAIRS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_BRICKS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_BRICK_SLAB).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_BRICK_STAIRS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_BUTTON).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_PRESSURE_PLATE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CHISELED_NETHER_BRICKS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRACKED_NETHER_BRICKS).toItem());
+
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_NYLIUM).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_STEM).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_HYPHAE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.STRIPPED_CRIMSON_STEM).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.STRIPPED_CRIMSON_HYPHAE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_PLANKS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_BUTTON).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_FENCE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_FENCE_GATE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_PRESSURE_PLATE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_SLAB).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_STAIRS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_TRAPDOOR).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_FUNGUS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.CRIMSON_ROOTS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WEEPING_VINES).toItem());
+
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_NYLIUM).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_STEM).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_HYPHAE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.STRIPPED_WARPED_STEM).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.STRIPPED_WARPED_HYPHAE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_PLANKS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_BUTTON).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_FENCE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_FENCE_GATE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_PRESSURE_PLATE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_SLAB).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_STAIRS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_TRAPDOOR).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_FUNGUS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_ROOTS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.WARPED_WART_BLOCK).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.TWISTING_VINES).toItem());
+
+        Item.addCreativeItem(407, Block.get(BlockID.CRYING_OBSIDIAN).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.GILDED_BLACKSTONE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.LODESTONE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.NETHER_GOLD_ORE).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.QUARTZ_BRICKS).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.RESPAWN_ANCHOR).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.SHROOMLIGHT).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.SOUL_SOIL).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.SOUL_TORCH).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.SOUL_LANTERN).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.TARGET).toItem());
+
+        Item.addCreativeItem(407, Block.get(BlockID.BLACKSTONE_WALL).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_WALL).toItem());
+        Item.addCreativeItem(407, Block.get(BlockID.POLISHED_BLACKSTONE_BRICK_WALL).toItem());
+
+    }
 
     @Inject(signature = "(ILjava/lang/Integer;I[B)Lcn/nukkit/item/Item;")
     public static Item get(int id, Integer meta, int count, byte[] tags) {
