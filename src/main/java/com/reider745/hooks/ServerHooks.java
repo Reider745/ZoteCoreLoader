@@ -3,6 +3,7 @@ package com.reider745.hooks;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.defaults.VersionCommand;
+import cn.nukkit.event.Event;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.JavaPluginLoader;
 import cn.nukkit.plugin.PluginClassLoader;
@@ -20,10 +21,14 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Hooks(className = "cn.nukkit.Server")
 public class ServerHooks {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
+    public static final List<Event> postApply = new CopyOnWriteArrayList<>();
 
     @Inject
     public static void start(Server self) throws Exception {
@@ -103,11 +108,15 @@ public class ServerHooks {
                 EntityMotion.tick();
                 NativeCallback.onTick();
 
+                for(Event event : postApply) {
+                    Server.getInstance().getPluginManager().callEvent(event);
+                }
+
                 TpsCommand.innerCoreTimes[indexTime] = System.currentTimeMillis() - start;
 
                 EventListener.isFirstTickEnd = true;
             } catch (Exception e) {
-                Logger.warning("IC-TICK", e.getCause());
+                Logger.warning("IC-TICK", e);
             }
         }catch (Throwable e){
             Logger.warning("IC-TICK", e);

@@ -11,6 +11,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockFace;
 import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
+import com.reider745.hooks.ServerHooks;
 import com.reider745.hooks.block.BlockPalette;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItem;
@@ -344,10 +345,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
                     this.level);
             return type;
         } else if (type == Level.BLOCK_UPDATE_REDSTONE || type == Level.BLOCK_UPDATE_NORMAL) {
-            RedstoneUpdateEvent ev = new RedstoneUpdateEvent(this);
-            getLevel().getServer().getPluginManager().callEvent(ev);
-            if (ev.isCancelled())
-                return type;
+            ServerHooks.postApply.add(new RedstoneUpdateEvent(this));
             return type;
         }
         return type;
