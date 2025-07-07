@@ -48,6 +48,8 @@ public class BlocksHooks {
             Block.diffusesSkyLight = new boolean[Block.MAX_BLOCK_ID];
             Block.hasMeta = new boolean[Block.MAX_BLOCK_ID];
 
+            ReflectHelper.invoke(Blocks.class, "init", new Object[0]);
+
             registerWall(BlockWall.WallType.DIORITE, BlockDioriteWall.class);
             registerWall(BlockWall.WallType.COBBLESTONE, BlockCobblestoneWall.class);
             registerWall(BlockWall.WallType.BRICK, BlockBrickWall.class);
@@ -65,8 +67,6 @@ public class BlocksHooks {
             registerWall(BlockWall.WallType.BLACKSTONE, BlockBlackstoneWall.class);
             registerWall(BlockWall.WallType.POLISHED_BLACKSTONE, BlockPolishedBlackstoneWall.class);
             registerWall(BlockWall.WallType.POLISHED_BLACKSTONE_BRICK, BlockPolishedBlackstoneBrickWall.class);
-
-            ReflectHelper.invoke(Blocks.class, "init", new Object[0]);
 
             final BlockUnknown BLOCK_UNKNOWN = new BlockUnknown(Block.MAX_BLOCK_ID, 0);
 
