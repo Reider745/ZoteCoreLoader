@@ -160,15 +160,19 @@ public class EventListener implements Listener {
                 EntityMethod.getIdForEntity(event.getPlayer())));
     }
 
+    public static void onRedston(Block event) {
+        Block block = event.getBlock();
+        Level level = event.getBlock().getLevel();
+        int signal = level.isBlockIndirectlyGettingPowered(block);
+
+        NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z,
+                signal, !event.getBlock().isPowerSource(), level);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRedstoneUpdate(RedstoneUpdateEvent event) {
         if(isFirstTickEnd){
-            Block block = event.getBlock();
-            Level level = event.getBlock().getLevel();
-            int signal = level.isBlockIndirectlyGettingPowered(block);
 
-            consumeEvent(event, () -> NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z,
-                    signal, !event.getBlock().isPowerSource(), level));
         }
     }
 

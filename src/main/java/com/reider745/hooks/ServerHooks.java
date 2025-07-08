@@ -1,9 +1,9 @@
 package com.reider745.hooks;
 
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.defaults.VersionCommand;
-import cn.nukkit.event.Event;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.JavaPluginLoader;
 import cn.nukkit.plugin.PluginClassLoader;
@@ -28,7 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Hooks(className = "cn.nukkit.Server")
 public class ServerHooks {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
-    public static final List<Event> postApply = new CopyOnWriteArrayList<>();
+    public static final List<Block> postApply = new CopyOnWriteArrayList<>();
 
     @Inject
     public static void start(Server self) throws Exception {
@@ -108,8 +108,8 @@ public class ServerHooks {
                 EntityMotion.tick();
                 NativeCallback.onTick();
 
-                for(Event event : postApply) {
-                    Server.getInstance().getPluginManager().callEvent(event);
+                for(Block block : postApply) {
+                    EventListener.onRedston(block);
                 }
 
                 TpsCommand.innerCoreTimes[indexTime] = System.currentTimeMillis() - start;
