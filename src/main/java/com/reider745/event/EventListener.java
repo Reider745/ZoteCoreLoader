@@ -31,15 +31,12 @@ import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.response.FormResponseSimple;
 import cn.nukkit.inventory.CraftingGrid;
 import cn.nukkit.item.Item;
-import cn.nukkit.item.ItemBlock;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.MovingObjectPosition;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.level.particle.FlameParticle;
-import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.AsyncTask;
@@ -48,10 +45,10 @@ import com.reider745.api.ZoteOnly;
 import com.reider745.hooks.ServerHooks;
 import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.reider745.item.ItemMethod;
-import com.reider745.world.BiomesMethods;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
+import com.zhekasmirnov.innercore.api.NativeScales;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import oshi.hardware.NetworkIF;
 
@@ -160,7 +157,7 @@ public class EventListener implements Listener {
                 EntityMethod.getIdForEntity(event.getPlayer())));
     }
 
-    public static void onRedston(Block event) {
+    public static void onRedstone(Block event) {
         Block block = event.getBlock();
         Level level = event.getBlock().getLevel();
         int signal = level.isBlockIndirectlyGettingPowered(block);
@@ -352,7 +349,10 @@ public class EventListener implements Listener {
             event.setCancelled();
         }
 
-        NativeCallback.onEntityDied(EntityMethod.getIdForEntity(entity), attacker != null ? EntityMethod.getIdForEntity(attacker) : -1,
+        final long id = EntityMethod.getIdForEntity(entity);
+
+        NativeScales.onDeath(id);
+        NativeCallback.onEntityDied(id, attacker != null ? EntityMethod.getIdForEntity(attacker) : -1,
                 convertDamageCauseToEnum(damageEvent != null ? damageEvent.getCause() : DamageCause.CUSTOM));
     }
 
@@ -593,12 +593,6 @@ public class EventListener implements Listener {
             event.setCancelled();
     }
 
-    private static final HashMap<Integer, Boolean> statesEvents = new HashMap<>();
-    public static void setChunkStateChangedCallbackEnabled(int state, boolean enabled) {
-        if(state < -1 || state > 9) return;
-        statesEvents.put(state, enabled);
-    }
-
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event){
         final FullChunk chunk = event.getChunk();
@@ -606,23 +600,14 @@ public class EventListener implements Listener {
         final int dimension = FakeDimensions.getFakeIdForLevel(event.getLevel());
         final int x = chunk.getX(), z = chunk.getZ();
 
-        for(int i = 1, preState = 0;i < 10;i+=1, preState++){
-            if(statesEvents.containsKey(i))
-                NativeCallback.onChunkStateChaged(dimension, x, z, i, preState, false);
-        }
+        NativeCallback.onChunkLoaded(FakeDimensions.getFakeIdForLevel(event.getLevel()), chunk.getX(), chunk.getZ());
     }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event){
-        if(statesEvents.containsKey(-1) || statesEvents.containsKey(0)){
-            final FullChunk chunk = event.getChunk();
-            NativeCallback.onChunkStateChaged(
-                    FakeDimensions.getFakeIdForLevel(event.getLevel()),
-                    chunk.getX(), chunk.getZ(),
-                    0, 9,
-                    true
-            );
-        }
+        final FullChunk chunk = event.getChunk();
+
+        NativeCallback.onChunkDiscarded(FakeDimensions.getFakeIdForLevel(event.getLevel()), chunk.getX(), chunk.getZ());
     }
 
     @ZoteOnly

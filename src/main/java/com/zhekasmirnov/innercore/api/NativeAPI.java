@@ -1089,8 +1089,8 @@ public class NativeAPI {
         EntityMethod.setTarget(entity, target);
     }
 
+    @Deprecated
     public static void setChunkStateChangeCallbackEnabled(int state, boolean b) {
-        EventListener.setChunkStateChangedCallbackEnabled(state, b);
     }
 
     public static boolean isEntitySleeping(long entity) {

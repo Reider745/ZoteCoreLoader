@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.block.BlockKelp;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityItem;
@@ -19,6 +20,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.PlaySoundPacket;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ReflectHelper;
 import com.reider745.block.BlockStateStorage;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.item.ItemUtils;
@@ -332,5 +334,17 @@ public class BlockSourceMethods {
 
     public static void setLightningLevel(Level level, float lightningLevel) {
         level.setThundering(lightningLevel != 0);
+    }
+
+    private static final boolean[] randomTickBlocks = ReflectHelper.getField(Level.class, "randomTickBlocks");
+
+    public static void randomTick(Level level, int x, int y, int z) {
+        final Block block = level.getBlock(x, y, z);
+
+        assert randomTickBlocks != null;
+
+        if(randomTickBlocks[block.getId()]) {
+            block.onUpdate(Level.BLOCK_UPDATE_RANDOM);
+        }
     }
 }

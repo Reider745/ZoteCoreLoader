@@ -4,6 +4,8 @@ import cn.nukkit.Server;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
+import cn.nukkit.math.Vector3;
+import com.zhekasmirnov.mcpe161.InnerCore;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 import com.reider745.InnerCoreServer;
@@ -491,6 +493,26 @@ public class NativeBlockSource {
         return BlockSourceMethods.spawnNamespacedEntity(level, x, y, z, str1, str2, str3);
     }
 
+    public int getRedstoneSignal(int x, int y, int z) {
+        return getRedstoneSignal(level, x, y, z);
+    }
+
+    public void setRedstoneSignal(int x, int y, int z, int level, int delay, int facing) {
+        setRedstoneSignal(level, x, y, z, level, delay, facing);
+    }
+
+    public void setRedstoneSignal(int x, int y, int z, int level, int delay) {
+        setRedstoneSignal( x, y, z, level, delay, -1);
+    }
+
+    public void setRedstoneSignal(int x, int y, int z, int level) {
+        setRedstoneSignal(x, y, z, level, 4);
+    }
+
+    public void randomTick(int x, int y, int z) {
+        BlockSourceMethods.randomTick(level, x , y, z);
+    }
+
     public long spawnEntity(float x, float y, float z, String type) {
         if (type == null || type.length() == 0) {
             return -1;
@@ -517,5 +539,13 @@ public class NativeBlockSource {
 
     public void spawnExpOrbs(float x, float y, float z, int amount) {
         BlockSourceMethods.spawnExpOrbs(level, x, y, z, amount);
+    }
+
+    private static int getRedstoneSignal(Level pointer, int x, int y, int z) {
+        return pointer.getStrongPower(new Vector3(x, y, z));
+    }
+
+    private static void setRedstoneSignal(Level pointer, int x, int y, int z, int level, int delay, int facing) {
+        InnerCoreServer.useNotCurrentSupport("NativeBlockSource.setRedstoneSignal");
     }
 }

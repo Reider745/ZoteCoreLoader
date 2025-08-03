@@ -526,7 +526,10 @@ var GameAPI = {
     },
     simulateBackPressed: function() {
         MCSystem.simulateBackPressed();
-    }
+    },
+    addWorldToCache() {},//client only,
+    updateWorlds() {}, // client only,
+    getWorldsCount() {} // client only,
 };
 
 Callback.addCallback("CoreConfigured", function(config) {
@@ -5988,6 +5991,7 @@ var EntityAPI = {
     getAllJS: function() {
         return Entity.getAll();
     },
+    playAnimation() {},//client only
     getExtra: function(ent, name) {
         logDeprecation("Entity.getExtra");
         return null;
@@ -6495,7 +6499,7 @@ var CONSTANT_VANILLA_UI_TILES = {
     461: true, // bell
     499: true, // crimson door
     500: true, // warped door
-    501: true, // crimson trapdoor
+    559: true, // crimson trapdoor
     502: true, // warped trapdoor
     513: true, // crimson fence gate
     514: true, // warped fence gate
@@ -7180,6 +7184,7 @@ var CoreAPI = {
     BlockID: BlockID,
     Block: BlockRegistry,
     ItemModel: ItemModel,
+    CustomScale: CustomScale,
     CustomEnchant: CustomEnchant,
     BlockRenderer: BlockRenderer,
     ICRender: ICRender,

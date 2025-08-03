@@ -34,8 +34,8 @@ java -jar ZoteCore-SNAPSHOT.jar -XX:MaxRAMPercentage=95.0
 # Изменение информации пака, который клиент должен иметь для входа на сервер.
 # Устаревшие или не реализованные методы, однако, добавлены не будут.
 pack: Inner Core Test
-pack-version: 2.3.0b115 test
-pack-version-code: 152
+pack-version: 2.3.0b125
+pack-version-code: 171
 
 # Устанавливает список модов и конфигураций для загрузки, вы можете
 # указать название, имя папки модпака из /modpacks или путь.

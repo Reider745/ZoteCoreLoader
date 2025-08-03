@@ -21,7 +21,6 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -108,9 +107,9 @@ public class ServerHooks {
                 EntityMotion.tick();
                 NativeCallback.onTick();
 
-                for(Block block : postApply) {
-                    EventListener.onRedston(block);
-                }
+                //for(Block block : postApply) {
+                //    EventListener.onRedstone(block);
+                //}
 
                 TpsCommand.innerCoreTimes[indexTime] = System.currentTimeMillis() - start;
 

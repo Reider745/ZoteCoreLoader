@@ -841,13 +841,33 @@ public class NativeCallback {
         Callback.invokeAPICallback("CustomDimensionTransfer", entity, from, to);
     }
 
+    @Deprecated
     public static void onChunkStateChaged(int dimension, int chunkX, int chunkZ, int state, int preState, boolean discarded) {
-        Callback.invokeAPICallback("ChunkLoadingStateChanged", chunkX, chunkZ, dimension, preState, state, discarded);
+       // Callback.invokeAPICallback("ChunkLoadingStateChanged", chunkX, chunkZ, dimension, preState, state, discarded);
     }
 
     @ClientOnly
+    public static void onLocalChunkLoaded(int dimension, int chunkX, int chunkZ) {
+        Callback.invokeAPICallback("LocalChunkLoaded", dimension, chunkX, chunkZ);
+    }
+
+    public static void onChunkLoaded(int dimension, int chunkX, int chunkZ) {
+        Callback.invokeAPICallback("ChunkLoaded", dimension, chunkX, chunkZ);
+    }
+
+    @ClientOnly
+    public static void onLocalChunkDiscarded(int dimension, int chunkX, int chunkZ) {
+        Callback.invokeAPICallback("LocalChunkDiscarded", dimension, chunkX, chunkZ);
+    }
+
+    public static void onChunkDiscarded(int dimension, int chunkX, int chunkZ) {
+        Callback.invokeAPICallback("ChunkDiscarded", dimension, chunkX, chunkZ);
+    }
+
+
+    @ClientOnly
     public static void onLocalChunkStateChaged(int dimension, int chunkX, int chunkZ, int state, int preState, boolean discarded) {
-        Callback.invokeAPICallback("LocalChunkLoadingStateChanged", chunkX, chunkZ, dimension, preState, state, discarded);
+       // Callback.invokeAPICallback("LocalChunkLoadingStateChanged", chunkX, chunkZ, dimension, preState, state, discarded);
     }
 
     /* NETWORK CALLBACKS */

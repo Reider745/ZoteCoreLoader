@@ -7,6 +7,7 @@ import com.reider745.entity.EntityMethod;
 import com.reider745.entity.PlayerActorMethods;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.NativeScales;
 
 public class NativePlayer {
     private final Player player;
@@ -18,6 +19,35 @@ public class NativePlayer {
     public Player getPlayer() {
         return player;
     }
+
+    public long getUid() {
+        return EntityMethod.getIdForEntity(player);
+    }
+
+    public void setScale(String scale, double value) {
+        NativeScales.setServerScaleValue(this.getUid(), scale, value);
+    }
+
+    public void setScale(NativeScales.CustomScale scale, double value) {
+        setScale(scale.getScaleId(), value);
+    }
+
+    public double getScale(String scale) {
+        return NativeScales.getScaleValue(this.getUid(), scale);
+    }
+
+    public double getScale(NativeScales.CustomScale scale) {
+        return getScale(scale.getScaleId());
+    }
+
+    public void addScale(String scale, double value) {
+        setScale(scale, getScale(scale) + value);
+    }
+
+    public void addScale(NativeScales.CustomScale scale, double value) {
+        setScale(scale, getScale(scale) + value);
+    }
+
 
     @ZoteOnly
     public String getLevelName() {

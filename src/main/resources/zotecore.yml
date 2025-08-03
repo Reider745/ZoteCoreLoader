@@ -1,8 +1,8 @@
 # Change resolution of pack that client should have to log into server.
 # However, no deprecated or unimplemented methods will be added.
 pack: Inner Core
-pack-version: 2.3.0b123
-pack-version-code: 165
+pack-version: 2.3.0b125
+pack-version-code: 171
 
 # Sets the list of mods and configs to load, you can specify
 # name, folder name of a modpack from /modpacks or a path.

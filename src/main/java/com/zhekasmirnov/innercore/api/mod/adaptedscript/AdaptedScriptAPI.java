@@ -1976,6 +1976,13 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
+    public static class CustomScale extends NativeScales.CustomScale {
+        public CustomScale(String scaleId, String full, String half, String empty) {
+            super(scaleId, full, half, empty);
+        }
+    }
+
+
     @APIStaticModule
     @Deprecated(since = "Zote")
     public static class ItemModel extends NativeItemModel {
