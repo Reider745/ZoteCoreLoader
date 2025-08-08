@@ -498,11 +498,11 @@ public class NativeBlockSource {
     }
 
     public void setRedstoneSignal(int x, int y, int z, int level, int delay, int facing) {
-        setRedstoneSignal(level, x, y, z, level, delay, facing);
+        setRedstoneSignal(this.level, x, y, z, level, delay, facing);
     }
 
     public void setRedstoneSignal(int x, int y, int z, int level, int delay) {
-        setRedstoneSignal( x, y, z, level, delay, -1);
+        setRedstoneSignal(x, y, z, level, delay, -1);
     }
 
     public void setRedstoneSignal(int x, int y, int z, int level) {
