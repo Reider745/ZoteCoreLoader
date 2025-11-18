@@ -151,7 +151,7 @@ public class BlocksHooks {
     @Inject(className = "cn.nukkit.item.ItemBlock")
     public static Block getBlock(ItemBlock self) {
         Block block = getBlockForSelf(self);
-        if(block.getId() == 139) {
+        if(block.getId() == BlockID.COBBLESTONE_WALL) {
             final BlockWall.WallType type = BlockWall.WallType.values()[self.getDamage()];
             block = Block.get(type.id);
             setBlockForSelf(self, block);

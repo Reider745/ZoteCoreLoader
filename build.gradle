@@ -77,20 +77,6 @@ task rebuildAndroidStubs(type: JavaExec, dependsOn: classes) {
     args '.todo/android.jar', 'iclibs/android.jar', 'proxy'
 }
 
-
-task buildBlockDump(type: JavaExec, dependsOn: classes) {
-    javaLauncher = javaToolchains.launcherFor {
-        def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-        if (JavaVersion.current() < javaVersion) {
-            languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-        }
-    }
-
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.reider745.api.hooks.instrument.BlockDump'
-    workingDir = "target"
-}
-
 task rebuildZoteStubs(type: JavaExec, dependsOn: jar) {
     javaLauncher = javaToolchains.launcherFor {
         def javaVersion = JavaVersion.toVersion(targetJavaVersion)

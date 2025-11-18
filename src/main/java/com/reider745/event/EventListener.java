@@ -370,7 +370,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onExplodeBlock(BlockExplodeEvent event){
-        List<Block> blockList = event.getBlockList();
+        Set<Block> blockList = event.getAffectedBlocks();
         for(Block block : blockList)
             NativeCallback.onBlockSpawnResources((int) block.x, (int) block.y, (int) block.z, block.getId(), block.getDamage(), 0f, 0, block.level);
     }
