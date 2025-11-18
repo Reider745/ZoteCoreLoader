@@ -171,8 +171,8 @@ public class BlockPalette {
             Collections.sort(sortedStates);
 
             sortStates.sort((a, b) -> {
-                if (a.id != b.id) {
-                    return Integer.compare(a.id, b.id);
+                if (a.newId != b.newId) {
+                    return Integer.compare(a.newId, b.newId);
                 }
 
                 for (String name : sortedStates) {
@@ -190,7 +190,7 @@ public class BlockPalette {
                     }
                 }
 
-                return 0;
+                return 1;
             });
 
             for (int runtimeId = 0; runtimeId < sortStates.size(); runtimeId++) {
@@ -213,7 +213,7 @@ public class BlockPalette {
                         doorMeta = doorMeta | BlockDoor.DOOR_HINGE_BIT;
 
                     legacyId = (blockId << Block.DATA_BITS) | doorMeta;
-                } else if(blockId == 139 || blockId == 532 || blockId == 552 || blockId == 533) {
+                } else if(blockId == BlockID.COBBLESTONE_WALL || blockId == BlockID.BLACKSTONE_WALL || blockId == BlockID.POLISHED_BLACKSTONE_WALL || blockId == BlockID.POLISHED_BLACKSTONE_BRICK_WALL) {
                     int wallMeta = 0;
 
                     wallMeta = ((wallMeta & ~BlockWall.NORTH_MASK) | ((description.states.getInt("wall_connection_type_north") << Integer.numberOfTrailingZeros(BlockWall.NORTH_MASK)) & BlockWall.NORTH_MASK));
