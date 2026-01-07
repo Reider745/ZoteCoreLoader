@@ -5,10 +5,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.network.CompressionProvider;
 import cn.nukkit.network.RakNetInterface;
-import cn.nukkit.network.protocol.BatchPacket;
-import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.DisconnectPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
+import cn.nukkit.network.protocol.*;
 import cn.nukkit.network.session.NetworkPlayerSession;
 import cn.nukkit.network.session.RakNetPlayerSession;
 import cn.nukkit.plugin.InternalPlugin;
@@ -22,6 +19,7 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
+import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -295,6 +293,9 @@ public class RakNetPlayerSessionHooks extends RakNetPlayerSession {
         while ((packet = this.inbound.poll()) != null) {
             try {
                 this.player.handleDataPacket(packet);
+                if(packet instanceof LoginPacket) {
+                    NativeNetworking.createConnection(this);
+                }
             } catch (Throwable e) {
                 log.error(String.valueOf(new FormattedMessage("An error occurred whilst handling {} for {}",
                         new Object[]{packet.getClass().getSimpleName(), this.player.getName()}, e)));

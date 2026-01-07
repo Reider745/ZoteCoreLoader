@@ -1,9 +1,9 @@
 package com.reider745.hooks.network;
 
-import cn.nukkit.inventory.Recipe;
-import cn.nukkit.inventory.ShapedRecipe;
-import cn.nukkit.inventory.ShapelessRecipe;
 import cn.nukkit.network.protocol.CraftingDataPacket;
+import cn.nukkit.recipe.Recipe;
+import cn.nukkit.recipe.impl.ShapedRecipe;
+import cn.nukkit.recipe.impl.ShapelessRecipe;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.ShadowGetField;

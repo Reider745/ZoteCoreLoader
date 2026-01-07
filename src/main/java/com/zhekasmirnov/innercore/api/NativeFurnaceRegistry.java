@@ -1,8 +1,6 @@
 package com.zhekasmirnov.innercore.api;
 
 import cn.nukkit.Server;
-import cn.nukkit.inventory.CraftingManager;
-import cn.nukkit.inventory.FurnaceRecipe;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.RuntimeItemMapping;
 import cn.nukkit.item.RuntimeItems;
@@ -16,7 +14,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.nukkit.recipe.RecipeRegistry;
+import cn.nukkit.recipe.impl.FurnaceRecipe;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
@@ -103,7 +104,6 @@ public class NativeFurnaceRegistry {
 
     public static void init() {
         RuntimeItemMapping mapping = RuntimeItems.getMapping(InnerCoreServer.PROTOCOL);
-        CraftingManager manager = Server.getInstance().getCraftingManager();
         int outputId, outputData, inputId, inputData;
         for (Map<String, Integer> recipe : recipes) {
             inputId = recipe.get("inputId");
@@ -129,22 +129,23 @@ public class NativeFurnaceRegistry {
                                         + " (recipe: id=" + inputId + ", meta=" + inputData + ")");
                         continue;
                     }
-                    manager.registerFurnaceRecipe(ProtocolInfo.CURRENT_PROTOCOL, new FurnaceRecipe(output, input));
+                    RecipeRegistry.registerFurnaceRecipe(new FurnaceRecipe(output, input), 0);
                 }
                 case 1 -> {
                     AtomicReference<Integer> key = new AtomicReference<>();
-                    manager.getFurnaceRecipes(ProtocolInfo.CURRENT_PROTOCOL).forEach((k, v) -> {
+                    Map<Integer, FurnaceRecipe> recipes = ReflectHelper.getField(RecipeRegistry.class, "FURNACE");
+                    recipes.forEach((k, v) -> {
                         Item item = v.getInput();
                         if (item.getId() == input.getId()
                                 || (input.getDamage() == -1 || input.getDamage() == item.getDamage()))
                             key.set(k);
                     });
 
-                    manager.getFurnaceRecipes(ProtocolInfo.CURRENT_PROTOCOL).remove(key.get());
+                    recipes.remove(key.get());
                 }
             }
         }
         recipes.clear();
-        manager.rebuildPacket();
+        RecipeRegistry.buildPackets();
     }
 }

@@ -133,6 +133,10 @@ public class Main {
         });
         add("com.reider745.hooks.ServerHooks");
 
+        //optimization
+        add("com.reider745.hooks.optimization.Creative");
+        add("com.reider745.hooks.optimization.Palette");
+
         patchLoader.init();
 
         loader.init(Arrays.stream(args).anyMatch("--debug-hooks"::equals));

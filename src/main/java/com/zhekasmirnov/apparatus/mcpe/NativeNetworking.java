@@ -198,18 +198,24 @@ public class NativeNetworking {
         }
     }
 
-    public static void onServerPacketReceived(RakNetPlayerSessionHooks sender, String name, int formatId, byte[] bytes) throws IOException {
+    public static NativeChannelImpl createConnection(RakNetPlayerSessionHooks session) {
         synchronized (serverToClientChannelMap) {
-            Java8BackComp.computeIfAbsent(serverToClientChannelMap, sender, key -> {
+            return serverToClientChannelMap.computeIfAbsent(session, key -> {
                 if(InnerCoreServer.isDebugInnerCoreNetwork())
                     System.out.println("Create new native connection");
 
-                NativeChannelImpl channel = new NativeChannelImpl(sender);
+                NativeChannelImpl channel = new NativeChannelImpl(session);
                 for (ConnectionListener listener : connectionListeners) {
-                    listener.onNativeChannelConnected(new NativeDataChannel(channel), sender);
+                    listener.onNativeChannelConnected(new NativeDataChannel(channel), session);
                 }
                 return channel;
-            }).onReceived(new DataPacket(name, formatId, bytes));
+            });
+        }
+    }
+
+    public static void onServerPacketReceived(RakNetPlayerSessionHooks sender, String name, int formatId, byte[] bytes) throws IOException {
+        synchronized (serverToClientChannelMap) {
+            createConnection(sender).onReceived(new DataPacket(name, formatId, bytes));
         }
     }
 
