@@ -4,10 +4,12 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockDoor;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.level.format.leveldb.LevelDBConstants;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.io.ByteStreams;
+import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.BlockNukkitIdConverter;
@@ -29,6 +31,8 @@ public class BlockPalette {
     private static final Int2IntMap stateCapacity = new Int2IntOpenHashMap();
     private static final Map<String, Integer> stateIdByName = new HashMap<>();
     private static final Map<Integer, String> nameByStateId = new HashMap<>();
+
+    private static final cn.nukkit.level.BlockPalette blockPalette = new cn.nukkit.level.BlockPalette(LevelDBConstants.PALETTE_VERSION);
 
     static {
         try {
@@ -272,12 +276,15 @@ public class BlockPalette {
 
     @Inject
     public static int getLegacyFullId(int protocol, int runtimeId) {
+        if(protocol == LevelDBConstants.PALETTE_VERSION) {
+            return blockPalette.getLegacyFullId(runtimeId);
+        }
         return runtimeIdToLegacy.get(runtimeId);
     }
 
     @Inject
     public static int getLegacyFullId(int runtimeId) {
-        return runtimeIdToLegacy.get(runtimeId);
+        return getLegacyFullId(InnerCoreServer.PROTOCOL, runtimeId);
     }
 
     @Inject
@@ -287,12 +294,15 @@ public class BlockPalette {
 
     @Inject
     public static int getOrCreateRuntimeId(int protocol, int id, int meta) {
+        if(protocol == LevelDBConstants.PALETTE_VERSION) {
+            return blockPalette.getRuntimeId(id, meta);
+        }
         return get(id, meta);
     }
 
     @Inject
     public static int getOrCreateRuntimeId(int protocol, int legacyId) {
-        return get(legacyId >> 4, legacyId & 0xf);
+        return getOrCreateRuntimeId(protocol, legacyId >> 4, legacyId & 0xf);
     }
 
     @Inject
