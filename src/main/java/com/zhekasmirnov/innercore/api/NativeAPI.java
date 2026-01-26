@@ -1024,26 +1024,36 @@ public class NativeAPI {
         Logger.debug(message);
     }
 
-    public static String convertNameId(String str) {
-        StringBuilder builder = new StringBuilder();
+    public static String convertNameId(String nameId) {
+        StringBuilder result = new StringBuilder();
         int upperCaseCount = 0;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
+        boolean encounteredAlias = false;
+
+        for (int offset = 0; offset < nameId.length(); ++offset) {
+            char c = nameId.charAt(offset);
+
             if (Character.isUpperCase(c)) {
-                if (upperCaseCount == 0 && builder.length() > 0) {
-                    builder.append('_');
+                if (upperCaseCount == 0 && result.length() > 0) {
+                    result.append('_');
                 }
-                builder.append(Character.toLowerCase(c));
+                result.append(Character.toLowerCase(c));
                 upperCaseCount++;
-            } else {
-                if (upperCaseCount > 1 && c != '_') {
-                    builder.insert(builder.length() - 1, '_');
+            } else if (c == ':') {
+                if (result.length() > 0) {
+                    result.append(encounteredAlias ? '_' : ':');
+                    encounteredAlias = true;
+                    upperCaseCount = 0;
                 }
-                builder.append(c);
+            } else {
+                if (c != '_' && upperCaseCount > 1) {
+                    result.insert(result.length() - 1, '_');
+                }
+                result.append(c);
                 upperCaseCount = 0;
             }
         }
-        return builder.toString();
+
+        return result.toString();
     }
 
     @Deprecated(since = "Zote")

@@ -70,9 +70,8 @@ public class BlockRegistry {
     }
 
     public static void createBlock(int uid, String nameId, ScriptableObject variantsScriptable, SpecialType type) {
-        if (!IDRegistry.getNameByID(uid).equals(nameId)) {
-            throw new IllegalArgumentException(
-                    "numeric uid " + uid + IDRegistry.getNameByID(uid) + " doesn't match string id " + nameId);
+        if (IDRegistry.getCustomBlockIdByName(nameId) != uid) {
+            throw new IllegalArgumentException("block numeric uid " + uid + " (" + IDRegistry.getNameByID(uid) + ") doesn't match string id " + nameId + " " + IDRegistry.getCustomBlockIdByName(nameId));
         }
 
         if (IDRegistry.isVanilla(uid)) {
@@ -87,6 +86,21 @@ public class BlockRegistry {
 
     public static void createLiquidBlockPair(int id1, String nameId1, int id2, String nameId2,
             ScriptableObject variantsScriptable, SpecialType type, int tickDelay, boolean isRenewable) {
+        if (IDRegistry.getCustomBlockIdByName(nameId1) != id1) {
+            throw new IllegalArgumentException("liquid block numeric uid " + id1 + " (" + IDRegistry.getNameByID(id1) + ") doesn't match string id " + nameId1 + " " + IDRegistry.getCustomBlockIdByName(nameId1));
+        }
+        if (IDRegistry.isVanilla(id1)) {
+            ICLog.e(LOGGER_TAG, "cannot create liquid block with vanilla id " + id1, new RuntimeException());
+            return;
+        }
+        if (IDRegistry.getCustomBlockIdByName(nameId2) != id2) {
+            throw new IllegalArgumentException("liquid block numeric uid " + id2 + " (" + IDRegistry.getNameByID(id2) + ") doesn't match string id " + nameId2 + " " + IDRegistry.getCustomBlockIdByName(nameId2));
+        }
+        if (IDRegistry.isVanilla(id2)) {
+            ICLog.e(LOGGER_TAG, "cannot create liquid block with vanilla id " + id2, new RuntimeException());
+            return;
+        }
+
         NativeBlock[] blocks = NativeBlock.createLiquidBlock(id1, NativeAPI.convertNameId(nameId1), id2,
                 NativeAPI.convertNameId(nameId2), "blank", 0, tickDelay, isRenewable);
         for (NativeBlock block : blocks) {

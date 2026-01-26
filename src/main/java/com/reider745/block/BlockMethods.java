@@ -2,9 +2,12 @@ package com.reider745.block;
 
 import cn.nukkit.block.Block;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.CustomManager;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.mozilla.javascript.RhinoException;
 
 import java.util.ArrayList;
 
@@ -126,7 +129,13 @@ public class BlockMethods {
     }
 
     public static void setTickingTile(int id, int data, boolean ticking) {
-        CustomBlock.getBlockManager(id).put("TickingTile:" + data, ticking);
+        CustomManager manager = CustomBlock.getBlockManager(id);
+        if(manager != null) {
+            manager.put("TickingTile:" + data, ticking);
+        } else {
+            Logger.error("NeighbourChange not found for block " + id);
+            throw new RuntimeException();
+        }
     }
 
     public static void setAnimatedTile(int id, int data, boolean ticking) {
@@ -139,7 +148,12 @@ public class BlockMethods {
     }
 
     public static void setReceivingNeighbourChangeEvent(int id, boolean value) {
-        CustomBlock.getBlockManager(id).put("NeighbourChange", value);
+        CustomManager manager = CustomBlock.getBlockManager(id);
+        if(manager != null) {
+            manager.put("NeighbourChange", value);
+        } else {
+            Logger.error("NeighbourChange not found for block " + id);
+        }
     }
 
     public static void setDestroyTime(int id, float val) {

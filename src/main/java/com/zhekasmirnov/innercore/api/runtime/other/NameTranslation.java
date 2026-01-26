@@ -148,7 +148,7 @@ public class NameTranslation {
     }
 
     public static boolean isAscii(String str) {
-        return StandardCharsets.US_ASCII.newEncoder().canEncode(str);
+        return str != null && StandardCharsets.US_ASCII.newEncoder().canEncode(str);
     }
 
     public static String fixUnicodeIfRequired(String nameId, String name) {
