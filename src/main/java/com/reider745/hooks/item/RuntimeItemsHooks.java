@@ -11,10 +11,12 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.CustomBlock;
 import com.reider745.block.wall.BlockWall;
+import com.reider745.hooks.block.BlockPalette;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -66,8 +68,10 @@ public class RuntimeItemsHooks implements HookClass {
             legacyString2LegacyInt.put(name, id);
         });
 
-        CustomBlock.customBlocks.forEach((name, _id) -> {
-            for (int id = _id, data = 0; data < 16; data++) {
+        CustomBlock.blocks.forEach((id, manager) -> {
+            final String name = manager.textId;
+            final List<JSONObject> variants = BlockPalette.variantGenerations(CustomBlock.getStates(manager));
+            for (int data = 0; data < variants.size(); data++) {
                 runtimeId2Name.put(id, name);
                 name2RuntimeId.put(name, id);
 
@@ -80,9 +84,9 @@ public class RuntimeItemsHooks implements HookClass {
                 identifier2Legacy.put(name, legacyEntry);
             }
 
-            legacyString2LegacyInt.put(name, _id);
+            legacyString2LegacyInt.put(name, id);
 
-            Item item = Item.get(_id, 0);
+            Item item = Item.get(id, 0);
             if (item.getId() != 0) {
                 Item.NAMESPACED_ID_ITEM.put(name, () -> item);
             }

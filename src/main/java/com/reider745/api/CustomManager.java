@@ -9,11 +9,13 @@ public class CustomManager {
     public int id;
     public Class<?> clazz;
     public String type;
+    public String textId;
 
-    public CustomManager(int id, Class<?> clazz, String type) {
+    public CustomManager(int id, Class<?> clazz, String type, String textId) {
         this.id = id;
         this.clazz = clazz;
         this.type = type;
+        this.textId = textId;
     }
 
     @SuppressWarnings("unchecked")

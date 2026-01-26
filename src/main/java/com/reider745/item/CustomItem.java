@@ -102,7 +102,7 @@ public class CustomItem {
     }
 
     public static CustomManager registerItem(String textId, int id, String name, Class<?> item) {
-        CustomManager manager = new CustomManager(id, item, "item");
+        CustomManager manager = new CustomManager(id, item, "item", textId);
         manager.put(PropertiesNames.NAME, name);
         manager.put(PropertiesNames.MAX_DAMAGE, 0);
         manager.put(PropertiesNames.MAX_STACK, 64);

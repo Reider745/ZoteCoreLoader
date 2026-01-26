@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockDoor;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.level.format.leveldb.BlockStateMapping;
 import cn.nukkit.level.format.leveldb.LevelDBConstants;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.ProtocolInfo;
@@ -18,10 +19,12 @@ import com.reider745.block.CustomBlock;
 import com.reider745.block.wall.BlockWall;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import org.cloudburstmc.nbt.NbtMap;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
 public class BlockPalette {
@@ -79,7 +82,7 @@ public class BlockPalette {
         return stateIdByName.get(name);
     }
 
-    private record BlockDescription(int id, int newId, JSONObject states, int data) {
+    private record BlockDescription(int id, int newId, JSONObject states, int data, String identifier) {
     }
 
     private static JSONObject cloneJSON(JSONObject json) {
@@ -121,7 +124,7 @@ public class BlockPalette {
         }
     }
 
-    private static List<JSONObject> variantGenerations(List<Integer> states) {
+    public static List<JSONObject> variantGenerations(List<Integer> states) {
         final JSONObject temp = new JSONObject();
         for(int state : states) {
             temp.put(getNameForId(state), 0);
@@ -158,16 +161,30 @@ public class BlockPalette {
                 if(!doors.contains(newId) && e.getString("nameId").contains("_door"))
                     doors.add(newId);
 
-                sortStates.add(new BlockDescription(e.getInt("oldId"), newId, states, legacyData));
+                sortStates.add(new BlockDescription(e.getInt("oldId"), newId, states, legacyData, "minecraft:" + e.getString("nameId")));
             }
 
             // custom runtime block
+
+            AtomicReference<Integer> RUNTIME_ID = new AtomicReference<>(Integer.MAX_VALUE);
             CustomBlock.blocks.forEach((id, manager) -> {
-                //final ArrayList<String> variants = CustomBlock.getVariants(manager);
                 final List<JSONObject> states = variantGenerations(CustomBlock.getStates(manager));
 
                 for (int data = 0; data < states.size(); data++) {
-                    sortStates.add(new BlockDescription(id, id, states.get(data), data));
+                    var state = states.get(data);
+                    sortStates.add(new BlockDescription(id, id, state, data, manager.textId));
+
+                    int runtimeId = RUNTIME_ID.getAndSet(RUNTIME_ID.get() - 1);
+                    blockPalette.registerState(id, data, runtimeId, null);
+                    var builder = NbtMap.builder();
+
+                    state.keySet().forEach((name) -> {
+                        builder.putInt(name, state.getInt(name));
+                    });
+                    builder.putString("name", manager.textId);
+                    var nbt = builder.build();
+                    nbt.hashCode();
+                    BlockStateMapping.get().registerState(runtimeId, nbt);
                 }
             });
 
