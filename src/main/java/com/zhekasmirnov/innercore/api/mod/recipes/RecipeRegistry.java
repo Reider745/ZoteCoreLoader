@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.recipes;
 
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;
@@ -215,7 +216,8 @@ public class RecipeRegistry {
         int count = ScriptableObjectHelper.getIntProperty(item, "count", 1);
         int aux = ScriptableObjectHelper.getIntProperty(item, "data", 0);
         if (id == 0) {
-            throw new IllegalArgumentException("recipe id is 0");
+            Logger.error("delete recipe id is 0");
+            return;
         }
 
         removeWorkbenchRecipe(id, count, aux);

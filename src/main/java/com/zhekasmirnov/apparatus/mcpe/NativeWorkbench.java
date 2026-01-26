@@ -71,6 +71,7 @@ public class NativeWorkbench {
             return this;
         }
     }
+    private static long RECIPE_ID = Long.MIN_VALUE;
 
     private static class RecipeRegistryEntry implements IApply {
         public int resultId;
@@ -139,7 +140,7 @@ public class NativeWorkbench {
                 }
 
                 if (accepted) {
-                    RecipeRegistry.registerShapedRecipe(new ShapedRecipe(result, this.pattern, ingredients, new ArrayList<>()));
+                    RecipeRegistry.registerShapedRecipe(new ShapedRecipe(String.valueOf(RECIPE_ID++), 1, result, this.pattern, ingredients, new ArrayList<>()));
                 }
             } else {
                 final Collection<ItemDescriptor> ingredients = new ArrayList<>();
@@ -158,7 +159,7 @@ public class NativeWorkbench {
                     ingredients.add(new DefaultDescriptor(item));
                 }
                 if (accepted) {
-                    RecipeRegistry.registerShapelessRecipe(new ShapelessRecipe(result, ingredients));
+                    RecipeRegistry.registerShapelessRecipe(new ShapelessRecipe(String.valueOf(RECIPE_ID++), 10, result, ingredients));
                 }
             }
 
@@ -171,14 +172,28 @@ public class NativeWorkbench {
 
     private static void addShapedRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
             String[] pattern, int[] ingredients) {
+        if (resultId == 0) {
+            Logger.error("Recipe result id 0");
+            return;
+        }
         final HashMap<Character, ItemStack> ingredients_ = new HashMap<>();
-        for (int i = 0; i < ingredients.length; i += 3)
-            ingredients_.put((char) ingredients[i], new ItemStack(ingredients[i + 1], 1, ingredients[i + 2]));
+        for (int i = 0; i < ingredients.length; i += 3) {
+            int id = ingredients[i + 1];
+            if (id == 0) {
+                Logger.error("Recipe result id 0");
+                return;
+            }
+            ingredients_.put((char) ingredients[i], new ItemStack(id, 1, ingredients[i + 2]));
+        }
 
         final RecipeRegistryEntry recipe = new RecipeRegistryEntry(resultId, resultCount, resultData, resultExtra, pattern, ingredients_);
 
-        recipe.apply(runtimeItemMapping)
+        if(runtimeItemMapping != null) {
+            recipe.apply(runtimeItemMapping)
                     .rebuildPacket();
+        } else {
+            recipes.add(recipe);
+        }
     }
 
     public static void addShapedRecipe(ItemStack result, String[] pattern, int[] ingredients) {
