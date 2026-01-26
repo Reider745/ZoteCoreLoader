@@ -6,6 +6,7 @@ import cn.nukkit.block.BlockDoor;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.level.format.leveldb.BlockStateMapping;
 import cn.nukkit.level.format.leveldb.LevelDBConstants;
+import cn.nukkit.level.format.leveldb.structure.BlockStateSnapshot;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
@@ -13,12 +14,16 @@ import com.google.common.io.ByteStreams;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
+import com.reider745.api.hooks.annotation.ShadowGetField;
 import com.reider745.block.BlockNukkitIdConverter;
 import com.reider745.block.BlockStateStorage;
 import com.reider745.block.CustomBlock;
 import com.reider745.block.wall.BlockWall;
+import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import org.cloudburstmc.nbt.NbtMap;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -34,6 +39,28 @@ public class BlockPalette {
     private static final Int2IntMap stateCapacity = new Int2IntOpenHashMap();
     private static final Map<String, Integer> stateIdByName = new HashMap<>();
     private static final Map<Integer, String> nameByStateId = new HashMap<>();
+    private static final Object2ObjectMap<NbtMap, BlockStateSnapshot> paletteMap = new Object2ObjectOpenCustomHashMap<>(new Hash.Strategy<>() {
+        @Override
+        public int hashCode(NbtMap nbtMap) {
+            return nbtMap.hashCode();
+        }
+
+        @Override
+        public boolean equals(NbtMap nbtMap, NbtMap nbtMap2) {
+            return Objects.equals(nbtMap, nbtMap2);
+        }
+    });
+    private static final Object2ObjectMap<NbtMap, BlockStateSnapshot> CACHE_PALETTE = new Object2ObjectOpenCustomHashMap<>(new Hash.Strategy<>() {
+        @Override
+        public int hashCode(NbtMap nbtMap) {
+            return nbtMap.hashCode();
+        }
+
+        @Override
+        public boolean equals(NbtMap nbtMap, NbtMap nbtMap2) {
+            return Objects.equals(nbtMap, nbtMap2);
+        }
+    });
 
     private static final cn.nukkit.level.BlockPalette blockPalette = new cn.nukkit.level.BlockPalette(LevelDBConstants.PALETTE_VERSION);
 
@@ -178,13 +205,21 @@ public class BlockPalette {
                     blockPalette.registerState(id, data, runtimeId, null);
                     var builder = NbtMap.builder();
 
+                    var builderState = NbtMap.builder();
                     state.keySet().forEach((name) -> {
-                        builder.putInt(name, state.getInt(name));
+                        builderState.putInt(name, state.getInt(name));
                     });
+                    builder.put("states", builderState.build());
                     builder.putString("name", manager.textId);
                     var nbt = builder.build();
                     nbt.hashCode();
                     BlockStateMapping.get().registerState(runtimeId, nbt);
+
+                    paletteMap.put(nbt, BlockStateSnapshot.builder()
+                            .version(BlockStateMapping.get().getVersion())
+                            .vanillaState(nbt)
+                            .runtimeId(runtimeId)
+                            .build());
                 }
             });
 
@@ -325,5 +360,32 @@ public class BlockPalette {
     @Inject
     public static int getOrCreateRuntimeId(int legacyId) {
         return getOrCreateRuntimeId(ProtocolInfo.CURRENT_PROTOCOL, legacyId >> 4, legacyId & 0xf);
+    }
+
+    @ShadowGetField(className = "cn.nukkit.level.format.leveldb.BlockStateMapping", field = "paletteMap")
+    private static Object2ObjectMap<NbtMap, BlockStateSnapshot> getPaletteMap(BlockStateMapping self) {throw new RuntimeException();}
+
+    @Inject(className = "cn.nukkit.level.format.leveldb.BlockStateMapping")
+    public static BlockStateSnapshot getStateUnsafe(BlockStateMapping self, NbtMap vanilla) {
+        if(CustomBlock.customBlocks.containsKey(vanilla.getString("name"))) {
+            BlockStateSnapshot snapshot = CACHE_PALETTE.get(vanilla);
+
+            if(snapshot == null) {
+                var customVanilla = vanilla.toBuilder();
+                customVanilla.remove("version");
+                vanilla = customVanilla.build();
+
+                snapshot = paletteMap.get(customVanilla.build());
+                if(snapshot != null) {
+                    CACHE_PALETTE.put(vanilla, snapshot);
+                }
+            }
+
+            if(snapshot != null) {
+                return snapshot;
+            }
+        }
+
+        return self.getState(self.updateVanillaState(vanilla));
     }
 }

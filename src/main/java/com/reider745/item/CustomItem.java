@@ -109,7 +109,7 @@ public class CustomItem {
         manager.put(PropertiesNames.ID, id);
 
         items.put(id, manager);
-        customItems.put("item_" + textId, id);
+        customItems.put(textId.contains(":") ? textId : "item_" + textId, id);
         CustomManager.put(id, manager);
 
         return manager;
