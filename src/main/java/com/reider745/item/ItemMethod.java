@@ -10,6 +10,8 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
+import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
+import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -161,7 +163,7 @@ public class ItemMethod {
         manager.put(PropertiesNames.ARMOR_DAMAGEABLE, value);
     }
 
-    public static HashMap<Integer, Boolean> despawn = new HashMap<>();
+    public static Int2BooleanMap despawn = new Int2BooleanOpenHashMap();
 
     public static void setShouldDespawn(int id, boolean value) {
         despawn.put(id, value);

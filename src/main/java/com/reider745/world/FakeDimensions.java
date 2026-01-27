@@ -4,14 +4,18 @@ import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class FakeDimensions {
     private static int CURRENT_FAKE_ID = Integer.MIN_VALUE;
-    private static final HashMap<Integer, Integer> fakeIdForLevelId = new HashMap<>();
-    private static final HashMap<Integer, Level> levelForFakeId = new HashMap<>();
+    private static final Int2IntMap fakeIdForLevelId = new Int2IntOpenHashMap();
+    private static final Int2ObjectMap<Level> levelForFakeId = new Int2ObjectOpenHashMap<>();
     private static final ArrayList<Integer> ignore = new ArrayList<>();
 
     public static int getFakeIdForLevel(final Level level){
@@ -25,17 +29,16 @@ public class FakeDimensions {
             return level.getDimension();
 
         //Проверка для псевдо-измерений накита
-        Integer fakeId = fakeIdForLevelId.get(level.getId());
-        if(fakeId == null){
+        if(!fakeIdForLevelId.containsKey(level.getId())){
             while (levelForFakeId.containsKey(CURRENT_FAKE_ID))
                 CURRENT_FAKE_ID++;
-            fakeId = CURRENT_FAKE_ID;
+            int fakeId = CURRENT_FAKE_ID;
 
             fakeIdForLevelId.put(level.getId(), fakeId);
             levelForFakeId.put(fakeId, level);
         }
 
-        return fakeId;
+        return fakeIdForLevelId.get(level.getId());
     }
 
     public static void registerIgnore(int id){

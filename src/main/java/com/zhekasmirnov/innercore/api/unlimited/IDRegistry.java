@@ -8,6 +8,8 @@ import java.util.Map;
 import com.reider745.api.ZoteOnly;
 import com.reider745.block.CustomBlock;
 import com.reider745.item.CustomItem;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
@@ -34,9 +36,9 @@ public class IDRegistry {
     private static final HashSet<String> approvedIds = new HashSet<>();
     private static int unapprovedIds = 0;
 
-    private static final HashMap<Integer, String> nameById = new HashMap<>();
-    private static final HashMap<Integer, String> vanillaNameById = new HashMap<>();
-    private static final HashMap<Integer, String> vanillaTileById = new HashMap<>();
+    private static final Int2ObjectMap<String> nameById = new Int2ObjectOpenHashMap<>();
+    private static final Int2ObjectMap<String> vanillaNameById = new Int2ObjectOpenHashMap<>();
+    private static final Int2ObjectMap<String> vanillaTileById = new Int2ObjectOpenHashMap<>();
 
     private static final HashMap<String, Integer> itemIdShortcut = new HashMap<>();
     private static final HashMap<String, Integer> blockIdShortcut = new HashMap<>();

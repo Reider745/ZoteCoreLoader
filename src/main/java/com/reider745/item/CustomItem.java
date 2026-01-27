@@ -10,13 +10,17 @@ import com.reider745.hooks.item.ItemUtils;
 import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public class CustomItem {
-    public static HashMap<Integer, CustomManager> items = new HashMap<>();
-    public static HashMap<Integer, Integer> foods = new HashMap<>();
+    public static Int2ObjectMap<CustomManager> items = new Int2ObjectOpenHashMap<>();
+    public static Int2IntMap foods = new Int2IntOpenHashMap();
 
     public static void init() {
         items.forEach((key, value) -> Item.list[key] = value.getClazz());
@@ -154,7 +158,7 @@ public class CustomItem {
         return manager.get(PropertiesNames.MAX_DAMAGE, 0) > 0;
     }
 
-    private static final HashMap<Integer, ArrayList<ItemCreative>> category_all = new HashMap<>();
+    private static final Int2ObjectMap<ArrayList<ItemCreative>> category_all = new Int2ObjectOpenHashMap<>();
 
     public static void sortCategory() {
         for (ItemCreative item : creative) {

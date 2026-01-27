@@ -25,6 +25,8 @@ import com.reider745.block.BlockStateStorage;
 import com.reider745.entity.EntityMethod;
 import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -161,7 +163,7 @@ public class BlockSourceMethods {
         return 0;
     }
 
-    private static final HashMap<Integer, String> TILES_TYPES = new HashMap<>();
+    private static final Int2ObjectMap<String> TILES_TYPES = new Int2ObjectOpenHashMap<>();
 
     static {
         TILES_TYPES.put(BlockID.CHEST, BlockEntity.CHEST);

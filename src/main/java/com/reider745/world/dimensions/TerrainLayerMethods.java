@@ -5,6 +5,8 @@ import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.*;
 
@@ -41,7 +43,7 @@ public class TerrainLayerMethods {
         }
 
 
-        public final HashMap<Integer, Map.Entry<TerrainMaterialMethods.TerrainMaterialDescription, NoiseGeneratorMethods.NoiseGeneratorDescription>> materials_map = new HashMap<>();
+        public final Int2ObjectMap<Map.Entry<TerrainMaterialMethods.TerrainMaterialDescription, NoiseGeneratorMethods.NoiseGeneratorDescription>> materials_map = new Int2ObjectOpenHashMap<>();
         @SuppressWarnings("unchecked")
         public Map.Entry<Integer, Map.Entry<TerrainMaterialMethods.TerrainMaterialDescription, NoiseGeneratorMethods.NoiseGeneratorDescription>>[] materials = new Map.Entry[0];
 

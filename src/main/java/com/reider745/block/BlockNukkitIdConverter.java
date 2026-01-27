@@ -3,6 +3,9 @@ package com.reider745.block;
 import cn.nukkit.Server;
 import cn.nukkit.block.BlockID;
 import com.google.common.io.ByteStreams;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,8 +14,8 @@ import java.util.HashMap;
 public class BlockNukkitIdConverter {
     public static final JSONArray json;
 
-    private static final HashMap<Integer, Integer> legacyForNewId = new HashMap<>();
-    private static final HashMap<Integer, Integer> newIdForLegacyId = new HashMap<>();
+    private static final Int2IntMap legacyForNewId = new Int2IntOpenHashMap();
+    private static final Int2IntMap newIdForLegacyId = new Int2IntOpenHashMap();
 
     static {
         try{

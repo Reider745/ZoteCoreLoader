@@ -1,12 +1,14 @@
 package com.reider745.api.pointers;
 
+import cn.nukkit.utils.collection.nb.Long2ObjectNonBlockingMap;
+
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ThreadCheckToClear<T> extends Thread {
     private static final long TIME = 100 * 1000;
     private final PointersStorage<?> storage;
-    private final ConcurrentHashMap<Long, ClassPointer<T>> pointers;
+    private final Long2ObjectNonBlockingMap<ClassPointer<T>> pointers;
 
     public ThreadCheckToClear(PointersStorage<T> storage) {
         this.storage = storage;

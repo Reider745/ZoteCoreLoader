@@ -14,7 +14,6 @@ import com.google.common.io.ByteStreams;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
-import com.reider745.api.hooks.annotation.ShadowGetField;
 import com.reider745.block.BlockNukkitIdConverter;
 import com.reider745.block.BlockStateStorage;
 import com.reider745.block.CustomBlock;
@@ -22,6 +21,8 @@ import com.reider745.block.wall.BlockWall;
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import org.cloudburstmc.nbt.NbtMap;
@@ -38,7 +39,7 @@ public class BlockPalette {
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
     private static final Int2IntMap stateCapacity = new Int2IntOpenHashMap();
     private static final Map<String, Integer> stateIdByName = new HashMap<>();
-    private static final Map<Integer, String> nameByStateId = new HashMap<>();
+    private static final Int2ObjectMap<String> nameByStateId = new Int2ObjectOpenHashMap<>();
     private static final Object2ObjectMap<NbtMap, BlockStateSnapshot> paletteMap = new Object2ObjectOpenCustomHashMap<>(new Hash.Strategy<>() {
         @Override
         public int hashCode(NbtMap nbtMap) {
@@ -51,6 +52,17 @@ public class BlockPalette {
         }
     });
     private static final Object2ObjectMap<NbtMap, BlockStateSnapshot> CACHE_PALETTE = new Object2ObjectOpenCustomHashMap<>(new Hash.Strategy<>() {
+        @Override
+        public int hashCode(NbtMap nbtMap) {
+            return nbtMap.hashCode();
+        }
+
+        @Override
+        public boolean equals(NbtMap nbtMap, NbtMap nbtMap2) {
+            return Objects.equals(nbtMap, nbtMap2);
+        }
+    });
+    private static final Object2ObjectMap<NbtMap, Integer> levelDbRuntimeIdToData = new Object2ObjectOpenCustomHashMap<>(new Hash.Strategy<>() {
         @Override
         public int hashCode(NbtMap nbtMap) {
             return nbtMap.hashCode();
@@ -167,8 +179,11 @@ public class BlockPalette {
     }
 
 
-    public static void init() {
+    @Inject(className = "cn.nukkit.level.format.leveldb.NukkitLegacyMapper")
+    public static void registerStates(BlockStateMapping blockStateMapping) {
         final long start = System.currentTimeMillis();
+
+        CustomBlock.init();
 
         legacyToRuntimeId.defaultReturnValue(-1);
         runtimeIdToLegacy.defaultReturnValue(-1);
@@ -215,6 +230,7 @@ public class BlockPalette {
                     nbt.hashCode();
                     BlockStateMapping.get().registerState(runtimeId, nbt);
 
+                    levelDbRuntimeIdToData.put(nbt, data);
                     paletteMap.put(nbt, BlockStateSnapshot.builder()
                             .version(BlockStateMapping.get().getVersion())
                             .vanillaState(nbt)
@@ -312,7 +328,7 @@ public class BlockPalette {
             runtimeId = legacyToRuntimeId.get(id << Block.DATA_BITS);
 
             if (runtimeId == -1 && id != BlockID.INFO_UPDATE) {
-                logger.error("failed to locate state for id: " + id + ":" + meta);
+                logger.warning("failed to locate state for id: " + id + ":" + meta);
 
                 runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << Block.DATA_BITS);
                 if (runtimeId == -1)
@@ -362,27 +378,37 @@ public class BlockPalette {
         return getOrCreateRuntimeId(ProtocolInfo.CURRENT_PROTOCOL, legacyId >> 4, legacyId & 0xf);
     }
 
-    @ShadowGetField(className = "cn.nukkit.level.format.leveldb.BlockStateMapping", field = "paletteMap")
-    private static Object2ObjectMap<NbtMap, BlockStateSnapshot> getPaletteMap(BlockStateMapping self) {throw new RuntimeException();}
-
     @Inject(className = "cn.nukkit.level.format.leveldb.BlockStateMapping")
     public static BlockStateSnapshot getStateUnsafe(BlockStateMapping self, NbtMap vanilla) {
-        if(CustomBlock.customBlocks.containsKey(vanilla.getString("name"))) {
+        String id = vanilla.getString("name");
+        if(CustomBlock.customBlocks.containsKey(id)) {
             BlockStateSnapshot snapshot = CACHE_PALETTE.get(vanilla);
 
             if(snapshot == null) {
                 var customVanilla = vanilla.toBuilder();
                 customVanilla.remove("version");
-                vanilla = customVanilla.build();
 
                 snapshot = paletteMap.get(customVanilla.build());
                 if(snapshot != null) {
                     CACHE_PALETTE.put(vanilla, snapshot);
+                } else {
+                    int damage = self.getState(self.updateVanillaState(vanilla)).getLegacyData();
+
+                    for (NbtMap key : paletteMap.keySet()) {
+                        if (key.getString("name").equals(id) && damage == levelDbRuntimeIdToData.getOrDefault(key, 0)) {
+                            logger.warning("Replacing a unit with low compatibility: " + id);
+                            snapshot = paletteMap.get(key);
+                            CACHE_PALETTE.put(vanilla, snapshot);
+                            break;
+                        }
+                    }
                 }
             }
 
             if(snapshot != null) {
                 return snapshot;
+            } else {
+                logger.warning("State not found: " + vanilla);
             }
         }
 

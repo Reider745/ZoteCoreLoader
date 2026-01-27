@@ -14,6 +14,8 @@ import com.reider745.block.wall.BlockWall;
 import com.reider745.hooks.block.BlockPalette;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
+import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
+import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.json.JSONObject;
@@ -24,7 +26,7 @@ import java.util.*;
 
 @Hooks(className = "cn.nukkit.item.RuntimeItemMapping")
 public class RuntimeItemsHooks implements HookClass {
-    private static HashMap<Integer, Boolean> protocols = new HashMap<>();
+    private static final Int2BooleanMap protocols = new Int2BooleanOpenHashMap();
 
     @Inject
     public static void generatePalette(RuntimeItemMapping self) {

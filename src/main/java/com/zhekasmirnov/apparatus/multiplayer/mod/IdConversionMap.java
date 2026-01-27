@@ -2,6 +2,9 @@ package com.zhekasmirnov.apparatus.multiplayer.mod;
 
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -30,8 +33,8 @@ public class IdConversionMap {
 
 
     private final Map<String, Integer> localIdMap = new HashMap<>();
-    private final Map<Integer, Integer> fromLocalToServerMap = new HashMap<>();
-    private final Map<Integer, Integer> fromServerToLocalMap = new HashMap<>();
+    private final Int2IntMap fromLocalToServerMap = new Int2IntOpenHashMap();
+    private final Int2IntMap fromServerToLocalMap = new Int2IntOpenHashMap();
 
     private JSONObject localMapAsJson() {
         return new JSONObject(localIdMap);

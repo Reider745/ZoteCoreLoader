@@ -1,6 +1,10 @@
 package com.reider745.block;
 
 import com.reider745.hooks.block.BlockPalette;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -9,12 +13,12 @@ import java.util.Map;
 
 // TODO: Убрать использования имен на использование id стейтов
 public class BlockStateStorage {
-    private static final Map<Integer, Map<String, Integer>> statesForRuntimeId = new HashMap<>();
-    private static final Map<Integer, Map<Map<String, Integer>, Integer>> runtimeIdsForStatesAndId = new HashMap<>();
-    private static final Map<Integer, Integer> dataForRuntimeId = new HashMap<>();
+    private static final Int2ObjectMap<Map<String, Integer>> statesForRuntimeId = new Int2ObjectOpenHashMap<>();
+    private static final Int2ObjectMap<Map<Map<String, Integer>, Integer>> runtimeIdsForStatesAndId = new Int2ObjectOpenHashMap<>();
+    private static final Int2IntMap dataForRuntimeId = new Int2IntOpenHashMap();
 
     private static final HashMap<String, Integer> runtimeIdForIdAndData = new HashMap<>();
-    private static final HashMap<Integer, int[]> blockForRuntime = new HashMap<>();
+    private static final Int2ObjectMap<int[]> blockForRuntime = new Int2ObjectOpenHashMap<>();
 
     public static void addState(JSONObject json, int runtimeId, int legacyId, int data, int newId){
         final Map<String, Integer> state = new HashMap<>();

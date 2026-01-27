@@ -314,9 +314,7 @@ public class InnerCoreServer {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
 
-        BlockPalette.init();
         RuntimeItemsHooks.register();
-        CustomBlock.init();
         CustomItem.init();
         CustomItem.addCreativeItemsBuild();
         CustomItem.addCreativeItemsWeapons();

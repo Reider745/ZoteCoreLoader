@@ -18,6 +18,8 @@ import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
 
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apache.commons.math3.stat.inference.BinomialTest;
 import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CustomBlock extends BlockSolidMeta implements RandomTick {
-    public static HashMap<Integer, CustomManager> blocks = new HashMap<>();
+    public static Int2ObjectMap<CustomManager> blocks = new Int2ObjectOpenHashMap<>();
 
     public static void registerBlock(int id, Block block) {
         registerBlock(id, 0, block);

@@ -1,18 +1,17 @@
 package com.reider745.api.pointers;
 
+import cn.nukkit.utils.collection.nb.Long2ObjectNonBlockingMap;
 import com.reider745.api.pointers.pointer_gen.IBasePointerGen;
 import com.reider745.api.pointers.pointer_gen.PointerGenSlowest;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class PointersStorage<T> {
     private static final HashMap<String, PointersStorage<?>> storages = new HashMap<>();
 
-    private final ConcurrentHashMap<Long, ClassPointer<T>> pointers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<ClassPointer<T>, Long> pointerForInstance = new ConcurrentHashMap<>();
+    private final Long2ObjectNonBlockingMap<ClassPointer<T>> pointers =  new Long2ObjectNonBlockingMap<>();
     private final IBasePointerGen pointerGen;
 
     public interface INewPointer<T> {
@@ -54,14 +53,12 @@ public class PointersStorage<T> {
         long ptr = pointerGen.next();
         ClassPointer<T> pointer = newPointer.apply(new WeakReference<>(pointerClass));
         pointers.put(ptr, pointer);
-        pointerForInstance.put(pointer, ptr);
         return ptr;
     }
 
     public final long addPointer(ClassPointer<T> pointer) {
         long ptr = pointerGen.next();
         pointers.put(ptr, pointer);
-        pointerForInstance.put(pointer, ptr);
         return ptr;
     }
 
@@ -71,11 +68,6 @@ public class PointersStorage<T> {
 
     public final ClassPointer<T> getInstance(long ptr) {
         return pointers.get(ptr);
-    }
-
-    public final long getPointerForInstance(T value) {
-        Long ptr = pointerForInstance.get(value);
-        return ptr == null ? 0 : ptr;
     }
 
     public final void removePointer(long pointer) {
@@ -89,10 +81,9 @@ public class PointersStorage<T> {
             return;
         }
         pointers.put(ptr, classPointer);
-        pointerForInstance.put(classPointer, ptr);
     }
 
-    public ConcurrentHashMap<Long, ClassPointer<T>> getPointers() {
+    public Long2ObjectNonBlockingMap<ClassPointer<T>> getPointers() {
         return pointers;
     }
 
