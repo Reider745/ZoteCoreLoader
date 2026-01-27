@@ -106,6 +106,8 @@ public class CustomItem {
     }
 
     public static CustomManager registerItem(String textId, int id, String name, Class<?> item) {
+        textId = textId.contains(":") ? textId : "item_" + textId;
+
         CustomManager manager = new CustomManager(id, item, "item", textId);
         manager.put(PropertiesNames.NAME, name);
         manager.put(PropertiesNames.MAX_DAMAGE, 0);
@@ -113,7 +115,7 @@ public class CustomItem {
         manager.put(PropertiesNames.ID, id);
 
         items.put(id, manager);
-        customItems.put(textId.contains(":") ? textId : "item_" + textId, id);
+        customItems.put(textId, id);
         CustomManager.put(id, manager);
 
         return manager;

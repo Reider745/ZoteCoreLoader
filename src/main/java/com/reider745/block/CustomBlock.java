@@ -145,12 +145,14 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     public static HashMap<String, Integer> customBlocks = new HashMap<>();
 
     public static CustomManager registerBlock(String textId, int id, String name, Class<?> item) {
+        textId = textId.contains(":") ? textId : "block_" + textId;
+
         CustomManager manager = new CustomManager(id, item, "block", textId);
         manager.put("name", name);
         manager.put("states", BlockMethods.getStatesForId(id));
 
         blocks.put(id, manager);
-        customBlocks.put(textId.contains(":") ? textId : "block_" + textId, id);
+        customBlocks.put(textId, id);
 
         CustomManager.put(id, manager);
         NativeItem.newNativeItem(id, manager, textId, name);

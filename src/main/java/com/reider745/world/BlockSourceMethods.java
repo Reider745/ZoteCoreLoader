@@ -74,7 +74,7 @@ public class BlockSourceMethods {
     }
 
     public static int getBlockId(Level level, int x, int y, int z) {
-        if(y >= 0 && y <= 255)
+        if(y >= level.getMinBlockY() && y <= level.getMaxBlockY())
             return level.getBlock(x, y, z).getId();
         return 0;
     }
@@ -92,7 +92,7 @@ public class BlockSourceMethods {
 
     public static boolean canSeeSky(Level level, int x, int y, int z) {
         y++;
-        while (y < 256){
+        while (y < level.getMaxBlockY()) {
             if(level.getBlockIdAt(x, y, z) != 0) return false;
             y++;
         }
@@ -120,7 +120,7 @@ public class BlockSourceMethods {
     }
 
     public static int getBlockData(Level level, int x, int y, int z) {
-        if(y >= 0 && y <= 255)
+        if(y >= level.getMinBlockY() && y <= level.getMaxBlockY())
             return level.getBlockDataAt(x, y, z);
         return 0;
     }

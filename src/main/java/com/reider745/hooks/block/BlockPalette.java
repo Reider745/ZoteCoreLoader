@@ -12,6 +12,7 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.io.ByteStreams;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.block.BlockNukkitIdConverter;
@@ -34,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
 public class BlockPalette {
+    private static final int VERSION_STATE = 18168865;
     private static final MainLogger logger = Server.getInstance().getLogger();
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
@@ -179,7 +181,7 @@ public class BlockPalette {
     }
 
 
-    @Inject(className = "cn.nukkit.level.format.leveldb.NukkitLegacyMapper")
+    @Inject(className = "cn.nukkit.level.format.leveldb.NukkitLegacyMapper", type = TypeHook.AFTER_NOT_REPLACE)
     public static void registerStates(BlockStateMapping blockStateMapping) {
         final long start = System.currentTimeMillis();
 
@@ -226,13 +228,17 @@ public class BlockPalette {
                     });
                     builder.put("states", builderState.build());
                     builder.putString("name", manager.textId);
+                    builder.putInt("version", VERSION_STATE);
+
                     var nbt = builder.build();
                     nbt.hashCode();
-                    BlockStateMapping.get().registerState(runtimeId, nbt);
+                    if(!blockStateMapping.containsState(nbt)) {
+                        blockStateMapping.registerState(runtimeId, nbt);
+                    }
 
                     levelDbRuntimeIdToData.put(nbt, data);
                     paletteMap.put(nbt, BlockStateSnapshot.builder()
-                            .version(BlockStateMapping.get().getVersion())
+                            .version(VERSION_STATE)
                             .vanillaState(nbt)
                             .runtimeId(runtimeId)
                             .build());
@@ -328,7 +334,7 @@ public class BlockPalette {
             runtimeId = legacyToRuntimeId.get(id << Block.DATA_BITS);
 
             if (runtimeId == -1 && id != BlockID.INFO_UPDATE) {
-                logger.warning("failed to locate state for id: " + id + ":" + meta);
+                logger.debug("failed to locate state for id: " + id + ":" + meta);
 
                 runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << Block.DATA_BITS);
                 if (runtimeId == -1)
@@ -386,7 +392,7 @@ public class BlockPalette {
 
             if(snapshot == null) {
                 var customVanilla = vanilla.toBuilder();
-                customVanilla.remove("version");
+                customVanilla.putInt("version", VERSION_STATE);
 
                 snapshot = paletteMap.get(customVanilla.build());
                 if(snapshot != null) {
