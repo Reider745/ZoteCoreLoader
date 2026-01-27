@@ -9,6 +9,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.BlockFace;
+import cn.nukkit.utils.BlockColor;
 import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.ServerHooks;
@@ -250,6 +251,21 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     @Override
     public boolean canBeFlowedInto() {
         return (boolean) getOrDefault(BlockMethods.CAN_CONTAIN_LIQUID, false);
+    }
+
+    @Override
+    public int getBurnChance() {
+        return getOrDefault(BlockMethods.BURN_FLAME, 0);
+    }
+
+    @Override
+    public int getBurnAbility() {
+        return getOrDefault(BlockMethods.BURN_CHANCE, 0);
+    }
+
+    @Override
+    public BlockColor getColor() {
+        return getOrDefault(BlockMethods.COLOR, BlockColor.AIR_BLOCK_COLOR);
     }
 
     @Override

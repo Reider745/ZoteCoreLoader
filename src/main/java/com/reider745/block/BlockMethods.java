@@ -1,6 +1,7 @@
 package com.reider745.block;
 
 import cn.nukkit.block.Block;
+import cn.nukkit.utils.BlockColor;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
@@ -23,6 +24,9 @@ public class BlockMethods {
     public static final byte FRICTION = 5;
     public static final byte LIGHT_LEVEL = 6;
     public static final byte STATES = 7;
+    public static final byte COLOR = 8;
+    public static final byte BURN_CHANCE = 9;
+    public static final byte BURN_FLAME = 10;
 
     private static Byte2ObjectOpenHashMap<Object> assureId2Type(int id) {
         Byte2ObjectOpenHashMap<Object> type = id2typeMap.get(id);
@@ -42,6 +46,26 @@ public class BlockMethods {
         return id2typeMap.computeIfAbsent(id, id_ -> {
             throw new RuntimeException("Not found");
         });
+    }
+
+    public static void setBurnOdds(int id, int burnOdds) {
+        assureId2Type(id).put(BURN_CHANCE, Integer.valueOf(burnOdds));
+    }
+
+    public static void setFlameOdds(int id, int flameOdds) {
+        assureId2Type(id).put(BURN_FLAME, Integer.valueOf(flameOdds));
+    }
+
+    public static int getFlameOdds(int id) {
+        if(InnerCoreServer.canEndLoadMods())
+            return validateThen(id, Block::getBurnAbility,1);
+        return (int) getOrDefault(id, BURN_FLAME, 1);
+    }
+
+    public static int getBurnOdds(int id) {
+        if(InnerCoreServer.canEndLoadMods())
+            return validateThen(id, Block::getBurnChance,1);
+        return (int) getOrDefault(id, BURN_FLAME, 1);
     }
 
     private interface IApply<T> {
@@ -177,9 +201,11 @@ public class BlockMethods {
     }
 
     public static void setBlockColorSource(int id, int val) {
+        assureId2Type(id).put(COLOR, new BlockColor(val));
     }
 
     public static void setMapColor(int id, int mapColor) {
+        assureId2Type(id).put(COLOR, new BlockColor(mapColor));
     }
 
     public static void setCanContainLiquid(int id, boolean canContainLiquid) {

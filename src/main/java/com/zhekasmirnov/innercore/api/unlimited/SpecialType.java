@@ -111,6 +111,8 @@ public class SpecialType {
     public int mapcolor = 0;
     public String color_source = "";
     public NativeArray states = ScriptableObjectHelper.createArray(Collections.singletonList("color"));
+    public int flameOdds = 0;
+    public int burnOdds = 0;
 
     @SuppressWarnings("deprecation")
     public void setupBlock(int id) {
@@ -130,6 +132,9 @@ public class SpecialType {
         NativeBlock.setDestroyTime(id, destroytime);
         NativeBlock.setTranslucency(id, translucency);
         NativeBlock.setMapColor(id, mapcolor);
+
+        NativeBlock.setFlameOdds(id, flameOdds);
+        NativeBlock.setBurnOdds(id, burnOdds);
 
         BlockColorSource colorSource = BlockColorSource.NONE;
         try {
@@ -181,6 +186,8 @@ public class SpecialType {
             translucency = ScriptableObjectHelper.getFloatProperty(properties, "translucency", translucency);
             color_source = ScriptableObjectHelper.getStringProperty(properties, "color_source", color_source);
             states = ScriptableObjectHelper.getNativeArrayProperty(properties, "states", states);
+            flameOdds = ScriptableObjectHelper.getIntProperty(properties, "flame_odds", flameOdds);
+            burnOdds = ScriptableObjectHelper.getIntProperty(properties, "burn_odds", burnOdds);
         }
     }
 }

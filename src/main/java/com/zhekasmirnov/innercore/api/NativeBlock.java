@@ -277,6 +277,23 @@ public class NativeBlock {
         shape.set(x1, y1, z1, x2, y2, z2);
     }
 
+    public static void setBurnOdds(int id, int burnOdds) {
+        BlockMethods.setBurnOdds(id, burnOdds);
+    }
+
+    public static void setFlameOdds(int id, int flameOdds) {
+        BlockMethods.setFlameOdds(id, flameOdds);
+    }
+
+    public static int getFlameOdds(int id) {
+        return BlockMethods.getFlameOdds(id);
+    }
+
+    public static int getBurnOdds(int id) {
+        return BlockMethods.getBurnOdds(id);
+    }
+
+
     private static HashMap<Integer, Float> blockDestroyTimes = new HashMap<>();
     private static HashMap<Integer, Float> realBlockDestroyTimes = new HashMap<>();
 

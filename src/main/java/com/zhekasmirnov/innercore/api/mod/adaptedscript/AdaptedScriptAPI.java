@@ -1859,6 +1859,27 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
+        public static int getBurnOdds(int id) {
+            return NativeBlock.getBurnOdds(id);
+        }
+
+        @JSStaticFunction
+        public static int getFlameOdds(int id) {
+            return NativeBlock.getFlameOdds(id);
+        }
+
+        @JSStaticFunction
+        public static void setBurnOdds(int id, int burnOdds) {
+            NativeBlock.setBurnOdds(id, burnOdds);
+        }
+
+        @JSStaticFunction
+        public static void setFlameOdds(int id, int flameOdds) {
+            NativeBlock.setFlameOdds(id, flameOdds);
+        }
+
+
+        @JSStaticFunction
         @Deprecated(since = "Zote")
         public static int getRenderType(int id) {
             return NativeBlock.getRenderType(id);
