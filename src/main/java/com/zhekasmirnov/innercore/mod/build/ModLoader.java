@@ -22,11 +22,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Created by zheka on 30.07.2017.
@@ -79,8 +83,7 @@ public class ModLoader {
                     if (mod != null) {
                         modsList.add(mod);
                         mod.onImport();
-                    }
-                    else {
+                    } else {
                         Logger.debug(LOGGER_TAG, "failed to build mod: build.config file could not be parsed.");
                     }
                 }
@@ -112,7 +115,6 @@ public class ModLoader {
             }
         }
     }
-
 
 
     private final List<File> resourcePackDirs = new ArrayList<>();
@@ -157,7 +159,7 @@ public class ModLoader {
         BEHAVIOR;
 
         public static MinecraftPackType fromString(String str) {
-            switch(str) {
+            switch (str) {
                 case "resource":
                     return RESOURCE;
                 case "behavior":
@@ -205,10 +207,8 @@ public class ModLoader {
                             return new MinecraftPack(directory, type, uuid, array);
                         }
                     }
-                } catch(IOException e) {
-                    e.printStackTrace();
-                } catch(JSONException e) {
-                    e.printStackTrace();
+                } catch (IOException | JSONException e) {
+                    throw new RuntimeException(e);
                 }
             }
             ICLog.i("ERROR", "failed to read minecraft pack uuid or version: " + directory);
@@ -219,7 +219,7 @@ public class ModLoader {
 
     private List<MinecraftPack> minecraftPacks = new ArrayList<>();
 
-    private void loadMinecraftPacksIntoDirectory(MinecraftPackType type, File targetDir, List<File> files) {
+    private void loadMinecraftPacksIntoDirectory(MinecraftPackType type, File targetDir, List<File> files, boolean compression) {
         if (targetDir.isDirectory()) {
             FileUtils.clearFileTree(targetDir, false);
         } else {
@@ -228,19 +228,45 @@ public class ModLoader {
         }
 
         for (File file : files) {
-            File target = new File(targetDir, file.getName());
-            while (target.exists()) {
-                target = new File(targetDir, target.getName() + "-");
+            File targetZip = new File(targetDir, file.getName() + ".zip");
+            while (targetZip.exists()) {
+                targetZip = new File(targetDir, targetZip.getName().replaceFirst("\\.zip$", "") + "-.zip");
             }
+
             try {
-                FileUtils.copyFileTree(file, target, null, null);
+                // Создаем ZIP-архив
+                try (FileOutputStream fos = new FileOutputStream(targetZip);
+                     ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+                    zipDirectory(file, file.getName(), zos);
+                }
+
+                // Если MinecraftPack может работать с ZIP, передаем архив
+                // Иначе нужно будет добавить распаковку как в первом варианте
+                MinecraftPack pack = MinecraftPack.fromDirectory(targetZip, type);
+                if (pack != null) {
+                    minecraftPacks.add(pack);
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
                 continue;
             }
-            MinecraftPack pack = MinecraftPack.fromDirectory(target, type);
-            if (pack != null) {
-                minecraftPacks.add(pack);
+        }
+    }
+
+    private void zipDirectory(File directory, String baseName, ZipOutputStream zos) throws IOException {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    zipDirectory(file, baseName + "/" + file.getName(), zos);
+                } else {
+                    ZipEntry entry = new ZipEntry(baseName + "/" + file.getName());
+                    zos.putNextEntry(entry);
+                    Files.copy(file.toPath(), zos);
+                    zos.closeEntry();
+                }
             }
         }
     }
@@ -314,8 +340,8 @@ public class ModLoader {
 
     public void loadResourceAndBehaviorPacks() {
         minecraftPacks.clear();
-        loadMinecraftPacksIntoDirectory(MinecraftPackType.RESOURCE, new File(FileTools.DIR_HORIZON, "resource_packs"), resourcePackDirs);
-        loadMinecraftPacksIntoDirectory(MinecraftPackType.BEHAVIOR, new File(FileTools.DIR_HORIZON, "behavior_packs"), behaviorPackDirs);
+        loadMinecraftPacksIntoDirectory(MinecraftPackType.RESOURCE, new File(FileTools.DIR_HORIZON, "resource_packs"), resourcePackDirs, true);
+        loadMinecraftPacksIntoDirectory(MinecraftPackType.BEHAVIOR, new File(FileTools.DIR_HORIZON, "behavior_packs"), behaviorPackDirs, false);
 
         // delete all duplicate packs (with same uuid and version) in world directories
         // duplicate packs can be created by mcpe for some reason
@@ -364,7 +390,7 @@ public class ModLoader {
                     new File(directory, "manifest.json").getAbsolutePath(),
                     MinecraftVersions.getCurrent().createRuntimePackManifest(name, headerUuid, moduleType, version001)
             );
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -421,7 +447,6 @@ public class ModLoader {
             ICLog.e("ERROR", "failed to write world packs json", e);
         }
     }
-
 
 
     private static final ModLoaderReporter defaultLogReporter = (message, error) -> ICLog.e("ERROR", message, error);
