@@ -12,6 +12,8 @@ import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegis
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,8 +67,10 @@ public class ItemMethod {
         manager.put(PropertiesNames.MAX_STACK, stack);
     }
 
-    public static void setCreativeCategory(CustomManager manager, int val) {
-        manager.put(PropertiesNames.CREATIVE_CATEGORY, val);
+    private static final Int2IntMap CREATIVE_CATEGORY = new Int2IntOpenHashMap();
+
+    public static void setCreativeCategory(int id, int val) {
+        CREATIVE_CATEGORY.put(id, val);
     }
 
     public static int getCreativeCategory(int id) {

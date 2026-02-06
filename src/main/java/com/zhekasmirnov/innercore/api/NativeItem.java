@@ -101,7 +101,7 @@ public class NativeItem {
     }
 
     public void setCreativeCategory(int val) {
-        setCreativeCategory(properties, val);
+        setCreativeCategory(id, val);
     }
 
     @Deprecated(since = "Zote")
@@ -263,8 +263,8 @@ public class NativeItem {
         // JIC if something changed, check PlayerOffhandInventory.OFFHAND_ITEMS
     }
 
-    public static void setCreativeCategory(CustomManager manager, int val) {
-        ItemMethod.setCreativeCategory(manager, val);
+    public static void setCreativeCategory(int id, int val) {
+        ItemMethod.setCreativeCategory(id, val);
     }
 
     @Deprecated(since = "Zote")
@@ -305,7 +305,7 @@ public class NativeItem {
 
 
     public static void setCreativeCategoryForId(int id, int category) {
-        ItemMethod.setCreativeCategory(CustomManager.getFor(id), category);
+        ItemMethod.setCreativeCategory(id, category);
     }
 
     public static String getNameForId(int id, int data) {

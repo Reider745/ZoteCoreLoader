@@ -69,6 +69,11 @@ public class BlockState {
         return null;
     }
 
+    @JSStaticFunction
+    public static int getBlockStateCapacity(int id) {
+        return CAPACITY_STATES.getOrDefault(id, 0);
+    }
+
     public final int id;
     public final int data;
     public final int runtimeId;

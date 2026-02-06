@@ -30,6 +30,8 @@ import org.cloudburstmc.nbt.NbtMap;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -209,6 +211,15 @@ public class BlockPalette {
             }
 
             // custom runtime block
+            final JSONObject EMPTY = new JSONObject();
+            JSONObject blockMapping = EMPTY;
+            try {
+                blockMapping = new JSONObject(Files.readString(new File("block_mapping.json").toPath()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            JSONObject statesValues = blockMapping.optJSONObject("states_values", EMPTY);
 
             AtomicReference<Integer> RUNTIME_ID = new AtomicReference<>(Integer.MAX_VALUE);
             CustomBlock.blocks.forEach((id, manager) -> {
@@ -224,11 +235,14 @@ public class BlockPalette {
 
                     var builderState = NbtMap.builder();
                     state.keySet().forEach((name) -> {
-                        builderState.putInt(name, state.getInt(name));
+                        JSONObject convert = statesValues.optJSONObject(name, EMPTY);
+                        int value = state.getInt(name);
+                        builderState.put(name, convert.has(String.valueOf(value)) ? convert.get(String.valueOf(value)) : value);
                     });
                     builder.put("states", builderState.build());
                     builder.putString("name", manager.textId);
                     builder.putInt("version", VERSION_STATE);
+
 
                     var nbt = builder.build();
                     nbt.hashCode();
@@ -334,7 +348,7 @@ public class BlockPalette {
             runtimeId = legacyToRuntimeId.get(id << Block.DATA_BITS);
 
             if (runtimeId == -1 && id != BlockID.INFO_UPDATE) {
-                logger.debug("failed to locate state for id: " + id + ":" + meta);
+                logger.info("failed to locate state for id: " + id + ":" + meta);
 
                 runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << Block.DATA_BITS);
                 if (runtimeId == -1)
@@ -402,7 +416,7 @@ public class BlockPalette {
 
                     for (NbtMap key : paletteMap.keySet()) {
                         if (key.getString("name").equals(id) && damage == levelDbRuntimeIdToData.getOrDefault(key, 0)) {
-                            logger.warning("Replacing a unit with low compatibility: " + id);
+                            logger.warning("Replacing a unit with low compatibility: " + id + " " + customVanilla.build() + "  " + key);
                             snapshot = paletteMap.get(key);
                             CACHE_PALETTE.put(vanilla, snapshot);
                             break;
