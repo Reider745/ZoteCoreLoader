@@ -12,6 +12,7 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.io.ByteStreams;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
@@ -27,6 +28,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import org.cloudburstmc.nbt.NbtMap;
+import org.cloudburstmc.nbt.NbtMapBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -221,6 +223,9 @@ public class BlockPalette {
 
             JSONObject statesValues = blockMapping.optJSONObject("states_values", EMPTY);
 
+            final Int2ObjectMap<BlockStateSnapshot> runtime2State = ReflectHelper.getField(blockStateMapping, "runtime2State");
+            final Object2ObjectMap<NbtMap, BlockStateSnapshot> palette = ReflectHelper.getField(blockStateMapping, "paletteMap");
+
             AtomicReference<Integer> RUNTIME_ID = new AtomicReference<>(Integer.MAX_VALUE);
             CustomBlock.blocks.forEach((id, manager) -> {
                 final List<JSONObject> states = variantGenerations(CustomBlock.getStates(manager));
@@ -230,7 +235,6 @@ public class BlockPalette {
                     sortStates.add(new BlockDescription(id, id, state, data, manager.textId));
 
                     int runtimeId = RUNTIME_ID.getAndSet(RUNTIME_ID.get() - 1);
-                    blockPalette.registerState(id, data, runtimeId, null);
                     var builder = NbtMap.builder();
 
                     var builderState = NbtMap.builder();
@@ -243,12 +247,17 @@ public class BlockPalette {
                     builder.putString("name", manager.textId);
                     builder.putInt("version", VERSION_STATE);
 
-
                     var nbt = builder.build();
                     nbt.hashCode();
-                    if(!blockStateMapping.containsState(nbt)) {
-                        blockStateMapping.registerState(runtimeId, nbt);
+
+                    if(blockStateMapping.containsState(nbt)) {
+                        BlockStateSnapshot snapshot = blockStateMapping.getState(nbt);
+                        runtime2State.remove(snapshot.getRuntimeId());
+                        palette.remove(snapshot.getVanillaState());
                     }
+
+                    blockStateMapping.registerState(runtimeId, nbt);
+                    blockPalette.registerState(id, data, runtimeId, null);
 
                     levelDbRuntimeIdToData.put(nbt, data);
                     paletteMap.put(nbt, BlockStateSnapshot.builder()
@@ -285,6 +294,8 @@ public class BlockPalette {
                 return 1;
             });
 
+            String[] wallConnectionType = new String[] {"none", "short", "tall"};
+
             for (int runtimeId = 0; runtimeId < sortStates.size(); runtimeId++) {
                 final BlockDescription description = sortStates.get(runtimeId);
                 final int blockMeta = description.data;
@@ -308,14 +319,54 @@ public class BlockPalette {
                 } else if(blockId == BlockID.COBBLESTONE_WALL || blockId == BlockID.BLACKSTONE_WALL || blockId == BlockID.POLISHED_BLACKSTONE_WALL || blockId == BlockID.POLISHED_BLACKSTONE_BRICK_WALL) {
                     int wallMeta = 0;
 
-                    wallMeta = ((wallMeta & ~BlockWall.NORTH_MASK) | ((description.states.getInt("wall_connection_type_north") << Integer.numberOfTrailingZeros(BlockWall.NORTH_MASK)) & BlockWall.NORTH_MASK));
-                    wallMeta = ((wallMeta & ~BlockWall.WEST_MASK) | ((description.states.getInt("wall_connection_type_west") << Integer.numberOfTrailingZeros(BlockWall.WEST_MASK)) & BlockWall.WEST_MASK));
-                    wallMeta = ((wallMeta & ~BlockWall.EAST_MASK) | ((description.states.getInt("wall_connection_type_east") << Integer.numberOfTrailingZeros(BlockWall.EAST_MASK)) & BlockWall.EAST_MASK));
-                    wallMeta = ((wallMeta & ~BlockWall.SOUTH_MASK) | ((description.states.getInt("wall_connection_type_south") << Integer.numberOfTrailingZeros(BlockWall.SOUTH_MASK)) & BlockWall.SOUTH_MASK));
-                    wallMeta = ((wallMeta & ~BlockWall.POST_MASK) | ((description.states.getInt("wall_post_bit") << Integer.numberOfTrailingZeros(BlockWall.POST_MASK)) & BlockWall.POST_MASK));
+                    int east = description.states.getInt("wall_connection_type_east");
+                    int west = description.states.getInt("wall_connection_type_west");
+                    int north = description.states.getInt("wall_connection_type_north");
+                    int south = description.states.getInt("wall_connection_type_south");
+                    int postBit = description.states.getInt("wall_post_bit");
 
-                    if(description.states.has("wall_block_type"))
-                        blockId = BlockWall.WallType.values()[description.states.getInt("wall_block_type")].id;
+                    wallMeta = ((wallMeta & ~BlockWall.NORTH_MASK) | ((north << Integer.numberOfTrailingZeros(BlockWall.NORTH_MASK)) & BlockWall.NORTH_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.WEST_MASK) | ((west << Integer.numberOfTrailingZeros(BlockWall.WEST_MASK)) & BlockWall.WEST_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.EAST_MASK) | ((east << Integer.numberOfTrailingZeros(BlockWall.EAST_MASK)) & BlockWall.EAST_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.SOUTH_MASK) | ((south << Integer.numberOfTrailingZeros(BlockWall.SOUTH_MASK)) & BlockWall.SOUTH_MASK));
+                    wallMeta = ((wallMeta & ~BlockWall.POST_MASK) | ((postBit << Integer.numberOfTrailingZeros(BlockWall.POST_MASK)) & BlockWall.POST_MASK));
+
+                    NbtMapBuilder vanillaState = NbtMap.builder();
+                    NbtMapBuilder states = NbtMap.builder();
+
+                    states.put("wall_connection_type_east", wallConnectionType[east]);
+                    states.put("wall_connection_type_north", wallConnectionType[north]);
+                    states.put("wall_connection_type_south", wallConnectionType[south]);
+                    states.put("wall_connection_type_west", wallConnectionType[west]);
+                    states.put("wall_post_bit", postBit == 1);
+
+                    vanillaState.put("name", switch (blockId) {
+                        case BlockID.COBBLESTONE_WALL -> "minecraft:cobblestone_wall";
+                        case BlockID.BLACKSTONE_WALL -> "minecraft:blackstone_wall";
+                        case BlockID.POLISHED_BLACKSTONE_WALL -> "minecraft:polisheed_blackstone_wall";
+                        case BlockID.POLISHED_BLACKSTONE_BRICK_WALL -> "minecraft:polisheed_blackstone_brick_wall";
+                        default -> throw new RuntimeException("Unknown block id " + blockId);
+                    });
+
+                    if(description.states.has("wall_block_type")) {
+                        BlockWall.WallType wallType = BlockWall.WallType.values()[description.states.getInt("wall_block_type")];
+
+                        states.put("wall_block_type", wallType.name().toLowerCase());
+
+                        blockId = wallType.id;
+                    }
+
+                    vanillaState.put("states", states.build());
+                    vanillaState.put("version", VERSION_STATE);
+
+                    int runtimeIdLevelDb = RUNTIME_ID.getAndSet(RUNTIME_ID.get() - 1);
+                    NbtMap buildStates = vanillaState.build();
+                    buildStates.hashCode();
+                    if(blockStateMapping.containsState(buildStates)) {
+                        runtime2State.remove(palette.remove(buildStates).getRuntimeId());
+                    }
+                    blockStateMapping.registerState(runtimeIdLevelDb, vanillaState.build());
+                    blockPalette.registerState(blockId, wallMeta, runtimeIdLevelDb, null);
                     legacyId = (blockId << Block.DATA_BITS) | wallMeta;
                 }
 

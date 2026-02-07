@@ -38,8 +38,8 @@ public abstract class BlockWall extends BlockTransparentMeta {
         BRICK(1231, "Brick wall"),
         STONE_BRICK(1232, "Stone brick wall"),
         MOSSY_STONE_BRICK(1233, "Mossy stone brick wall"),
-        END_BRICK(1235, "End brick wall"),
         NETHER_BRICK(1234, "Nether brick wall"),
+        END_BRICK(1235, "End brick wall"),
         PRISMARINE(1236, "Prismarine wall"),
         RED_SANDSTONE(1237, "Red sandstone wall"),
         RED_NETHER_BRICK(1238, "Red nether brick wall"),
@@ -170,7 +170,7 @@ public abstract class BlockWall extends BlockTransparentMeta {
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_NORMAL) {
             if (autoConfigureState()) {
-                level.setBlock(this, this, true);
+                level.setBlock(this, this, false);
             }
             return type;
         }

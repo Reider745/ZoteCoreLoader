@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BehaviorPack {
     private static final ArrayList<BehaviorContent> contents_api = new ArrayList<>();
@@ -84,7 +86,13 @@ public class BehaviorPack {
             }
         }
 
+        Set<String> directoryLoad = new HashSet<>();
         for(BehaviorContent content : contents_api){
+            if(directoryLoad.contains(content.getDefaultDirectory())) {
+                continue;
+            }
+
+            directoryLoad.add(content.getDefaultDirectory());
             final String pathFolder = this.path + content.getDefaultDirectory();
             final String[] files = new File(pathFolder).list();
             if(files != null) {
