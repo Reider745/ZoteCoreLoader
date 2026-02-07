@@ -228,31 +228,37 @@ public class ModLoader {
         }
 
         for (File file : files) {
-            File targetZip = new File(targetDir, file.getName() + ".zip");
-            while (targetZip.exists()) {
-                targetZip = new File(targetDir, targetZip.getName().replaceFirst("\\.zip$", "") + "-.zip");
-            }
-
-            try {
-                // Создаем ZIP-архив
-                try (FileOutputStream fos = new FileOutputStream(targetZip);
-                     ZipOutputStream zos = new ZipOutputStream(fos)) {
-
-                    zipDirectory(file, file.getName(), zos);
+            if (compression) {
+                File targetZip = new File(targetDir, file.getName() + ".zip");
+                while (targetZip.exists()) {
+                    targetZip = new File(targetDir, targetZip.getName().replaceFirst("\\.zip$", "") + "-.zip");
                 }
 
-                // Если MinecraftPack может работать с ZIP, передаем архив
-                // Иначе нужно будет добавить распаковку как в первом варианте
-                MinecraftPack pack = MinecraftPack.fromDirectory(targetZip, type);
-                if (pack != null) {
-                    minecraftPacks.add(pack);
-                }
+                try {
+                    try (FileOutputStream fos = new FileOutputStream(targetZip);
+                         ZipOutputStream zos = new ZipOutputStream(fos)) {
 
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
+                        zipDirectory(file, file.getName(), zos);
+                    }
+
+                    MinecraftPack pack = MinecraftPack.fromDirectory(targetZip, type);
+                    if (pack != null) {
+                        minecraftPacks.add(pack);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    continue;
+                }
+            } else {
+                try {
+                    FileUtils.copyFileTree(file, new File(targetDir, file.getName()), null, null);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
+
     }
 
     private void zipDirectory(File directory, String baseName, ZipOutputStream zos) throws IOException {

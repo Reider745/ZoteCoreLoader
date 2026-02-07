@@ -32,7 +32,6 @@ public class ServerHooks {
     @Inject
     public static void start(Server self) throws Exception {
         innerCoreServer.afterload();
-        innerCoreServer.start();
     }
 
     @Inject(className = "cn.nukkit.dispenser.DispenseBehaviorRegister", type = TypeHook.AFTER)

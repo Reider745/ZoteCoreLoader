@@ -525,14 +525,17 @@ public class EventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCraftItem(CraftItemEvent event) {
+        Player player = event.getPlayer();
         CraftingGrid grid = event.getPlayer().getCraftingGrid();
         long playerUid = EntityMethod.getIdForEntity(event.getPlayer());
         int inventorySize = (int) Math.sqrt(grid.getSize());
 
-        if(!NativeWorkbench.canRemoveRecipe(event.getTransaction().getRecipe().getId()))
-            consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));
-        else
-            event.setCancelled();
+        if(player.craftingType == Player.CRAFTING_SMALL || player.craftingType == Player.CRAFTING_BIG) {
+            if (!NativeWorkbench.canRemoveRecipe(event.getTransaction().getRecipe().getId()))
+                consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));
+            else
+                event.setCancelled();
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

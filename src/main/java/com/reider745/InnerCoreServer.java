@@ -1,11 +1,14 @@
 package com.reider745;
 
 import cn.nukkit.Server;
+import cn.nukkit.inventory.transaction.CraftingTransaction;
 import cn.nukkit.plugin.PluginDescription;
 import cn.nukkit.plugin.PluginManager;
 
+import cn.nukkit.recipe.RecipeRegistry;
 import com.google.common.base.Preconditions;
 import com.reider745.api.CallbackHelper;
+import com.reider745.api.ReflectHelper;
 import com.reider745.behavior.BehaviorPack;
 import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
@@ -320,6 +323,18 @@ public class InnerCoreServer {
         CustomItem.addCreativeItemsWeapons();
         CustomItem.addCreativeItems();
         CustomItem.addCreativeItemsNature();
+
+        try{
+            for(File file : Objects.requireNonNull(new File(InnerCoreServer.dataPath, "behavior_packs").listFiles())) {
+                try{
+                    BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
+                    pack.load();
+                }catch (Exception e) {
+                    Logger.error("Error loaded behavior pack " + file.getAbsolutePath(), e);
+                }
+            }
+        }catch (Exception ignore){}
+
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();
         CommandsHelper.init();
@@ -341,19 +356,6 @@ public class InnerCoreServer {
         if (SnowfallEverywhere.isActive) {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
-    }
-
-    public void start() {
-        try{
-            for(File file : Objects.requireNonNull(new File(InnerCoreServer.dataPath, "behavior_packs").listFiles())) {
-                try{
-                    BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
-                    pack.load();
-                }catch (Exception e) {
-                    Logger.error("Error loaded behavior pack " + file.getAbsolutePath(), e);
-                }
-            }
-        }catch (Exception ignore){}
     }
 
     public static Object getProperty(String variable) {

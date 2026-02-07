@@ -2,6 +2,8 @@ package com.reider745.behavior;
 
 import com.reider745.behavior.entities.EntitiesContent;
 import com.reider745.behavior.items.ItemsContent;
+import com.reider745.behavior.recipes.RecipesShapedContent;
+import com.reider745.behavior.recipes.RecipesShapelessContent;
 import com.reider745.behavior.spawnrules.SpawnRulesContent;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
@@ -19,6 +21,8 @@ public class BehaviorPack {
         contents_api.add(new EntitiesContent());
         contents_api.add(new SpawnRulesContent());
         contents_api.add(new ItemsContent());
+        contents_api.add(new RecipesShapedContent());
+        contents_api.add(new RecipesShapelessContent());
     }
 
     private final String path;

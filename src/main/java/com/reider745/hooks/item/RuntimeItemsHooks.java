@@ -54,7 +54,7 @@ public class RuntimeItemsHooks implements HookClass {
 
             Item item = Item.get(id, 0);
             if (item.getId() != 0) {
-                Item.NAMESPACED_ID_ITEM.put(name, () -> item);
+                Item.NAMESPACED_ID_ITEM.put(name, item::clone);
             }
             boolean hasDamage = item instanceof ItemDurable;
             int damage = ItemMethod.getMaxDamageForId(id, 0);
@@ -90,7 +90,7 @@ public class RuntimeItemsHooks implements HookClass {
 
             Item item = Item.get(id, 0);
             if (item.getId() != 0) {
-                Item.NAMESPACED_ID_ITEM.put(name, () -> item);
+                Item.NAMESPACED_ID_ITEM.put(name, item::clone);
             }
         });
 
