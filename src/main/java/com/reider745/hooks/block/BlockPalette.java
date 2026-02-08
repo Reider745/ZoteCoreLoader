@@ -42,7 +42,7 @@ public class BlockPalette {
     private static final int VERSION_STATE = 18168865;
     private static final MainLogger logger = Server.getInstance().getLogger();
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
-    private static final Int2IntMap runtimeIdToLegacy = new Int2IntOpenHashMap();
+    private static int[] runtimeIdToLegacy;
     private static final Int2IntMap stateCapacity = new Int2IntOpenHashMap();
     private static final Map<String, Integer> stateIdByName = new HashMap<>();
     private static final Int2ObjectMap<String> nameByStateId = new Int2ObjectOpenHashMap<>();
@@ -192,7 +192,6 @@ public class BlockPalette {
         CustomBlock.init();
 
         legacyToRuntimeId.defaultReturnValue(-1);
-        runtimeIdToLegacy.defaultReturnValue(-1);
 
         final ArrayList<BlockDescription> sortStates = new ArrayList<>();
         final ArrayList<Integer> doors = new ArrayList<>();
@@ -296,6 +295,7 @@ public class BlockPalette {
 
             String[] wallConnectionType = new String[] {"none", "short", "tall"};
 
+            runtimeIdToLegacy = new int[sortStates.size()];
             for (int runtimeId = 0; runtimeId < sortStates.size(); runtimeId++) {
                 final BlockDescription description = sortStates.get(runtimeId);
                 final int blockMeta = description.data;
@@ -377,7 +377,7 @@ public class BlockPalette {
 
                     legacyToRuntimeId.put(legacyId, runtimeId);
                     legacyToRuntimeId.putIfAbsent(legacyId, runtimeId);
-                    runtimeIdToLegacy.put(runtimeId, legacyId);
+                    runtimeIdToLegacy[runtimeId] = legacyId;
 
                     BlockStateStorage.addState(description.states, runtimeId, description.id, blockMeta, description.newId);
                 } else {
@@ -418,7 +418,11 @@ public class BlockPalette {
         if(protocol == LevelDBConstants.PALETTE_VERSION) {
             return blockPalette.getLegacyFullId(runtimeId);
         }
-        return runtimeIdToLegacy.get(runtimeId);
+
+        if(runtimeId >= 0 && runtimeId < runtimeIdToLegacy.length) {
+            return runtimeIdToLegacy[runtimeId];
+        }
+        return -1;
     }
 
     @Inject
