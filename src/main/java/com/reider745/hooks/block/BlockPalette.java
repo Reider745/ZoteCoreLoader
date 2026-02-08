@@ -43,6 +43,7 @@ public class BlockPalette {
     private static final MainLogger logger = Server.getInstance().getLogger();
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static int[] runtimeIdToLegacy;
+    private static int[] runtimeIdToLegacyLevelDb;
     private static final Int2IntMap stateCapacity = new Int2IntOpenHashMap();
     private static final Map<String, Integer> stateIdByName = new HashMap<>();
     private static final Int2ObjectMap<String> nameByStateId = new Int2ObjectOpenHashMap<>();
@@ -224,8 +225,10 @@ public class BlockPalette {
 
             final Int2ObjectMap<BlockStateSnapshot> runtime2State = ReflectHelper.getField(blockStateMapping, "runtime2State");
             final Object2ObjectMap<NbtMap, BlockStateSnapshot> palette = ReflectHelper.getField(blockStateMapping, "paletteMap");
+            final Int2IntMap runtimeIdToLegacyLeveldb = ReflectHelper.getField(blockPalette, "runtimeIdToLegacy");
 
-            AtomicReference<Integer> RUNTIME_ID = new AtomicReference<>(Integer.MAX_VALUE);
+            AtomicReference<Integer> RUNTIME_ID = new AtomicReference<>(runtimeIdToLegacyLeveldb.size());
+            runtimeIdToLegacyLeveldb.forEach((id, legacy) -> RUNTIME_ID.set(Math.max(RUNTIME_ID.get(), id + 1)));
             CustomBlock.blocks.forEach((id, manager) -> {
                 final List<JSONObject> states = variantGenerations(CustomBlock.getStates(manager));
 
@@ -233,7 +236,8 @@ public class BlockPalette {
                     var state = states.get(data);
                     sortStates.add(new BlockDescription(id, id, state, data, manager.textId));
 
-                    int runtimeId = RUNTIME_ID.getAndSet(RUNTIME_ID.get() - 1);
+                    int runtimeId = RUNTIME_ID.getAndSet(RUNTIME_ID.get() + 1);
+
                     var builder = NbtMap.builder();
 
                     var builderState = NbtMap.builder();
@@ -359,7 +363,7 @@ public class BlockPalette {
                     vanillaState.put("states", states.build());
                     vanillaState.put("version", VERSION_STATE);
 
-                    int runtimeIdLevelDb = RUNTIME_ID.getAndSet(RUNTIME_ID.get() - 1);
+                    int runtimeIdLevelDb = RUNTIME_ID.getAndSet(RUNTIME_ID.get() + 1);
                     NbtMap buildStates = vanillaState.build();
                     buildStates.hashCode();
                     if(blockStateMapping.containsState(buildStates)) {
@@ -384,6 +388,11 @@ public class BlockPalette {
                     throw new RuntimeException("Block " + description.id + " is too big, size: " + Block.DATA_SIZE + ", meta: " + blockMeta);
                 }
             }
+
+            runtimeIdToLegacyLevelDb = new int[RUNTIME_ID.get()];
+            runtimeIdToLegacyLeveldb.forEach((runtimeId, legacyId) -> {
+                runtimeIdToLegacyLevelDb[runtimeId] = legacyId;
+            });
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -416,7 +425,10 @@ public class BlockPalette {
     @Inject
     public static int getLegacyFullId(int protocol, int runtimeId) {
         if(protocol == LevelDBConstants.PALETTE_VERSION) {
-            return blockPalette.getLegacyFullId(runtimeId);
+            if(runtimeId >= 0 && runtimeId < runtimeIdToLegacyLevelDb.length) {
+                return runtimeIdToLegacyLevelDb[runtimeId];
+            }
+            return -1;
         }
 
         if(runtimeId >= 0 && runtimeId < runtimeIdToLegacy.length) {
