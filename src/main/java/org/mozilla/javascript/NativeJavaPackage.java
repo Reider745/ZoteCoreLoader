@@ -81,7 +81,12 @@ public class NativeJavaPackage extends ScriptableObject
 
     @Override
     public Object get(String id, Scriptable start) {
-        return getPkgProperty(id, start, true);
+        // # ZOTE CORE MODIFIED PART
+        try {
+            return getPkgProperty(id, start, true);
+        } catch (NullPointerException ignore) {}
+        return NOT_FOUND;
+        // # END
     }
 
     @Override

@@ -8,7 +8,12 @@ package org.mozilla.javascript;
 
 import java.io.IOException;
 import java.util.Properties;
+
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.utils.FileTools;
+
+import cn.nukkit.utils.MainLogger;
+
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -17,9 +22,10 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.v8dtoa.DoubleConversion;
 import org.mozilla.javascript.v8dtoa.FastDtoa;
@@ -128,6 +134,10 @@ public class ScriptRuntime {
     public static final Class<Scriptable> ScriptableClass = Scriptable.class;
 
     private static final Object LIBRARY_SCOPE_KEY = "LIBRARY_SCOPE";
+
+    // # ZOTE CORE MODIFIED PART
+    private static final Logger zoteLogger = LogManager.getLogger(MainLogger.class);
+    // # END
 
     public static boolean isRhinoRuntimeType(Class<?> cl) {
         if (cl.isPrimitive()) {
@@ -320,10 +330,9 @@ public class ScriptRuntime {
     }
 
     static String[] getTopPackageNames() {
-        // Include "android" top package if running on Android
-        return "Dalvik".equals(System.getProperty("java.vm.name"))
-                ? new String[] {"java", "javax", "org", "com", "edu", "net", "android"}
-                : new String[] {"java", "javax", "org", "com", "edu", "net"};
+        // # ZOTE CORE MODIFIED PART
+        return new String[] { "java", "javax", "org", "com", "edu", "net", "android", "cn" };
+        // # END
     }
 
     public static ScriptableObject getLibraryScopeOrNull(Scriptable scope) {
@@ -4700,8 +4709,12 @@ public class ScriptRuntime {
                             nonJSObject,
                             nonJSObject.getClass().getName());
             Context.reportWarning(message);
-            // Just to be sure that it would be noticed
-            System.err.println(message);
+
+            // # ZOTE CORE MODIFIED PART
+            if (InnerCoreServer.isDeveloperMode()) {
+                zoteLogger.debug(message);
+            }
+            // # END
         }
     }
 

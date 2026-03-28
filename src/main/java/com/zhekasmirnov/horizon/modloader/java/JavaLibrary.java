@@ -1,7 +1,7 @@
 package com.zhekasmirnov.horizon.modloader.java;
 
 import com.reider745.InnerCoreServer;
-import com.reider745.hooks.RhinoOverrides;
+import com.reider745.hooks.ZoteClassLoaderPool;
 import com.zhekasmirnov.horizon.launcher.env.ClassLoaderPatch;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -62,9 +62,9 @@ public class JavaLibrary {
     }
 
     public void postInitialize() {
-        if(classLoader == null){
+        if (classLoader == null) {
             classLoader = new URLClassLoader(urls.toArray(new URL[0]), InnerCoreServer.class.getClassLoader());
-            RhinoOverrides.ClassLoaderPool.addClassLoader(classLoader);
+            ZoteClassLoaderPool.addClassLoader(classLoader);
         }
 
         HashMap<String, Object> data = new HashMap<>();

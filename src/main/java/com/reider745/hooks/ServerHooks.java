@@ -8,6 +8,7 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.JavaPluginLoader;
 import cn.nukkit.plugin.PluginClassLoader;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
 
 import com.reider745.InnerCoreServer;
@@ -24,9 +25,12 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.logging.log4j.LogManager;
+
 @Hooks(className = "cn.nukkit.Server")
 public class ServerHooks {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
+    private static final org.apache.logging.log4j.Logger zoteLogger = LogManager.getLogger(MainLogger.class);
     public static final List<Block> postApply = new CopyOnWriteArrayList<>();
 
     @Inject
@@ -133,7 +137,7 @@ public class ServerHooks {
 
     @Inject(type = TypeHook.AFTER_NOT_REPLACE, method = "<init>", className = "cn.nukkit.plugin.PluginClassLoader")
     public static void newPluginClassLoader(PluginClassLoader self, JavaPluginLoader loader, ClassLoader parent, File file) {
-        RhinoOverrides.ClassLoaderPool.addClassLoader(self);
+        ZoteClassLoaderPool.addClassLoader(self);
     }
 
     @Inject(
@@ -145,5 +149,12 @@ public class ServerHooks {
             sender.sendMessage("#########################################\n"+
                     "ZoteCoreLoader\n"+
                     "InnerCore: "+ InnerCoreServer.getVersionName()+":"+InnerCoreServer.getVersionsCode());
+    }
+
+    @Inject(className = "cn.nukkit.utils.MainLogger", type = TypeHook.BEFORE_REPLACE)
+    public static void warning(MainLogger nukkitLogger, String message) {
+        if (message == null || !message.startsWith("Ignoring InnerCorePacket from ")) {
+            zoteLogger.warn(message);
+        }
     }
 }

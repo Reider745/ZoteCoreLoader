@@ -107,9 +107,6 @@ public class Main {
         add("com.reider745.hooks.entity.EntityOverrides");
         add("com.reider745.hooks.entity.PlayerHooks");
 
-        //Js engine
-        add("com.reider745.hooks.RhinoOverrides");
-
         //technical
         add("com.reider745.hooks.AndroidHooks");
         add("com.reider745.hooks.GlobalBanList");

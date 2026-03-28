@@ -31,6 +31,7 @@ import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.debug.DebuggableScript;
 import org.mozilla.javascript.debug.Debugger;
 import org.mozilla.javascript.xml.XMLLib;
+import com.reider745.hooks.ZoteClassLoaderPool;
 
 /**
  * This class represents the runtime context of an executing script.
@@ -2283,7 +2284,10 @@ public class Context implements Closeable {
                     // its caching prevents it from GC which may lead to
                     // a memory leak and hides updates to
                     // Thread.getContextClassLoader
-                    return threadLoader;
+
+                    // # ZOTE CORE MODIFIED PART
+                    return new ZoteClassLoaderPool(threadLoader);
+                    // # END
                 }
                 // Thread.getContextClassLoader can not load Rhino classes,
                 // try to use the loader of ContextFactory or Context
@@ -2295,7 +2299,10 @@ public class Context implements Closeable {
                     loader = getClass().getClassLoader();
                 }
             }
-            applicationClassLoader = loader;
+
+            // # ZOTE CORE MODIFIED PART
+            applicationClassLoader = new ZoteClassLoaderPool(loader);
+            // # END
         }
         return applicationClassLoader;
     }
