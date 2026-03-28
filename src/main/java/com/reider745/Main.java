@@ -109,16 +109,6 @@ public class Main {
 
         //Js engine
         add("com.reider745.hooks.RhinoOverrides");
-        loader.addInit("com.reider745.hooks.RhinoOverrides", ctClass -> {
-            try {
-                CtMethod reflectMethod = ctClass.getDeclaredMethod("reflect");
-                reflectMethod.insertAt(reflectMethod.getMethodInfo().getLineNumber(76),
-                        "method = org.mozilla.javascript.MembersPatch.override(cl, method);");
-            } catch (NotFoundException | CannotCompileException e) {
-                e.printStackTrace();
-                System.out.println("Rhino has been updated and overrides for `JavaMembers.reflect` method are no longer available.");
-            }
-        });
 
         //technical
         add("com.reider745.hooks.AndroidHooks");
