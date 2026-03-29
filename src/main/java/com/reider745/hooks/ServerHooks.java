@@ -22,6 +22,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -141,14 +142,37 @@ public class ServerHooks {
     }
 
     @Inject(
-            className = "cn.nukkit.command.defaults.VersionCommand",
-            signature = "(Lcn/nukkit/command/CommandSender;Ljava/lang/String;[Ljava/lang/String;)Z"
+        className = "cn.nukkit.command.defaults.VersionCommand",
+        signature = "(Lcn/nukkit/command/CommandSender;Ljava/lang/String;[Ljava/lang/String;)Z"
     )
     public static void execute(VersionCommand self, CommandSender sender, String commandLabel, String[] args){
-        if(sender.hasPermission("nukkit.command.version.plugins"))
-            sender.sendMessage("#########################################\n"+
-                    "ZoteCoreLoader\n"+
-                    "InnerCore: "+ InnerCoreServer.getVersionName()+":"+InnerCoreServer.getVersionsCode());
+        if (sender.hasPermission("nukkit.command.version.plugins")) {
+            List<String> ranges = new ArrayList<>();
+            List<Object> specs = InnerCoreServer.getVersionCodeSpecs();
+            if (specs.size() == 0) {
+                ranges.add("any that supports multiplayer");
+            } else {
+                for (Object spec : specs) {
+                    if (spec instanceof int[] range) {
+                        if (range[0] == 0) {
+                            ranges.add("<" + range[1]);
+                        } else if (range[1] == 0) {
+                            ranges.add(">=" + range[0]);
+                        } else {
+                            ranges.add(range[0] + " to " + range[1]);
+                        }
+                    } else if (spec instanceof Integer code) {
+                        ranges.add(code < 0 ? "not " + code : "" + code);
+                    } else if (spec != null) {
+                        ranges.add(spec.toString());
+                    }
+                }
+            }
+            sender.sendMessage("#########################################\n" +
+                "Zote Core\n" +
+                "Inner Core v" + InnerCoreServer.getVersionName() + " (code " + InnerCoreServer.getVersionCode() + ")\n" +
+                "Supported client versions are: " + String.join(", ", ranges));
+        }
     }
 
     @Inject(className = "cn.nukkit.utils.MainLogger", type = TypeHook.BEFORE_REPLACE)

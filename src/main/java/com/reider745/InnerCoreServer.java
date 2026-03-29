@@ -1,25 +1,19 @@
 package com.reider745;
 
 import cn.nukkit.Server;
-import cn.nukkit.inventory.transaction.CraftingTransaction;
 import cn.nukkit.plugin.PluginDescription;
 import cn.nukkit.plugin.PluginManager;
 
-import cn.nukkit.recipe.RecipeRegistry;
 import com.google.common.base.Preconditions;
 import com.reider745.api.CallbackHelper;
-import com.reider745.api.ReflectHelper;
 import com.reider745.behavior.BehaviorPack;
-import com.reider745.block.CustomBlock;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
-import com.reider745.hooks.block.BlockPalette;
 import com.reider745.hooks.item.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
 
-import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConverter;
 import com.reider745.world.FakeDimensions;
 import com.reider745.world.dimensions.DimensionsMethods;
@@ -46,7 +40,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -429,8 +425,7 @@ public class InnerCoreServer {
             }
         }
 
-        Logger.critical(
-                "Unable to find specified modpack, please enter modpack name, folder name or relative path instead. " +
+        Logger.critical("Unable to find specified modpack, please enter modpack name, folder name or relative path instead. " +
                         "It is possible that your hosting provider dynamically updates paths, preventing you from specifying absolute one.");
         if (modpacks.size() > 0) {
             StringBuilder builder = new StringBuilder();
@@ -494,8 +489,7 @@ public class InnerCoreServer {
 
     public static MethodHandling getUnsupportedMethodHandling() {
         try {
-            return MethodHandling
-                    .valueOf(getPropertyString("unsupported-method-handling", "debug").toUpperCase());
+            return MethodHandling.valueOf(getPropertyString("unsupported-method-handling", "debug").toUpperCase());
         } catch (IllegalArgumentException exc) {
             return MethodHandling.DEBUG;
         }
@@ -517,81 +511,141 @@ public class InnerCoreServer {
         return getPropertyString("pack", "Inner Core");
     }
 
-    public static String getVersionName() {
-        return getPropertyString("pack-version", "2.3.1b123");
-    }
-
     public static boolean isSocketEnabled() {
         return InnerCoreServer.getPropertyBoolean("socket-server-enabled", false);
     }
 
-    public static int getVersionCode() {
-        final List<String> versions = getVersionsCode();
-
-        if(versions.isEmpty())
-            return 165;
-
-        for(String version : versions)
-            try {
-                return Integer.parseInt(version);
-            } catch (Exception ignore) {}
-
-        return 165;
-    }
-
-    public static class PackInfo {
+    private static class RemotePackInfo {
         private final String httpRequest;
 
         private Long lastTimeRequest;
-        private int version = -1;
+        private int version = 0;
 
-        public PackInfo(String httpRequest) {
+        public RemotePackInfo(String httpRequest) {
             this.httpRequest = httpRequest;
-            getVersion();
         }
 
         public int getVersion() {
-            // Каждые 15 минут проверяем
-            if(lastTimeRequest == null || System.currentTimeMillis() - lastTimeRequest >= 1000 * 60 * 15) {
+            if (lastTimeRequest == null || System.currentTimeMillis() - lastTimeRequest >= 1000 * 60 * 15) {
+                HttpURLConnection connection = null;
                 try {
-                    final HttpURLConnection connection = (java.net.HttpURLConnection) new URL(httpRequest).openConnection();
+                    connection = (HttpURLConnection) new URL(httpRequest).openConnection();
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(2000);
                     connection.setReadTimeout(2000);
 
                     if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        final JSONObject manifest = new JSONObject(new String(connection.getInputStream().readAllBytes()));
-                        version = manifest.getInt("packVersionCode");
+                        try (InputStream is = connection.getInputStream()) {
+                            final JSONObject manifest = new JSONObject(new String(is.readAllBytes(), StandardCharsets.UTF_8));
+                            version = manifest.optInt("packVersionCode", version);
+                        }
                     }
-                } catch (Exception ignore) {}
-                lastTimeRequest = System.currentTimeMillis();
+                } catch (Exception ignore) {
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                }
+                if (version != 0) {
+                    lastTimeRequest = System.currentTimeMillis();
+                }
             }
             return version;
         }
     }
 
-    private static final PackInfo PACK_TEST = new PackInfo("https://gitlab.com/zhekasmirnov/horizon-cloud-config/-/raw/master/innercore-test/manifest.json?ref_type=heads");
-    private static final PackInfo PACK_STABLY = new PackInfo("https://gitlab.com/zhekasmirnov/horizon-cloud-config/-/raw/master/innercore/manifest.json?ref_type=heads");
+    private static Map<String, RemotePackInfo> REMOTE_PACKS = Map.of(
+        "latest", new RemotePackInfo("https://gitlab.com/zhekasmirnov/horizon-cloud-config/-/raw/master/innercore64/manifest.json?ref_type=heads"),
+        "latest-arm32", new RemotePackInfo("https://gitlab.com/zhekasmirnov/horizon-cloud-config/-/raw/master/innercore/manifest.json?ref_type=heads"),
+        "latest-legacy", new RemotePackInfo("https://gitlab.com/zhekasmirnov/horizon-cloud-config/-/raw/master/innercore-legacy/manifest.json?ref_type=heads")
+    );
+
+    public static String getVersionName() {
+        return getPropertyString("pack-version", "2.4.0b122 or higher");
+    }
+
+    public static int getVersionCode() {
+        return 163; // please make sure that it is supported on most platforms
+    }
 
     public static boolean canConnectionFor(int clientVersion) {
-        for(String version : getVersionsCode()) {
-            if(version.equals("any") ||
-                    (version.equals("last-test") && PACK_TEST.getVersion() == clientVersion) ||
-                    (version.equals("last-stably") && PACK_STABLY.getVersion() == clientVersion))
-                return true;
-
-            try {
-                if(Integer.parseInt(version) == clientVersion)
-                    return true;
-            } catch (Exception ignore) {}
+        List<Object> specs = getVersionCodeSpecs();
+        if (specs.size() == 0 || specs.contains(clientVersion)) {
+            return true;
         }
-
+        if (specs.contains(-clientVersion)) {
+            return false;
+        }
+        for (Object spec : specs) {
+            if (spec instanceof int[] range) {
+                if (range[0] == 0) {
+                    if (clientVersion < range[1]) {
+                        return true;
+                    }
+                } else if (range[1] == 0) {
+                    if (clientVersion >= range[0]) {
+                        return true;
+                    }
+                } else if (clientVersion >= range[0] && clientVersion <= range[1]) {
+                    return true;
+                }
+            } else if (spec instanceof String revision) {
+                RemotePackInfo info = REMOTE_PACKS.get(revision);
+                if (info != null && clientVersion == info.getVersion()) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
-    public static List<String> getVersionsCode() {
-        final String args = getPropertyString("pack-version-code", "165");
-        return Arrays.asList(args.replaceAll(" ", "").split(","));
+    public static List<Object> getVersionCodeSpecs() {
+        String specs = getPropertyString("pack-version-code", ">" + getVersionCode());
+        String[] supportedRanges = specs.replaceAll("\\s+", "").split(",");
+
+        List<Object> versions = new ArrayList<>();
+        if (Arrays.asList(supportedRanges).contains("any")) {
+            return versions;
+        }
+
+        for (String spec : supportedRanges) {
+            if (spec.length() == 0) {
+                continue;
+            }
+            try {
+                switch (spec.charAt(0)) {
+                    case '<':
+                    case '>':
+                    case '!':
+                        int code = Integer.parseInt(spec.substring(1));
+                        if (spec.charAt(0) == '!') {
+                            versions.add(-code);
+                        } else {
+                            versions.add(
+                                spec.charAt(0) == '>'
+                                    ? new int[] { code, 0 }
+                                    : new int[] { 0, code }
+                            );
+                        }
+                        continue;
+                }
+                if (spec.contains("-")) {
+                    String[] range = spec.split("-", 2);
+                    int min = Integer.parseInt(range[0]);
+                    int max = Integer.parseInt(range[1]);
+                    versions.add(new int[] { min, max });
+                    continue;
+                }
+                versions.add(Integer.parseInt(spec));
+            } catch (NumberFormatException ex) {
+                if (!spec.contains("-") && spec.matches("[a-zA-Z0-9_-]+")) {
+                    versions.add(spec);
+                } else {
+                    Logger.error("Invalid `pack-version-code` format spec: " + spec + " (" + ex.getMessage() + ")");
+                }
+            }
+        }
+        return versions;
     }
 
     private static void handleUnsupportedMethod(String message) {
@@ -623,10 +677,10 @@ public class InnerCoreServer {
                 + "), which is why you're reading this right now");
     }
 
-    public static void printStackTrace(){
+    public static void printStackTrace() {
         try {
             throw new RuntimeException("Aboba");
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(ICLog.getStackTrace(e));
         }
     }
