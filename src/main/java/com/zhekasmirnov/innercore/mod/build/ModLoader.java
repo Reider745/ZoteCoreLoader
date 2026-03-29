@@ -1,26 +1,5 @@
 package com.zhekasmirnov.innercore.mod.build;
 
-import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
-import com.zhekasmirnov.apparatus.modloader.ApparatusModLoader;
-import com.zhekasmirnov.apparatus.modloader.LegacyInnerCoreMod;
-import com.zhekasmirnov.apparatus.modloader.ModLoaderReporter;
-import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerModList;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.horizon.util.FileUtils;
-import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.runtime.Callback;
-import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
-import com.zhekasmirnov.innercore.modpack.DirectorySetRequestHandler;
-import com.zhekasmirnov.innercore.modpack.ModPack;
-import com.zhekasmirnov.innercore.modpack.ModPackContext;
-import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
-import com.zhekasmirnov.innercore.ui.LoadingUI;
-import com.zhekasmirnov.innercore.utils.FileTools;
-import com.zhekasmirnov.mcpe161.InnerCore;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,6 +10,29 @@ import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
+import com.zhekasmirnov.apparatus.modloader.ApparatusModLoader;
+import com.zhekasmirnov.apparatus.modloader.LegacyInnerCoreMod;
+import com.zhekasmirnov.apparatus.modloader.ModLoaderReporter;
+import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerModList;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.horizon.util.FileUtils;
+import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.api.runtime.Callback;
+import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
+import com.zhekasmirnov.innercore.mod.executable.library.LibraryReplaced;
+import com.zhekasmirnov.innercore.modpack.DirectorySetRequestHandler;
+import com.zhekasmirnov.innercore.modpack.ModPack;
+import com.zhekasmirnov.innercore.modpack.ModPackContext;
+import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
+import com.zhekasmirnov.innercore.ui.LoadingUI;
+import com.zhekasmirnov.innercore.utils.FileTools;
+import com.zhekasmirnov.mcpe161.InnerCore;
 
 /**
  * Created by zheka on 30.07.2017.
@@ -52,6 +54,7 @@ public class ModLoader {
         //FileTools.assureDir(modsDir.getAbsolutePath());
     }
 
+    @Deprecated
     public void loadMods() {
         // THIS IS DEPRECATED !!!
         // THIS IS DEPRECATED !!!
@@ -79,11 +82,13 @@ public class ModLoader {
                 String modDir = file.getAbsolutePath() + "/";
                 if (ModBuilder.analyzeAndSetupModDir(modDir)) {
                     Logger.debug(LOGGER_TAG, "building and importing mod: " + file.getName());
-                    Mod mod = ModBuilder.buildModForDir(modDir, modPack, locationName);
+                    Mod mod = ModBuilder.buildModForDir(modDir);
                     if (mod != null) {
+                        mod.setModPackAndLocation(modPack, locationName);
                         modsList.add(mod);
                         mod.onImport();
-                    } else {
+                    }
+                    else {
                         Logger.debug(LOGGER_TAG, "failed to build mod: build.config file could not be parsed.");
                     }
                 }
@@ -117,8 +122,9 @@ public class ModLoader {
     }
 
 
-    private final List<File> resourcePackDirs = new ArrayList<>();
-    private final List<File> behaviorPackDirs = new ArrayList<>();
+
+    private List<File> resourcePackDirs = new ArrayList<>();
+    private List<File> behaviorPackDirs = new ArrayList<>();
 
     public static void addMinecraftResourcePack(File directory) {
         if (!instance.resourcePackDirs.contains(directory)) {
@@ -141,7 +147,9 @@ public class ModLoader {
         DirectorySetRequestHandler globalResourcePacks = ModPackContext.getInstance().getCurrentModPack().getRequestHandler(ModPackDirectory.DirectoryType.RESOURCE_PACKS);
         for (String location : globalResourcePacks.getAllLocations()) {
             File packDir = globalResourcePacks.get(location);
-            addMinecraftResourcePack(packDir);
+            // if (packDir.isDirectory()) {
+                addMinecraftResourcePack(packDir);
+            // }
         }
 
         DirectorySetRequestHandler globalBehaviorPacks = ModPackContext.getInstance().getCurrentModPack().getRequestHandler(ModPackDirectory.DirectoryType.BEHAVIOR_PACKS);
@@ -159,7 +167,7 @@ public class ModLoader {
         BEHAVIOR;
 
         public static MinecraftPackType fromString(String str) {
-            switch (str) {
+            switch(str) {
                 case "resource":
                     return RESOURCE;
                 case "behavior":
@@ -207,8 +215,10 @@ public class ModLoader {
                             return new MinecraftPack(directory, type, uuid, array);
                         }
                     }
-                } catch (IOException | JSONException e) {
-                    throw new RuntimeException(e);
+                } catch(IOException e) {
+                    e.printStackTrace();
+                } catch(JSONException e) {
+                    e.printStackTrace();
                 }
             }
             ICLog.i("ERROR", "failed to read minecraft pack uuid or version: " + directory);
@@ -308,7 +318,7 @@ public class ModLoader {
                     for (File packDir : findPackInDirectory(directory, pack)) {
                         FileUtils.clearFileTree(packDir, true);
                     }
-
+                    
                     File target = new File(directory, pack.directory.getName());
                     while (target.exists()) {
                         target = new File(directory, target.getName() + "-");
@@ -348,10 +358,10 @@ public class ModLoader {
         minecraftPacks.clear();
         loadMinecraftPacksIntoDirectory(MinecraftPackType.RESOURCE, new File(FileTools.DIR_HORIZON, "resource_packs"), resourcePackDirs, true);
         loadMinecraftPacksIntoDirectory(MinecraftPackType.BEHAVIOR, new File(FileTools.DIR_HORIZON, "behavior_packs"), behaviorPackDirs, false);
-
+        
         // delete all duplicate packs (with same uuid and version) in world directories
         // duplicate packs can be created by mcpe for some reason
-
+        
         // temporary comment this out, and replace with per world resources injection
         /*File worldsDir = new File(FileTools.DIR_PACK, "worlds");
         if (worldsDir.isDirectory()) {
@@ -380,11 +390,11 @@ public class ModLoader {
             case RESOURCE:
                 packsDirectory = new File(FileTools.DIR_HORIZON, "resource_packs");
                 moduleType = "resources";
-                break;
+            break;
             case BEHAVIOR:
                 packsDirectory = new File(FileTools.DIR_HORIZON, "behavior_packs");
                 moduleType = "data";
-                break;
+            break;
         }
 
         File directory = new File(packsDirectory, "runtime_" + name);
@@ -396,7 +406,7 @@ public class ModLoader {
                     new File(directory, "manifest.json").getAbsolutePath(),
                     MinecraftVersions.getCurrent().createRuntimePackManifest(name, headerUuid, moduleType, version001)
             );
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
 
@@ -439,10 +449,10 @@ public class ModLoader {
             switch (pack.type) {
                 case RESOURCE:
                     resourcePacksArray.put(pack.getJsonForWorldPacks());
-                    break;
+                break;
                 case BEHAVIOR:
                     behaviorPacksArray.put(pack.getJsonForWorldPacks());
-                    break;
+                break;
             }
         }
         try {
@@ -455,9 +465,12 @@ public class ModLoader {
     }
 
 
+
     private static final ModLoaderReporter defaultLogReporter = (message, error) -> ICLog.e("ERROR", message, error);
 
     public static void loadModsAndSetupEnvViaNewModLoader() {
+        LibraryReplaced.loadJsonSetting();
+
         List<ApparatusModLoader.AbstractModSource> modSources = new ArrayList<>();
         modSources.add((modList, reporter) -> {
             ModPack modPack = ModPackContext.getInstance().getCurrentModPack();
@@ -470,7 +483,8 @@ public class ModLoader {
                 if (file.isDirectory()) {
                     String modDir = file.getAbsolutePath() + "/";
                     if (ModBuilder.analyzeAndSetupModDir(modDir)) {
-                        modList.add(new LegacyInnerCoreMod(file, modPack, locationName));
+                        File redirectedModDir = new File(ModBuilder.checkRedirect(modDir));
+                        modList.add(new LegacyInnerCoreMod(redirectedModDir, modPack, locationName));
                     }
                 }
             }

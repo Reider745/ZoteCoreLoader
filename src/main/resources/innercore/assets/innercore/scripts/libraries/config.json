@@ -1,0 +1,6 @@
+[
+	{
+		"disables": ["framework"],
+		"library": "framework.js"
+	}
+]

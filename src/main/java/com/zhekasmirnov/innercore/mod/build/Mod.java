@@ -1,11 +1,13 @@
 package com.zhekasmirnov.innercore.mod.build;
 
+import android.graphics.Bitmap;
 import com.zhekasmirnov.apparatus.minecraft.enums.EnumsJsInjector;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.ItemModelCacheManager;
+import com.zhekasmirnov.innercore.api.mod.ui.TextureSource;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
 import com.zhekasmirnov.innercore.mod.build.enums.BuildType;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
@@ -47,6 +49,7 @@ public class Mod {
     private String multiplayerName = null;
     private String multiplayerVersion = null;
 
+
     private ModPack modPack;
     private String modPackLocationName;
 
@@ -63,10 +66,14 @@ public class Mod {
         return modPackLocationName;
     }
 
+
     private void importConfigIfNeeded() {
         if (config == null) {
-            config = new Config(modPack.getRequestHandler(ModPackDirectory.DirectoryType.CONFIG)
-                    .get(modPackLocationName, "config.json"));
+            if (modPack != null) {
+                config = new Config(modPack.getRequestHandler(ModPackDirectory.DirectoryType.CONFIG).get(modPackLocationName, "config.json"));
+            } else {
+                config = new Config(new File(dir, "config.json"));
+            }
             try {
                 config.checkAndRestore("{\"enabled\":true}");
             } catch (Exception e) {
@@ -149,7 +156,11 @@ public class Mod {
         }
 
         if (FileTools.exists(this.dir + "mod_icon.png")) {
-            guiIconName = "_modIcon" + (guiIconCounter++);
+            Bitmap icon = FileTools.readFileAsBitmap(this.dir + "mod_icon.png");
+            if (icon != null) {
+                guiIconName = "_modIcon" + (guiIconCounter++);
+                TextureSource.instance.put(guiIconName, icon);
+            }
         }
 
         if (FileTools.exists(this.dir + "mod.info")) {
@@ -172,6 +183,8 @@ public class Mod {
     public void setBuildType(String strType) {
         setBuildType(BuildType.fromString(strType));
     }
+
+
 
     // ui helper methods
 
@@ -234,10 +247,11 @@ public class Mod {
         return all;
     }
 
+
+
     // runtime
 
     private boolean isPreloaderRunning = false;
-
     public void RunPreloaderScripts() {
         if (!isEnabled) {
             return;
@@ -253,7 +267,6 @@ public class Mod {
     }
 
     private boolean isLauncherRunning = false;
-
     public void RunLauncherScripts() {
         if (!isEnabled) {
             return;
@@ -269,7 +282,6 @@ public class Mod {
     }
 
     public boolean isModRunning = false;
-
     public void RunMod(ScriptableObject additionalScope) {
         if (!isEnabled) {
             return;

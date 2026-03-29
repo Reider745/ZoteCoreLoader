@@ -85,6 +85,7 @@ public class FileTools {
 
     public static byte[] getAssetBytes(String name) {
         try {
+            // TODO: FIX THAT WE USE DIR_WORK INSTEAD OF DIR_PACK FOR ASSETS!!!
             return readFileText(DIR_WORK + "assets/" + name).getBytes();
         } catch (IOException e) {
             Logger.debug("Failed to find resource or it should not exist: " + name);
