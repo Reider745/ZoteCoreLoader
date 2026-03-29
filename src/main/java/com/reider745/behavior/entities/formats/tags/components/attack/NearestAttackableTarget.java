@@ -46,17 +46,19 @@ public class NearestAttackableTarget extends ComponentsTag implements IUpdateEnt
 
         public Filters(JSONObject json){
             max_dist = json.getInt("max_dist");
-            attack_interval = json.getInt("attack_interval");
+            attack_interval = json.optInt("attack_interval", 40);
 
-            final JSONArray any_of = json.getJSONObject("filters").getJSONArray("any_of");
-            for(int i = 0;i < any_of.length();i++){
-                JSONObject condition = any_of.getJSONObject(i);
+            final JSONArray any_of = json.getJSONObject("filters").optJSONArray("any_of", null);
+            if(any_of != null){
+                for(int i = 0;i < any_of.length();i++){
+                    JSONObject condition = any_of.getJSONObject(i);
 
-                switch (condition.getString("test")){
-                    case "is_family" ->
-                        filters.add(new IsFamilyCondition(condition));
-                    default ->
-                        throw new RuntimeException("Not support NearestAttackableTarget.Filters");
+                    switch (condition.getString("test")){
+                        case "is_family" ->
+                                filters.add(new IsFamilyCondition(condition));
+                        default ->
+                                throw new RuntimeException("Not support NearestAttackableTarget.Filters");
+                    }
                 }
             }
         }

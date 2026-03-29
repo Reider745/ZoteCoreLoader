@@ -39,7 +39,7 @@ public class RecipesShapedContent extends BehaviorContent {
             }
         }
 
-        throw new RuntimeException("Not implemented yet");
+        throw new RuntimeException("Not implemented yet: " + json);
     }
 
     @Override

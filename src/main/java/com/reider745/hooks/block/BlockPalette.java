@@ -21,7 +21,6 @@ import com.reider745.block.BlockStateStorage;
 import com.reider745.block.CustomBlock;
 import com.reider745.block.wall.BlockWall;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -218,7 +217,10 @@ public class BlockPalette {
             final JSONObject EMPTY = new JSONObject();
             JSONObject blockMapping = EMPTY;
             try {
-                blockMapping = new JSONObject(Files.readString(new File("block_mapping.json").toPath()));
+                File file = new File("block_mapping.json");
+                if(file.exists()) {
+                    blockMapping = new JSONObject(Files.readString(file.toPath()));
+                }
             } catch (Exception ex) {
                 Logger.warning("Malformed block state mappings: " + ex.getMessage());
             }
