@@ -39,6 +39,11 @@ public class ServerHooks {
         innerCoreServer.afterload();
     }
 
+    @Inject(className = "cn.nukkit.Nukkit")
+    public static String getVersion() {
+        return "git-null"; // ignore nukkit updates
+    }
+
     @Inject(className = "cn.nukkit.dispenser.DispenseBehaviorRegister", type = TypeHook.AFTER)
     public static void init() {
         try {

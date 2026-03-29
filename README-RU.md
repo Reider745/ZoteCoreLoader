@@ -4,7 +4,7 @@
 
 __Zote Core__ — серверное ядро, основанное на Inner Core для Minecraft: Bedrock Edition 1.16.201, созданное для уникального геймплея с модами, часто ассоциируемое с созданием собственных модовых серверов.
 
-Основой серверного ядра послужил [Nukkit-MOT](https://github.com/MemoriesOfTime/Nukkit-MOT), его можно легко обновить, заменив соответствующую библиотеку.
+Основой серверного ядра послужил [Nukkit-MOT](https://github.com/ZoteTeam/Nukkit-MOT), его можно легко обновить, заменив соответствующую библиотеку.
 
 ![Zote Core](/.github/logo.png)
 
@@ -35,7 +35,7 @@ java -jar ZoteCore-SNAPSHOT.jar -XX:MaxRAMPercentage=95.0
 # Устаревшие или не реализованные методы, однако, добавлены не будут.
 pack: Inner Core
 pack-version: 2.4.0b122 or higher
-pack-version-code: >163
+pack-version-code: ">163"
 
 # Устанавливает список модов и конфигураций для загрузки, вы можете
 # указать название, имя папки модпака из /modpacks или путь.

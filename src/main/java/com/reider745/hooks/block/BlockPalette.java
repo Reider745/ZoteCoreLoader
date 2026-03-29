@@ -20,6 +20,8 @@ import com.reider745.block.BlockNukkitIdConverter;
 import com.reider745.block.BlockStateStorage;
 import com.reider745.block.CustomBlock;
 import com.reider745.block.wall.BlockWall;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+
 import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -217,8 +219,8 @@ public class BlockPalette {
             JSONObject blockMapping = EMPTY;
             try {
                 blockMapping = new JSONObject(Files.readString(new File("block_mapping.json").toPath()));
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ex) {
+                Logger.warning("Malformed block state mappings: " + ex.getMessage());
             }
 
             JSONObject statesValues = blockMapping.optJSONObject("states_values", EMPTY);

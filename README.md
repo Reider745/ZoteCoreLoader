@@ -4,7 +4,7 @@
 
 __Zote Core__ — server core based on Inner Core for Minecraft: Bedrock Edition 1.16.201 to facilitate unique gameplay with mods, often associated with creating customized modded servers.
 
-The server core is based on [Nukkit-MOT](https://github.com/MemoriesOfTime/Nukkit-MOT), it can be easily updated by replacing the corresponding library.
+The server core is based on [Nukkit-MOT](https://github.com/ZoteTeam/Nukkit-MOT), it can be easily updated by replacing the corresponding library.
 
 ![Zote Core](/.github/logo.png)
 
@@ -35,7 +35,7 @@ Standard kernel settings that can be used as a basis:
 # However, no deprecated or unimplemented methods will be added.
 pack: Inner Core
 pack-version: 2.4.0b122 or higher
-pack-version-code: >163
+pack-version-code: ">163"
 
 # Sets the list of mods and configs to load, you can specify
 # name, folder name of a modpack from /modpacks or a path.

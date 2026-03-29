@@ -430,9 +430,13 @@ public class InnerCoreServer {
         if (modpacks.size() > 0) {
             StringBuilder builder = new StringBuilder();
             builder.append("Available modpacks: ");
+            boolean requiresComma = false;
             for (ModPack modpack : modpacks) {
-                builder.append(',');
+                if (requiresComma) {
+                    builder.append(", ");
+                }
                 builder.append(modpack.getRootDirectory().getName());
+                requiresComma = true;
             }
             builder.append('.');
             Logger.critical(builder.toString());
