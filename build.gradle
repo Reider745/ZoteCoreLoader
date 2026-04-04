@@ -1,11 +1,11 @@
 apply plugin: 'application'
+apply plugin: 'maven-publish'
 
-group 'ZoteCoreLoader'
-version 'SNAPSHOT'
+group 'org.innercore.zotecoreloader'
+version 'beta-1.1.0'
 
 application {
     mainClass = 'com.reider745.Main'
-    // applicationDefaultJvmArgs = ['--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED']
 }
 
 repositories {
@@ -88,4 +88,26 @@ task rebuildZoteStubs(type: JavaExec, dependsOn: jar) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.reider745.api.hooks.RebuildJavadoc'
     args "build/libs/${project.name}-${project.version}.jar", ".todo/${project.name}-${project.version}.jar"
+}
+
+tasks.jar {
+    archiveFileName.set("${project.name}-${project.version}.jar")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = "innercore-releases"
+            url = uri("https://maven.inner-core.org/releases")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
 }
