@@ -88,10 +88,13 @@ public class NativeBlock {
     public static CustomManager[] constructLiquidBlockPair(int id1, String nameId1, int id2, String nameId2,
             String name,
             int materialBaseId, int tickDelay, boolean isRenewable) {
-        return new CustomManager[] {
+        CustomManager[] managers =  new CustomManager[] {
                 CustomBlock.registerBlock(nameId1, id1, name, tickDelay, isRenewable),
                 CustomBlock.registerBlock(nameId2, id2, name, tickDelay, isRenewable)
         };
+        addBlockStateId(id1, BlockState.getIdByName("liquid_depth"));
+        addBlockStateId(id2, BlockState.getIdByName("liquid_depth"));
+        return managers;
     }
 
     public static long addVariant(CustomManager properties, String name, String[] textureNames, int[] textureIds) {
@@ -269,6 +272,8 @@ public class NativeBlock {
 
     public static void setShape(int id, int data, float x1, float y1, float z1, float x2, float y2, float z2) {
         CustomManager manager = CustomManager.getFor(id);
+        if(manager == null) return;
+
         String key = data != -1 ? "shape" + data : "shape";
         BlockShape shape = manager.get(key);
         if (shape == null) {

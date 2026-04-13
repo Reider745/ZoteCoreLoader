@@ -109,8 +109,8 @@ public class NetworkHooks implements HookClass {
 
     @Inject(type = TypeHook.AFTER_NOT_REPLACE)
     public static void registerPackets(Network network) {
-        network.registerPacket(InnerCoreServer.PROTOCOL, InnerCorePacket.NETWORK_ID, InnerCorePacket.class);
-        network.registerPacket(InnerCoreServer.PROTOCOL, LoginPacketFix.NETWORK_ID, LoginPacketFix.class);
+        network.registerPacket(InnerCoreServer.PROTOCOL, InnerCorePacket.NETWORK_ID, InnerCorePacket.class, InnerCorePacket::new);
+        network.registerPacket(InnerCoreServer.PROTOCOL, LoginPacketFix.NETWORK_ID, LoginPacketFix.class, LoginPacketFix::new);
     }
 
     @Inject(className = "cn.nukkit.network.RakNetInterface$2", type = TypeHook.BEFORE_REPLACE)

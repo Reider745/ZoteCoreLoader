@@ -4,14 +4,25 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockDoor;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.blockentity.BlockEntitySpawnable;
+import cn.nukkit.level.DimensionData;
+import cn.nukkit.level.format.ChunkSection;
+import cn.nukkit.level.format.generic.BaseChunk;
+import cn.nukkit.level.format.generic.serializer.NetworkChunkData;
+import cn.nukkit.level.format.generic.serializer.NetworkChunkSerializer;
 import cn.nukkit.level.format.leveldb.BlockStateMapping;
 import cn.nukkit.level.format.leveldb.LevelDBConstants;
 import cn.nukkit.level.format.leveldb.structure.BlockStateSnapshot;
+import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.ProtocolInfo;
+import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
+import cn.nukkit.utils.ThreadCache;
 import com.google.common.io.ByteStreams;
 import com.reider745.InnerCoreServer;
+import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.TypeHook;
 import com.reider745.api.hooks.annotation.Hooks;
@@ -22,32 +33,36 @@ import com.reider745.block.CustomBlock;
 import com.reider745.block.wall.BlockWall;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import it.unimi.dsi.fastutil.Hash;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtMapBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 @Hooks(className = "cn.nukkit.level.GlobalBlockPalette")
 public class BlockPalette {
     private static final int VERSION_STATE = 18168865;
     private static final MainLogger logger = Server.getInstance().getLogger();
+
     private static final Int2IntMap legacyToRuntimeId = new Int2IntOpenHashMap();
     private static int[] runtimeIdToLegacy;
-    private static int[] runtimeIdToLegacyLevelDb;
+
     private static final Int2IntMap stateCapacity = new Int2IntOpenHashMap();
     private static final Map<String, Integer> stateIdByName = new HashMap<>();
     private static final Int2ObjectMap<String> nameByStateId = new Int2ObjectOpenHashMap<>();
+    private static final Int2ObjectMap<IntList> validData = new Int2ObjectOpenHashMap<>();
     private static final Object2ObjectMap<NbtMap, BlockStateSnapshot> paletteMap = new Object2ObjectOpenCustomHashMap<>(new Hash.Strategy<>() {
         @Override
         public int hashCode(NbtMap nbtMap) {
@@ -83,8 +98,11 @@ public class BlockPalette {
     });
 
     private static final cn.nukkit.level.BlockPalette blockPalette = new cn.nukkit.level.BlockPalette(LevelDBConstants.PALETTE_VERSION);
+    private static final cn.nukkit.level.BlockPalette vanillaBlockPalette = new cn.nukkit.level.BlockPalette(LevelDBConstants.PALETTE_VERSION);
 
     static {
+        blockPalette.clearStates();
+
         try {
             JSONObject json = new JSONObject(new String(ByteStreams
                     .toByteArray(Server.class.getClassLoader().getResourceAsStream("state-name-to-id.json"))));
@@ -100,7 +118,13 @@ public class BlockPalette {
                 stateCapacity.put(stateIdByName.get(key).intValue(), json.getInt(key));
             }
 
-
+            json = new JSONObject(new String(ByteStreams
+                    .toByteArray(Server.class.getClassLoader().getResourceAsStream("valid_data.json"))));
+            for(String key : json.keySet()) {
+                final IntList datas = new IntArrayList();
+                json.getJSONArray(key).forEach((id) -> datas.add((int) id));
+                validData.put(Integer.parseInt(key), datas);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -127,6 +151,19 @@ public class BlockPalette {
 
     public static int getIdByName(String name) {
         return stateIdByName.get(name);
+    }
+
+    public static IntList getValidDataForId(int id) {
+        return validData.computeIfAbsent(id, key -> {
+            final IntList list = new IntArrayList();
+            final CustomManager manager = CustomManager.getFor(id);
+            if(manager != null) {
+                list.addAll(CustomBlock.getStates(manager));
+            } else {
+                list.add(0);
+            }
+            return list;
+        });
     }
 
     private record BlockDescription(int id, int newId, JSONObject states, int data, String identifier) {
@@ -156,34 +193,60 @@ public class BlockPalette {
         return false;
     }
 
-    private static void variantGenerations(List<Integer> states, List<JSONObject> variants, JSONObject temp, int offset) {
-        if (states.size() - offset >= 0) {
-            final Integer currentState = states.get(states.size() - offset);
+    public static Map<Integer, JSONObject> variantGenerations(List<Integer> states) {
+        final Map<Integer, JSONObject> variants = new HashMap<>();
 
-            for (int value = 0; value < getCapacityForId(currentState); value++) {
-                temp.put(getNameForId(currentState), value);
-                if(!containsJSON(variants, temp))
-                    variants.add(cloneJSON(temp));
-                variantGenerations(states, variants, temp, offset + 1);
+        final int[] endPos = new int[states.size()];
+        final int[] sizes = new int[states.size()];
+        final int[] capacities = new int[states.size()];
+
+        int countStates = 1;
+        int dataBitsRequired = 0;
+
+        for(int i = 0;i < states.size();i++) {
+            final int capacity = getCapacityForId(states.get(i));
+            countStates *= capacity;
+
+            int dataBits = (int) Math.ceil(Math.log(capacity) / Math.log(2));
+            dataBitsRequired += dataBits;
+
+            if(dataBitsRequired > 16) throw new Error("Limit states");
+
+            endPos[i] = dataBitsRequired - 1;
+            sizes[i] = dataBits;
+            capacities[i] = capacity;
+        }
+
+        for(int data = 0, variant = 0;variant < countStates;data++) {
+            JSONObject state = new JSONObject();
+            boolean valid = true;
+
+            for(int i = 0;i < states.size();i++) {
+                int value = (data & 0xFFFF) >>> (endPos[i] - sizes[i] + 1) & (0xFFFF >>> 16 - sizes[i]);
+
+                if(value >= capacities[i]) {
+                    valid = false;
+                    break;
+                }
+
+                state.put(getNameForId(states.get(i)), value);
             }
 
-            temp.put(getNameForId(currentState), 0);
+            if(valid) {
+                variant++;
+                variants.put(data, state);
+            }
         }
+
+        return variants;
     }
 
-    public static List<JSONObject> variantGenerations(List<Integer> states) {
-        final JSONObject temp = new JSONObject();
-        for(int state : states) {
-            temp.put(getNameForId(state), 0);
+    @Inject
+    public static cn.nukkit.level.BlockPalette getPaletteByProtocol(int protocol) {
+        if(protocol == LevelDBConstants.PALETTE_VERSION) {
+            return vanillaBlockPalette;
         }
-
-        final List<JSONObject> variants = new ArrayList<>();
-        if(states.isEmpty()) {
-            variants.add(temp);
-        }
-
-        variantGenerations(states, variants, temp, 1);
-        return variants;
+        return blockPalette;
     }
 
 
@@ -229,15 +292,13 @@ public class BlockPalette {
 
             final Int2ObjectMap<BlockStateSnapshot> runtime2State = ReflectHelper.getField(blockStateMapping, "runtime2State");
             final Object2ObjectMap<NbtMap, BlockStateSnapshot> palette = ReflectHelper.getField(blockStateMapping, "paletteMap");
-            final Int2IntMap runtimeIdToLegacyLeveldb = ReflectHelper.getField(blockPalette, "runtimeIdToLegacy");
+            final Int2IntMap runtimeIdToLegacyLeveldb = ReflectHelper.getField(vanillaBlockPalette, "runtimeIdToLegacy");
 
             AtomicReference<Integer> RUNTIME_ID = new AtomicReference<>(runtimeIdToLegacyLeveldb.size());
             runtimeIdToLegacyLeveldb.forEach((id, legacy) -> RUNTIME_ID.set(Math.max(RUNTIME_ID.get(), id + 1)));
             CustomBlock.blocks.forEach((id, manager) -> {
-                final List<JSONObject> states = variantGenerations(CustomBlock.getStates(manager));
-
-                for (int data = 0; data < states.size(); data++) {
-                    var state = states.get(data);
+                var variants = variantGenerations(CustomBlock.getStates(manager));
+                variants.forEach((data, state) -> {
                     sortStates.add(new BlockDescription(id, id, state, data, manager.textId));
 
                     int runtimeId = RUNTIME_ID.getAndSet(RUNTIME_ID.get() + 1);
@@ -264,7 +325,7 @@ public class BlockPalette {
                     }
 
                     blockStateMapping.registerState(runtimeId, nbt);
-                    blockPalette.registerState(id, data, runtimeId, null);
+                    vanillaBlockPalette.registerState(id, data, runtimeId, null);
 
                     levelDbRuntimeIdToData.put(nbt, data);
                     paletteMap.put(nbt, BlockStateSnapshot.builder()
@@ -272,7 +333,7 @@ public class BlockPalette {
                             .vanillaState(nbt)
                             .runtimeId(runtimeId)
                             .build());
-                }
+                });
             });
 
             final List<String> sortedStates = new ArrayList<>(stateIdByName.keySet());
@@ -303,11 +364,12 @@ public class BlockPalette {
 
             String[] wallConnectionType = new String[] {"none", "short", "tall"};
 
+            //Map<Integer, List<Integer>> ABOBA = new HashMap<>();
             runtimeIdToLegacy = new int[sortStates.size()];
             for (int runtimeId = 0; runtimeId < sortStates.size(); runtimeId++) {
                 final BlockDescription description = sortStates.get(runtimeId);
-                final int blockMeta = description.data;
 
+                int blockMeta = description.data;
                 int blockId = description.newId;
                 int legacyId = (blockId << Block.DATA_BITS) | blockMeta;
 
@@ -324,6 +386,7 @@ public class BlockPalette {
                         doorMeta = doorMeta | BlockDoor.DOOR_HINGE_BIT;
 
                     legacyId = (blockId << Block.DATA_BITS) | doorMeta;
+                    blockMeta = doorMeta;
                 } else if(blockId == BlockID.COBBLESTONE_WALL || blockId == BlockID.BLACKSTONE_WALL || blockId == BlockID.POLISHED_BLACKSTONE_WALL || blockId == BlockID.POLISHED_BLACKSTONE_BRICK_WALL) {
                     int wallMeta = 0;
 
@@ -374,29 +437,29 @@ public class BlockPalette {
                         runtime2State.remove(palette.remove(buildStates).getRuntimeId());
                     }
                     blockStateMapping.registerState(runtimeIdLevelDb, vanillaState.build());
-                    blockPalette.registerState(blockId, wallMeta, runtimeIdLevelDb, null);
+                    vanillaBlockPalette.registerState(blockId, wallMeta, runtimeIdLevelDb, null);
                     legacyId = (blockId << Block.DATA_BITS) | wallMeta;
+                    blockMeta = wallMeta;
                 }
 
 
                 if (blockMeta < Block.DATA_SIZE) {
+                    //ABOBA.computeIfAbsent(blockId, (id) -> new ArrayList<>()).add(blockMeta);
                     //if(!doors.contains(blockId) && legacyToRuntimeId.containsKey(legacyId))
                         //throw new RuntimeException("Confilict: " + Arrays.toString(BlockStateStorage.getBlockForRuntimeId(legacyToRuntimeId.get(legacyId))) + ", blockId: " + blockId + ", runtimeId: " + runtimeId + ", status: " + description.states);
 
+                    blockPalette.registerState(blockId, blockMeta, runtimeId, null);
                     legacyToRuntimeId.put(legacyId, runtimeId);
                     legacyToRuntimeId.putIfAbsent(legacyId, runtimeId);
                     runtimeIdToLegacy[runtimeId] = legacyId;
 
                     BlockStateStorage.addState(description.states, runtimeId, description.id, blockMeta, description.newId);
                 } else {
-                    throw new RuntimeException("Block " + description.id + " is too big, size: " + Block.DATA_SIZE + ", meta: " + blockMeta);
+                    throw new RuntimeException("Block " + description.identifier + " is too big, size: " + Block.DATA_SIZE + ", meta: " + blockMeta);
                 }
             }
 
-            runtimeIdToLegacyLevelDb = new int[RUNTIME_ID.get()];
-            runtimeIdToLegacyLeveldb.forEach((runtimeId, legacyId) -> {
-                runtimeIdToLegacyLevelDb[runtimeId] = legacyId;
-            });
+            //Files.writeString(new File("valid_data.json").toPath(), new Gson().toJson(ABOBA));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -414,9 +477,15 @@ public class BlockPalette {
             if (runtimeId == -1 && id != BlockID.INFO_UPDATE) {
                 logger.info("failed to locate state for id: " + id + ":" + meta);
 
+
                 runtimeId = legacyToRuntimeId.get(BlockID.INFO_UPDATE << Block.DATA_BITS);
+
                 if (runtimeId == -1)
                     throw new RuntimeException("failed to fallback to BlockID.INFO_UPDATE state " + id + " " + meta);
+
+
+                legacyToRuntimeId.put(legacyId, runtimeId);
+
                 return runtimeId;
             } else if (id == BlockID.INFO_UPDATE) {
                 throw new IllegalStateException("BlockID.INFO_UPDATE state is missing! " + id + " " + meta);
@@ -429,10 +498,7 @@ public class BlockPalette {
     @Inject
     public static int getLegacyFullId(int protocol, int runtimeId) {
         if(protocol == LevelDBConstants.PALETTE_VERSION) {
-            if(runtimeId >= 0 && runtimeId < runtimeIdToLegacyLevelDb.length) {
-                return runtimeIdToLegacyLevelDb[runtimeId];
-            }
-            return -1;
+            return vanillaBlockPalette.getLegacyFullId(runtimeId);
         }
 
         if(runtimeId >= 0 && runtimeId < runtimeIdToLegacy.length) {
@@ -443,18 +509,13 @@ public class BlockPalette {
 
     @Inject
     public static int getLegacyFullId(int runtimeId) {
-        return getLegacyFullId(InnerCoreServer.PROTOCOL, runtimeId);
-    }
-
-    @Inject
-    public static int getLegacyFullId(int protocol, CompoundTag tag) {
-        throw new RuntimeException("use getLegacyFullId(int, CompoundTag)");
+        return getLegacyFullId(InnerCoreServer.PROTOCOL);
     }
 
     @Inject
     public static int getOrCreateRuntimeId(int protocol, int id, int meta) {
         if(protocol == LevelDBConstants.PALETTE_VERSION) {
-            return blockPalette.getRuntimeId(id, meta);
+            return vanillaBlockPalette.getRuntimeId(id, meta);
         }
         return get(id, meta);
     }

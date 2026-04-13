@@ -14,6 +14,7 @@ import com.reider745.api.CustomManager;
 import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.ServerHooks;
 import com.reider745.hooks.block.BlockPalette;
+import com.reider745.hooks.block.BlocksHooks;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeItem;
 import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
@@ -41,7 +42,8 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
     public static void registerBlock(int id, int data, Block block) {
         Block.list[id] = block.getClass();
         int fullId = (id << DATA_BITS) | data;
-        Block.fullList[fullId] = block;
+
+        BlocksHooks.registerFullId(fullId, block);
         Block.hasMeta[id] = true;
 
         Block.solid[id] = block.isSolid();

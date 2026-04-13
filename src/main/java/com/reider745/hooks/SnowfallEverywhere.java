@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
+import cn.nukkit.level.BlockPalette;
+import cn.nukkit.level.GlobalBlockPalette;
 import com.reider745.api.hooks.HookClass;
 import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
@@ -59,9 +61,10 @@ public class SnowfallEverywhere implements HookClass, Listener {
 				}
 			}
 
+			BlockPalette blockPalette = GlobalBlockPalette.getPaletteByProtocol(protocolId);
 			BinaryStream stream = ThreadCache.binaryStream.get().reset();
 			for (int i = 0; i < subChunkCount; i++) {
-				sections[i].writeTo(protocolId, stream, false);
+				sections[i].writeTo(protocolId, stream, false, blockPalette);
 			}
 
 			stream.put(toSnowfallBiomeIdArray(chunk.getBiomeIdArray()));

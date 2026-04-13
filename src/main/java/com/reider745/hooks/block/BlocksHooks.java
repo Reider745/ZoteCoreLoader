@@ -4,6 +4,8 @@ import cn.nukkit.Server;
 import cn.nukkit.block.*;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
+import cn.nukkit.level.Level;
+import cn.nukkit.level.Position;
 import cn.nukkit.utils.Utils;
 import com.reider745.api.ReflectHelper;
 import com.reider745.api.hooks.TypeHook;
@@ -14,13 +16,26 @@ import com.reider745.api.hooks.annotation.ShadowSetField;
 import com.reider745.block.BlockMethods;
 import com.reider745.block.wall.*;
 import com.reider745.block.wall.BlockWall;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntList;
+import lombok.extern.log4j.Log4j2;
 
 import java.lang.reflect.Constructor;
 
 @Hooks(className = "cn.nukkit.block.Block")
+@Log4j2
 public class BlocksHooks {
+    private static final Int2ObjectMap<Block> fullList = new Int2ObjectOpenHashMap<>();
+    private static BlockUnknown UNKNOWN;
+    private static int MAX_FULL_ID;
+
     private static void registerWall(BlockWall.WallType wallType, Class<? extends BlockWall> clazz) {
         Block.list[wallType.id] = clazz;
+    }
+
+    public static void registerFullId(int fullId, Block block) {
+        fullList.put(fullId, block);
     }
 
     @Inject(type = TypeHook.AFTER_REPLACE)
@@ -33,13 +48,13 @@ public class BlocksHooks {
         Увеличение дата битов на блок влечет уменьшением максимально зарегистрированных блоков, иза-чего выше 16 ставить не стоит, что-бы для блоков был доступен хотя-бы short
         Так-же генерация Block.fullList не очень любит большое количество дата-битов, для увелечения состояний с 512 до 64к нужно переделать генерацию fullList
          */
-        ReflectHelper.setField(Block.class, "DATA_BITS", Utils.dynamic(9));
+        ReflectHelper.setField(Block.class, "DATA_BITS", Utils.dynamic(16));
         ReflectHelper.setField(Block.class, "DATA_SIZE", Utils.dynamic(1 << Block.DATA_BITS));
         ReflectHelper.setField(Block.class, "DATA_MASK", Utils.dynamic(Block.DATA_SIZE - 1));
 
         if (Block.list == null) {
             Block.list = new Class[Block.MAX_BLOCK_ID];
-            Block.fullList = new Block[Block.MAX_BLOCK_ID * (1 << Block.DATA_BITS)];
+            Block.fullList = null;
             Block.light = new int[Block.MAX_BLOCK_ID];
             Block.lightFilter = new int[Block.MAX_BLOCK_ID];
             Block.solid = new boolean[Block.MAX_BLOCK_ID];
@@ -47,6 +62,8 @@ public class BlocksHooks {
             Block.transparent = new boolean[Block.MAX_BLOCK_ID];
             Block.diffusesSkyLight = new boolean[Block.MAX_BLOCK_ID];
             Block.hasMeta = new boolean[Block.MAX_BLOCK_ID];
+
+            MAX_FULL_ID = Block.MAX_BLOCK_ID * (1 << Block.DATA_BITS);
 
             ReflectHelper.invoke(Blocks.class, "init", new Object[0]);
 
@@ -68,7 +85,7 @@ public class BlocksHooks {
             registerWall(BlockWall.WallType.POLISHED_BLACKSTONE, BlockPolishedBlackstoneWall.class);
             registerWall(BlockWall.WallType.POLISHED_BLACKSTONE_BRICK, BlockPolishedBlackstoneBrickWall.class);
 
-            final BlockUnknown BLOCK_UNKNOWN = new BlockUnknown(Block.MAX_BLOCK_ID, 0);
+            UNKNOWN = new BlockUnknown(Block.MAX_BLOCK_ID, 0);
 
             for (int id = 0; id < Block.MAX_BLOCK_ID; id++) {
                 Class<?> c = Block.list[id];
@@ -80,32 +97,34 @@ public class BlocksHooks {
                             @SuppressWarnings("rawtypes")
                             Constructor constructor = c.getDeclaredConstructor(int.class);
                             constructor.setAccessible(true);
-                            for (int data = 0; data < (1 << Block.DATA_BITS); ++data) {
+
+                            IntList variants = BlockPalette.getValidDataForId(id);
+
+                            for (int data = 0; data < Block.DATA_SIZE; ++data) {
                                 int fullId = (id << Block.DATA_BITS) | data;
-                                Block b;
-                                try {
-                                    b = (Block) constructor.newInstance(data);
-                                    if (b.getDamage() != data) {
-                                        b = BLOCK_UNKNOWN;
+                                if(variants.contains(data)) {
+                                    Block b;
+                                    try {
+                                        b = (Block) constructor.newInstance(data);
+                                        if (b.getDamage() != data) {
+                                            continue;
+                                        }
+                                    } catch (Exception e) {
+                                        Server.getInstance().getLogger().error("Error while registering " + c.getName(), e);
+                                        continue;
                                     }
-                                } catch (Exception e) {
-                                    Server.getInstance().getLogger().error("Error while registering " + c.getName(), e);
-                                    b = BLOCK_UNKNOWN;
+                                    fullList.put(fullId, b);
                                 }
-                                Block.fullList[fullId] = b;
                             }
                             Block.hasMeta[id] = true;
                         } catch (NoSuchMethodException ignore) {
                             for (int data = 0; data < Block.DATA_SIZE; ++data) {
                                 int fullId = (id << Block.DATA_BITS) | data;
-                                Block.fullList[fullId] = block;
+                                fullList.put(fullId, block);
                             }
                         }
                     } catch (Exception e) {
                         Server.getInstance().getLogger().error("Error while registering " + c.getName(), e);
-                        for (int data = 0; data < Block.DATA_SIZE; ++data) {
-                            Block.fullList[(id << Block.DATA_BITS) | data] = BLOCK_UNKNOWN;
-                        }
                         return;
                     }
 
@@ -134,9 +153,6 @@ public class BlocksHooks {
                     }
                 } else {
                     Block.lightFilter[id] = 1;
-                    for (int data = 0; data < Block.DATA_SIZE; ++data) {
-                        Block.fullList[(id << Block.DATA_BITS) | data] = BLOCK_UNKNOWN;
-                    }
                 }
             }
         }
@@ -158,6 +174,136 @@ public class BlocksHooks {
             return block;
         }
         return block.clone();
+    }
+
+    private static Block getFull(int fullId) {
+        return fullList.getOrDefault(fullId, UNKNOWN);
+    }
+
+    @Inject
+    public static Block get(int id, Integer meta) {
+        if (id < 0) {
+            id = 255 - id;
+        }
+
+        int fullId = id << Block.DATA_BITS;
+        if (meta != null) {
+            int iMeta = meta;
+            if (iMeta <= Block.DATA_BITS) {
+                fullId = fullId | meta;
+                if (fullId >= MAX_FULL_ID) {
+                    log.warn("Found an unknown BlockId:Meta combination: {}:{}", id, iMeta);
+                    return new BlockUnknown(id, iMeta);
+                }
+                return getFull(fullId).clone();
+            } else {
+                if (fullId >= MAX_FULL_ID) {
+                    log.warn("Found an unknown BlockId:Meta combination: {}:{}", id, iMeta);
+                    return new BlockUnknown(id, iMeta);
+                }
+                Block block = getFull(fullId).clone();
+                block.setDamage(iMeta);
+                return block;
+            }
+        } else {
+            if (fullId >= MAX_FULL_ID) {
+                log.warn("Found an unknown BlockId:Meta combination: {}:{}", id, 0);
+                return new BlockUnknown(id, 0);
+            }
+            return getFull(fullId).clone();
+        }
+    }
+
+    @Inject
+    public static Block get(int id, Integer meta, Position pos, int layer) {
+        if (id < 0) {
+            id = 255 - id;
+        }
+
+        Block block;
+        int fullId = id << Block.DATA_BITS;
+        if (meta != null && meta > Block.DATA_SIZE) {
+            if (fullId >= MAX_FULL_ID) {
+                log.warn("Found an unknown BlockId:Meta combination: {}:{}", id, meta);
+                return new BlockUnknown(id, meta);
+            }
+            block = getFull(fullId).clone();
+            block.setDamage(meta);
+        } else {
+            meta = meta == null ? 0 : meta;
+            fullId = fullId | meta;
+            if (fullId >= MAX_FULL_ID) {
+                log.warn("Found an unknown BlockId:Meta combination: {}:{}", id, meta);
+                return new BlockUnknown(id, meta);
+            }
+            block = getFull(fullId).clone();
+        }
+
+        if (pos != null) {
+            block.x = pos.x;
+            block.y = pos.y;
+            block.z = pos.z;
+            block.level = pos.level;
+            block.layer = layer;
+        }
+        return block;
+    }
+
+    @Inject
+    public static Block get(int id, int data) {
+        if (id < 0) {
+            id = 255 - id;
+        }
+
+        int fullId = id << Block.DATA_BITS;
+        if (fullId >= MAX_FULL_ID) {
+            log.warn("Found an unknown BlockId:Meta combination: {}:{}", id, data);
+            return new BlockUnknown(id, data);
+        }
+        if (data < Block.DATA_SIZE) {
+            fullId = fullId | data;
+
+            return getFull(fullId).clone();
+        } else {
+            Block block = getFull(fullId).clone();
+            block.setDamage(data);
+            return block;
+        }
+    }
+
+    @Inject
+    public static Block get(int fullId, Level level, int x, int y, int z, int layer) {
+        int id = fullId << Block.DATA_BITS;
+
+        if (fullId >= MAX_FULL_ID) {
+            int meta = fullId & Block.DATA_BITS;
+            log.warn("Found an unknown BlockId:Meta combination: {}:{}", id, meta);
+            return new BlockUnknown(id, meta);
+        }
+        Block block = getFull(fullId).clone();
+        block.x = x;
+        block.y = y;
+        block.z = z;
+        block.level = level;
+        //block.layer = layer;
+        return block;
+    }
+
+    @Inject
+    public static Block get(int id, int meta, Level level, int x, int y, int z, int layer) {
+        Block block;
+        if (meta <= Block.DATA_SIZE) {
+            block = getFull(id << Block.DATA_BITS | meta).clone();
+        } else {
+            block = getFull(id << Block.DATA_BITS).clone();
+            block.setDamage(meta);
+        }
+        block.x = x;
+        block.y = y;
+        block.z = z;
+        block.level = level;
+        block.layer = layer;
+        return block;
     }
 
     public static Boolean isSolid(Block self) {

@@ -8,7 +8,6 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class CallbackHelper {
     public enum Type {

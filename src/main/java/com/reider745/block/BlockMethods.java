@@ -217,8 +217,11 @@ public class BlockMethods {
     public static void addBlockStateId(int id, int stateId) {
         final Byte2ObjectOpenHashMap<Object> type = assureId2Type(id);
         final ArrayList<Integer> states = (ArrayList<Integer>) type.computeIfAbsent(STATES, p -> new ArrayList<>());
-        states.add(stateId);
-        assureId2Type(id).put(STATES, states);
+
+        if(!states.contains(stateId)) {
+            states.add(stateId);
+            assureId2Type(id).put(STATES, states);
+        }
     }
 
     public static ArrayList<Integer> getStatesForId(int id) {
