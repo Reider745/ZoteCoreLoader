@@ -18,6 +18,8 @@ import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mozilla.javascript.StackStyle;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -32,7 +34,7 @@ public class NativeWorkbench {
         }
     }
 
-    private static final ArrayList<UUID> removedRecipes = new ArrayList<>();
+    private static final List<UUID> removedRecipes = new ObjectArrayList<>();
     private static boolean isFinalLoad = false;
 
     public static boolean canRemoveRecipe(UUID uuid){

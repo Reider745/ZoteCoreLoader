@@ -533,8 +533,10 @@ public class EventListener implements Listener {
         if(player.craftingType == Player.CRAFTING_SMALL || player.craftingType == Player.CRAFTING_BIG) {
             if (!NativeWorkbench.canRemoveRecipe(event.getTransaction().getRecipe().getId()))
                 consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));
-            else
+            else {
+                System.out.println("REMOVE");
                 event.setCancelled();
+            }
         }
     }
 

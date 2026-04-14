@@ -2,6 +2,7 @@ package com.reider745.api;
 
 import cn.nukkit.Server;
 import cn.nukkit.event.Event;
+import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.level.Level;
 import com.reider745.api.hooks.HookController;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
