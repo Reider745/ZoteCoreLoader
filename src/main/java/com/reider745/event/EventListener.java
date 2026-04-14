@@ -534,7 +534,6 @@ public class EventListener implements Listener {
             if (!NativeWorkbench.canRemoveRecipe(event.getTransaction().getRecipe().getId()))
                 consumeEvent(event, () -> NativeCallback.onWorkbenchCraft(grid, playerUid, inventorySize));
             else {
-                System.out.println("REMOVE");
                 event.setCancelled();
             }
         }
