@@ -56,5 +56,8 @@
   },
   "tile_entity_type": {
     "typename": "TileEntityType"
+  },
+  "damage_cause": {
+    "typename": "DamageCause"
   }
 }
