@@ -84,6 +84,9 @@ public class BlockMethods {
     }
 
     public static boolean isSolid(int id) {
+        if(InnerCoreServer.canEndLoadMods()) {
+            return validateThen(id, Block::isSolid,true);
+        }
         return (boolean) getOrDefault(id, SOLID, true);
     }
 

@@ -6517,8 +6517,7 @@ function setPlayerItem(id, count, data, extra) {
 }
 
 Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player) {
-    var blockSource = BlockSource.getDefaultForActor(player);
-    var placeFunc = BlockRegistry.getPlaceFunc(item.id);
+    let blockSource = BlockSource.getDefaultForActor(player);
     if (TileEntity.isTileEntityBlock(block.id)) {
         let tileEntity = TileEntity.getTileEntity(coords.x, coords.y, coords.z, blockSource);
         if (!tileEntity) {
@@ -6529,46 +6528,50 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
             return;
         }
     }
+
     if (Entity.isSneaking(player) || !doesVanillaTileHasUI(block.id)) {
-        if (TileEntity.isTileEntityBlock(item.id)) {
-            var tile = blockSource.getBlockId(coords.relative.x, coords.relative.y, coords.relative.z);
-            if (canTileBeReplaced(tile)) {
-                if (placeFunc) {
-                    let placeCoords = placeFunc(coords, item, block, player, blockSource) || coords.relative;
-                    let tileEntity = TileEntity.addTileEntity(placeCoords.x, placeCoords.y, placeCoords.z, blockSource);
+        let placeCoords = null;
+        let placeFunc = BlockRegistry.getPlaceFunc(item.id);
+        if (placeFunc) {
+            placeCoords = placeFunc(coords, item, block, player, blockSource);
+        }
+
+        let isTileEntity = TileEntity.isTileEntityBlock(item.id);
+        if (isTileEntity) {
+            if (!placeFunc) {
+                if (canTileBeReplaced(block.id, block.data)) {
+                    placeCoords = coords;
                 } else {
-                    blockSource.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, item.id, item.data);
-                    let tileEntity = TileEntity.addTileEntity(coords.relative.x, coords.relative.y, coords.relative.z, blockSource);
-                }
-                if (GameAPI.isItemSpendingAllowed(player)) {
-                    if (item.count > 1) {
-                        Entity.setCarriedItem(player, item.id, item.count - 1, item.data, item.extra);
-                    } else {
-                        Entity.setCarriedItem(player, 0, 0, 0);
+                    let tile = blockSource.getBlock(coords.relative.x, coords.relative.y, coords.relative.z);
+                    if (canTileBeReplaced(tile.id, tile.data)) {
+                        placeCoords = coords.relative;
                     }
                 }
-                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
-                preventDefault();
-                return;
+                if (placeCoords) {
+                    blockSource.setBlock(placeCoords.x, placeCoords.y, placeCoords.z, item.id, item.data);
+                }
             }
-        } else {
-            if (placeFunc) {
-                placeFunc(coords, item, block, player, blockSource);
-                if (GameAPI.isItemSpendingAllowed(player)) {
-                    if (item.count > 1) {
-                        Entity.setCarriedItem(player, item.id, item.count - 1, item.data, item.extra);
-                    } else {
-                        Entity.setCarriedItem(player, 0, 0, 0);
-                    }
-                }
-                WorldAPI.playSound(coords.x, coords.y, coords.z, "dig.stone", 1, 0.8);
-                preventDefault();
+            if (placeCoords) {
+                TileEntity.addTileEntity(placeCoords.x, placeCoords.y, placeCoords.z, blockSource);
             }
         }
 
-        ItemRegistry.onItemUsed(coords, item, block, player);
+        if (placeCoords) {
+            if (GameAPI.isItemSpendingAllowed(player)) {
+                if (item.count > 1) {
+                    Entity.setCarriedItem(player, item.id, item.count - 1, item.data, item.extra);
+                } else {
+                    Entity.setCarriedItem(player, 0, 0, 0);
+                }
+            }
+            blockSource.playSound(placeCoords.x, placeCoords.y, placeCoords.z, "dig.stone", 1, 0.8);
+            preventDefault();
+        } else {
+            ItemRegistry.onItemUsed(coords, item, block, player);
+        }
     }
 });
+
 var EntityDataRegistry = {
     isLevelLoaded: false,
     entityData: {},
