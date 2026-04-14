@@ -2,7 +2,7 @@ apply plugin: 'application'
 apply plugin: 'maven-publish'
 
 group 'org.innercore.zotecoreloader'
-version 'beta-1.1.0'
+version 'beta-1.1.1'
 
 application {
     mainClass = 'com.reider745.Main'
