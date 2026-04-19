@@ -215,25 +215,19 @@ public class Config {
             cur = new JSONObject();
         }
 
-        JSONArray names = json.names();
-        int len = names.length();
-
-        for (int i = 0; i < len; i++) {
-            String key = names.optString(i);
-            if (key != null) {
-                Object defVal = json.opt(key);
-                Object curVal = cur.opt(key);
-                if (defVal != null) {
-                    if (defVal instanceof JSONObject) {
-                        cur.put(key, checkAndRestoreRecursive((JSONObject) defVal, cur.optJSONObject(key)));
-                    } else {
-                        if (curVal != null) {
-                            if (curVal.getClass() != defVal.getClass()) {
-                                cur.put(key, defVal);
-                            }
-                        } else {
+        for(String key : json.keySet()) {
+            Object defVal = json.opt(key);
+            Object curVal = cur.opt(key);
+            if (defVal != null) {
+                if (defVal instanceof JSONObject) {
+                    cur.put(key, checkAndRestoreRecursive((JSONObject) defVal, cur.optJSONObject(key)));
+                } else {
+                    if (curVal != null) {
+                        if (curVal.getClass() != defVal.getClass()) {
                             cur.put(key, defVal);
                         }
+                    } else {
+                        cur.put(key, defVal);
                     }
                 }
             }
