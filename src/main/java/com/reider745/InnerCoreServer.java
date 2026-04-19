@@ -34,6 +34,7 @@ import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.mcpe161.InnerCore;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -52,7 +53,7 @@ import java.util.zip.ZipFile;
 
 public class InnerCoreServer {
     public enum MethodHandling {
-        NONE, DEBUG, WARNING, RAISE;
+        NONE, DEBUG, WARNING, TRACE, RAISE;
     }
 
     public static final int PROTOCOL = 422;
@@ -659,6 +660,7 @@ public class InnerCoreServer {
                 case DEBUG -> Logger.message(message);
                 case WARNING -> Logger.warning(message);
                 case RAISE -> throw new RuntimeException(message);
+                case TRACE -> printStackTrace(message);
                 default -> throw new UnsupportedOperationException();
             }
         }
@@ -681,11 +683,19 @@ public class InnerCoreServer {
                 + "), which is why you're reading this right now");
     }
 
-    public static void printStackTrace() {
+    public static void warning(String message) {
+        handleUnsupportedMethod("Warning: " + message);
+    }
+
+    public static void printStackTrace(String message) {
         try {
-            throw new RuntimeException("Aboba");
+            throw Context.reportRuntimeError("Error");
         } catch (Exception e) {
             System.out.println(ICLog.getStackTrace(e));
         }
+    }
+
+    public static void printStackTrace() {
+        printStackTrace("Trace");
     }
 }

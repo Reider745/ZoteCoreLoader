@@ -75,7 +75,7 @@ public class EntityMethod {
         }
 
         if (entityUid != 0 && InnerCoreServer.isDeveloperMode()) {
-            Logger.warning("NativeAPI", "Unknown entityUid=" + entityUid + ", aborting requested action!");
+            InnerCoreServer.warning("Unknown entityUid=" + entityUid + ", aborting requested action!");
         }
 
         return null;
