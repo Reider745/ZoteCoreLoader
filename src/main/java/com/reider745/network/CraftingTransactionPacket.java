@@ -17,19 +17,10 @@ public class CraftingTransactionPacket implements HookClass {
 
     @Inject(type = TypeHook.BEFORE_REPLACE)
     public static void sendInventories(CraftingTransaction transaction) {
-        if (transaction.getSource().protocol >= ProtocolInfo.v1_16_0) {
-            for (InventoryAction action : transaction.getActionList()) {
-                if (action instanceof SlotChangeAction) {
-                    SlotChangeAction sca = (SlotChangeAction) action;
-                    sca.getInventory().sendSlot(sca.getSlot(), transaction.getSource());
-                }
-            }
-        } else {
-            for (Inventory inventory : transaction.getInventories()) {
-                inventory.sendContents(transaction.getSource());
-                if (inventory instanceof PlayerInventory) {
-                    ((PlayerInventory) inventory).sendArmorContents(transaction.getSource());
-                }
+        for (InventoryAction action : transaction.getActionList()) {
+            if (action instanceof SlotChangeAction) {
+                SlotChangeAction sca = (SlotChangeAction) action;
+                sca.getInventory().sendSlot(sca.getSlot(), transaction.getSource());
             }
         }
     }

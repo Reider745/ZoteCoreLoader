@@ -1,6 +1,5 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
-import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.RuntimeItemMapping;
 import cn.nukkit.item.RuntimeItems;
@@ -18,10 +17,7 @@ import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mozilla.javascript.StackStyle;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class NativeWorkbench {
@@ -34,12 +30,7 @@ public class NativeWorkbench {
         }
     }
 
-    private static final List<UUID> removedRecipes = new ObjectArrayList<>();
     private static boolean isFinalLoad = false;
-
-    public static boolean canRemoveRecipe(UUID uuid){
-        return removedRecipes.contains(uuid);
-    }
 
     private static class RecipeRemove implements IApply {
         public int resultId, resultCount, resultData;
@@ -50,26 +41,21 @@ public class NativeWorkbench {
             this.resultData = resultData;
         }
 
-        private static Collection<Recipe> getRecipes(){
-            return ReflectHelper.getField(RecipeRegistry.class, "RECIPES");
-        }
-
         @Override
         public IApply apply(RuntimeItemMapping mapping) {
             final Item itemInstance = ItemUtils.get(this.resultId, this.resultCount, this.resultData);
-            final Collection<Recipe> recipes = getRecipes();
-            boolean removeRecipe = false;
 
-            for(Recipe recipe : recipes){
+            UUID recipeUuid = null;
+            for(Recipe recipe : RecipeRegistry.getRecipes()){
                 if(recipe instanceof CraftingRecipe craftingRecipe && recipe.getResult().equals(itemInstance)){
-                    removedRecipes.add(craftingRecipe.getId());
-                    removeRecipe = true;
-                    break;
+                    recipeUuid = craftingRecipe.getId();
                 }
             }
 
-            if(!removeRecipe)
+            if(recipeUuid == null || !RecipeRegistry.removeRecipe(recipeUuid)){
                 Logger.warning("Not remove recipe " + itemInstance);
+            }
+
             return this;
         }
     }
