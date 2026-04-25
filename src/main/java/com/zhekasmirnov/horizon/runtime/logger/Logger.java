@@ -19,9 +19,9 @@ public class Logger {
 
     public static void initConfig() {
         if(InnerCoreServer.isDebugLogger())
-            debugMessage = (message) -> Server.getInstance().getLogger().info(message);
+            debugMessage = (message) -> Server.getInstance().getLogger().debug(message);
         if(InnerCoreServer.isInfoLogger())
-            debugMessage = (message) -> Server.getInstance().getLogger().info(message);
+            infoMessage = (message) -> Server.getInstance().getLogger().info(message);
     }
 
     public static void message(String message) {
