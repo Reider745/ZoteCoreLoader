@@ -2,6 +2,7 @@ package com.zhekasmirnov.innercore.mod.executable;
 
 import com.googlecode.d2j.dex.Dex2jar;
 import com.googlecode.dex2jar.tools.Jar2Dex;
+import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.API;
 import com.zhekasmirnov.innercore.mod.build.BuildConfig;
@@ -196,7 +197,7 @@ public class Compiler {
         File jarFile = new File(
                 (dexFileAbsolute.endsWith(".dex") ? dexFileAbsolute.substring(0, dexFileAbsolute.length() - 4)
                         : dexFileAbsolute) + ".jar");
-        if (!jarFile.isFile()) {
+        if (!jarFile.isFile() || InnerCoreServer.canReconvertJava()) {
             Dex2jar dex2jar = Dex2jar.from(dexFile);
             dex2jar.to(jarFile.toPath());
         }

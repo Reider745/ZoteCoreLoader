@@ -508,6 +508,10 @@ public class InnerCoreServer {
         return getPropertyBoolean("display-ticking-errors-to-players", true);
     }
 
+    public static boolean canReconvertJava() {
+        return getPropertyBoolean("reconvert-java", false);
+    }
+
     public static boolean canOverridePlayerUUID(){
         return getPropertyBoolean("override-player-uuid", true);
     }
@@ -689,7 +693,7 @@ public class InnerCoreServer {
 
     public static void printStackTrace(String message) {
         try {
-            throw Context.reportRuntimeError("Error");
+            throw Context.reportRuntimeError(message);
         } catch (Exception e) {
             System.out.println(ICLog.getStackTrace(e));
         }
