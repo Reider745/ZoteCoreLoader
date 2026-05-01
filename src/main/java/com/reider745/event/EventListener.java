@@ -50,6 +50,8 @@ import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.innercore.api.NativeScales;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import oshi.hardware.NetworkIF;
 
 import java.util.*;
@@ -75,6 +77,16 @@ public class EventListener implements Listener {
 
     public static final int FORM_REJOIN_EXCEPTION = 2560;
     public static boolean isFirstTickEnd = false;
+
+    private static final IntSet blockChangeCallback = new IntOpenHashSet();
+
+    public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
+        if(enabled) {
+            blockChangeCallback.add(id);
+        } else  {
+            blockChangeCallback.remove(id);
+        }
+    }
 
     public static void consumeEvent(Event event, CallbackHelper.ICallbackApply apply, boolean isPrevent) {
         CallbackHelper.apply(event, apply, isPrevent);
@@ -446,9 +458,11 @@ public class EventListener implements Listener {
     }
 
     public static void onBlockChange(Level level, Block block, Block newBlock){
-        NativeCallback.onBlockChanged((int) newBlock.x, (int) newBlock.y, (int) newBlock.z, block.getId(),
-                block.getDamage(), newBlock.getId(), newBlock.getDamage(), FakeDimensions.getFakeIdForLevel(level),
-                newBlock.getFullId(), level);
+        if(blockChangeCallback.contains(block.getId()) || blockChangeCallback.contains(newBlock.getId())) {
+            NativeCallback.onBlockChanged((int) newBlock.x, (int) newBlock.y, (int) newBlock.z, block.getId(),
+                    block.getDamage(), newBlock.getId(), newBlock.getDamage(), FakeDimensions.getFakeIdForLevel(level),
+                    newBlock.getFullId(), level);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

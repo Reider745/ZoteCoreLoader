@@ -87,7 +87,7 @@ public class NativeAPI {
     }
 
     public static void setBlockChangeCallbackEnabled(int id, boolean enabled) {
-        InnerCoreServer.useNotCurrentSupport("NativeAPI.setBlockChangeCallbackEnabled(id, enabled)");
+        EventListener.setBlockChangeCallbackEnabled(id, enabled);
     }
 
     private static String cleanupPathOverride(String path, boolean terminateWithSlash) {
