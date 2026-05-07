@@ -367,7 +367,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
                     this.level);
             return type;
         } else if (type == Level.BLOCK_UPDATE_REDSTONE || type == Level.BLOCK_UPDATE_NORMAL) {
-            ServerHooks.postApply.add(this);
+            RedstoneSystem.onChangeRedstone(this);
             return type;
         }
         return type;

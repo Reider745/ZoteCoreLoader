@@ -33,6 +33,7 @@ import com.reider745.api.hooks.annotation.Hooks;
 import com.reider745.api.hooks.annotation.Inject;
 import com.reider745.api.hooks.annotation.ShadowGetField;
 import com.reider745.api.hooks.annotation.ShadowMethod;
+import com.reider745.block.RedstoneSystem;
 import com.reider745.event.EventListener;
 import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
@@ -176,6 +177,7 @@ public class LevelHooks implements HookClass {
         }
 
         target.onBreak(item, player);
+        RedstoneSystem.onBreak(target);
 
         item.useOn(target);
         if (item.isTool() && item.getDamage() >= item.getMaxDurability()) {

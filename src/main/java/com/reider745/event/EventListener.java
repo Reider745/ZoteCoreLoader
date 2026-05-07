@@ -20,6 +20,7 @@ import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkLoadEvent;
 import cn.nukkit.event.level.ChunkPopulateEvent;
 import cn.nukkit.event.level.ChunkUnloadEvent;
+import cn.nukkit.event.level.LevelUnloadEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.plugin.PluginDisableEvent;
 import cn.nukkit.event.plugin.PluginEnableEvent;
@@ -42,6 +43,7 @@ import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.AsyncTask;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ZoteOnly;
+import com.reider745.block.RedstoneSystem;
 import com.reider745.hooks.ServerHooks;
 import com.reider745.hooks.network.RakNetPlayerSessionHooks;
 import com.reider745.item.ItemMethod;
@@ -169,19 +171,10 @@ public class EventListener implements Listener {
                 EntityMethod.getIdForEntity(event.getPlayer())));
     }
 
-    public static void onRedstone(Block event) {
-        Block block = event.getBlock();
-        Level level = event.getBlock().getLevel();
-        int signal = level.isBlockIndirectlyGettingPowered(block);
-
-        NativeCallback.onRedstoneSignalChange((int) block.x, (int) block.y, (int) block.z,
-                signal, !event.getBlock().isPowerSource(), level);
-    }
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRedstoneUpdate(RedstoneUpdateEvent event) {
         if(isFirstTickEnd){
-
+            RedstoneSystem.onChangeRedstone(event.getBlock());
         }
     }
 
@@ -622,6 +615,11 @@ public class EventListener implements Listener {
         final FullChunk chunk = event.getChunk();
 
         NativeCallback.onChunkDiscarded(FakeDimensions.getFakeIdForLevel(event.getLevel()), chunk.getX(), chunk.getZ());
+    }
+
+    @EventHandler
+    public void onUnloadLevel(LevelUnloadEvent event){
+        RedstoneSystem.onUnloadLevel(event.getLevel());
     }
 
     @ZoteOnly

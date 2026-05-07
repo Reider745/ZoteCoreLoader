@@ -32,7 +32,6 @@ import org.apache.logging.log4j.LogManager;
 public class ServerHooks {
     public static InnerCoreServer innerCoreServer = new InnerCoreServer();
     private static final org.apache.logging.log4j.Logger zoteLogger = LogManager.getLogger(MainLogger.class);
-    public static final List<Block> postApply = new CopyOnWriteArrayList<>();
 
     @Inject
     public static void start(Server self) throws Exception {
