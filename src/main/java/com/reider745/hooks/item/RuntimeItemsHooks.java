@@ -72,13 +72,15 @@ public class RuntimeItemsHooks implements HookClass {
 
         CustomBlock.blocks.forEach((id, manager) -> {
             final String name = manager.textId;
+
+            RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, id, false);
+            itemPaletteEntries.add(runtimeEntry);
+
             BlockPalette.variantGenerations(CustomBlock.getStates(manager)).forEach((data, block) -> {
                 runtimeId2Name.put(id, name);
                 name2RuntimeId.put(name, id);
 
-                RuntimeItemMapping.RuntimeEntry runtimeEntry = new RuntimeItemMapping.RuntimeEntry(name, id, false);
                 legacy2Runtime.put(RuntimeItems.getFullId(id, data), runtimeEntry);
-                itemPaletteEntries.add(runtimeEntry);
 
                 RuntimeItemMapping.LegacyEntry legacyEntry = new RuntimeItemMapping.LegacyEntry(id, false, data);
                 runtime2Legacy.put(id, legacyEntry);
