@@ -21,7 +21,14 @@ repositories {
     }
 }
 
+configurations {
+    // Isolated classpath for the forked codegen JVM (the :codegen subproject + JavaParser).
+    codegenClasspath
+}
+
 dependencies {
+    codegenClasspath project(':codegen')
+
     // https://repo.lanink.cn/#browse/browse:maven-public:cn/nukkit/Nukkit/MOT-SNAPSHOT
     /*implementation (group: 'cn.nukkit', name: 'Nukkit', version: 'MOT-20240213.074103-139') {
         exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
@@ -65,6 +72,33 @@ jar {
 run {
     workingDir 'target'
     standardInput System.in
+}
+
+// Generates JS-binding base classes (com.zhekasmirnov.innercore.api.gen.*BindGenBase)
+// from @ApiBinding-annotated sources, before compilation (the hand-written module classes
+// extend the generated bases). The generator lives in the :codegen subproject and runs in a
+// forked JVM so its JavaParser dependency stays isolated from Gradle's bundled copy.
+def apiGenSourceRoot = file('src/main/java/org/innercore')
+def apiGenOutputDir = layout.projectDirectory.dir('src/main/java/com/zhekasmirnov/innercore/api/gen')
+
+tasks.register('generateApiBindings', JavaExec) {
+    group = 'codegen'
+    description = 'Generates JS binding base classes from @ApiBinding-annotated sources.'
+    javaLauncher = javaToolchains.launcherFor {
+        def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+        if (JavaVersion.current() < javaVersion) {
+            languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        }
+    }
+    classpath = configurations.codegenClasspath
+    mainClass = 'org.innercore.codegen.Codegen'
+    args 'com.zhekasmirnov.innercore.api.gen', apiGenOutputDir.asFile.absolutePath, apiGenSourceRoot.absolutePath
+    inputs.files(fileTree(apiGenSourceRoot) { include '**/*.java' }).withPropertyName('apiBindingSources')
+    outputs.dir(apiGenOutputDir).withPropertyName('apiBindingOutput')
+}
+
+tasks.named('compileJava') {
+    dependsOn 'generateApiBindings'
 }
 
 task rebuildAndroidStubs(type: JavaExec, dependsOn: classes) {

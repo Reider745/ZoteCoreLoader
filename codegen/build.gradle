@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Java-source parser used by the API-binding code generator.
+    // 3.25.x is the last line targeting Java 8 bytecode (3.26+ requires Java 17).
+    implementation 'com.github.javaparser:javaparser-core:3.25.10'
+}
+
+// Plain library, no gradleApi() — that is exactly why this lives in its own subproject
+// rather than buildSrc: it keeps JavaParser 3.25.10 off any classpath shared with Gradle's
+// bundled javaparser-core 3.17.0. The generator is launched in a forked JVM (see the root
+// build's generateApiBindings task), so Java 8 bytecode runs fine on the Java 17 launcher.
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
