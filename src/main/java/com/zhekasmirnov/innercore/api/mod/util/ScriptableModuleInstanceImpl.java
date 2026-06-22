@@ -2,8 +2,12 @@ package com.zhekasmirnov.innercore.api.mod.util;
 
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class ScriptableModuleInstanceImpl implements Scriptable {
     public static final boolean VALIDATE_INVALID_WRITES = true; // turn off if mods begin to fail, allows writing extra fields to these objects
@@ -31,16 +35,20 @@ public abstract class ScriptableModuleInstanceImpl implements Scriptable {
 
     @Override
     public boolean has(String name, Scriptable start) {
-        return prototype.has(name, start) || (extraFields != null && extraFields.containsKey(name));
+        return extraFields != null && extraFields.containsKey(name);
     }
 
     @Override
     public boolean has(int index, Scriptable start) {
-        return prototype.has(index, start) || (extraFields != null && extraFields.containsKey(index));
+        return extraFields != null && extraFields.containsKey(index);
     }
 
     @Override
     public void put(String name, Scriptable start, Object value) {
+        if (prototype.has(name, start)) { // in case it is being set via "put"
+            ScriptableObject.putProperty(this, name, value);
+            return;
+        }
         if (VALIDATE_INVALID_WRITES) throw new UnsupportedOperationException("writing missing field " + name + " to " + this);
         if (extraFields == null)
             extraFields = new HashMap<>();
@@ -49,6 +57,10 @@ public abstract class ScriptableModuleInstanceImpl implements Scriptable {
 
     @Override
     public void put(int index, Scriptable start, Object value) {
+        if (prototype.has(index, start)) { // in case it is being set via "put"
+            ScriptableObject.putProperty(this, index, value);
+            return;
+        }
         if (VALIDATE_INVALID_WRITES) throw new UnsupportedOperationException("writing missing field " + index + " to " + this);
         if (extraFields == null)
             extraFields = new HashMap<>();
@@ -91,7 +103,15 @@ public abstract class ScriptableModuleInstanceImpl implements Scriptable {
 
     @Override
     public Object[] getIds() {
-        return prototype.getIds();
+        if (extraFields == null)
+            return prototype.getIds();
+        Object[] ids = prototype.getIds();
+        if (extraFields.isEmpty())
+            return ids;
+        Set<Object> keySet = extraFields.keySet();
+        Object[] allIds = keySet.toArray(new Object[ids.length + keySet.size()]);
+        System.arraycopy(ids, 0, allIds, keySet.size(), ids.length);
+        return allIds;
     }
 
     @Override
