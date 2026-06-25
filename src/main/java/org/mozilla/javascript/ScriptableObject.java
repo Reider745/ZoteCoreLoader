@@ -1684,6 +1684,16 @@ public abstract class ScriptableObject
         aSlot.setter = setter;
         setAttributes(name, attributes);
     }
+
+    public AccessorSlot.Getter getRawGetter(String name, int index) {
+        Slot slot = slotMap.query(name, index);
+        return slot instanceof AccessorSlot ? ((AccessorSlot) slot).getter : null;
+    }
+
+    public AccessorSlot.Setter getRawSetter(String name, int index) {
+        Slot slot = slotMap.query(name, index);
+        return slot instanceof AccessorSlot ? ((AccessorSlot) slot).setter : null;
+    }
     // # END
 
     protected void checkPropertyDefinition(ScriptableObject desc) {

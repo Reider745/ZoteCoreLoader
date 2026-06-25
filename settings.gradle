@@ -1,0 +1,6 @@
+rootProject.name = 'ZoteCoreLoader'
+
+// Build-time only: the @ApiBinding JavaScript-binding code generator. Kept as a
+// separate subproject (not buildSrc) so its JavaParser dependency does not collide
+// with the older copy bundled inside Gradle's own runtime.
+include 'codegen'
