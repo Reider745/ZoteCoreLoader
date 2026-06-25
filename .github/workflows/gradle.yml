@@ -3,8 +3,6 @@ name: build
 on:
   push:
     branches: [ "NukkitMot" ]
-  pull_request:
-    branches: [ "NukkitMot" ]
 
 permissions:
   contents: read
