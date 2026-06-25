@@ -19,7 +19,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
-        distribution: 'corretto'
+        distribution: 'zulu'
         
     - name: Make gradlew executable
       run: chmod +x ./gradlew
@@ -28,15 +28,6 @@ jobs:
       uses: gradle/gradle-build-action@v2
       with:
         arguments: assemble
-
-    - name: Publish
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: assemble
-      env:
-        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
