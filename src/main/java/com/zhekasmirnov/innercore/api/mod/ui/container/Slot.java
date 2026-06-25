@@ -1,11 +1,8 @@
 package com.zhekasmirnov.innercore.api.mod.ui.container;
 
 import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
-
-import cn.nukkit.item.Item;
-
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -25,7 +22,7 @@ public class Slot extends ScriptableObject implements AbstractSlot {
         set(id, count, data);
     }
 
-    public Slot(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public Slot(int id, int count, int data, ItemInstanceExtra extra) {
         target = this;
         set(id, count, data, extra);
     }
@@ -46,7 +43,7 @@ public class Slot extends ScriptableObject implements AbstractSlot {
         put("extra", null);
     }
 
-    public void set(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void set(int id, int count, int data, ItemInstanceExtra extra) {
         set(id, count, data);
         put("extra", extra);
     }
@@ -68,7 +65,6 @@ public class Slot extends ScriptableObject implements AbstractSlot {
         }
     }
 
-    @Deprecated(since = "Zote")
     public void drop(float x, float y, float z) {
         int id = getInt("id");
         int count = getInt("count");
@@ -94,12 +90,12 @@ public class Slot extends ScriptableObject implements AbstractSlot {
         return getInt("data");
     }
 
-    public Item getExtraValue() {
-        return NativeItemInstanceExtra.unwrapValue(ScriptableObjectHelper.getProperty(target, "extra", null));
+    public long getExtraValue() {
+        return ItemInstanceExtra.unwrapValue(ScriptableObjectHelper.getProperty(target, "extra", null));
     }
 
-    public NativeItemInstanceExtra getExtra() {
-        return NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(target, "extra", null));
+    public ItemInstanceExtra getExtra() {
+        return ItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(target, "extra", null));
     }
 
     public ScriptableObject save() {

@@ -7,13 +7,14 @@ import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
 import com.reider745.hooks.item.ItemUtils;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.IDRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public class ItemMethod {
         return 64;
     }
 
-    public static String getNameForId(int id, int data, NativeItemInstanceExtra extra) {
+    public static String getNameForId(int id, int data, ItemInstanceExtra extra) {
         CustomManager manager = CustomBlock.getBlockManager(id);
         if (manager != null)
             return NameTranslation.translate(CustomBlock.getVariants(manager).get(data));

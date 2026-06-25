@@ -1,8 +1,8 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.block;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import org.innercore.icstd.inventory.ItemInstance;
 import org.mozilla.javascript.ScriptableObject;
 
 import java.util.ArrayList;
@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BlockBreakResult {
-    private final List<ItemStack> items = new ArrayList<>();
+    private final List<ItemInstance> items = new ArrayList<>();
     private int experience;
 
-    public List<ItemStack> getItems() {
+    public List<ItemInstance> getItems() {
         return items;
     }
 
@@ -33,7 +33,7 @@ public class BlockBreakResult {
     public ScriptableObject asScriptable() {
         ScriptableObject result = ScriptableObjectHelper.createEmpty();
         result.put("experience", result, experience);
-        result.put("items", result, ScriptableObjectHelper.createArray(Java8BackComp.stream(items).map(ItemStack::asScriptable).collect(Collectors.toList())));
+        result.put("items", result, ScriptableObjectHelper.createArray(Java8BackComp.stream(items).collect(Collectors.toList())));
         return result;
     }
 }

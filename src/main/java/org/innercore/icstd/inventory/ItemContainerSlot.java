@@ -1,63 +1,70 @@
-package com.zhekasmirnov.apparatus.api.container;
+package org.innercore.icstd.inventory;
 
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.jetbrains.annotations.Nullable;
+import com.zhekasmirnov.innercore.api.gen.ItemContainerSlotBindGenBase;
+import org.innercore.icstd.annotations.ApiBinding;
+import org.innercore.icstd.annotations.ApiHidden;
+import org.innercore.icstd.region.BlockSource;
+import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
-public class ItemContainerSlot implements AbstractSlot {
-    public int id, count, data;
-    public NativeItemInstanceExtra extra;
+@ApiBinding
+public class ItemContainerSlot extends ItemContainerSlotBindGenBase implements AbstractSlot {
+    @ApiBinding public int id;
+    @ApiBinding public int count;
+    @ApiBinding public int data;
+    @ApiBinding public ItemInstanceExtra extra;
 
     private String name;
     private ItemContainer container;
     private Boolean isSavingEnabled = null;
 
-    public ItemContainerSlot(int id, int count, int data, NativeItemInstanceExtra extra) {
+    @ApiHidden public ItemContainerSlot(int id, int count, int data, ItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;
         this.extra = extra;
     }
 
-    public ItemContainerSlot(int id, int count, int data) {
+    @ApiHidden public ItemContainerSlot(int id, int count, int data) {
         this(id, count, data, null);
     }
 
-    public ItemContainerSlot() {
+    @ApiHidden public ItemContainerSlot() {
         this(0, 0, 0, null);
     }
 
-    public ItemContainerSlot(ScriptableObject scriptable) {
+    @ApiHidden public ItemContainerSlot(ScriptableObject scriptable) {
         this(
                 ScriptableObjectHelper.getIntProperty(scriptable, "id", 0),
                 ScriptableObjectHelper.getIntProperty(scriptable, "count", 0),
                 ScriptableObjectHelper.getIntProperty(scriptable, "data", 0),
-                NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null))
+                ItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null))
         );
     }
 
-    public ItemContainerSlot(JSONObject json, boolean convert) {
-        this(convert ? json.optInt("id", 0) : json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0), NativeItemInstanceExtra.fromJson(json.optJSONObject("extra")));
+    @ApiHidden public ItemContainerSlot(JSONObject json, boolean convert) {
+        this(convert ? IdConversionMap.serverToLocal(json.optInt("id", 0)) : json.optInt("id", 0), json.optInt("count", 0), json.optInt("data", 0), ItemInstanceExtra.fromJson(json.optJSONObject("extra")));
     }
 
-    void setContainer(ItemContainer container, String name) {
+    @ApiHidden void setContainer(ItemContainer container, String name) {
         this.name = name;
         this.container = container;
     }
 
-    public String getName() {
+    @ApiBinding public String getName() {
         return name;
     }
 
-    public ItemContainer getContainer() {
+    @ApiBinding public ItemContainer getContainer() {
         return container;
     }
 
-    public ScriptableObject asScriptable() {
+    @ApiHidden public ScriptableObject asScriptable() {
         ScriptableObject object = ScriptableObjectHelper.createEmpty();
         object.put("id", object, id);
         object.put("count", object, count);
@@ -66,7 +73,7 @@ public class ItemContainerSlot implements AbstractSlot {
         return object;
     }
 
-    public JSONObject asJson() {
+    @ApiHidden public JSONObject asJson() {
         JSONObject json = new JSONObject();
         try {
             json.put("id", id);
@@ -82,34 +89,34 @@ public class ItemContainerSlot implements AbstractSlot {
         return json;
     }
 
-    public boolean isEmpty() {
+    @ApiBinding public boolean isEmpty() {
         return this.id == 0 && this.count == 0 && this.data == 0 && this.extra == null;
     }
 
-    public void markDirty() {
+    @ApiBinding public void markDirty() {
         if (this.container != null) {
             this.container.markSlotDirty(name);
         }
     }
 
-    public void clear() {
+    @ApiBinding public void clear() {
         this.id = this.count = this.data = 0;
         this.extra = null;
         this.markDirty();
     }
 
-    public void validate() {
+    @ApiBinding public void validate() {
         if (this.id == 0 || this.count <= 0) {
             this.clear();
         }
     }
 
-    public void dropAt(NativeBlockSource blockSource, float x, float y, float z) {
+    @ApiBinding public void dropAt(BlockSource blockSource, float x, float y, float z) {
         blockSource.spawnDroppedItem(x, y, z, id, count, data, extra);
         this.clear();
     }
 
-    public void setSlot(int id, int count, int data, NativeItemInstanceExtra extra) {
+    @ApiBinding public void setSlot(int id, int count, int data, @Nullable ItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;
@@ -117,44 +124,43 @@ public class ItemContainerSlot implements AbstractSlot {
         this.markDirty();
     }
 
-    public void setSlot(int id, int count, int data) {
+    @ApiBinding public void setSlot(int id, int count, int data) {
         this.setSlot(id, count, data, null);
     }
 
-    public void resetSavingEnabled() {
+    @ApiBinding public void resetSavingEnabled() {
         isSavingEnabled = null;
     }
 
-    public void setSavingEnabled(boolean savingEnabled) {
+    @ApiBinding public void setSavingEnabled(boolean savingEnabled) {
         isSavingEnabled = savingEnabled;
     }
 
-    public boolean isSavingEnabled() {
+    @ApiBinding public boolean isSavingEnabled() {
         return isSavingEnabled != null ? isSavingEnabled : (container != null && container.isGlobalSlotSavingEnabled());
     }
 
-    public int getId() {
+    @ApiBinding @Override public int getId() {
         return id;
     }
 
-    public int getCount() {
+    @ApiBinding @Override public int getCount() {
         return count;
     }
 
-    public int getData() {
+    @ApiBinding @Override public int getData() {
         return data;
     }
 
-    public NativeItemInstanceExtra getExtra() {
+    @ApiBinding @Override @Nullable public ItemInstanceExtra getExtra() {
         return extra;
     }
 
-    public void set(int id, int count, int data, NativeItemInstanceExtra extra) {
+    @ApiBinding @Override public void set(int id, int count, int data, @Nullable ItemInstanceExtra extra) {
         setSlot(id, count, data, extra);
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "ItemContainerSlot{" +
                 "id=" + id +
                 ", count=" + count +

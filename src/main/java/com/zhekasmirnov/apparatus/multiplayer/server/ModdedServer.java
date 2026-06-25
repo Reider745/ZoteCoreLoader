@@ -11,6 +11,8 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.data.*;
 import com.zhekasmirnov.apparatus.multiplayer.socket.SocketServer;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import org.innercore.icstd.network.NetworkClient;
+import org.innercore.icstd.network.NetworkModule;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,6 +27,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
 
     private final List<ConnectedClient> initializingClients = new ArrayList<>();
     private final List<ConnectedClient> connectedClients = new ArrayList<>();
+    private final List<NetworkClient> connectedClientsForApi = new ArrayList<>();
     private final Map<Long, ConnectedClient> connectedClientByPlayerUid = new HashMap<>();
 
     private final Object networkThreadQueueMonitor = new Object();
@@ -82,6 +85,10 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
 
     public List<ConnectedClient> getConnectedClients() {
         return new ArrayList<>(connectedClients);
+    }
+
+    public List<NetworkClient> getConnectedClientsForApi() {
+        return connectedClientsForApi;
     }
 
     public ConnectedClient getConnectedClientForPlayer(long player) {
@@ -174,6 +181,8 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
                 }
             }else if(InnerCoreServer.isDebugInnerCoreNetwork())
                 System.out.println("Not listeners, received packet player=" + client.getPlayerUid() + " name="+name);
+
+            NetworkModule.processPacketImpl(client.apiClient, name, data, meta);
         });
 
         client.start();
@@ -243,6 +252,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
                 synchronized (connectedClients) {
                     initializingClients.remove(client);
                     connectedClients.add(client);
+                    connectedClientsForApi.add(client.apiClient);
                     connectedClientByPlayerUid.put(client.getPlayerUid(), client);
                 }
                 break;
@@ -251,6 +261,7 @@ public class ModdedServer implements SocketServer.IClientConnectListener, Native
                 synchronized (connectedClients) {
                     initializingClients.remove(client);
                     connectedClients.remove(client);
+                    connectedClientsForApi.remove(client.apiClient);
                     connectedClientByPlayerUid.remove(client.getPlayerUid());
                 }
                 break;

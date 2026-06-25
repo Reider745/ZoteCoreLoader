@@ -3,7 +3,7 @@ package com.reider745.world.dimensions;
 import cn.nukkit.level.Level;
 import com.reider745.api.pointers.PointersStorage;
 import com.reider745.api.pointers.pointer_gen.PointerGenFastest;
-import com.reider745.world.BlockSourceMethods;
+import com.reider745.world.FakeDimensions;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ public class MonoBiomeTerrainMethods {
         public void populateChunk(DimensionsMethods.CustomDimensionGenerator generator, int chunkX, int chunkZ) {
             final Noise.Data data = new Noise.Data();
             data.prepare_noise_data((int) generator.seed);
-            final Level level = BlockSourceMethods.getLevelForDimension(generator.getId());
+            final Level level = FakeDimensions.getLevelForFakeId(generator.getId());
 
             for(final TerrainLayerMethods.TerrainLayerDescription layer : layers)
                 layer.rebuildThresholds();

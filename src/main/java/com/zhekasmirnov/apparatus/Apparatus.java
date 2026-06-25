@@ -1,12 +1,14 @@
 package com.zhekasmirnov.apparatus;
 
 import com.reider745.InnerCoreServer;
-import com.zhekasmirnov.apparatus.api.container.ItemContainer;
+import org.innercore.icstd.inventory.ItemContainer;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerModList;
 import com.zhekasmirnov.apparatus.multiplayer.mod.MultiplayerPackVersionChecker;
 import com.zhekasmirnov.apparatus.multiplayer.util.entity.NetworkEntity;
+import com.zhekasmirnov.innercore.api.runtime.Updatable;
+import org.innercore.icstd.scene.GameObjectManager;
 
 public class Apparatus {
     static {
@@ -16,6 +18,8 @@ public class Apparatus {
         MultiplayerModList.loadClass();
         IdConversionMap.loadClass();
         ItemContainer.loadClass();
+        GameObjectManager.loadClass();
+        Updatable.loadClass();
     }
 
     public static void loadClasses() {

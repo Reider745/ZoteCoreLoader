@@ -8,12 +8,13 @@ import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
 import com.reider745.hooks.item.ItemUtils;
 import com.reider745.item.ItemMethod.PropertiesNames;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -41,9 +42,9 @@ public class CustomItem {
 
     public static class ItemCreative {
         public int id, count, data;
-        public NativeItemInstanceExtra extra;
+        public ItemInstanceExtra extra;
 
-        public ItemCreative(int id, int count, int data, NativeItemInstanceExtra extra) {
+        public ItemCreative(int id, int count, int data, ItemInstanceExtra extra) {
             this.id = id;
             this.count = count;
             this.data = data;
@@ -72,7 +73,7 @@ public class CustomItem {
         list.addAll(newList);
     }
 
-    public static void checkAddedItem(int id, int count, int damage, NativeItemInstanceExtra extra) {
+    public static void checkAddedItem(int id, int count, int damage, ItemInstanceExtra extra) {
         if (!CustomItem.isCreativeItem(id, damage) && id >= IDRegistry.ITEM_ID_OFFSET) {
             CustomItem.addToCreativeGroup(CustomItem.TECHNICAL_GROUP, id);
             addFirst(CustomItem.creative, new ItemCreative(id, count, damage, extra));
@@ -135,7 +136,7 @@ public class CustomItem {
         return manager;
     }
 
-    public static void addCreative(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void addCreative(int id, int count, int data, ItemInstanceExtra extra) {
         creative.add(new ItemCreative(id, count, data, extra));
     }
 

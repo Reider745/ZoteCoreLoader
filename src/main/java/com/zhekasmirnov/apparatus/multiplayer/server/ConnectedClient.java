@@ -10,6 +10,7 @@ import com.zhekasmirnov.apparatus.multiplayer.channel.data.DataChannel;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import org.innercore.icstd.network.NetworkClient;
 
 import java.io.IOException;
 import java.util.*;
@@ -38,6 +39,8 @@ public class ConnectedClient extends Thread implements ChannelInterface.OnPacket
     private final Map<String, List<InitializationPacketListener>> initializationPacketListenerMap = new HashMap<>();
     private final Set<String> remainingInitializationPackets = new HashSet<>();
     private InitializationPacketException initializationPacketFailureCause = null;
+
+    public final NetworkClient apiClient = new NetworkClient(this);
 
     public interface InitializationPacketListener {
         void onPacketReceived(ConnectedClient client, Object data, Class<?> dataType)

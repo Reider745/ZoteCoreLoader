@@ -21,8 +21,9 @@ import com.reider745.item.CustomEnchantment;
 import com.reider745.item.NukkitIdConverter;
 import com.reider745.item.Repairs;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -269,8 +270,8 @@ public class ItemUtils implements HookClass {
 
     public static final String INNER_CORE_TAG_NAME = "$mod";
 
-    public static Item get(int id, int count, int meta, NativeItemInstanceExtra extra) {
-        Item item = get(id, count, meta, extra != null ? extra.getValue() : null);
+    public static Item get(int id, int count, int meta, ItemInstanceExtra extra) {
+        Item item = get(id, count, meta, extra != null ? extra.getItem() : null);
         if (extra != null) {
             extra.bind(item);
         }
@@ -301,10 +302,10 @@ public class ItemUtils implements HookClass {
         return get(id, 0);
     }
 
-    public static NativeItemInstanceExtra getItemInstanceExtra(Item item) {
+    public static ItemInstanceExtra getItemInstanceExtra(Item item) {
         CompoundTag tag = item.getNamedTag();
         if (tag != null) {
-            return new NativeItemInstanceExtra(item);
+            return new ItemInstanceExtra(item);
         }
         return null;
     }

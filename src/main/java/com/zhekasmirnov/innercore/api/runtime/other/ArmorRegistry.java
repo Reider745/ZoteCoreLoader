@@ -1,9 +1,9 @@
 package com.zhekasmirnov.innercore.api.runtime.other;
 
 import com.zhekasmirnov.innercore.api.NativeItem;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import org.innercore.icstd.inventory.ItemInstance;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptableObject;
 

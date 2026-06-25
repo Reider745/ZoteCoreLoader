@@ -1,6 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.ui.container;
 
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -28,7 +28,7 @@ public class ScriptableUiVisualSlotImpl implements UiVisualSlotImpl {
     }
 
     @Override
-    public NativeItemInstanceExtra getExtra() {
-        return NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null));
+    public ItemInstanceExtra getExtra() {
+        return ItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(scriptable, "extra", null));
     }
 }

@@ -11,12 +11,13 @@ import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
 import com.zhekasmirnov.apparatus.ecs.types.ECSTags;
 import com.zhekasmirnov.apparatus.ecs.types.item.ArmorItemComponent;
 import com.zhekasmirnov.apparatus.ecs.types.item.ItemComponent;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 
 import cn.nukkit.item.Item;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -197,7 +198,7 @@ public class NativeItem {
 
     @JSStaticFunction
     public static boolean isGlintItemInstance(int id, int data, Object extra) {
-        return NativeAPI.isGlintItemInstance(id, data, NativeItemInstanceExtra.unwrapObject(extra));
+        return NativeAPI.isGlintItemInstance(id, data, ItemInstanceExtra.unwrapObject(extra));
     }
 
     /*
@@ -292,10 +293,10 @@ public class NativeItem {
     }
 
     public static String getNameForId(int id, int data, Item extra) {
-        return ItemMethod.getNameForId(id, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        return ItemMethod.getNameForId(id, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static String getNameForId(int id, int data, NativeItemInstanceExtra extra) {
+    public static String getNameForId(int id, int data, ItemInstanceExtra extra) {
         return ItemMethod.getNameForId(id, data, extra);
     }
     @JSStaticFunction
@@ -309,7 +310,7 @@ public class NativeItem {
     }
 
     public static String getNameForId(int id, int data) {
-        return getNameForId(id, data, (NativeItemInstanceExtra) null);
+        return getNameForId(id, data, (ItemInstanceExtra) null);
     }
 
     @JSStaticFunction
@@ -318,10 +319,10 @@ public class NativeItem {
     }
 
     public static void addToCreativeInternal(int id, int count, int data, Item extra) {
-        CustomItem.addCreative(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        CustomItem.addCreative(id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void addToCreativeInternal(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void addToCreativeInternal(int id, int count, int data, ItemInstanceExtra extra) {
         CustomItem.addCreative(id, count, data, extra);
     }
 
@@ -332,7 +333,7 @@ public class NativeItem {
 
     @JSStaticFunction
     public static void addToCreative(int id, int count, int data, Object extra) {
-        addToCreativeInternal(id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
+        addToCreativeInternal(id, count, data, ItemInstanceExtra.unwrapObject(extra));
     }
 
     @JSStaticFunction
@@ -389,7 +390,7 @@ public class NativeItem {
 
     @Deprecated(since = "Zote")
     public static synchronized String getDynamicItemIconOverride(int id, int count, int data,
-            NativeItemInstanceExtra extra) {
+            ItemInstanceExtra extra) {
         if (isDynamicIconItem(id)) {
             synchronized (DYNAMIC_ICON_LOCK) {
                 isInnerCoreUIOverride = true;

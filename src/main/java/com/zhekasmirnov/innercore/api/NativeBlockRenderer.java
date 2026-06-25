@@ -1,13 +1,14 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.InnerCoreServer;
-import com.zhekasmirnov.innercore.api.commontypes.Coords;
-import com.zhekasmirnov.innercore.api.commontypes.FullBlock;
+import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.innercore.api.constants.ChatColor;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
+import org.innercore.icstd.common.script.GenericScriptPos3;
+import org.innercore.icstd.region.BlockState;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -252,21 +253,21 @@ public class NativeBlockRenderer {
     }
 
     @Deprecated(since = "Zote")
-    public static void onRenderCall(RenderAPI api, Coords coords, FullBlock block, boolean b) {
+    @ClientOnly
+    public static void onRenderCall(RenderAPI api, GenericScriptPos3 coords, BlockState block, boolean b) {
         Callback.invokeAPICallback("CustomBlockTessellation", api, coords, block, b);
 
         Function callback = jsRenderCallbacks.get(block.id);
         if (callback != null) {
             try {
-                callback.call(Compiler.assureContextForCurrentThread(), callback.getParentScope(),
-                        callback.getParentScope(), new Object[] { api, coords, block, b });
+                callback.call(Compiler.assureContextForCurrentThread(), callback.getParentScope(), callback.getParentScope(), new Object[]{api, coords, block, b});
             } catch (Exception e) {
-                ICLog.e("TESSELLATION", "error occurred in block tessellation id=" + block.id + " data=" + block.data,
-                        e);
+                ICLog.e("TESSELLATION", "error occurred in block tessellation id=" + block.id + " data=" + block.data, e);
                 if (LevelInfo.isLoaded()) {
                     NativeAPI.clientMessage(ChatColor.RED + "error occurred in block tessellation.");
                 }
             }
         }
+
     }
 }

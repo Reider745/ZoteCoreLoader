@@ -1,9 +1,9 @@
 package com.zhekasmirnov.apparatus.ecs.types.item;
 
 import com.zhekasmirnov.apparatus.ecs.core.TypeIndexMap;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
 import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
+import org.innercore.icstd.inventory.ItemInstance;
 
 public class ArmorItemComponent implements ArmorRegistry.IArmorCallback {
     public static final int COMPONENT_ID = TypeIndexMap.getTypeIndex("ArmorItemComponent");

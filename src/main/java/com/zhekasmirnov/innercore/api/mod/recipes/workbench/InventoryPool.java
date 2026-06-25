@@ -1,9 +1,9 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.innercore.api.NativeItem;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class InventoryPool {
 
     public class PoolEntry {
         public int slot, id, count, data;
-        public NativeItemInstanceExtra extra;
+        public ItemInstanceExtra extra;
 
         public PoolEntry(int slot, int id, int count, int data) {
             this.slot = slot;
@@ -27,7 +27,7 @@ public class InventoryPool {
         }
 
         public PoolEntry(int slot) {
-            ItemStack item = player.getInventorySlot(slot);
+            ItemInstance item = player.getInventorySlot(slot);
             this.slot = slot;
             this.id = item.id;
             this.count = item.count;

@@ -1,6 +1,7 @@
 package com.reider745.item;
 
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
+import org.innercore.icstd.inventory.ItemInstance;
 
 import java.util.*;
 
@@ -111,6 +112,14 @@ public class NukkitIdConverter {
     }
 
     public static void convert(NativeItemInstance instance) {
+        final EntryItem target = getInnerCoreForNukkit(instance.id, instance.data);
+        if (target != null) {
+            instance.id = target.id;
+            instance.data = target.data;
+        }
+    }
+
+    public static void convert(ItemInstance instance) {
         final EntryItem target = getInnerCoreForNukkit(instance.id, instance.data);
         if (target != null) {
             instance.id = target.id;

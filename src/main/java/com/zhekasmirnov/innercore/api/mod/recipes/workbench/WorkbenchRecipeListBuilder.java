@@ -1,8 +1,8 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
 import android.util.Pair;
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.apparatus.api.container.ItemContainer;
+import org.innercore.icstd.inventory.ItemContainer;
+import org.innercore.icstd.inventory.ItemInstance;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +53,7 @@ public class WorkbenchRecipeListBuilder {
             packet.put("recipes", jsonList);
 
             for (Pair<WorkbenchRecipe, Boolean> pair : recipeVisibility) {
-                ItemStack result = ItemStack.parse(pair.first.getResult());
+                ItemInstance result = ItemInstance.parse(pair.first.getResult(), false);
                 JSONObject recipeJson = new JSONObject();
                 recipeJson.put("id", pair.first.getRecipeUid());
                 recipeJson.put("result", result.asJson());

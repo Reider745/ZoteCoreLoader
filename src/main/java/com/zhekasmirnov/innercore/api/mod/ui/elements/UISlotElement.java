@@ -2,7 +2,7 @@ package com.zhekasmirnov.innercore.api.mod.ui.elements;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiAbstractContainer;
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiVisualSlotImpl;
 import com.zhekasmirnov.innercore.api.mod.ui.types.Texture;
@@ -31,7 +31,7 @@ public class UISlotElement extends UIElement {
     public boolean disablePixelPerfect = false;
 
     public int curId = 0, curCount = 0, curData = 0;
-    public NativeItemInstanceExtra curExtra;
+    public ItemInstanceExtra curExtra;
 
     protected boolean isSelectionForced = false;
     protected boolean wasSelected = false, isSelected = false;
@@ -60,7 +60,7 @@ public class UISlotElement extends UIElement {
         return 64;
     }
 
-    public boolean isValidItem(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public boolean isValidItem(int id, int count, int data, ItemInstanceExtra extra) {
         return false;
     }
 

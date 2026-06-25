@@ -1,62 +1,57 @@
 package com.zhekasmirnov.innercore.api.runtime.saver;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ui.container.Container;
-import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaver;
+import org.innercore.icstd.serialization.IObjectSerializer;
+import org.innercore.icstd.serialization.ObjectSerializer;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by zheka on 19.08.2017.
  */
 
 public class ObjectSaverRegistry {
+    @Deprecated
     public static final String PROPERTY_IGNORE_SAVE = "_json_ignore";
     public static final String PROPERTY_SAVER_ID = "_json_saver_id";
-    public static final String PROPERTY_SAVER_ENABLE = "_json_saver_enable";
-
-    private static final ScriptableObject scope;
-
-    private static HashMap<Integer, ObjectSaver> saverMap = new HashMap<>();
-    //private static HashMap<Integer, ObjectSaver> saverByObjectHash = new HashMap<>();
-    private static HashMap<Integer, String> saverNameById = new HashMap<>();
+    @Deprecated
+    public static final String PROPERTY_SAVER_ENABLE = PROPERTY_SAVER_ID;//"_json_saver_enable";
 
     static {
-        scope = Context.enter().initStandardObjects();
-
         Container.initSaverId();
-        NativeItemInstanceExtra.initSaverId();
+        ItemInstanceExtra.initSaverId();
     }
 
+    @Deprecated
     public interface IHashSaver {
-        int getId();
-        void setId(int id);
+        @Deprecated
+        int getObjectSaverId();
+        @Deprecated
+        void setObjectSaverId(int id);
     }
 
+    public static String registerSaverStr(String name, ObjectSaver saver) {
+        ObjectSerializer.registerType(name, Object.class, saver, false);
+        saver.setSaverId(ObjectSerializer.getLegacyHashIdFromTypeId(name, -1));
+        return name;
+    }
+
+    @Deprecated
     public static int registerSaver(String name, ObjectSaver saver) {
-        int saverId = name.hashCode();
-        while (saverMap.containsKey(saverId)) {
-            saverId++;
-        }
-
-        saverMap.put(saverId, saver);
-        saverNameById.put(saverId, name);
-        saver.setSaverId(saverId);
-
-        return saverId;
+        registerSaverStr(name, saver);
+        return saver.getSaverId();
     }
 
+    @Deprecated
     public static String getSaverName(int saverId) {
-        return saverNameById.get(saverId);
+        return ObjectSerializer.getTypeIdFromLegacyHashId(saverId, null);
     }
 
-
-
+    @Deprecated
     static Object unwrapIfNeeded(Object object) {
         if (object instanceof Wrapper) {
             return ((Wrapper) object).unwrap();
@@ -64,122 +59,47 @@ public class ObjectSaverRegistry {
         return object;
     }
 
+    @Deprecated
     public static ObjectSaver getSaverFor(Object object) {
-        ObjectSaver saver = null;
-        if(object instanceof ScriptableObject scriptable){
-            int id = ScriptableObjectHelper.getIntProperty(scriptable, PROPERTY_SAVER_ENABLE, -1);
-            if(id != -1)
-                saver = saverMap.get(id);
-        }else if(object instanceof IHashSaver hashSaver){
-            saver = saverMap.get(hashSaver.getId());
-        }else if(object instanceof JSONObject json && json.has(PROPERTY_SAVER_ENABLE)){
-            saver = saverMap.get(json.getInt(PROPERTY_SAVER_ENABLE));
-        }
-        if (saver != null) {
-            return saver;
-        }
-        if (object instanceof ScriptableObject) {
-            Object val = ((ScriptableObject) object).get(PROPERTY_SAVER_ID);
-            if (val instanceof Number) {
-                int id = ((Number) val).intValue();
-                return saverMap.get(id);
+        String typeId = ObjectSerializer.getSerializerTypeIdFromObject(object);
+        if (typeId != null) {
+            IObjectSerializer<?> serializer = ObjectSerializer.getSerializerByTypeId(typeId);
+            if (serializer instanceof ObjectSaver) {
+                return (ObjectSaver) serializer;
             }
         }
         return null;
     }
 
-    public static ScriptableObject saveObject(Object object) {
-        object = unwrapIfNeeded(object);
-
-        ObjectSaver saver = getSaverFor(object);
-        if (saver != null) {
-            ScriptableObject result = null;
-            try {
-                result = saver.save(object);
-            } catch(Throwable err) {
-                WorldDataSaver.logErrorStatic("error in saving object of saver type " + getSaverName(saver.getSaverId()), err);
-                return null;
-            }
-            if (result != null) {
-                result.put(PROPERTY_SAVER_ID, result, saver.getSaverId());
-            }
-            return result;
-        }
-        return object instanceof ScriptableObject ? (ScriptableObject) object : null;
-    }
-
-    // unwrap object if required, run saver, if exists, or just return object itself
-    public static Object saveOrSkipObject(Object object) {
-        object = unwrapIfNeeded(object);
-        if (object == null || object == Undefined.instance) {
-            return null;
-        }
-
-        ObjectSaver saver = getSaverFor(object);
-        if (saver != null) {
-            ScriptableObject result = null;
-            try {
-                result = saver.save(object);
-            } catch(Throwable err) {
-                WorldDataSaver.logErrorStatic("error in saving object of saver type " + getSaverName(saver.getSaverId()), err);
-                return null;
-            }
-            if (result != null) {
-                result.put(PROPERTY_SAVER_ID, result, saver.getSaverId());
-            }
-            return result;
-        }
-        return object;
-    }
-
-    public static ScriptableObject saveObjectAndCheckSaveIgnoring(Object object) {
-        if (object instanceof ScriptableObject) {
-            Object val = ((ScriptableObject) object).get(PROPERTY_IGNORE_SAVE);
-            if (val instanceof Boolean && (Boolean) val) {
-                return null;
-            }
-        }
-        return saveObject(object);
-    }
-
-    public static Scriptable readObject(ScriptableObject object) {
-        ObjectSaver saver = getSaverFor(object);
-        if (saver != null) {
-            Object result = null;
-            try {
-                result = saver.read(object);
-            } catch(Throwable err) {
-                WorldDataSaver.logErrorStatic("error in reading object of saver type " + getSaverName(saver.getSaverId()), err);
-                return null;
-            }
-            if (!(result instanceof Scriptable)) {
-                result = Context.javaToJS(result, scope);
-                if (!(result instanceof Scriptable)) {
-                    return null;
-                }
-            }
-            return (Scriptable) result;
-        }
-        return object;
-    }
-
-    public static void registerObject(Object object, int saverId) {
-        if (!saverMap.containsKey(saverId)) {
+    @Deprecated
+    public static void registerObject(Object object, String saverId) {
+        if (!ObjectSerializer.isTypeRegistered(saverId)) {
             throw new IllegalArgumentException("no saver found for id " + saverId + " use only registerObjectSaver return values");
         }
         object = unwrapIfNeeded(object);
-        if (object instanceof ScriptableObject scriptable){
-            scriptable.put(PROPERTY_SAVER_ENABLE, scriptable, saverId);
-        }else if(object instanceof JSONObject json){
-            json.put(PROPERTY_SAVER_ENABLE, saverId);
-        }else if(object instanceof IHashSaver hashSaver){
-            hashSaver.setId(saverId);
+        if (object instanceof ScriptableObject){
+            final ScriptableObject scriptable = (ScriptableObject) object;
+            scriptable.put(PROPERTY_SAVER_ID, scriptable, saverId);
+        }else if(object instanceof JSONObject){
+            try {
+                ((JSONObject) object).put(PROPERTY_SAVER_ID, saverId);
+            } catch (JSONException e) {
+                ICLog.e("SAVER", "error get PROPERTY_SAVER_ENABLE", e);
+            }
+        }else if(object instanceof IHashSaver){
+            int legacySaverId = ObjectSerializer.getLegacyHashIdFromTypeId(saverId, -1);
+            if (legacySaverId == -1) {
+                legacySaverId = ObjectSerializer.getLegacyHashIdFromTypeId(ObjectSerializer.SKIP_SERIALIZATION_TYPE_ID, -1);
+            }
+            ((IHashSaver) object).setObjectSaverId(legacySaverId);
         }else {
-            Logger.warning("Error registerObject "+object.getClass().getName()+", serverId: "+saverId);
+            Logger.warning("Error registerObject "+ object.getClass().getName() + ", serverId: "+saverId);
         }
     }
 
+    @Deprecated
     public static void setObjectIgnored(ScriptableObject object, boolean ignore) {
-        object.put(PROPERTY_IGNORE_SAVE, object, ignore);
+        // NOTE: This is not working for a long time already
+        // object.put(PROPERTY_IGNORE_SAVE, object, ignore);
     }
 }

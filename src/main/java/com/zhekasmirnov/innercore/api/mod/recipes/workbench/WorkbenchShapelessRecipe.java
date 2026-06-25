@@ -5,7 +5,7 @@ import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,7 +19,7 @@ import java.util.List;
  */
 
 public class WorkbenchShapelessRecipe extends WorkbenchRecipe {
-    public WorkbenchShapelessRecipe(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public WorkbenchShapelessRecipe(int id, int count, int data, ItemInstanceExtra extra) {
         super(id, count, data, extra);
     }
 

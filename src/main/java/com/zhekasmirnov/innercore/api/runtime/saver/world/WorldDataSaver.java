@@ -1,8 +1,14 @@
 package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
+import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
+import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.api.log.DialogHelper;
+import com.zhekasmirnov.innercore.api.log.ICLog;
+import com.zhekasmirnov.innercore.api.runtime.saver.CriticalDataFile;
+import org.innercore.icstd.serialization.ObjectSerializerDebug;
+import org.innercore.icstd.serialization.SerializationContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,27 +26,19 @@ public class WorldDataSaver {
         SAVE
     }
 
-    private static class LoggedSavesError {
-        final String message;
-        final Throwable error;
-
-        LoggedSavesError(String message, SaverState state, Throwable error) {
-            this.message = message;
-            this.error = error;
-        }
-    }
-
-    private static final String[] worldSavesFileNames = new String[] { "moddata.json", "moddata_backup.json" };
+    private static final String MAIN_FILE_NAME = "moddata.json";
+    private static final String LEGACY_MAIN_SAVES_BACKUP = "moddata_backup.json";
 
     private final File worldDirectory;
-    private final List<LoggedSavesError> errorLog = new ArrayList<>();
+    private final CriticalDataFile savesFile;
     private final Map<String, Object> missingScopeData = new HashMap<>();
 
     private SaverState state = SaverState.IDLE;
-
+    private boolean savingErrorsReportedAsDialog = false;
 
     public WorldDataSaver(File worldDirectory) {
         this.worldDirectory = worldDirectory;
+        savesFile = new CriticalDataFile(new File(worldDirectory, MAIN_FILE_NAME));
     }
 
     public File getWorldDirectory() {
@@ -55,14 +53,24 @@ public class WorldDataSaver {
         File file = new File(directory, name);
         if (file.exists()) {
             if (!lockCheck || !FileUtils.getFileFlag(directory, name + "-opened")) {
-                try {
-                    return FileUtils.readJSON(file);
-                } catch (IOException | JSONException exception) {
-                    Logger.debug("FAILED TO READ SAVES", "Failed to read this world saves", exception);
-                }
+                return readJsonImpl(new File(directory, name));
             }
         }
         return null;
+    }
+
+    private JSONObject readJsonImpl(File file) {
+        if (file == null || !file.exists()) {
+            return null;
+        }
+        try {
+            ICLog.i("SAVER", "reading saves from " + file.getAbsolutePath());
+            return FileUtils.readJSON(file);
+        } catch (IOException | JSONException exception) {
+            ICLog.e("SAVER", "Error reading saves from " + file.getAbsolutePath(), exception);
+            UserDialog.dialog("FAILED TO READ SAVES", "Failed to read this world main saves file " + file.getName(), exception, false);
+            return null;
+        }
     }
 
     // read all data on current thread
@@ -70,32 +78,28 @@ public class WorldDataSaver {
         if (worldDirectory == null) {
             return;
         }
+        savingErrorsReportedAsDialog = false;
 
-        JSONObject json = null;
-        for (String name : worldSavesFileNames) {
-            json = readJsonWithLockCheck(worldDirectory, name, true);
-            if (json != null) {
-                break;
-            }
+        JSONObject json = readJsonImpl(savesFile.beginRead());
+        if (json == null) {
+            json = readJsonImpl(savesFile.readBackupAfterMainFailed());
+        }
+        savesFile.endRead();
+        if (json == null) {
+            json = readJsonWithLockCheck(worldDirectory, LEGACY_MAIN_SAVES_BACKUP, false);
         }
         if (json == null) {
-            json = readJsonWithLockCheck(worldDirectory, "moddata.json", false);
-            if (json == null) {
-                return;
-            }
+            return;
         }
 
         state = SaverState.READ;
         missingScopeData.clear();
-        WorldDataScopeRegistry.getInstance().readAllScopes(
-                json,
-                (scope, error) -> logError("While reading scope " + scope, SaverState.READ, error),
-                missingScopeData::put
-        );
+        SerializationContext ctx = new SerializationContext();
+        WorldDataScopeRegistry.getInstance().readAllScopes(json, ctx, missingScopeData);
         state = SaverState.IDLE;
 
         if (showLogOnError) {
-            showAndClearErrorLog(SaverState.SAVE);
+            showErrorLog(SaverState.READ, ctx);
         }
     }
 
@@ -113,61 +117,94 @@ public class WorldDataSaver {
 
         state = SaverState.SAVE;
         JSONObject json = new JSONObject(missingScopeData);
-        WorldDataScopeRegistry.getInstance().saveAllScopes(
-                json,
-                (scope, error) -> logError("While saving scope " + scope, SaverState.SAVE, error)
-        );
+        SerializationContext ctx = new SerializationContext();
+        WorldDataScopeRegistry.getInstance().saveAllScopes(json, ctx);
         state = SaverState.IDLE;
 
-        for (String name : worldSavesFileNames) {
-            try {
-                FileUtils.setFileFlag(worldDirectory, name + "-opened", true);
-                FileUtils.writeJSON(new File(worldDirectory, name), json);
-                FileUtils.setFileFlag(worldDirectory, name + "-opened", false);
-            } catch (Exception exception) {
-                Logger.debug("FAILED TO WRITE SAVES", "Failed to write this world saves", exception);
-            }
+        File fileToWrite = savesFile.beginWrite();
+        try {
+            ICLog.i("SAVER", "writing saves to " + fileToWrite.getAbsolutePath());
+            FileUtils.writeJSON(fileToWrite, json);
+            if (!savesFile.endSuccessfulWrite(true))
+                throw new RuntimeException("Failed finalize saving to " + savesFile);
+        } catch (Throwable exception) {
+            ICLog.e("SAVER", "failed to write saves to " + savesFile, exception);
+            UserDialog.dialog("FAILED TO WRITE SAVES", "Failed to write this world saves", exception, false);
+            savesFile.abortWrite();
         }
 
         if (showLogOnError) {
-            showAndClearErrorLog(SaverState.SAVE);
+            showErrorLog(SaverState.SAVE, ctx);
         }
     }
 
 
+    private static class StackTraceTreeNode {
+        private final List<SerializationContext.ErrorRecord> records = new ArrayList<>();
+        private final HashMap<StackTraceElement, StackTraceTreeNode> children = new HashMap<>();
+        private final StackTraceTreeNode parent;
 
-    public void logError(String message, SaverState state, Throwable err) {
-        errorLog.add(new LoggedSavesError(message, state, err));
-    }
+        public StackTraceTreeNode(StackTraceTreeNode parent) {
+            this.parent = parent;
+        }
 
-    public void logError(String message, Throwable err) {
-        errorLog.add(new LoggedSavesError(message, state, err));
-    }
-
-    public void clearErrorLog() {
-        errorLog.clear();
-    }
-
-    public void showAndClearErrorLog(SaverState state) {
-        if (!errorLog.isEmpty()) {
-            StringBuilder log = new StringBuilder();
-            for (LoggedSavesError err : errorLog) {
-                log.append(err.message).append("\n").append(DialogHelper.getFormattedStackTrace(err.error)).append("\n\n");
+        private void addRecordToRoot(SerializationContext.ErrorRecord record) {
+            // add record to the tree
+            Throwable err = record.getException();
+            if (err == null) {
+                records.add(record);
+                return;
             }
-            Logger.error(log.toString());
-            DialogHelper.openFormattedDialog("Errors occurred while " + (state == SaverState.READ ? "reading" : "saving") + " data:\n\n" + log, "SOME " + (state == SaverState.READ ? "READING" : "SAVING") + " ERRORS OCCURRED");
+            // get original cause
+            while (err.getCause() != null) {
+                err = err.getCause();
+            }
+            StackTraceTreeNode node = this;
+            StackTraceElement[] trace = err.getStackTrace();
+            for (int i = trace.length - 1; i >= 0; i--) {
+                final StackTraceTreeNode parent = node;
+                node = Java8BackComp.computeIfAbsent(node.children, trace[i], e -> new StackTraceTreeNode(parent));
+            }
+            node.records.add(record);
         }
-        clearErrorLog();
+
+        void appendToLog(StringBuilder sb, String prefix) {
+            if (!records.isEmpty() || children.size() > 1) {
+                prefix += ".  ";
+            }
+            if (!records.isEmpty()) {
+                sb.append(prefix).append("\n");
+                for (SerializationContext.ErrorRecord r : records) {
+                    sb.append(prefix);
+                    sb.append(r.formatMsg(false, 0, 0));
+                    sb.append("\n");
+                }
+                sb.append(prefix).append("\n");
+            }
+            for (Map.Entry<StackTraceElement, StackTraceTreeNode> node : children.entrySet()) {
+                sb.append(prefix).append(node.getKey()).append('\n');
+                node.getValue().appendToLog(sb, prefix);
+            }
+        }
     }
 
-    public List<LoggedSavesError> getErrorLog() {
-        return errorLog;
-    }
-
-    public static void logErrorStatic(String message, Throwable err) {
-        WorldDataSaver saver = WorldDataSaverHandler.getInstance().getWorldDataSaver();
-        if (saver != null) {
-            saver.logError(message, err);
+    public void showErrorLog(SaverState state, SerializationContext ctx) {
+        if (!ctx.hasErrors()) return;
+        StackTraceTreeNode tree = new StackTraceTreeNode(null);
+        for (SerializationContext.ErrorRecord err : ctx.errorsList) {
+            tree.addRecordToRoot(err);
         }
+        StringBuilder log = new StringBuilder();
+        tree.appendToLog(log, "");
+
+        Logger.error("SERIALIZATION ERRORS: \n\n" + log.toString());
+        if (state == SaverState.SAVE) {
+            if (savingErrorsReportedAsDialog) {
+                UserDialog.toast("errors occurred during saving data, see log for details");
+                return;
+            }
+            savingErrorsReportedAsDialog = true;
+        }
+        DialogHelper.openFormattedDialog("Errors occurred while " + (state == SaverState.READ ? "reading" : "saving") + " data:\n\n" + log, "SOME " + (state == SaverState.READ ? "READING" : "SAVING") + " ERRORS OCCURRED");
     }
 }

@@ -4,9 +4,8 @@ import android.util.Pair;
 
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
@@ -30,14 +29,14 @@ public abstract class WorkbenchRecipe {
 
 
     protected int id, count, data;
-    protected NativeItemInstanceExtra extra;
+    protected ItemInstanceExtra extra;
     protected HashMap<Character, RecipeEntry> entries = new HashMap<>();
     boolean isValid = true;
     boolean isVanilla = false;
 
     private final long recipeUid = nextRecipeUid();
 
-    public WorkbenchRecipe(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public WorkbenchRecipe(int id, int count, int data, ItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;

@@ -1,8 +1,8 @@
 package com.zhekasmirnov.innercore.api.mod.recipes;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.furnace.FurnaceRecipe;
@@ -22,11 +22,11 @@ import java.util.HashMap;
 public class RecipeRegistry {
     static final String LOGGER_TAG = "INNERCORE-RECIPES";
 
-    private static String tryGetReadableStringFromResult(ItemInstance result) {
-        int id = result.getId();
+    private static String tryGetReadableStringFromResult(org.innercore.icstd.inventory.ItemInstance result) {
+        int id = result.id;
         String name = IDRegistry.getNameByID(id);
         name = name != null ? name : Integer.toString(id);
-        return result.getCount() + "x " + name + "#" + result.getData() + (result.getExtraValue() != null ? "[+extra]" : "");
+        return result.count + "x " + name + "#" + result.data + (result.extra != null ? "[+extra]" : "");
     }
 
     private static void reportComponentArrayError(Object[] components, String errorPrefix) {
@@ -126,7 +126,7 @@ public class RecipeRegistry {
         int id = ScriptableObjectHelper.getIntProperty(result, "id", 0);
         int count = ScriptableObjectHelper.getIntProperty(result, "count", 1);
         int aux = ScriptableObjectHelper.getIntProperty(result, "data", 0);
-        NativeItemInstanceExtra extra = NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
+        ItemInstanceExtra extra = ItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
         if (id == 0) {
             throw new IllegalArgumentException("recipe id is 0");
         }
@@ -174,7 +174,7 @@ public class RecipeRegistry {
         int id = ScriptableObjectHelper.getIntProperty(result, "id", 0);
         int count = ScriptableObjectHelper.getIntProperty(result, "count", 1);
         int aux = ScriptableObjectHelper.getIntProperty(result, "data", 0);
-        NativeItemInstanceExtra extra = NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
+        ItemInstanceExtra extra = ItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
         if (id == 0) {
             throw new IllegalArgumentException("recipe id is 0");
         }

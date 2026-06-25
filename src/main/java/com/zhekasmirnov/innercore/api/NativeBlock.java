@@ -14,6 +14,7 @@ import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
+import org.innercore.icstd.region.BlockSource;
 import org.mozilla.javascript.Function;
 
 import java.util.ArrayList;
@@ -357,7 +358,7 @@ public class NativeBlock {
         }
     }
 
-    public static void onRandomTickCallback(int x, int y, int z, int id, int data, NativeBlockSource blockSource) {
+    public static void onRandomTickCallback(int x, int y, int z, int id, int data, BlockSource blockSource) {
         Function callback = tickingCallbackForId.get(id);
         if (callback != null) {
             callback.call(Compiler.assureContextForCurrentThread(), callback.getParentScope(),

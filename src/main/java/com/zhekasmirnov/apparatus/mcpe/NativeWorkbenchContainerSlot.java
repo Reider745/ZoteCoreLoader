@@ -1,17 +1,14 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
-import com.zhekasmirnov.innercore.api.NativeItemInstance;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
+import org.innercore.icstd.inventory.ItemInstance;
 
-import cn.nukkit.item.Item;
-
-public class NativeWorkbenchContainerSlot extends ItemContainerSlot {
+public class NativeWorkbenchContainerSlot implements AbstractSlot {
     public int id, count, data;
-    public NativeItemInstanceExtra extra;
+    public ItemInstanceExtra extra;
 
-    public NativeWorkbenchContainerSlot(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public NativeWorkbenchContainerSlot(int id, int count, int data, ItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;
@@ -22,11 +19,7 @@ public class NativeWorkbenchContainerSlot extends ItemContainerSlot {
         this(0, 0, 0, null);
     }
 
-    public NativeWorkbenchContainerSlot(ItemStack item) {
-        this(item.id, item.count, item.data, item.extra);
-    }
-
-    public NativeWorkbenchContainerSlot(NativeItemInstance item) {
+    public NativeWorkbenchContainerSlot(ItemInstance item) {
         this(item.id, item.count, item.data, item.extra);
     }
 
@@ -46,27 +39,23 @@ public class NativeWorkbenchContainerSlot extends ItemContainerSlot {
     }
 
     @Override
-    public NativeItemInstanceExtra getExtra() {
+    public ItemInstanceExtra getExtra() {
         return extra;
     }
 
-    public Item getExtraPtr() {
-        return NativeItemInstanceExtra.getValueOrNullPtr(extra);
+    public long getExtraPtr() {
+        return ItemInstanceExtra.getValueOrNullPtr(extra);
     }
 
     @Override
-    public void set(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void set(int id, int count, int data, ItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;
         this.extra = extra;
     }
 
-    public void set(ItemStack item) {
-        set(item.id, item.count, item.data, item.extra);
-    }
-
-    public void set(NativeItemInstance item) {
+    public void set(ItemInstance item) {
         set(item.id, item.count, item.data, item.extra);
     }
 

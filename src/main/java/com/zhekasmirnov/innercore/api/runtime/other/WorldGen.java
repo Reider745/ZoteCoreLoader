@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.api.runtime.other;
 
+import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
 import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersion;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
@@ -9,6 +10,8 @@ import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+import org.innercore.icstd.event.EventController;
+import org.innercore.icstd.event.Events;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,19 +36,17 @@ public class WorldGen {
     private static final int MODE_CUSTOM = 3;
 
     private static void invokeGenerateChunkCallback(String name, int chunkX, int chunkZ, int dimensionId) {
-        /* int */ long worldSeed = NativeAPI.getSeed();
+        long worldSeed = NativeAPI.getSeed();
         long seed = (long) worldSeed + (chunkX ^ 836430234L) * (chunkZ ^ 827774123L);
         Random random = new Random(seed);
-        List<Runnable> callbacks = Callback.getCallbackAsRunnableList(name, new Object[] { chunkX, chunkZ, random,
-                dimensionId, seed, worldSeed, worldSeed ^ (dimensionId * 131071) });
-        for (Runnable callback : callbacks) {
-            try {
-                callback.run();
-            } catch (Throwable err) {
-                Logger.error("error occurred in chunk generation " + chunkX + ", " + chunkZ
-                        + " for dimension " + dimensionId, err);
+
+        EventController ctrl = new EventController();
+        ctrl.catchExceptions = true;
+        Events.invokeScriptEvent(ctrl, name, new Object[] {chunkX, chunkZ, random, dimensionId, seed, worldSeed, worldSeed ^ (dimensionId * 131071)});
+        if (ctrl.errors != null)
+            for (Throwable err : ctrl.errors) {
+                UserDialog.insignificantError("error occurred in chunk generation " + chunkX + ", " + chunkZ + " for dimension " + dimensionId, err, true, true);
             }
-        }
     }
 
     private static void generateChunkByLevelAndMode(int chunkX, int chunkZ, int dimensionId, int level, int mode) {

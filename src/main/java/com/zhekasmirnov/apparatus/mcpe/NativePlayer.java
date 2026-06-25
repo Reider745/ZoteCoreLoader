@@ -5,8 +5,8 @@ import cn.nukkit.Player;
 import com.reider745.api.ZoteOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.entity.PlayerActorMethods;
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.NativeScales;
 
 public class NativePlayer {
@@ -58,15 +58,15 @@ public class NativePlayer {
         return PlayerActorMethods.isValid(player, true);
     }
 
-    public void invokeUseItemNoTarget(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void invokeUseItemNoTarget(int id, int count, int data, ItemInstanceExtra extra) {
         PlayerActorMethods.invokeUseItemNoTarget(player, id, count, data, extra);
     }
 
-    public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra, boolean dropLeft) {
+    public void addItemToInventory(int id, int count, int data, ItemInstanceExtra extra, boolean dropLeft) {
         PlayerActorMethods.addItemToInventory(player, id, count, data, extra, dropLeft);
     }
 
-    public void addItemToInventory(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void addItemToInventory(int id, int count, int data, ItemInstanceExtra extra) {
         addItemToInventory(id, count, data, extra, true);
     }
 
@@ -90,12 +90,12 @@ public class NativePlayer {
         return PlayerActorMethods.getGameMode(player);
     }
 
-    public ItemStack getInventorySlot(int slot) {
-        return ItemStack.fromPtr(PlayerActorMethods.getInventorySlot(player, slot));
+    public ItemInstance getInventorySlot(int slot) {
+        return ItemInstance.makeFrom(PlayerActorMethods.getInventorySlot(player, slot));
     }
 
-    public ItemStack getArmor(int slot) {
-        return ItemStack.fromPtr(PlayerActorMethods.getArmor(player, slot));
+    public ItemInstance getArmor(int slot) {
+        return ItemInstance.makeFrom(PlayerActorMethods.getArmor(player, slot));
     }
 
     public float getExhaustion() {
@@ -126,11 +126,11 @@ public class NativePlayer {
         return PlayerActorMethods.getSelectedSlot(player);
     }
 
-    public void setInventorySlot(int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void setInventorySlot(int slot, int id, int count, int data, ItemInstanceExtra extra) {
         PlayerActorMethods.setInventorySlot(player, slot, id, count, data, extra);
     }
 
-    public void setArmor(int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void setArmor(int slot, int id, int count, int data, ItemInstanceExtra extra) {
         PlayerActorMethods.setArmor(player, slot, id, count, data, extra);
     }
 

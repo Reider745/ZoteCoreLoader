@@ -22,23 +22,22 @@ public class LogFilter {
         logMessages.add(new LogMessage(type, prefix, line));
     }
 
-    private LogMessage getMessageByIndex(int index) {
-        if (index < 0 || index >= logMessages.size()) {
-            return null;
+    public String buildFilteredLog(boolean format, int limit) {
+        StringBuilder sb = new StringBuilder();
+
+        int index = limit >= 0 ? Math.max(0, logMessages.size() - limit) : 0;
+        for (; index < logMessages.size(); index++) {
+            sb.append(logMessages.get(index).format(format));
+            sb.append(format ? "<br>" : "\n");
         }
-        return logMessages.get(index);
+
+        return sb.toString();
     }
 
     public String buildFilteredLog(boolean format) {
-        String build = "";
-
-        for (int i = 0; i < logMessages.size(); i++) {
-            LogMessage msg = getMessageByIndex(i);
-            build += msg.format(format) + (format ? "<br>" : "\n");
-        }
-
-        return build;
+        return buildFilteredLog(format, -1);
     }
+
 
     public static class LogMessage {
         public final LogType type;
@@ -59,8 +58,7 @@ public class LogFilter {
         }
 
         public String toHtml() {
-            return "<font color='" + prefix.toFontColor() + "'><b>" + "[" + strPrefix + "]" + "</b>" + " " + message
-                    + "</font>";
+            return "<font color='" + prefix.toFontColor() + "'><b>" + "[" + strPrefix + "]" + "</b>" + " " + message + "</font>";
         }
 
         public String format(boolean format) {

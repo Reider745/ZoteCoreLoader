@@ -12,11 +12,10 @@ import cn.nukkit.recipe.descriptor.ItemDescriptor;
 import cn.nukkit.recipe.impl.ShapedRecipe;
 import cn.nukkit.recipe.impl.ShapelessRecipe;
 import com.reider745.InnerCoreServer;
-import com.reider745.api.ReflectHelper;
 import com.reider745.hooks.item.ItemUtils;
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 import java.util.*;
 
@@ -65,14 +64,14 @@ public class NativeWorkbench {
         public int resultId;
         public int resultCount;
         public int resultData;
-        public NativeItemInstanceExtra resultExtra;
+        public ItemInstanceExtra resultExtra;
         public String[] pattern;
-        public HashMap<Character, ItemStack> ingredients;
+        public HashMap<Character, ItemInstance> ingredients;
         public int[] ingredients_;
         public boolean shapeless = false;
 
-        public RecipeRegistryEntry(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra, String[] pattern,
-                                   HashMap<Character, ItemStack> ingredients) {
+        public RecipeRegistryEntry(int resultId, int resultCount, int resultData, ItemInstanceExtra resultExtra, String[] pattern,
+                                   HashMap<Character, ItemInstance> ingredients) {
             this.resultId = resultId;
             this.resultCount = resultCount;
             this.resultData = resultData;
@@ -81,7 +80,7 @@ public class NativeWorkbench {
             this.ingredients = ingredients;
         }
 
-        public RecipeRegistryEntry(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra, int[] ingredients) {
+        public RecipeRegistryEntry(int resultId, int resultCount, int resultData, ItemInstanceExtra resultExtra, int[] ingredients) {
             this.resultId = resultId;
             this.resultCount = resultCount;
             this.resultData = resultData;
@@ -105,8 +104,8 @@ public class NativeWorkbench {
             Item item;
             if (!this.shapeless) {
                 final Map<Character, ItemDescriptor> ingredients = new HashMap<>();
-                for (Map.Entry<Character, ItemStack> ingredient : this.ingredients.entrySet()) {
-                    ItemStack stack = ingredient.getValue();
+                for (Map.Entry<Character, ItemInstance> ingredient : this.ingredients.entrySet()) {
+                    ItemInstance stack = ingredient.getValue();
                     item = ItemUtils.get(stack.id, stack.data);
                     try {
                         mapping.toRuntime(item.getId(), item.getDamage());
@@ -158,20 +157,20 @@ public class NativeWorkbench {
     private static final ArrayList<IApply> recipes = new ArrayList<>();
     private static RuntimeItemMapping runtimeItemMapping = null;
 
-    private static void addShapedRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
+    private static void addShapedRecipe(int resultId, int resultCount, int resultData, ItemInstanceExtra resultExtra,
             String[] pattern, int[] ingredients) {
         if (resultId == 0) {
             Logger.error("Recipe result id 0");
             return;
         }
-        final HashMap<Character, ItemStack> ingredients_ = new HashMap<>();
+        final HashMap<Character, ItemInstance> ingredients_ = new HashMap<>();
         for (int i = 0; i < ingredients.length; i += 3) {
             int id = ingredients[i + 1];
             if (id == 0) {
                 Logger.error("Recipe result id 0");
                 return;
             }
-            ingredients_.put((char) ingredients[i], new ItemStack(id, 1, ingredients[i + 2]));
+            ingredients_.put((char) ingredients[i], new ItemInstance(id, 1, ingredients[i + 2]));
         }
 
         final RecipeRegistryEntry recipe = new RecipeRegistryEntry(resultId, resultCount, resultData, resultExtra, pattern, ingredients_);
@@ -184,11 +183,11 @@ public class NativeWorkbench {
         }
     }
 
-    public static void addShapedRecipe(ItemStack result, String[] pattern, int[] ingredients) {
+    public static void addShapedRecipe(ItemInstance result, String[] pattern, int[] ingredients) {
         addShapedRecipe(result.id, result.count, result.data, result.extra, pattern, ingredients);
     }
 
-    private static void addShapelessRecipe(int resultId, int resultCount, int resultData, NativeItemInstanceExtra resultExtra,
+    private static void addShapelessRecipe(int resultId, int resultCount, int resultData, ItemInstanceExtra resultExtra,
             int[] ingredients) {
         if (resultId == 0) {
             Logger.error("Recipe result id 0");
@@ -200,7 +199,7 @@ public class NativeWorkbench {
         recipe.rebuildPacket();
     }
 
-    public static void addShapelessRecipe(ItemStack result, int[] ingredients) {
+    public static void addShapelessRecipe(ItemInstance result, int[] ingredients) {
         addShapelessRecipe(result.id, result.count, result.data, result.extra, ingredients);
     }
 

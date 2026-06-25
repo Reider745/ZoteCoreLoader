@@ -18,7 +18,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.event.EventListener;
 import com.reider745.hooks.item.ItemUtils;
 import com.reider745.world.FakeDimensions;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 public class PlayerActorMethods {
     public static boolean isValid(Player player, boolean checkOnline) {
@@ -32,10 +32,10 @@ public class PlayerActorMethods {
     }
 
     public static void invokeUseItemNoTarget(Player player, int id, int count, int data, Item extra) {
-        invokeUseItemNoTarget(player, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        invokeUseItemNoTarget(player, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void invokeUseItemNoTarget(Player player, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void invokeUseItemNoTarget(Player player, int id, int count, int data, ItemInstanceExtra extra) {
         if (!isValid(player, false)) {
             return;
         }
@@ -88,10 +88,10 @@ public class PlayerActorMethods {
     }
 
     public static void addItemToInventory(Player player, int id, int count, int data, Item extra, boolean dropLeft) {
-        addItemToInventory(player, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), dropLeft);
+        addItemToInventory(player, id, count, data, ItemInstanceExtra.getExtraOrNull(extra), dropLeft);
     }
 
-    public static void addItemToInventory(Player player, int id, int count, int data, NativeItemInstanceExtra extra, boolean dropLeft) {
+    public static void addItemToInventory(Player player, int id, int count, int data, ItemInstanceExtra extra, boolean dropLeft) {
         if (!isValid(player, false)) {
             return;
         }
@@ -210,10 +210,10 @@ public class PlayerActorMethods {
     }
 
     public static void setInventorySlot(Player player, int slot, int id, int count, int data, Item extra) {
-        setInventorySlot(player, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setInventorySlot(player, slot, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setInventorySlot(Player player, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setInventorySlot(Player player, int slot, int id, int count, int data, ItemInstanceExtra extra) {
         if (!isValid(player, false)) {
             return;
         }
@@ -221,10 +221,10 @@ public class PlayerActorMethods {
     }
 
     public static void setArmor(Player player, int slot, int id, int count, int data, Item extra) {
-        setArmor(player, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setArmor(player, slot, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setArmor(Player player, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setArmor(Player player, int slot, int id, int count, int data, ItemInstanceExtra extra) {
         if (!isValid(player, false)) {
             return;
         }

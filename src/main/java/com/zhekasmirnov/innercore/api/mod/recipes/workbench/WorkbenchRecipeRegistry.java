@@ -6,9 +6,9 @@ import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
+import org.innercore.icstd.inventory.ItemInstance;
 
 import java.util.*;
 
@@ -281,7 +281,7 @@ public class WorkbenchRecipeRegistry {
 
         NativePlayer player = new NativePlayer(playerUid);
         for (int i = 0; i < 36; i++) {
-            ItemStack item = player.getInventorySlot(i);
+            ItemInstance item = player.getInventorySlot(i);
             if (item.id != 0 && item.count > 0) {
                 addItemToInvMap(inventory, item.id, item.count, item.data);
                 addRecipesThatContainItem(item.id, item.data, visibleRecipes);
