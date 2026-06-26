@@ -168,6 +168,12 @@ public class BlockSource extends BlockSourceBindGenBase {
         this(dimension, true, false);
     }
 
+    public static BlockSource getDefault() {
+        Level level = Server.getInstance().getDefaultLevel();
+        if(level == null) return null;
+        return new BlockSource(level.getId(), false, false);
+    }
+
     @ApiBinding
     public boolean isServerSide() {
         return true;
@@ -970,5 +976,11 @@ public class BlockSource extends BlockSourceBindGenBase {
                 .filter(entity -> entity.getName().equalsIgnoreCase(name))
                 .mapMultiToLong((entity, consumer) -> consumer.accept(EntityMethod.getIdForEntity(entity)))
                 .toArray();
+    }
+
+    @ApiBinding
+    @ZoteOnly
+    public void setRespawnCoords(int x, int y, int z) {
+        level.setSpawnLocation(new Vector3(x, y, z));
     }
 }

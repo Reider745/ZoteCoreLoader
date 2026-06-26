@@ -20,6 +20,7 @@ import com.zhekasmirnov.innercore.api.constants.PlayerAbility;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 import com.zhekasmirnov.innercore.mod.resource.ResourceStorage;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
+import org.innercore.icstd.region.BlockSource;
 
 public class NativeAPI {
 
@@ -142,8 +143,9 @@ public class NativeAPI {
     }
 
     @Deprecated(since = "Zote")
+    @ClientOnly
     public static void playSound(String name, float x, float y, float z, float f1, float f2) {
-        NativeBlockSource region = NativeBlockSource.getDefault();
+        BlockSource region = BlockSource.getDefault();
         if (region != null)
             region.playSound(x, y, z, name, f1, f2);
         InnerCoreServer.useClientMethod("NativeAPI.playSound(name, x, y, z, f1, f2)");
@@ -349,12 +351,14 @@ public class NativeAPI {
         return new long[0];
     }
 
+    @Deprecated
     public static long getEntityArmor(long entity, int slot) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityArmor(entity, slot)");
         // return EntityMethod.getEntityArmor(entity, slot);
         return 0;
     }
 
+    @Deprecated
     public static long getEntityCarriedItem(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityCarriedItem(entity)");
         // return EntityMethod.getEntityCarriedItem(entity);
@@ -855,7 +859,7 @@ public class NativeAPI {
     }
 
     public static void setRespawnCoords(int x, int y, int z) {
-        NativeBlockSource region = NativeBlockSource.getDefault();
+        BlockSource region = BlockSource.getDefault();
         if (region != null)
             region.setRespawnCoords(x, y, z);
     }

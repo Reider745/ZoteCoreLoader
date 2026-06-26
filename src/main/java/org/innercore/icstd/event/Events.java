@@ -50,6 +50,12 @@ public class Events {
     private static final HashMap<String, Class<?>> scriptEventClsByName = new HashMap<>();
     private static final HashMap<String, IScriptEventConverter<?>> scriptEventConverters = new HashMap<>();
 
+    public static int count(String name) {
+        EventListenerRecord record = eventRecordByName.get(name);
+        if(record == null) return 0;
+        return record.listeners.size();
+    }
+
     public static class EventBuilder {
         final EventListenerRecord eventRecord;
         final Object listener;

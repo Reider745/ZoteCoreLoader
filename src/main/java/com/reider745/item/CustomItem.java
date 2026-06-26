@@ -1,6 +1,6 @@
 package com.reider745.item;
 
-import cn.nukkit.item.Item;
+import cn.nukkit.item.*;
 import cn.nukkit.item.food.Food;
 import cn.nukkit.item.food.FoodNormal;
 import com.reider745.InnerCoreServer;
@@ -8,12 +8,9 @@ import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
 import com.reider745.hooks.item.ItemUtils;
 import com.reider745.item.ItemMethod.PropertiesNames;
+import it.unimi.dsi.fastutil.ints.*;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 import java.util.*;
@@ -22,6 +19,8 @@ import java.util.function.Consumer;
 public class CustomItem {
     public static Int2ObjectMap<CustomManager> items = new Int2ObjectOpenHashMap<>();
     public static Int2IntMap foods = new Int2IntOpenHashMap();
+    public static IntList armors = new IntArrayList();
+    public static IntList projectile = new IntArrayList();
 
     public static void init() {
         items.forEach((key, value) -> Item.list[key] = value.getClazz());
@@ -39,6 +38,33 @@ public class CustomItem {
     public static int getIdForText(String id) {
         return customItems.get(id);
     }
+
+    public static boolean isFood(int id) {
+        if(foods.containsKey(id)) return true;
+        return Item.get(id) instanceof ItemEdible;
+    }
+
+    public static boolean isArmor(int id) {
+        if(armors.contains(id)) return true;
+        return Item.get(id).isArmor();
+    }
+
+    public static boolean isThrowable(int id) {
+        if(projectile.contains(id)) return true;
+        return Item.get(id) instanceof ProjectileItem;
+    }
+
+    public static int getNutrition(int id) {
+        if (foods.containsKey(id)) {
+            return foods.get(id);
+        }
+        Item item = Item.get(id);
+        if(item instanceof ItemEdible) {
+            return Food.getByRelative(item).getRestoreFood();
+        }
+        return 0;
+    }
+
 
     public static class ItemCreative {
         public int id, count, data;
@@ -141,6 +167,7 @@ public class CustomItem {
     }
 
     public static CustomManager registerThrowableItem(String nameId, int id, String name) {
+        projectile.add(id);
         return registerItem(nameId, id, name, CustomProjectileItem.class);
     }
 
@@ -151,6 +178,7 @@ public class CustomItem {
         manager.put(PropertiesNames.Armors.DEFENSE, defense);
         manager.put(PropertiesNames.MAX_DAMAGE, durability);
         manager.put(PropertiesNames.Armors.KNOCKBACK_RESIST, knockbackResist);
+        armors.add(id);
         return manager;
     }
 

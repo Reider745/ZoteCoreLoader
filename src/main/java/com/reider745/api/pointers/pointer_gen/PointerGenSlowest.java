@@ -11,7 +11,7 @@ public class PointerGenSlowest implements IBasePointerGen {
     public final long next() {
         while (true){
             final long ptr = random.nextLong();
-            if (!usePointers.contains(ptr)) {
+            if (ptr != 0 && !usePointers.contains(ptr)) {
                 usePointers.add(ptr);
                 return ptr;
             }

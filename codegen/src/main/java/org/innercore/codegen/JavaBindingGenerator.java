@@ -565,7 +565,8 @@ public final class JavaBindingGenerator {
                 callArgs.add(overload.args.get(i).def);
             }
         }
-        generateWrapMethod(overload, overload.name, overload.name, callArgs);
+
+        generateWrapMethod(overload, overload.name, overload.callSrc, callArgs);
     }
 
     private void generateConstructor(String genClassName, BindingOverload overload) {

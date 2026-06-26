@@ -20,7 +20,6 @@ import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbenchContainer;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
@@ -47,6 +46,7 @@ import java.util.function.Consumer;
 
 import org.innercore.icstd.common.script.GenericScriptPos3;
 import org.innercore.icstd.event.Events;
+import org.innercore.icstd.inventory.ItemInstance;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.innercore.icstd.region.BlockSource;
 import org.innercore.icstd.region.BlockState;
@@ -323,7 +323,7 @@ public class NativeCallback {
         NativePathNavigation.cleanup();
 
         // block source by dimension cache for server ticking thread
-        NativeBlockSource.resetDefaultBlockSources();
+        BlockSource.resetDefaultBlockSources();
 
         // id conversion map - it will be cleared on next level load or connection
         // anyway, so clear it only on server side to not fuck up last server tick
@@ -421,7 +421,7 @@ public class NativeCallback {
         isDestroyBlockCallbackInProgress = true;
 
         // check, if we can get block source
-        NativeBlockSource blockSource = NativeBlockSource.getDefaultForActor(player);
+        BlockSource blockSource = BlockSource.getDefaultForActor(player);
         if (blockSource == null) {
             return;
         }
@@ -438,16 +438,17 @@ public class NativeCallback {
         BlockState block = blockSource.getBlock(x, y, z);
         Callback.invokeAPICallback("BreakBlock",
                 blockSource,
-                new Coords(x, y, z, side),
+                GenericScriptPos3.makeWithSideAndRelative(x, y, z, side).toScriptableObject(),
                 block,
                 EngineConfig.isDeveloperMode() || new NativePlayer(player).getGameMode() != 1,
                 player,
-                new ItemInstance(EntityMethod.getEntityCarriedItem(player)));
+                ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(player))
+        );
 
         // DestroyBlock callback is called, when player breaks the block, this is
         // considered legacy callback
         if (!NativeAPI.isDefaultPrevented()) {
-            Callback.invokeAPICallback("DestroyBlock", new Coords(x, y, z, side), block, player);
+            Callback.invokeAPICallback("DestroyBlock", GenericScriptPos3.makeWithSideAndRelative(x, y, z, side).toScriptableObject(), block, player);
         }
 
         if (!NativeAPI.isDefaultPrevented()) {
@@ -468,7 +469,7 @@ public class NativeCallback {
     }
 
     public static void onBlockBuild(int x, int y, int z, int side, long player) {
-        Callback.invokeAPICallback("BuildBlock", new Coords(x, y, z, side), makeBlockState(player, x, y, z), player);
+        Callback.invokeAPICallback("BuildBlock", GenericScriptPos3.makeWithSideAndRelative(x, y, z, side).toScriptableObject(), makeBlockState(player, x, y, z), player);
     }
 
     public static void onBlockChanged(int x, int y, int z, int id1, int data1, int id2, int data2, int i1, int i2, Level region) {
@@ -485,30 +486,33 @@ public class NativeCallback {
         }
 
         // initialize coordinates
-        Coords coords = new Coords(x, y, z, side);
-        coords.put("vec", coords, new Coords(fx, fy, fz));
+        GenericScriptPos3 coords = GenericScriptPos3.makeWithSideAndRelative(x, y, z, side);
+        coords.vec = new GenericScriptPos3(fx, fy, fz);
+        Object coordsObj = coords.toScriptableObject();
 
         // call server callback
-        ItemInstance item = new ItemInstance(EntityMethod.getEntityCarriedItem(player));
+        ItemInstance item = ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(player));
         BlockState block = makeBlockState(player, x, y, z);
-        Callback.invokeAPICallback("ItemUse", coords, item, block, isExternal, player);
-        Callback.invokeAPICallback("ItemUseServer", coords, item, block, player);
+
+        Callback.invokeAPICallback("ItemUse", coordsObj, item, block, isExternal, player);
+        Callback.invokeAPICallback("ItemUseServer", coordsObj, item, block, player);
     }
 
-    public static void onExplode(float x, float y, float z, float power, long entity, boolean b1, boolean b2,
-            float anotherFloat) {
-        Callback.invokeAPICallback("Explosion", new Coords(x, y, z),
+    public static void onExplode(float x, float y, float z, float power, long entity, boolean b1, boolean b2, float anotherFloat) {
+        Callback.invokeAPICallback("Explosion", new GenericScriptPos3(x, y, z),
                 new ScriptableParams(
                         new Pair<String, Object>("power", power),
                         new Pair<String, Object>("entity", entity),
                         new Pair<String, Object>("onFire", b1),
                         new Pair<String, Object>("someBool", b2),
-                        new Pair<String, Object>("someFloat", anotherFloat)));
+                        new Pair<String, Object>("someFloat", anotherFloat)
+                )
+        );
     }
 
     @ZoteOnly
     public static void onServerCommand(String command, float x, float y, float z, long entity, boolean fromPacket) {
-        Callback.invokeAPICallback("ServerCommand", command, new Coords(x, y, z), entity, fromPacket);
+        Callback.invokeAPICallback("ServerCommand", command, new GenericScriptPos3(x, y, z), entity, fromPacket);
     }
 
     /* PLAYER CALLBACKS */
@@ -544,7 +548,7 @@ public class NativeCallback {
     }
 
     public static void onInteractWithEntity(long entity, long player, float x, float y, float z) {
-        Callback.invokeAPICallback("EntityInteract", entity, player, new Coords(x, y, z));
+        Callback.invokeAPICallback("EntityInteract", entity, player, new GenericScriptPos3(x, y, z));
     }
 
     // handling legacy block breaking logic, that manually drops items and
@@ -611,13 +615,12 @@ public class NativeCallback {
     }
 
     public static void onEntityPickUpDrop(long entity, long dropEntity, int count) {
-        ItemInstance dropStack = new ItemInstance(new NativeItemInstance(EntityMethod.getItemFromDrop(dropEntity)));
+        ItemInstance dropStack = ItemInstance.makeFrom(EntityMethod.getItemFromDrop(dropEntity));
         Callback.invokeAPICallback("EntityPickUpDrop", entity, dropEntity, dropStack, count);
     }
 
-    public static void onExpOrbsSpawned(Level level, int amount, float x, float y, float z, long player) {
-        Callback.invokeAPICallback("ExpOrbsSpawned", BlockSource.getFromServerCallbackPointer(level), amount,
-                new Coords(x, y, z), player);
+    public static void onExpOrbsSpawned(Level region, int amount, float x, float y, float z, long player) {
+        Callback.invokeAPICallback("ExpOrbsSpawned", BlockSource.getFromServerCallbackPointer(region), amount, new GenericScriptPos3(x, y, z), player);
     }
 
     public static void onEntityDied(long entity, long attacker, int damageType) {
@@ -636,19 +639,14 @@ public class NativeCallback {
         // }
     }
 
-    public static void onThrowableHit(long projectile, float hitX, float hitY, float hitZ, long entity, int blockX,
-            int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData,
-            ItemInstanceExtra itemExtra) {
-        Callback.invokeAPICallback("ProjectileHit", projectile,
-                new ItemInstance(itemId, itemCount, itemData, itemExtra),
-                new ScriptableParams(
-                        new Pair<String, Object>("x", hitX),
-                        new Pair<String, Object>("y", hitY),
-                        new Pair<String, Object>("z", hitZ),
-                        new Pair<String, Object>("entity", entity),
-                        new Pair<String, Object>("coords",
-                                blockX == 0 && blockY == 0 && blockZ == 0 && blockSide == 0 ? null
-                                        : new Coords(blockX, blockY, blockZ, blockSide))));
+    public static void onThrowableHit(long projectile, float hitX, float hitY, float hitZ, long entity, int blockX, int blockY, int blockZ, int blockSide, int itemId, int itemCount, int itemData, ItemInstanceExtra itemExtra) {
+        Callback.invokeAPICallback("ProjectileHit", projectile, new ItemInstance(itemId, itemCount, itemData, itemExtra), new ScriptableParams(
+                new Pair<String, Object>("x", hitX),
+                new Pair<String, Object>("y", hitY),
+                new Pair<String, Object>("z", hitZ),
+                new Pair<String, Object>("entity", entity),
+                new Pair<String, Object>("coords", blockX == 0 && blockY == 0 && blockZ == 0 && blockSide == 0 ? null : GenericScriptPos3.makeWithSideAndRelative(blockX, blockY, blockZ, blockSide))
+        ));
     }
 
     public static void onPathNavigationDone(long entity, int result) {
@@ -659,10 +657,11 @@ public class NativeCallback {
 
     public static void onRedstoneSignalChange(int x, int y, int z, int signal, boolean isLoadingChange, Level level) {
         BlockSource blockSource = BlockSource.getFromServerCallbackPointer(level);
-        Callback.invokeAPICallback("RedstoneSignal", new Coords(x, y, z), new ScriptableParams(
+        Callback.invokeAPICallback("RedstoneSignal", new GenericScriptPos3(x, y, z), new ScriptableParams(
                 new Pair<String, Object>("power", signal),
                 new Pair<String, Object>("signal", signal),
-                new Pair<String, Object>("onLoad", isLoadingChange)), makeBlockState(blockSource, x, y, z), blockSource);
+                new Pair<String, Object>("onLoad", isLoadingChange)
+        ), makeBlockState(blockSource, x, y, z), blockSource);
     }
 
     public static void onRandomBlockTick(int x, int y, int z, int id, int data, Level level) {
@@ -679,36 +678,32 @@ public class NativeCallback {
     }
 
     public static void onBlockEventEntityInside(int x, int y, int z, long entity) {
-        Callback.invokeAPICallback("BlockEventEntityInside", new Coords(x, y, z), makeBlockState(entity, x, y, z),
-                entity);
+        Callback.invokeAPICallback("BlockEventEntityInside", new GenericScriptPos3(x, y, z), makeBlockState(entity, x, y, z), entity);
     }
 
     public static void onBlockEventEntityStepOn(int x, int y, int z, long entity) {
-        Callback.invokeAPICallback("BlockEventEntityStepOn", new Coords(x, y, z), makeBlockState(entity, x, y, z),
-                entity);
+        Callback.invokeAPICallback("BlockEventEntityStepOn", new GenericScriptPos3(x, y, z), makeBlockState(entity, x, y, z), entity);
     }
 
     public static void onBlockEventNeighbourChange(int x, int y, int z, int changedX, int changedY, int changedZ,
             Level level) {
-        NativeBlockSource blockSource = NativeBlockSource.getFromServerCallbackPointer(level);
-        Callback.invokeAPICallback("BlockEventNeighbourChange", new Coords(x, y, z),
-                makeBlockState(blockSource, x, y, z), new Coords(changedX, changedY, changedZ), blockSource);
+        BlockSource blockSource = BlockSource.getFromServerCallbackPointer(level);
+        Callback.invokeAPICallback("BlockEventNeighbourChange", new GenericScriptPos3(x, y, z), makeBlockState(blockSource, x, y, z), new GenericScriptPos3(changedX, changedY, changedZ), blockSource);
     }
 
     /* ITEM CALLBACKS */
 
     public static void onItemUsedNoTarget(long player) {
-        Callback.invokeAPICallback("ItemUseNoTarget", new ItemInstance(EntityMethod.getEntityCarriedItem(player)),
-                player);
+        Callback.invokeAPICallback("ItemUseNoTarget", ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(player)), player);
     }
 
     public static void onItemUseReleased(int ticks, long player) {
-        Callback.invokeAPICallback("ItemUsingReleased", new ItemInstance(EntityMethod.getEntityCarriedItem(player)),
+        Callback.invokeAPICallback("ItemUsingReleased", ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(player)),
                 ticks, player);
     }
 
     public static void onItemUseComplete(long player) {
-        Callback.invokeAPICallback("ItemUsingComplete", new ItemInstance(EntityMethod.getEntityCarriedItem(player)),
+        Callback.invokeAPICallback("ItemUsingComplete", ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(player)),
                 player);
     }
 
@@ -738,19 +733,16 @@ public class NativeCallback {
                 ix--;
                 break;
         }
-        Coords coords = new Coords(ix, iy, iz);
-        coords.put("relative", coords, new Coords(rx, ry, rz));
-        coords.put("vec", coords, new Coords(x, y, z));
-        coords.setSide(side);
-        Callback.invokeAPICallback("ItemDispensed", coords,
-                new ItemInstance(id, count, data, extra),
-                NativeBlockSource.getFromServerCallbackPointer(level), slot);
+        GenericScriptPos3 coords = new GenericScriptPos3(ix, iy, iz, side);
+        coords.relative = new GenericScriptPos3(rx, ry, rz);
+        coords.vec = new GenericScriptPos3(x, y, z);
+        Callback.invokeAPICallback("ItemDispensed", coords, new ItemInstance(id, count, data, extra), BlockSource.getFromServerCallbackPointer(level), slot);
     }
 
     /* ENCHANT CALLBACKS */
 
     public static void onEnchantPostAttack(int enchantId, int damage, long actor1, long actor2) {
-        ItemStack item = new ItemStack();
+        ItemInstance item = ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(actor1));
         Callback.invokeAPICallback("EnchantPostAttack", enchantId, item, damage, actor1, actor2);
         if (!NativeAPI.isDefaultPrevented()) {
             NativeCustomEnchant enchant = NativeCustomEnchant.getEnchantById(enchantId);
@@ -763,7 +755,7 @@ public class NativeCallback {
 
     public static void onEnchantPostHurt(int enchantId, int itemId, int itemCount, int itemData,
             ItemInstanceExtra itemExtra, int damage, long actor1, long actor2) {
-        ItemStack item = new ItemStack(itemId, itemCount, itemData, itemExtra);
+        ItemInstance item = new ItemInstance(itemId, itemCount, itemData, itemExtra);
         Callback.invokeAPICallback("EnchantPostHurt", enchantId, item, damage, actor1, actor2);
         if (!NativeAPI.isDefaultPrevented()) {
             NativeCustomEnchant enchant = NativeCustomEnchant.getEnchantById(enchantId);
@@ -817,9 +809,8 @@ public class NativeCallback {
                 // handle modded recipe: replace vanilla craft logic with modded one
                 NativeAPI.preventDefault();
                 ItemInstance result = recipe.provideRecipeForPlayer(container, player);
-                if (result != null && result.getId() != 0 && result.getCount() > 0) {
-                    new NativePlayer(player).addItemToInventory(result.getId(), result.getCount(), result.getData(),
-                            result.getExtra(), true);
+                if (result != null && result.id != 0 && result.count > 0) {
+                    new NativePlayer(player).addItemToInventory(result.id, result.count, result.data, result.extra, true);
                     Callback.invokeCallback("VanillaWorkbenchPostCraft", result, container, player, recipe);
                 }
                 container.apply();

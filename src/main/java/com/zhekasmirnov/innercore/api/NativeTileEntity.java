@@ -94,7 +94,7 @@ public class NativeTileEntity implements BlockEntityComponent {
 
     @Deprecated(since = "Zote")
     public static NativeTileEntity getTileEntity(int x, int y, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getBlockEntity(x, y, z);
+        return NativeBlockSource.getCurrentWorldGenRegion().getNativeBlockEntity(x, y, z);
     }
 
     /*

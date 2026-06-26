@@ -23,10 +23,7 @@ import com.github.javaparser.ast.type.Type;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -98,6 +95,15 @@ public final class JavaBindingResolver {
             // MarkerAnnotationExpr: nothing more to add.
         }
         return result;
+    }
+
+    private String getAnnotation(NodeWithAnnotations<?> node, String annName) {
+        for (AnnotationExpr ann : node.getAnnotations()) {
+            if (ann instanceof SingleMemberAnnotationExpr && simpleAnnotationName(ann).equals(annName) && ((SingleMemberAnnotationExpr) ann).getMemberValue() instanceof StringLiteralExpr) {
+                return ((StringLiteralExpr) ((SingleMemberAnnotationExpr) ann).getMemberValue()).asString();
+            }
+        }
+        return "";
     }
 
     private boolean hasAnnotation(NodeWithAnnotations<?> node, String annName) {
@@ -218,6 +224,7 @@ public final class JavaBindingResolver {
         VarDecl d = new VarDecl(typ);
         d.name = param.getNameAsString();
         d.nullable = hasAnnotation(param, "Nullable");
+        d.def = getAnnotation(param, "ArgOverload");
         return d;
     }
 

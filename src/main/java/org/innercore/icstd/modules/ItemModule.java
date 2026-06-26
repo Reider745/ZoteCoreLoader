@@ -1,5 +1,13 @@
 package org.innercore.icstd.modules;
 
+import cn.nukkit.item.Item;
+import com.reider745.InnerCoreServer;
+import com.reider745.api.ClientOnly;
+import com.reider745.hooks.item.ItemUtils;
+import com.reider745.item.CustomItem;
+import com.reider745.item.ItemMethod;
+import com.reider745.item.NukkitIdConverter;
+import org.innercore.icstd.annotations.ArgOverload;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Undefined;
@@ -33,6 +41,185 @@ public class ItemModule extends ItemBindGenBase {
     public static NativeItem getItemById(@Nullable String nameId) {
         return getItemById(getNumericId(nameId));
     }
+
+    @ApiBinding
+    public static int getIntegerIdByNameId(String nameId) {
+        if(nameId == null) return -1;
+
+        int id = IDRegistry.getCustomItemIdByName(nameId);
+        if(id != 0) return id;
+
+        Item item = Item.fromString(nameId);
+        return NukkitIdConverter.getInnerCoreForNukkit(item.getId(), item.getDamage()).id;
+    }
+
+    @ApiBinding
+    protected static long constructItem(int id, String nameId, String name, String icon, int iconMeta) {
+        CustomItem.registerItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name));
+
+        return 0;// NOT USE
+    }
+
+    @ApiBinding
+    protected static long constructArmorItem(int id, String nameId, String name, String iconName, int iconMeta, String texture, int slot, int defense, int durability, float knockbackResist) {
+        CustomItem.registerArmorItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name),
+                slot, defense, durability, knockbackResist);
+
+        return 0;// NOT USE
+    }
+
+    @ApiBinding
+    protected static long constructThrowableItem(int id, String nameId, String name, String iconName, int iconMeta) {
+        CustomItem.registerThrowableItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name));
+
+        return 0;// NOT USE
+    }
+
+    // TODO: The server might need to know whether the item has the glint effect.
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isGlint(int id, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        return false;
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isGlint(String nameId, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        return false;
+    }
+
+
+    @ApiBinding
+    @ClientOnly
+    public static int getMaxUseDuration(int id, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        return ItemUtils.get(id, 1, data, ItemInstanceExtra.getExtraOrNull(extra)).getMaxDurability();
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static int getMaxUseDuration(String nameId, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        return getMaxUseDuration(getIntegerIdByNameId(nameId), data, extra);
+    }
+
+    @ApiBinding
+    public static void addToCreative(int id, @ArgOverload("1") int count, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        CustomItem.addCreative(id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    @ApiBinding
+    public static void addToCreative(String nameId, @ArgOverload("1") int count, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        addToCreative(getIntegerIdByNameId(nameId), count, data, extra);
+    }
+
+    @ApiBinding
+    public static boolean isFood(int id) {
+        return CustomItem.isFood(id);
+    }
+
+    @ApiBinding
+    public static boolean isFood(String nameId) {
+        return isFood(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static boolean isArmor(int id) {
+        return CustomItem.isArmor(id);
+    }
+
+    @ApiBinding
+    public static boolean isArmor(String nameId) {
+        return isArmor(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static boolean isThrowable(int id) {
+        return CustomItem.isThrowable(id);
+    }
+
+    @ApiBinding
+    public static boolean isThrowable(String nameId) {
+        return isThrowable(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static int getNutrition(int id) {
+        return CustomItem.getNutrition(id);
+    }
+
+    @ApiBinding
+    public static int getNutrition(String nameId) {
+        return getNutrition(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static int getArmorValue(int id) {
+        return ItemMethod.getArmorValue(id);
+    }
+
+    @ApiBinding
+    public static int getArmorValue(String nameId) {
+        return getArmorValue(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static boolean isArmorDamageable(int id) {
+        return ItemMethod.isArmorDamageable(id);
+    }
+
+    @ApiBinding
+    public static boolean isArmorDamageable(String nameId) {
+        return isArmorDamageable(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isRequiresIconOverride(int id) {
+        return false;
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isRequiresIconOverride(String nameId) {
+        return false;
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isToolRender(int id) {
+        return false;
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isToolRender(String nameId) {
+        return false;
+    }
+
+    @ApiBinding
+    public static boolean isHandEquipped(int id) {
+        InnerCoreServer.useNotCurrentSupport("ItemModule.isHandEquipped");
+        return false;
+    }
+
+    @ApiBinding
+    public static boolean isHandEquipped(String nameId) {
+        InnerCoreServer.useNotCurrentSupport("ItemModule.isHandEquipped");
+        return false;
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static int getUseAnimation(int id) {
+        return 0;
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static int getUseAnimation(String nameId) {
+        return 0;
+    }
+
 
     @ApiBinding
     public static int getNumericId(@Nullable String nameId) {

@@ -2,6 +2,7 @@ package org.innercore.icstd;
 
 import com.zhekasmirnov.innercore.api.gen.CodeGenBindGenBase;
 import org.innercore.icstd.annotations.ApiBinding;
+import org.innercore.icstd.annotations.ArgOverload;
 
 @ApiBinding
 public class CodeGen extends CodeGenBindGenBase {
@@ -18,7 +19,7 @@ public class CodeGen extends CodeGenBindGenBase {
     }
 
     @ApiBinding
-    public int sum(int a, int b, int c) {
+    public int sum(int a, int b, @ArgOverload("0") int c) {
         return a + b + c;
     }
 
@@ -28,12 +29,7 @@ public class CodeGen extends CodeGenBindGenBase {
     }
 
     @ApiBinding
-    public static int staticSum(int a, int b) {
-        return a + b;
-    }
-
-    @ApiBinding
-    public static int staticSum(int a, int b, int c) {
+    public static int staticSum(int a, int b, @ArgOverload("0") int c) {
         return a + b + c;
     }
 

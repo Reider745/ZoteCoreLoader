@@ -11,6 +11,7 @@ import com.reider745.item.ItemMethod.PropertiesNames;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.constants.EnchantType;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+import org.innercore.icstd.event.Events;
 
 public class CustomItemClass extends Item {
     protected CustomManager parameters;
@@ -103,7 +104,7 @@ public class CustomItemClass extends Item {
     @Override
     public boolean onClickAir(Player player, Vector3 directionVector) {
         NativeCallback.onItemUsedNoTarget(EntityMethod.getIdForEntity(player));
-        return Callback.count("ItemUseNoTarget") > 0 || canRelease();
+        return Events.count("ItemUseNoTarget") > 0 || canRelease();
     }
 
     @Override

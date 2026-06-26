@@ -129,7 +129,7 @@ public class NukkitIdConverter {
 
     public static EntryItem getInnerCoreForNukkit(int id, int data) {
         EntryItem entryItem = new EntryItem(id, data);
-        return nukkitToInnerCore.containsKey(entryItem) ? nukkitToInnerCore.get(entryItem) : entryItem;
+        return nukkitToInnerCore.getOrDefault(entryItem, entryItem);
     }
 
     public static EntryItem getNukkitForInnerCore(int id, int data) {

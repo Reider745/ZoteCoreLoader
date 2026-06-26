@@ -197,6 +197,11 @@ public class ItemMethod {
         return explodable.getOrDefault(id, true);
     }
 
+    public static boolean isArmorDamageable(int id) {
+        Item item = Item.get(id);
+        return !item.isUnbreakable();
+    }
+
     public static int getArmorValue(int id) {
         Item item = Item.get(id);
         if(item != null)
