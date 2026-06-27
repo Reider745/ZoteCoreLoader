@@ -666,6 +666,22 @@ public class ItemInstanceExtra extends ItemExtraDataBindGenBase implements ISeri
         return 0;
     }
 
+    public static Item unwrapValueItem(Object extra) {
+        if (extra == null) {
+            return Item.AIR_ITEM.clone();
+        }
+        if (extra instanceof Wrapper) {
+            extra = ((Wrapper) extra).unwrap();
+        }
+        if (extra instanceof ItemInstanceExtra) {
+            return ((ItemInstanceExtra) extra).getItem();
+        }
+        if (extra instanceof Item item) {
+            return item;
+        }
+        return Item.AIR_ITEM.clone();
+    }
+
     public static long getValueOrNullPtr(ItemInstanceExtra extra) {
         return extra != null ? extra.getValue() : 0;
     }

@@ -146,7 +146,7 @@ public class BlockSource extends BlockSourceBindGenBase {
     private boolean destroyParticles = true;
     private int updateType = 3;
     private GameObjectManager scene = null;
-    private Level level;
+    public Level level;
 
     public BlockSource(long ptr, boolean isFinalizable) {
         Level level = Server.getInstance().getLevel((int) ptr);

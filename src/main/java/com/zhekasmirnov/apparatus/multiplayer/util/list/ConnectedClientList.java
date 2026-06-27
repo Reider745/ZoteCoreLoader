@@ -307,4 +307,8 @@ public class ConnectedClientList implements Iterable<ConnectedClient> {
         refresh();
         return clients;
     }
+
+    public Set<ConnectedClient> getClientCollectionsNoRefresh() {
+        return clients;
+    }
 }

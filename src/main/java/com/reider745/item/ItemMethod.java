@@ -1,7 +1,7 @@
 package com.reider745.item;
 
-import cn.nukkit.item.Item;
-import cn.nukkit.item.ItemBlock;
+import cn.nukkit.inventory.PlayerOffhandInventory;
+import cn.nukkit.item.*;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.CustomManager;
 import com.reider745.block.CustomBlock;
@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
+import oshi.software.os.unix.freebsd.FreeBsdOSThread;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +73,11 @@ public class ItemMethod {
 
     public static void setCreativeCategory(int id, int val) {
         CREATIVE_CATEGORY.put(id, val);
+    }
+
+    public static int getCategory(int id) {
+        // TODO: not support vanilla
+        return CREATIVE_CATEGORY.getOrDefault(id, -1);
     }
 
     public static int getCreativeCategory(int id) {
@@ -146,8 +152,26 @@ public class ItemMethod {
         manager.put(PropertiesNames.HAND_EQUIPPED, val);
     }
 
+    public static boolean isAllowedInOffhand(int id) {
+        Item item = Item.get(id);
+        return  item instanceof ItemArrow || item instanceof ItemMap || item instanceof ItemShield || item instanceof ItemTotem;
+    }
+
+    public static void setAllowedInOffhand(int id, boolean value) {
+        // JIC if something changed, check PlayerOffhandInventory.OFFHAND_ITEMS
+    }
+
     public static void setLiquidClip(CustomManager manager, boolean val) {
         manager.put(PropertiesNames.LIQUID_CLIP, val);
+    }
+
+    public static boolean isLiquidClip(int id) {
+        CustomManager manager = CustomItem.getItemManager(id);
+        if(manager != null) return manager.get(PropertiesNames.LIQUID_CLIP);
+        Item item = Item.get(id);
+
+        // TODO: not all vanilla items
+        return item instanceof ItemBucket;
     }
 
     public static void setMaxUseDuration(CustomManager manager, int val) {
@@ -178,13 +202,20 @@ public class ItemMethod {
         return despawn.getOrDefault(id, true);
     }
 
+    private static final Int2BooleanMap fireResistance = new Int2BooleanOpenHashMap();
+
     public static void setFireResistant(CustomManager manager, boolean resist) {
+        fireResistance.put((int) manager.get(PropertiesNames.ID, 0), resist);
         if (resist || (manager.get(PropertiesNames.ID, 0) >= Item.NETHERITE_INGOT
                 && manager.get(PropertiesNames.ID, 0) <= Item.NETHERITE_SCRAP)) {
             manager.put(PropertiesNames.FIRE_RESISTANT, resist);
         } else {
             manager.remove(PropertiesNames.FIRE_RESISTANT);
         }
+    }
+
+    public static boolean isFireResistant(int id) {
+        return id >= Item.NETHERITE_INGOT && id <= Item.NETHERITE_SCRAP || fireResistance.get(id);
     }
 
     public static HashMap<Integer, Boolean> explodable = new HashMap<>();
@@ -206,6 +237,18 @@ public class ItemMethod {
         Item item = Item.get(id);
         if(item != null)
             return item.getArmorPoints();
+        return 0;
+    }
+
+    public static int getEnchantSlot(int id) {
+        Item item = Item.get(id);
+
+        //TODO: probably not a correct implementation
+
+        if(item.isHelmet()) return 0;
+        if(item.isChestplate()) return 1;
+        if(item.isLeggings()) return 2;
+        if(item.isBoots()) return 3;
         return 0;
     }
 

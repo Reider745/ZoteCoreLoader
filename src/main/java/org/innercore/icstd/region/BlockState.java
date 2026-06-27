@@ -134,7 +134,7 @@ public class BlockState extends BlockStateBindGenBase {
         this.data = getDataFromRuntimeId(cachedRuntimeId);
     }
 
-    BlockState(Block idDataAndState) {
+    protected BlockState(Block idDataAndState) {
         super();
 
         this.id = idDataAndState.getId();

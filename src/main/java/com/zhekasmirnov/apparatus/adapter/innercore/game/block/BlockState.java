@@ -1,5 +1,6 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.block;
 
+import cn.nukkit.block.Block;
 import org.mozilla.javascript.Scriptable;
 
 import java.util.Map;
@@ -25,5 +26,9 @@ public class BlockState extends org.innercore.icstd.region.BlockState {
 
     public BlockState(long idDataAndState) {
         super(idDataAndState, null);
+    }
+
+    public BlockState(Block block) {
+        super(block);
     }
 }

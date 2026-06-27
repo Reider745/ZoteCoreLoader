@@ -7,7 +7,7 @@ import org.innercore.icstd.region.BlockSource;
 @Deprecated
 public class NativeBlockSource extends BlockSource {
     public NativeBlockSource(long ptr, int refCntChange, Object stub) {
-        super(ptr, refCntChange, stub);
+        super((int) ptr, false, false);
     }
 
     public NativeBlockSource(long pointer, boolean isFinalizable) {
@@ -24,22 +24,22 @@ public class NativeBlockSource extends BlockSource {
 
     public static NativeBlockSource getDefaultForDimension(int dimension) {
         BlockSource region = BlockSource.getDefaultForDimension(dimension);
-        return region != null ? new NativeBlockSource(region.pointer, false) : null;
+        return region != null ? new NativeBlockSource(region.getDimension(), false) : null;
     }
 
     public static NativeBlockSource getDefaultForActor(long actor) {
         BlockSource region = BlockSource.getDefaultForActor(actor);
-        return region != null ? new NativeBlockSource(region.pointer, false) : null;
+        return region != null ? new NativeBlockSource(region.level.getId(), false) : null;
     }
 
     public static NativeBlockSource getCurrentClientRegion() {
         BlockSource region = BlockSource.getCurrentClientRegion();
-        return region != null ? new NativeBlockSource(region.pointer, false) : null;
+        return region != null ? new NativeBlockSource(region.level.getId(), false) : null;
     }
 
     public static NativeBlockSource getCurrentWorldGenRegion() {
         BlockSource region = BlockSource.getCurrentWorldGenRegion();
-        return region != null ? new NativeBlockSource(region.pointer, false) : null;
+        return region != null ? new NativeBlockSource(region.level.getId(), false) : null;
     }
 
     public BlockState getBlock(int x, int y, int z) {

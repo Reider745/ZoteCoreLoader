@@ -5,6 +5,8 @@ import com.zhekasmirnov.innercore.api.NativeItem;
 import org.innercore.icstd.inventory.ItemInstance;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
+import org.innercore.icstd.modules.ItemModule;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -200,7 +202,7 @@ public class InventoryPool {
                         continue;
                     }
                     
-                    if (NativeItem.getMaxStackForId(first.id, first.data) == 1) {
+                    if (ItemModule.getMaxStack(first.id, first.data) == 1) {
                         amountToGet = 1;
                     }
                     int got = entry.getAmountOfItem(amountToGet);

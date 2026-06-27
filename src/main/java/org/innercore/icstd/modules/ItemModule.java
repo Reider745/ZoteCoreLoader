@@ -3,10 +3,13 @@ package org.innercore.icstd.modules;
 import cn.nukkit.item.Item;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
+import com.reider745.api.CustomManager;
 import com.reider745.hooks.item.ItemUtils;
 import com.reider745.item.CustomItem;
 import com.reider745.item.ItemMethod;
 import com.reider745.item.NukkitIdConverter;
+import dalvik.annotation.optimization.FastNative;
+import org.checkerframework.checker.units.qual.A;
 import org.innercore.icstd.annotations.ArgOverload;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.mozilla.javascript.NativeArray;
@@ -54,14 +57,14 @@ public class ItemModule extends ItemBindGenBase {
     }
 
     @ApiBinding
-    protected static long constructItem(int id, String nameId, String name, String icon, int iconMeta) {
+    public static long constructItem(int id, String nameId, String name, String icon, int iconMeta) {
         CustomItem.registerItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name));
 
         return 0;// NOT USE
     }
 
     @ApiBinding
-    protected static long constructArmorItem(int id, String nameId, String name, String iconName, int iconMeta, String texture, int slot, int defense, int durability, float knockbackResist) {
+    public static long constructArmorItem(int id, String nameId, String name, String iconName, int iconMeta, String texture, int slot, int defense, int durability, float knockbackResist) {
         CustomItem.registerArmorItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name),
                 slot, defense, durability, knockbackResist);
 
@@ -69,7 +72,7 @@ public class ItemModule extends ItemBindGenBase {
     }
 
     @ApiBinding
-    protected static long constructThrowableItem(int id, String nameId, String name, String iconName, int iconMeta) {
+    public static long constructThrowableItem(int id, String nameId, String name, String iconName, int iconMeta) {
         CustomItem.registerThrowableItem(nameId, id, NameTranslation.fixUnicodeIfRequired("item_" + nameId, name));
 
         return 0;// NOT USE
@@ -220,6 +223,424 @@ public class ItemModule extends ItemBindGenBase {
         return 0;
     }
 
+    @ApiBinding
+    public static boolean isStackedByData(int id) {
+        InnerCoreServer.useNotCurrentSupport("ItemModule.isStackedByData");
+        return false;// TODO: nukkit not support
+    }
+
+    @ApiBinding
+    public static boolean isStackedByData(String nameId) {
+        return isStackedByData(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static boolean isAllowedInOffhand(int id) {
+        return ItemMethod.isAllowedInOffhand(id);
+    }
+
+    @ApiBinding
+    public static boolean isAllowedInOffhand(String nameId) {
+        return isAllowedInOffhand(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static boolean isShouldDespawn(int id) {
+        return ItemMethod.canShouldDespawn(id);
+    }
+
+    @ApiBinding
+    public static boolean isShouldDespawn(String nameId) {
+        return isShouldDespawn(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static boolean isFireResistant(int id) {
+        return ItemMethod.isFireResistant(id);
+    }
+
+    @ApiBinding
+    public static boolean isFireResistant(String nameId) {
+        return isFireResistant(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static boolean isExplodable(int id) {
+        return ItemMethod.canExplodable(id);
+    }
+
+    @ApiBinding
+    public static boolean isExplodable(String nameId) {
+        return isExplodable(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isMirroredSprite(int id) {
+        return false;
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static boolean isMirroredSprite(String nameId) {
+        return false;
+    }
+
+    @ApiBinding
+    public static int getEnchantSlot(int id) {
+        return ItemMethod.getEnchantSlot(id);
+    }
+
+    @ApiBinding
+    public static int getEnchantSlot(String nameId) {
+        return getEnchantSlot(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static int getEnchantValue(int id) {
+        InnerCoreServer.useNotCurrentSupport("ItemModule.getEnchantValue");
+        return 0;
+    }
+
+    @ApiBinding
+    public static int getEnchantValue(String nameId) {
+        return getEnchantValue(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static int getMaxDamage(int id, @ArgOverload("0") int data) {
+        return ItemMethod.getMaxDamageForId(id, data);
+    }
+
+    @ApiBinding
+    public static int getMaxDamage(String nameId, @ArgOverload("0") int data) {
+        return ItemMethod.getMaxDamageForId(getIntegerIdByNameId(nameId), data);
+    }
+
+    @ApiBinding
+    public static int getCategory(int id) {
+        return ItemMethod.getCategory(id);
+    }
+
+    @ApiBinding
+    public static int getCategory(String nameId) {
+        return getCategory(getIntegerIdByNameId(nameId));
+    }
+
+    @ApiBinding
+    public static int getCreativeCategory(int id) {
+        return getCategory(id);
+    }
+
+    @ApiBinding
+    public static int getCreativeCategory(String nameId) {
+        return getCategory(nameId);
+    }
+
+    @ApiBinding
+    public static boolean isLiquidClip(int id, @ArgOverload("0") int data) {
+        return ItemMethod.isLiquidClip(id);
+    }
+
+    @ApiBinding
+    public static boolean isLiquidClip(String nameId, @ArgOverload("0") int data) {
+        return isLiquidClip(getIntegerIdByNameId(nameId), data);
+    }
+
+    @ApiBinding
+    public static int getMaxStackSize(int id, @ArgOverload("0") int data) {
+        return ItemMethod.getMaxStackForId(id, data);
+    }
+
+    @ApiBinding
+    public static int getMaxStackSize(String nameId, @ArgOverload("0") int data) {
+        return getMaxStackSize(getIntegerIdByNameId(nameId), data);
+    }
+
+    @ApiBinding
+    public static int getMaxStack(int id, @ArgOverload("0") int data) {
+        return ItemMethod.getMaxStackForId(id, data);
+    }
+
+    @ApiBinding
+    public static int getMaxStack(String nameId, @ArgOverload("0") int data) {
+        return getMaxStackSize(getIntegerIdByNameId(nameId), data);
+    }
+
+    @ApiBinding
+    public static String getName(int id, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        return ItemMethod.getNameForId(id, data, ItemInstanceExtra.getExtraOrNull(extra));
+    }
+
+    @ApiBinding
+    public static String getName(String nameId, @ArgOverload("0") int data, @ArgOverload("0") long extra) {
+        return getName(getIntegerIdByNameId(nameId), data, extra);
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static void setGlint(int id, boolean enabled) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void setGlint(String nameId, boolean enabled) {}
+
+    @ApiBinding
+    public static void setToolRender(int id, boolean enabled) {}
+
+    @ApiBinding
+    public static void setToolRender(String nameId, boolean enabled) {}
+
+    @ApiBinding
+    public static void setHandEquipped(int id, boolean enabled) {
+        ItemMethod.setHandEquipped(CustomItem.getItemManager(id), enabled);
+    }
+
+    @ApiBinding
+    public static void setHandEquipped(String nameId, boolean enabled) {
+        setHandEquipped(getIntegerIdByNameId(nameId), enabled);
+    }
+
+    @ApiBinding
+    public static void setLiquidClip(int id, boolean enabled) {
+        ItemMethod.setLiquidClip(CustomManager.getFor(id), enabled);
+    }
+
+    @ApiBinding
+    public static void setLiquidClip(String nameId, boolean enabled) {
+        setLiquidClip(getIntegerIdByNameId(nameId), enabled);
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static void setUseAnimation(int id, int animation) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void setUseAnimation(String nameId, int animation) {}
+
+    @ApiBinding
+    public static void setMaxUseDuration(int id, int duration) {
+        ItemMethod.setMaxUseDuration(CustomManager.getFor(id), duration);
+    }
+
+    @ApiBinding
+    public static void setMaxUseDuration(String nameId, int duration) {
+        setMaxUseDuration(getIntegerIdByNameId(nameId), duration);
+    }
+
+    @ApiBinding
+    public static void setMaxDamage(int id, int damage) {
+        ItemMethod.setMaxDamage(CustomManager.getFor(id), damage);
+    }
+
+    @ApiBinding
+    public static void setMaxDamage(String nameId, int damage) {
+        setMaxDamage(getIntegerIdByNameId(nameId), damage);
+    }
+
+    @ApiBinding
+    public static void setMaxStack(int id, int size) {
+        ItemMethod.setMaxStackSize(CustomManager.getFor(id), size);
+    }
+
+    @ApiBinding
+    public static void setMaxStack(String nameId, int size) {
+        setMaxStack(getIntegerIdByNameId(nameId), size);
+    }
+
+    @ApiBinding
+    public static void setMaxStackSize(int id, int size) {
+        setMaxStack(id, size);
+    }
+
+    @ApiBinding
+    public static void setMaxStackSize(String nameId, int size) {
+        setMaxStack(nameId, size);
+    }
+
+    @ApiBinding
+    public static void setStackedByData(int id, boolean enabled) {
+        InnerCoreServer.useNotCurrentSupport("ItemModule.setStackedByData");
+    }
+
+    @ApiBinding
+    public static void setStackedByData(String nameId, boolean enabled) {
+        InnerCoreServer.useNotCurrentSupport("ItemModule.setStackedByData");
+    }
+
+    @ApiBinding
+    public static void setAllowedInOffhand(int id, boolean enabled) {
+        ItemMethod.setAllowedInOffhand(id, enabled);
+    }
+
+    @ApiBinding
+    public static void setAllowedInOffhand(String nameId, boolean enabled) {
+        setAllowedInOffhand(getIntegerIdByNameId(nameId), enabled);
+    }
+
+    @ApiBinding
+    public static void setShouldDespawn(int id, boolean enabled) {
+        ItemMethod.setShouldDespawn(id, enabled);
+    }
+
+    @ApiBinding
+    public static void setShouldDespawn(String nameId, boolean enabled) {
+        setShouldDespawn(getIntegerIdByNameId(nameId), enabled);
+    }
+
+    @ApiBinding
+    public static void setFireResistant(int id, boolean enabled) {
+        ItemMethod.setFireResistant(CustomManager.getFor(id), enabled);
+    }
+
+    @ApiBinding
+    public static void setFireResistant(String nameId, boolean enabled) {
+        setFireResistant(getIntegerIdByNameId(nameId), enabled);
+    }
+
+    @ApiBinding
+    public static void setExplodable(int id, boolean enabled) {
+        ItemMethod.setExplodable(id, enabled);
+    }
+
+    @ApiBinding
+    public static void setExplodable(String nameId, boolean enabled) {
+        setExplodable(getIntegerIdByNameId(nameId), enabled);
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static void setMirroredSprite(int id, boolean enabled) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void setMirroredSprite(String nameId, boolean enabled) {}
+
+    @ApiBinding
+    public static void setProperties(int id, String properties) {
+        InnerCoreServer.useNotCurrentSupport("ItemModule.setProperties");
+    }
+
+    @ApiBinding
+    public static void setProperties(String nameId, String properties) {
+        setProperties(getIntegerIdByNameId(nameId), properties);
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static void setRequiresIconOverride(int id, boolean enabled) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void setRequiresIconOverride(String nameId, boolean enabled) {}
+
+    @ApiBinding
+    public static void setArmorDamageable(int id, boolean enabled) {
+        ItemMethod.setArmorDamageable(CustomManager.getFor(id), enabled);
+    }
+
+    @ApiBinding
+    public static void setArmorDamageable(String nameId, boolean enabled) {
+        setArmorDamageable(getIntegerIdByNameId(nameId), enabled);
+    }
+
+    @ApiBinding
+    public static void setEnchantability(int id, int type, int value) {
+        ItemMethod.setEnchantability(CustomManager.getFor(id), type, value);
+    }
+
+    @ApiBinding
+    public static void setEnchantability(String nameId, int type, int value) {
+        setEnchantability(getIntegerIdByNameId(nameId), type, value);
+    }
+
+    //TODO: Nukkit-MOT's getEnchantAbility not used anywhere.
+    @ApiBinding
+    public static void setEnchantType(int id, int type, int value) {
+        setEnchantability(id, type, value);
+    }
+
+    @ApiBinding
+    public static void setEnchantType(String nameId, int type, int value) {
+        setEnchantability(nameId, type, value);
+    }
+
+    @ApiBinding
+    public static void addRepairItemId(int id, int repairId) {
+        ItemMethod.addRepairItemId(CustomManager.getFor(id), repairId);
+    }
+
+    @ApiBinding
+    public static void addRepairItemId(int id, String repairId) {
+        addRepairItemId(id, getIntegerIdByNameId(repairId));
+    }
+
+    @ApiBinding
+    public static void addRepairItemId(String nameId, String repairId) {
+        addRepairItemId(getIntegerIdByNameId(nameId), getIntegerIdByNameId(repairId));
+    }
+
+    @ApiBinding
+    public static void addRepairItemId(String nameId, int repairId) {
+        addRepairItemId(getIntegerIdByNameId(nameId), repairId);
+    }
+
+    @ApiBinding
+    public static void addRepairItem(int id, int repairId) {
+        addRepairItemId(id, repairId);
+    }
+
+    @ApiBinding
+    public static void addRepairItem(int id, String repairId) {
+        addRepairItemId(id, getIntegerIdByNameId(repairId));
+    }
+
+    @ApiBinding
+    public static void addRepairItem(String nameId, String repairId) {
+        addRepairItemId(getIntegerIdByNameId(nameId), getIntegerIdByNameId(repairId));
+    }
+
+    @ApiBinding
+    public static void addRepairItem(String nameId, int repairId) {
+        addRepairItemId(getIntegerIdByNameId(nameId), repairId);
+    }
+
+    @ApiBinding
+    public static void setCreativeCategory(int id, int category) {
+        ItemMethod.setCreativeCategory(id, category);
+    }
+
+    @ApiBinding
+    public static void setCreativeCategory(String nameId, int category) {
+        ItemMethod.setCreativeCategory(getIntegerIdByNameId(nameId), category);
+    }
+
+    @ApiBinding
+    @ClientOnly
+    public static void setNameOverrideCallbackForced(int id, boolean forced) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void setNameOverrideCallbackForced(String nameId, boolean forced) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void sendCachedNameOverride(int id, int data, String name) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void sendCachedNameOverride(String nameId, int data, String name) {}
+
+    @ApiBinding
+    public static void addToCreativeGroup(String groupName, String displayName, int id) {
+        CustomItem.addToCreativeGroup(groupName, id);
+    }
+
+    @ApiBinding
+    public static void addToCreativeGroup(String groupName, String displayName, String nameId) {
+        CustomItem.addToCreativeGroup(groupName, getIntegerIdByNameId(nameId));
+    }
 
     @ApiBinding
     public static int getNumericId(@Nullable String nameId) {
@@ -402,12 +823,12 @@ public class ItemModule extends ItemBindGenBase {
 
     @ApiBinding
     public static void invokeUseItemOn(int id, int count, int data, Object extra, int x, int y, int z, int side, double vx, double vy, double vz, Object entity) {
-        NativeAPI.invokeUseItemOn(id, count, data, ItemInstanceExtra.unwrapValue(extra), x, y, z, side, (float) vx, (float) vy, (float) vz, Entity.unwrapEntity(entity));
+        NativeAPI.invokeUseItemOn(id, count, data, ItemInstanceExtra.unwrapValueItem(extra), x, y, z, side, (float) vx, (float) vy, (float) vz, Entity.unwrapEntity(entity));
     } 
 
     @ApiBinding
     public static void invokeUseItemNoTarget(int id, int count, int data, Object extra) {
-        NativeAPI.invokeUseItemNoTarget(id, count, data, ItemInstanceExtra.unwrapValue(extra));
+        NativeAPI.invokeUseItemNoTarget(id, count, data, ItemInstanceExtra.unwrapValueItem(extra));
     }
 
 

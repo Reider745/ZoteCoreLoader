@@ -9,6 +9,7 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.CustomItem;
+import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
 import com.zhekasmirnov.apparatus.ecs.core.*;
@@ -128,6 +129,13 @@ public class AdaptedScriptAPI extends API {
     @JSStaticFunction
     public static void logDeprecation(String functionName) {
         ICLog.d("WARNING", "using deprecated or unimplemented method " + functionName + "()");
+    }
+
+    @JSStaticFunction
+    public static void logIndevDeprecation(String functionName) {
+        if (EngineConfig.isDeveloperMode()) {
+            logDeprecation(functionName);
+        }
     }
 
     @JSStaticFunction
@@ -643,8 +651,7 @@ public class AdaptedScriptAPI extends API {
 
     @APIStaticModule
     public static class Entity {
-
-        static long unwrapEntity(Object ent) {
+        public static long unwrapEntity(Object ent) {
             return (long) (ent instanceof Wrapper ? ((Wrapper) ent).unwrap() : ((Number) ent).longValue());
         }
 
@@ -1618,65 +1625,6 @@ public class AdaptedScriptAPI extends API {
         @Deprecated
         public static String getIdInfo(int id) {
             return NativeAPI.getStringIdAndTypeForIntegerId(id);
-        }
-    }
-
-    @APIStaticModule
-    public static class Item extends NativeItem {
-        protected Item(int id, long ptr, String nameId, String nameToDisplay) {
-            super(id, CustomItem.getItemManager(id), nameId, nameToDisplay);
-        }
-
-        @JSStaticFunction
-        public static NativeItem createFoodItem(int id, String nameId, String name, String iconName, int iconIndex,
-                int food) {
-            NativeItem item = NativeItem.createFoodItem(id, nameId, name, iconName, iconIndex, food);
-            item.setMaxUseDuration(32);
-            return item;
-        }
-
-        @JSStaticFunction
-        public static String getName(int id, int data, Object extra) {
-            return getNameForId(id, data, ItemInstanceExtra.unwrapObject(extra));
-        }
-
-        @JSStaticFunction
-        public static int getMaxDamage(int id) {
-            return getMaxDamageForId(id, 0);
-        }
-
-        @JSStaticFunction
-        public static int getMaxStackSize(int id, int data) {
-            return getMaxStackForId(id, data);
-        }
-
-        @JSStaticFunction
-        @Deprecated(since = "Zote")
-        public static void setRequiresIconOverride(int id, boolean enabled) {
-            NativeItem.setItemRequiresIconOverride(id, enabled);
-        }
-
-        @JSStaticFunction
-        @Deprecated(since = "Zote")
-        public static void overrideCurrentIcon(String name, int index) {
-            NativeItem.overrideItemIcon(name, index);
-        }
-
-        @JSStaticFunction
-        @Deprecated(since = "Zote")
-        public static void overrideCurrentName(String name) {
-            NativeAPI.overrideItemName(name);
-        }
-
-        @JSStaticFunction
-        public static void invokeItemUseOn(int id, int count, int data, Object extra, int x, int y, int z, int side,
-                double vx, double vy, double vz, Object entity) {
-            NativeAPI.invokeUseItemOn(id, count, data, ItemInstanceExtra.unwrapObject(extra), x, y, z, side,
-                    (float) vx, (float) vy, (float) vz, Entity.unwrapEntity(entity));
-        }
-
-        public static void invokeItemUseNoTarget(int id, int count, int data, Object extra) {
-            NativeAPI.invokeUseItemNoTarget(id, count, data, ItemInstanceExtra.unwrapObject(extra));
         }
     }
 
