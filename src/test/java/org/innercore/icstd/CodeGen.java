@@ -19,7 +19,7 @@ public class CodeGen extends CodeGenBindGenBase {
     }
 
     @ApiBinding
-    public int sum(int a, int b, @ArgOverload("0") int c) {
+    public int sum(int a, int b, int c) {
         return a + b + c;
     }
 
