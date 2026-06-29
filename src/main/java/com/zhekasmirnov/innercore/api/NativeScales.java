@@ -5,6 +5,7 @@ import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
+import org.innercore.icstd.serialization.*;
 import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -49,38 +50,36 @@ public class NativeScales {
 
         WorldDataScopeRegistry.getInstance().addScope("_ic.scales", new WorldDataScopeRegistry.SaverScope() {
             @Override
-            public void readJson(Object data) throws Exception {
-                if(data instanceof JSONObject) {
-                    final JSONObject json = (JSONObject) data;
-
-                    for(Iterator<String> it = json.keys(); it.hasNext(); ) {
-                        final String mobKey = it.next();
-                        final long mob = Long.parseLong(mobKey);
-                        final JSONObject scales = json.getJSONObject(mobKey);
-
-                        for(Iterator<String> it2 = scales.keys(); it2.hasNext(); ) {
-                            final String scaleId = it2.next();
-                            setScaleValue(mob, scaleId, scales.getDouble(scaleId));
+            public void read(IScopedReader io, SerializationContext ctx) {
+                IObjectReader allScales = io.asObject();
+                if (allScales == null) {
+                    io.endScope();
+                    return;
+                }
+                for (String mobKey : allScales.iterKeys()) {
+                    final long mob = Long.parseLong(mobKey);
+                    IObjectReader mobScales = allScales.beginScope(mobKey).asObject();
+                    if (mobScales != null) {
+                        for (String scaleId : mobScales.iterKeys()) {
+                            setScaleValue(mob, scaleId, mobScales.getDouble(scaleId, 0.));
                         }
                     }
+                    allScales.endChildScope();
                 }
+                io.endScope();
             }
 
             @Override
-            public Object saveAsJson() throws Exception {
-                final JSONObject json = new JSONObject();
-
-                for(long mob : getAllMobs()) {
-                    final JSONObject mobJson = new JSONObject();
-
-                    for(String scaleId : getAllScales()) {
-                        mobJson.put(scaleId, getScaleValue(mob, scaleId));
+            public void write(IScopedWriter io, SerializationContext ctx) {
+                IObjectWriter allScales = io.asObject();
+                for (long mob : getAllMobs()) {
+                    IObjectWriter mobScales = allScales.beginScope(String.valueOf(mob)).asObject();
+                    for (String scaleId : getAllScales()) {
+                        mobScales.putDouble(scaleId, getScaleValue(mob, scaleId));
                     }
-
-                    json.put(String.valueOf(mob), mobJson);
+                    mobScales.endScope();
                 }
-
-                return json;
+                allScales.endScope();
             }
         });
     }

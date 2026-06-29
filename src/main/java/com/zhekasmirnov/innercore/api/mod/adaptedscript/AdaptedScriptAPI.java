@@ -13,7 +13,6 @@ import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
 import com.zhekasmirnov.apparatus.ecs.core.*;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
@@ -59,6 +58,7 @@ import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.innercore.utils.UIUtils;
+import org.innercore.icstd.entity.PathNavigation;
 import org.innercore.icstd.inventory.ItemInstance;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.innercore.icstd.serialization.SerializationContext;
@@ -109,6 +109,11 @@ public class AdaptedScriptAPI extends API {
     @Override
     public void prepareExecutable(Executable executable) {
         super.prepareExecutable(executable);
+
+        if (isLoaded) {
+            ScriptableObject scope = executable.getScope();
+            injectModulesIntoScope(scope, true);
+        }
     }
 
     @JSStaticFunction
@@ -1093,8 +1098,8 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static NativePathNavigation getPathNavigation(Object entity) {
-            return NativePathNavigation.getNavigation(unwrapEntity(entity));
+        public static PathNavigation getPathNavigation(Object entity) {
+            return PathNavigation.getNavigation(unwrapEntity(entity));
         }
 
         @JSStaticFunction
@@ -2144,7 +2149,7 @@ public class AdaptedScriptAPI extends API {
     @APIStaticModule
     public static class Saver {
         @APIIgnore
-        private interface IScopeSaver {
+        public interface IScopeSaver {
             void read(Object scope);
             Object save();
             default Scriptable getDefaultSaves(){
@@ -2153,7 +2158,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @APIIgnore
-        private interface IObjectSaver {
+        public interface IObjectSaver {
             Object read(ScriptableObject input);
             ScriptableObject save(Object input);
             Scriptable getDefaultSaves();
@@ -2720,26 +2725,6 @@ public class AdaptedScriptAPI extends API {
 
         public SyncedNetworkData() {
             super();
-        }
-    }
-
-    public static class BlockSource extends NativeBlockSource {
-        public BlockSource(int dimension, boolean b1, boolean b2) {
-            super(dimension, b1, b2);
-        }
-
-        public BlockSource(int dimension) {
-            super(dimension);
-        }
-    }
-
-    public static class BlockState extends com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState {
-        public BlockState(int id, int data) {
-            super(id, data);
-        }
-
-        public BlockState(int id, Object scriptable) {
-            super(id, (Scriptable) scriptable);
         }
     }
 

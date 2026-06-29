@@ -1,17 +1,13 @@
 package com.zhekasmirnov.innercore.api.runtime.other;
 
 import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
-import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersion;
-import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimension;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
 import com.zhekasmirnov.innercore.api.log.ICLog;
-import com.zhekasmirnov.innercore.api.runtime.Callback;
 import org.innercore.icstd.event.EventController;
 import org.innercore.icstd.event.Events;
+import org.innercore.icstd.region.BlockSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +89,7 @@ public class WorldGen {
     }
 
     public static void generateChunk(int x, int z, int level) {
-        NativeBlockSource blockSource = NativeBlockSource.getCurrentWorldGenRegion();
+        BlockSource blockSource = BlockSource.getCurrentWorldGenRegion();
         int dimension = blockSource != null ? blockSource.getDimension() : -1;
         if (dimension == -1) {
             ICLog.i("ERROR", "generating chunk without block source");

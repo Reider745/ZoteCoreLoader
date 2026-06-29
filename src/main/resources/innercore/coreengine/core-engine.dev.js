@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedVariable,JSUnresolvedFunction,EqualityComparisonWithCoercionJS,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
-var CORE_ENGINE_VERSION = "2.1";
+var CORE_ENGINE_VERSION = "2.0";
 var CORE_ENGINE_API_LEVEL = 12;
 var CORE_ENGINE_CONFIG_LOCK = 4;
 
@@ -25,7 +25,6 @@ function runVersionDependentDataScript(name) {
         Logger.error("CoreEngine-DataScripts", "failed to run data script " + name + " for version " + __version__, e);
     }
 }
-
 
 var Network = MCSystem.getNetwork();
 var EntityManager = ECS.getEntityManager();
@@ -514,6 +513,12 @@ var GameAPI = {
     getEngineVersion: function() {
         return CORE_ENGINE_VERSION;
     },
+    getPackVersion: function() {
+        return MCSystem.getPackVersion();
+    },
+    getPackVersionCode: function() {
+        return MCSystem.getPackVersionCode();
+    },
     spendItemsInCreative: false,
     isDeveloperMode: false,
     isItemSpendingAllowed: function(player) {
@@ -526,11 +531,9 @@ var GameAPI = {
     },
     simulateBackPressed: function() {
         MCSystem.simulateBackPressed();
-    },
-    addWorldToCache() {},//client only,
-    updateWorlds() {}, // client only,
-    getWorldsCount() {} // client only,
+    }
 };
+injectBindingsIntoScope("Game", GameAPI, false);
 
 Callback.addCallback("CoreConfigured", function(config) {
     GameAPI.isDeveloperMode = GameAPI.spendItemsInCreative = config.getBool("developer_mode");
@@ -691,13 +694,12 @@ var TileEntityBasePrototype = {
     defaultValues: {},
     _runInit: function() {
         Saver.registerObject(this, this.saverId);
-        this.blockSource = BlockSource.getDefaultForDimension(this.dimension);
-
+        this.blockSource = this.blockSource || BlockSource.getDefaultForDimension(this.dimension);
         if (!this.blockSource) {
             this.isLoaded = false;
             return false;
         }
-        if (!TileEntity.isTileEntityLoaded(this)) {
+        if (!this._objHandle.isLoaded()) {
             this.isLoaded = false;
             return false;
         }
@@ -727,11 +729,27 @@ var TileEntityBasePrototype = {
         self.onDisconnectionPlayer && this.networkEntity.setDisconnectionPlayerListener(function(client){
             self.onDisconnectionPlayer(client);
         })
+        if (this.__delayedRedstone) {
+            for (let i in this.__delayedRedstone) {
+                this.redstone(this.__delayedRedstone[i])
+            }
+            this.__delayedRedstone = null;
+        }
         this.__initialized = true;
         this.noupdate = !this.tick;
         return true;
     },
-    update: function() {
+    _loadImpl: function() {
+        if (!this.__initialized) {
+            if (!this._runInit()) {
+                this.noupdate = true;
+                return;
+            }
+        } else {
+            this.load();
+        }
+    },
+    update: function(dt) {
         if (this.isLoaded) {
             if (!this.__initialized) {
                 if (!this._runInit()) {
@@ -739,13 +757,58 @@ var TileEntityBasePrototype = {
                     return;
                 }
             }
-            if (this.tick) {
-                this.tick();
-            }
+            this.tick && this.tick(dt);
         }
     },
     _to_string: function() {
         return "TileEntity{" + this.networkEntityTypeName + " pos=(" + this.x + ", " + this.y + ", " + this.z + "), dimension=" + this.dimension + "}";
+    },
+    _createdImpl: function() {
+        let pos = this._objHandle.getBlockPos();
+        this.x = pos.x;
+        this.y = pos.y;
+        this.z = pos.z;
+        this.dimension = this.blockSource.getDimension();
+        this.created();
+    },
+    _readImpl: function(obj) {
+        if (obj.data) for (let property in obj.data) {
+            this.data[property] = obj.data[property];
+        }
+        // container
+        if (obj.container) this.container = obj.container;
+        if (!this.container) {
+            this.container = this.useNetworkItemContainer ? new ItemContainer() : new UI.Container();
+        }
+        if (this.container.isLegacyContainer()) {
+            if (this.useNetworkItemContainer) {
+                // noinspection JSCheckFunctionSignatures
+                print("[" + entityTypeName + "] upgrading legacy container")
+                this.container = new ItemContainer(this.container);
+            }
+        } else {
+            if (!this.useNetworkItemContainer) {
+                // noinspection JSCheckFunctionSignatures
+                print("[" + entityTypeName + "] downgrading to legacy container")
+                this.container = this.container.asLegacyContainer();
+            }
+        }
+        this.container.setParent(this);
+        // liquid
+        if (obj.liquids) this.liquidStorage = obj.liquids;
+        if (!this.liquidStorage) {
+            this.liquidStorage = new LiquidRegistry.Storage();
+        }
+        this.liquidStorage.setParent(this);
+        // TODO: don't know why the fuck it is even needed but whatever
+        try {
+            this.setParent(this);
+        } catch (e) {}
+        // register actual saver
+        Saver.registerObject(this, this.saverId);
+    },
+    _writeImpl: function() {
+        return { data: this.data, container: this.container, liquids: this.liquidStorage };
     },
     created: function() {},
     load: function() {},
@@ -760,6 +823,22 @@ var TileEntityBasePrototype = {
     projectileHit: function(coords, projectile) {},
     destroy: function() {
         return false;
+    },
+    _destroyImpl: function(ctx) {
+        if (this.destroy(false, false, ctx)) {
+            print("preventing tile entity destruction is no longer allowed")
+        }
+        if (this.networkEntity) {
+            this.networkEntity.remove();
+            this.networkEntity = null;
+        }
+        this.container.close();
+        if (this.container.isLegacyContainer()) {
+            this.container.dropAt(this.x + 0.5, this.y + 0.5, this.z + 0.5);
+        } else {
+            this.container.dropAt(this.blockSource, this.x + 0.5, this.y + 0.5, this.z + 0.5);
+            this.container.removeEntity();
+        }
     },
     getGuiScreen: function() {
         return null;
@@ -789,8 +868,13 @@ var TileEntityBasePrototype = {
                     return true;
                 }
             }
+        } else {
+            var screen = this.getGuiScreen();
+            if (screen) {
+                this.container.openAs(screen);
+                return true;
+            }
         }
-        return false;
 
     },
     selfDestroy: function() {
@@ -817,6 +901,15 @@ var TileEntity = {
         this.tileEntityCacheMap = {};
     },
     registerPrototype: function(blockID, customPrototype) {
+        if (!blockID) {
+            Logger.info("ERROR", "TileEntity cannot be registered with invalid numeric ID: " + blockID);
+            return false;
+        }
+        if (this.tileEntityPrototypes[blockID] != null) {
+            Logger.info("ERROR", "TileEntity with ID " + IDRegistry.getNameByID(blockID) + " (id=" + blockID + ") was already occupied");
+            return false;
+        }
+
         var Prototype = {};
         for (let property in TileEntityBasePrototype) {
             Prototype[property] = TileEntityBasePrototype[property];
@@ -827,32 +920,17 @@ var TileEntity = {
         Prototype.blockID = blockID;
         this.tileEntityPrototypes[blockID] = Prototype;
 
-        var saverName = "_TILE_ENTITY" + blockID;
+        Prototype.saverId = "b_ent:s-" + IDRegistry.getNameByID(blockID);
         var entityTypeName = "TE-" + IDRegistry.getNameByID(blockID);
 
-        Prototype.saverId = Saver.registerObjectSaver(saverName, {
+        var legacySaverId = Saver.registerObjectSaver("_TILE_ENTITY" + blockID, {
             read: function(obj) {
                 if (!obj || !obj.coords) {
-                    print("Corrupted save "+JSON.stringify(obj));
                     return;
                 }
-
-                if(TileEntity.getTileEntity(obj.coords.x, obj.coords.y, obj.coords.z, BlockSource.getDefaultForDimension(obj.coords.d))){
-                    print("Duplicate TileEntity detected: "+obj.coords.x+":"+obj.coords.y+":"+obj.coords.z);
-                    return;
-                }
-
                 var instance = {};
                 for (var property in Prototype) {
                     instance[property] = Prototype[property];
-                }
-                instance.data = obj.data;
-                if(!instance.data){
-                    instance.data = {};
-                    for (let property in Prototype.defaultValues) {
-                        instance.data[property] = Prototype.defaultValues[property];
-                    }
-                    print("Corrupted save data "+JSON.stringify(obj));
                 }
                 instance.x = obj.coords.x || 0;
                 instance.y = obj.coords.y || 0;
@@ -860,34 +938,11 @@ var TileEntity = {
                 instance.dimension = obj.coords.d || 0;
                 instance.container = obj.container;
                 instance.networkData = new SyncedNetworkData();
-                instance.liquidStorage = obj.liquidStorage;
-                if (!instance.container) {
-                    instance.container = Prototype.useNetworkItemContainer ? new ItemContainer() : new UI.Container();
-                }
-                if (instance.container.isLegacyContainer()) {
-                    if (Prototype.useNetworkItemContainer) {
-                        // noinspection JSCheckFunctionSignatures
-                        print("[" + entityTypeName + "] upgrading legacy container")
-                        instance.container = new ItemContainer(instance.container);
-                    }
-                } else {
-                    if (!Prototype.useNetworkItemContainer) {
-                        // noinspection JSCheckFunctionSignatures
-                        print("[" + entityTypeName + "] downgrading to legacy container")
-                        instance.container = instance.container.asLegacyContainer();
-                    }
-                }
-
-                try {
-                    instance.container.setParent(instance);
-                } catch (e) {}
-
-                if (!instance.liquidStorage) {
-                    instance.liquidStorage = new LiquidRegistry.Storage();
-                }
-                instance.liquidStorage.setParent(instance);
-                TileEntity.addUpdatableAsTileEntity(instance);
-                return instance;
+                instance.data = obj.data;
+                obj.liquids = obj.liquidStorage; // rename for _readImpl
+                instance._readImpl(obj);
+                BlockEntityRegistry.addExistingScriptBlockEntityToServerScene(entityTypeName, instance, instance.dimension, instance.x, instance.y, instance.z);
+                return null; // don't add it
             },
             save: function(obj) {
                 return {
@@ -913,7 +968,6 @@ var TileEntity = {
                 // create client tile entity from Prototype.client
 
                 let networkData = SyncedNetworkData.getClientSyncedData(packet.sd);
-                networkData.fromJSON(packet.data);
                 var client = {
                     x: packet.x,
                     y: packet.y,
@@ -925,16 +979,17 @@ var TileEntity = {
                     __initialized: false,
                     noupdate: false,
                     remove: false,
-                    update: function() {
+                    update: function(dt) {
                         if (!this.__initialized) {
                             this.__initialized = true;
                             this.load();
+                            networkData.fromJSON(packet.data);
                             this.remove = this.remove || !this.tick;
                             if (this.remove) {
                                 return;
                             }
                         }
-                        this.tick();
+                        this.tick(dt);
                     },
 
                     load: function() {},
@@ -1012,6 +1067,18 @@ var TileEntity = {
         if (customPrototype.redstone) {
             Block.setRedstoneTile(blockID, -1, true);
         }
+
+        BlockEntityRegistry.registerType(blockID, entityTypeName, Prototype.saverId, Prototype.networkEntityType, function() {
+            let tileEntity = TileEntity.createTileEntityForPrototype(Prototype, false);
+            if (tileEntity.saverId) {
+                Saver.registerObject(tileEntity, tileEntity.saverId);
+            }
+            tileEntity.remove = false;
+            tileEntity.isLoaded = false;
+            return tileEntity;
+        }, true);
+
+        return true;
     },
     getPrototype: function(blockID) {
         return this.tileEntityPrototypes[blockID];
@@ -1044,173 +1111,86 @@ var TileEntity = {
         return tileEntity;
     },
     addTileEntity: function(x, y, z, blockSource) {
+        if (!blockSource) blockSource = BlockSource.getDefaultForDimension(Player.getDimension());
         if (this.getTileEntity(x, y, z, blockSource)) {
             return null;
         }
-        var tile = blockSource ? blockSource.getBlockId(x, y, z) : getTile(x, y, z);
-        var Prototype = this.getPrototype(tile);
-        if (Prototype) {
-            var tileEntity = this.createTileEntityForPrototype(Prototype, true);
-            tileEntity.x = x;
-            tileEntity.y = y;
-            tileEntity.z = z;
-            tileEntity.dimension = blockSource ? blockSource.getDimension() : Player.getDimension();
-            this.tileEntityList.push(tileEntity);
-            this.tileEntityCacheMap[x + "," + y + "," + z + "," + tileEntity.dimension] = tileEntity;
-            tileEntity.created();
-            Callback.invokeCallback("TileEntityAdded", tileEntity, true);
-            return tileEntity;
-        }
-        return null;
+        return blockSource.getOrAddBlockEntity(x, y, z);
     },
     addUpdatableAsTileEntity: function(updatable) {
-        updatable.remove = false;
-        updatable.isLoaded = true;
-        if (updatable.saverId && updatable.saverId !== -1) {
-            Saver.registerObject(updatable, updatable.saverId);
-        }
-        this.tileEntityList.push(updatable);
-        this.tileEntityCacheMap[updatable.x + "," + updatable.y + "," + updatable.z + "," + updatable.dimension] = updatable;
-        Callback.invokeCallback("TileEntityAdded", updatable, false);
     },
     getTileEntity: function(x, y, z, blockSource) {
-        var key = x + "," + y + "," + z;
-        if (blockSource) {
-            key += "," + blockSource.getDimension();
-        } else {
-            key += "," + Player.getDimension();
-        }
-        var tileEntity = this.tileEntityCacheMap[key];
-        if (tileEntity) {
-            if (tileEntity.x === x && tileEntity.y === y && tileEntity.z === z) {
-                return tileEntity;
-            } else {
-                delete this.tileEntityCacheMap[key];
-            }
-        }
-        return null;
+        if (!blockSource) blockSource = BlockSource.getDefaultForDimension(Player.getDimension());
+        return blockSource.getBlockEntityNotNative(x, y, z);
     },
-    destroyTileEntity: function(tileEntity, fromDestroyBlock, isDropAllowed) {
-        try{
-            if (tileEntity.destroy(fromDestroyBlock || false, isDropAllowed || false)) {
-                return false;
-            }
-        }catch(e){
-            print("Error destroy tile "+e);
-        }
-        tileEntity.update = function() {}; // make sure tile entity will not tick anymore, because it is already cleaned up
-        if (tileEntity.networkEntity) {
-            tileEntity.networkEntity.remove();
-            tileEntity.networkEntity = null;
-        }
-        tileEntity.remove = true;
-        tileEntity.noupdate = false;
-        tileEntity.container.close();
-        if (tileEntity.container.isLegacyContainer()) {
-            tileEntity.container.dropAt(tileEntity.x + 0.5, tileEntity.y + 0.5, tileEntity.z + 0.5);
-        } else if(tileEntity.blockSource) {
-            tileEntity.container.dropAt(tileEntity.blockSource, tileEntity.x + 0.5, tileEntity.y + 0.5, tileEntity.z + 0.5);
-            tileEntity.container.removeEntity();
-        }
-        for (var i in this.tileEntityList) {
-            if (this.tileEntityList[i] === tileEntity) {
-                this.tileEntityList.splice(i--, 1);
-            }
-        }
-        delete this.tileEntityCacheMap[tileEntity.x + "," + tileEntity.y + "," + tileEntity.z + "," + tileEntity.dimension];
-        Callback.invokeCallback("TileEntityRemoved", tileEntity);
+    destroyTileEntity: function(tileEntity, _fromDestroyBlock, _isDropAllowed) {
+        if (!tileEntity || !tileEntity._objHandle)
+            return false;
+        tileEntity._objHandle.destroyNow();
         return true;
     },
-    destroyTileEntityAtCoords: function(x, y, z, blockSource, isDropAllowed) {
+    destroyTileEntityAtCoords: function(x, y, z, blockSource, _isDropAllowed) {
         var tileEntity = this.getTileEntity(x, y, z, blockSource);
         if (tileEntity) {
-            return this.destroyTileEntity(tileEntity, false, isDropAllowed);
+            return this.destroyTileEntity(tileEntity, false, _isDropAllowed);
         }
         return false;
     },
     isTileEntityLoaded: function(tileEntity) {
-        /*
-            this will check not only current chunk, but 5 chunks around, to exclude processing tile entities in lazy chunks
-            checked chunks map:
-            + +
-             #
-            + +
-        */
         var blockSource = tileEntity.blockSource || BlockSource.getDefaultForDimension(tileEntity.dimension);
         if (!blockSource) {
             return false;
         }
-        var chunkX = Math.floor(tileEntity.x / 16);
-        var chunkZ = Math.floor(tileEntity.z / 16);
-        return blockSource.isChunkLoaded(chunkX, chunkZ) &&
-            blockSource.isChunkLoaded(chunkX + 1, chunkZ + 1) &&
-            blockSource.isChunkLoaded(chunkX + 1, chunkZ - 1) &&
-            blockSource.isChunkLoaded(chunkX - 1, chunkZ + 1) &&
-            blockSource.isChunkLoaded(chunkX - 1, chunkZ - 1);
+        return tileEntity.isLoaded;
     },
     checkTileEntityForIndex: function(index) {
-        var tileEntity = this.tileEntityList[index];
-        var wasLoaded = tileEntity.isLoaded;
-        tileEntity.isLoaded = this.isTileEntityLoaded(tileEntity);
-        if (tileEntity.__initialized) {
-            if (!wasLoaded && tileEntity.isLoaded) {
-                tileEntity.load();
-            }
-            if (wasLoaded && !tileEntity.isLoaded) {
-                tileEntity.unload();
-            }
-            tileEntity.noupdate = !tileEntity.tick || !tileEntity.isLoaded; // do not tick tile entities, that are not loaded, and dont have tick function
-        } else if (tileEntity.isLoaded) {
-            tileEntity.noupdate = false; // tile entity must update at least once to initialize
-        }
-        tileEntity.onCheckerTick(tileEntity.__initialized, tileEntity.isLoaded, wasLoaded);
-        if (tileEntity.isLoaded && tileEntity.blockSource) {
-            var isPlaced = tileEntity.blockSource.getBlockId(tileEntity.x, tileEntity.y, tileEntity.z) === tileEntity.blockID;
-            if (!isPlaced) {
-                this.DeployDestroyChecker(tileEntity);
-            }
-        }
     },
     tileEntityCheckIndex: 0,
-    CheckTileEntities: function() {
-        if (this.tileEntityList.length > 0) {
-            for (var i = 0; i < this.tileEntityList.length / 128; i++) {
-                this.tileEntityCheckIndex = (this.tileEntityCheckIndex + 1) % this.tileEntityList.length;
-                this.checkTileEntityForIndex(this.tileEntityCheckIndex);
-            }
-        }
-    },
-    DeployDestroyChecker: function(tileEntity) {
-        if (tileEntity.__checkInProgress) {
+    CheckTileEntities: function() {},
+    DeployDestroyChecker: function(tileEntity) {}
+};
+
+Callback.addCallback("TileEntityAdded", function(te) {
+    let list = TileEntity.tileEntityList;
+    te.__teListPos = list.length;
+    list.push(te);
+});
+
+Callback.addCallback("TileEntityRemoved", function(te) {
+    let list = TileEntity.tileEntityList;
+    if (list[te.__teListPos] == te) {
+        let last = list[list.length - 1];
+        last.__teListPos = te.__teListPos;
+        list[te.__teListPos] = last;
+        list.pop()
+        te.__teListPos = -1;
+        return;
+    }
+    print("tile entity list integrity failed " + te + " idx=" + te.__teListPos);
+    te.__teListPos = -1;
+    for (let i = 0, e = list.length; i < e; i++) {
+        if (list[i] == te) {
+            let last = list[list.length - 1];
+            last.__teListPos = i;
+            list[i] = last;
+            list.pop()
             return;
         }
-        tileEntity.__checkInProgress = true;
-        var checker = {
-            tileEntity: tileEntity,
-            age: 0,
-            update: function() {
-                var isPlaced = tileEntity.blockSource.getBlockId(this.tileEntity.x, this.tileEntity.y, this.tileEntity.z) === tileEntity.blockID;
-                if (isPlaced) {
-                    this.tileEntity.__checkInProgress = false;
-                    this.remove = true;
-                    return;
-                }
-                if (this.age++ > TILE_ENTITY_CHECKER_ITERATIONS) {
-                    TileEntity.destroyTileEntity(this.tileEntity, false);
-                    this.tileEntity.__checkInProgress = false;
-                    this.remove = true;
-                }
-            }
-        };
-        Updatable.addUpdatable(checker);
     }
-};
-Callback.addCallback("tick", function() {
-    TileEntity.CheckTileEntities();
+    print("failed to remove tile entity from list " + te + " idx=" + te.__teListPos);
 });
+
 Callback.addCallback("RedstoneSignal", function(coords, params, onLoad, region) {
     var tileEntity = TileEntity.getTileEntity(coords.x, coords.y, coords.z, region);
-    tileEntity && tileEntity.__initialized && tileEntity.redstone(params);
+    if (tileEntity) {
+        if (tileEntity.__initialized) {
+            tileEntity.redstone(params);
+        } else {
+            if (!tileEntity.__delayedRedstone)
+                tileEntity.__delayedRedstone = []
+            tileEntity.__delayedRedstone.push(params);
+        }
+    }
 });
 Callback.addCallback("BreakBlock", function(blockSource, coords, fullTile, isDropAllowed, player, item) {
     if (GameAPI.isActionPrevented()) {
@@ -1590,11 +1570,11 @@ var BlockRegistry = {
             var bucketNameId = bucketData.id || (nameID + "_bucket");
             IDRegistry.genItemID(bucketNameId);
             var idBucket = ItemID[bucketNameId];
-            ItemRegistry.createItem(bucketNameId, bucketData.name || "Bucket Of " + blockName, bucketData.texture || ["missing", 0], { stack: 1, isTech: bucketData.isTech });
-            ItemRegistry.setLiquidClip(idBucket, true);
+            ItemRegistry.createItem(bucketNameId, bucketData.name || "Bucket Of " + blockName, bucketData.texture || {name:"missing"}, { stack: 1, isTech: bucketData.isTech });
+            Item.setLiquidClip(idBucket, true);
             var emptyId = bucketData.emptyId || 325;
             if (emptyId !== 325)
-                ItemRegistry.setLiquidClip(emptyId, true);
+                Item.setLiquidClip(emptyId, true);
             LiquidRegistry.registerItem(liquidRegistryId, { id: emptyId, data: 0 }, { id: idBucket, data: 0 });
             var canReplaceWithLiquid = function(block) {
                 return block.id === idStill || block.id === idFlowing || canTileBeReplaced(block.id, block.data);
@@ -1617,7 +1597,7 @@ var BlockRegistry = {
                         EntityAPI.setCarriedItem(player, emptyId, 1, 0, null);
                     })
                 }
-                WorldAPI.playSoundAtEntity(player, bucketData.fillSound || "bucket.fill_water", 1, 1);
+                blockSource.playSoundAtEntity(player, bucketData.fillSound || "bucket.fill_water");
             });
             var clickFunc = function(coords, item, block, player) {
                 if (block.data === 0 && item.id === emptyId && item.data === 0) {
@@ -1634,7 +1614,7 @@ var BlockRegistry = {
                             EntityAPI.setCarriedItem(player, emptyId, item.count - 1, 0, null);
                         }
                     }
-                    WorldAPI.playSoundAtEntity(player, bucketData.emptySound || "bucket.empty_water", 1, 1);
+                    blockSource.playSoundAtEntity(player, bucketData.emptySound || "bucket.empty_water");
                 }
             };
             BlockRegistry.registerClickFunction(nameIdStill, clickFunc);
@@ -1649,11 +1629,11 @@ var BlockRegistry = {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, idFlowing, 0);
                     dispenser.setSlot(slot, emptyId, 1, 0, null);
-                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1, 1);
+                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water");
                 }
             });
 
-            // vanilla bucket is patched in such way, that it will call this callback only for custom liquids in front of dispenser
+            // vanilla bucket is patched in such way, that it will call this callback only for custom liquids in front of
             Callback.addCallback("ItemDispensed", function(coords, item, region, slot) {
                 if (item.data !== 0) return;
                 var dispenser = region.getBlockEntity(coords.x, coords.y, coords.z);
@@ -1664,7 +1644,7 @@ var BlockRegistry = {
                 if (liquid && block.data === 0) {
                     GameAPI.prevent();
                     region.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, 0, 0);
-                    WorldAPI.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water", 1);
+                    region.playSound(coords.relative.x + .5, coords.relative.y + .5, coords.relative.z + .5, bucketData.emptySound || "bucket.empty_water");
 
                     dispenser.setSlot(slot, item.id, item.count - 1, item.data, item.extra);
                     for (var i = 0; i < 9; i++) {
@@ -1704,23 +1684,28 @@ var BlockRegistry = {
         }
         this.createBlock(namedID, rotatedBlocks, blockType);
         this.registerPlaceFunction(namedID, function(coords, item, block, player, blockSource) {
-            var yaw = Math.floor((Entity.getYaw(player) - 45) / 90);
+            let yaw = Math.floor((Entity.getYaw(player) - 45) / 90);
             while (yaw < 0) {
                 yaw += 4;
             }
             while (yaw > 3) {
                 yaw -= 4;
             }
-            var meta = {
+            let meta = {
                 0: 2,
                 1: 0,
                 2: 3,
                 3: 1
             } [yaw];
-            if (canTileBeReplaced(blockSource.getBlockId(coords.relative.x, coords.relative.y, coords.relative.z))) {
-                blockSource.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, item.id, Math.floor(item.data / 4) * 4 + meta);
+            if (canTileBeReplaced(block.id, block.data)) {
+                blockSource.setBlock(coords.x, coords.y, coords.z, item.id, Math.floor(item.data / 4) * 4 + meta);
+                return coords;
             }
-            return coords.relative;
+            let tile = blockSource.getBlock(coords.relative.x, coords.relative.y, coords.relative.z);
+            if (canTileBeReplaced(tile.id, tile.data)) {
+                blockSource.setBlock(coords.relative.x, coords.relative.y, coords.relative.z, item.id, Math.floor(item.data / 4) * 4 + meta);
+                return coords.relative;
+            }
         });
         this.registerDropFunction(namedID, function(coords, blockID, blockData) {
             return [
@@ -2025,6 +2010,20 @@ var BlockRegistry = {
     getPlaceFunc: function(block) {
         return this.placeFuncs[block];
     },
+    inplaceFuncs: [],
+    registerInplaceFunctionForID: function(block, func) {
+        this.inplaceFuncs[block] = func;
+    },
+    registerInplaceFunction: function(namedID, func) {
+        var numericID = this.getNumericId(namedID);
+        if (numericID == -1) {
+            return false;
+        }
+        this.registerInplaceFunctionForID(numericID, func);
+    },
+    getInplaceFunc: function(block) {
+        return this.inplaceFuncs[block];
+    },
     setBlockShape: function(id, pos1, pos2, data) {
         Block.setShape(id, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, data);
     },
@@ -2135,36 +2134,36 @@ var ITEM_BASE_PROTOTYPE = {
         }
         var maxDamage = this.getMaxDamage(item);
         if (maxDamage != null) {
-            ItemRegistry.setMaxDamage(this.id, maxDamage);
+            Item.setMaxDamage(this.id, maxDamage);
         }
         var category = this.getCategory(item);
         if (category != null) {
-            ItemRegistry.setCategory(this.id, category);
+            Item.setCategory(this.id, category);
         }
         var enchant = this.getEnchant(item);
         if (enchant != null) {
-            ItemRegistry.setEnchantType(this.id, enchant.type, enchant.value);
+            Item.setEnchantType(this.id, enchant.type, enchant.value);
         }
         var useAnimation = this.getUseAnimation(item);
         if (useAnimation != null) {
-            ItemRegistry.setUseAnimation(this.id, useAnimation);
+            Item.setUseAnimation(this.id, useAnimation);
         }
         var maxUseDuration = this.getMaxUseDuration(item);
         if (maxUseDuration != null) {
-            ItemRegistry.setMaxUseDuration(this.id, maxUseDuration);
+            Item.setMaxUseDuration(this.id, maxUseDuration);
         }
         var properties = this.getProperties(item);
         if (properties) {
             properties.foil = this.isEnchanted(item);
-            ItemRegistry.setProperties(this.id, properties);
+            Item.setProperties(this.id, properties);
         }
         var toolRender = this.isToolRender(item);
         if (toolRender != null) {
-            ItemRegistry.setToolRender(this.id, toolRender);
+            Item.setToolRender(this.id, toolRender);
         }
         var stackByData = this.isStackedByData(item);
         if (stackByData != null) {
-            ItemRegistry.setStackedByData(this.id, stackByData);
+            Item.setStackedByData(this.id, stackByData);
         }
         var armorFunc = this.getArmorFuncs(item);
         if (armorFunc != null) {
@@ -2234,37 +2233,20 @@ var ItemRegistry = {
     idSource: ItemID,
     useFunctions: {},
     throwableFunctions: {},
-    getNumericId: function(id) {
-        if (typeof(id) == "string") {
-            var _id = this.idSource[id];
-            if (!_id) {
-                Logger.Log("Invalid item namedID: " + id + ", -1 will be returned", "ERROR");
-                return -1;
-            }
-            id = _id;
-        }
-        return parseInt(id);
-    },
-    getItemById: function(id) {
-        return Item.getItemById(this.getNumericId(id));
-    },
     createItem: function(namedID, name, texture, params) {
         if (!params) {
             params = {};
         }
         params.stack = params.stack || 64;
-        var numericID = this.idSource[namedID];
-        if (!numericID) {
-            Logger.Log("Invalid item namedID: " + namedID, "ERROR");
-            return false;
-        }
+        var numericID = Item.getNumericId(namedID);
+        if (numericID == -1) return false;
         var item = Item.createItem(numericID, namedID, name, texture.name, texture.meta || texture.data || 0);
-        item.setMaxStackSize(params.stack);
+        Item.setMaxStackSize(numericID, params.stack);
         if (!params.isTech) {
             Player.addItemCreativeInv(numericID, 1, 0);
         }
         if (params.category !== undefined) {
-            Item.setCategoryForId(numericID, params.category);
+            Item.setCategory(numericID, params.category);
         }
         return item;
     },
@@ -2274,18 +2256,15 @@ var ItemRegistry = {
         }
         params.stack = params.stack || 64;
         params.food = params.food || 1;
-        var numericID = this.idSource[namedID];
-        if (!numericID) {
-            Logger.Log("Invalid item namedID: " + namedID, "ERROR");
-            return null;
-        }
+        var numericID = Item.getNumericId(namedID);
+        if (numericID == -1) return false;
         var item = Item.createFoodItem(numericID, namedID, name, texture.name, texture.meta || texture.data || 0, params.food);
-        item.setMaxStackSize(params.stack || 64);
+        Item.setMaxStackSize(numericID, params.stack || 64);
         if (!params.isTech) {
             Player.addItemCreativeInv(numericID, 1, 0);
         }
         if (params.category !== undefined) {
-            Item.setCategoryForId(numericID, params.category);
+            Item.setCategory(numericID, params.category);
         }
         return item;
     },
@@ -2320,18 +2299,15 @@ var ItemRegistry = {
             Logger.Log("Invalid armor type for item " + namedID + ": " + params.type + ",use: \"helmet\", \"chestplate\", \"leggings\", \"boots\"", "ERROR");
             return;
         }
-        var numericID = this.idSource[namedID];
-        if (!numericID) {
-            Logger.Log("Invalid item namedID: " + namedID, "ERROR");
-            return false;
-        }
+        var numericID = Item.getNumericId(namedID);
+        if (numericID == -1) return false;
         var item = Item.createArmorItem(numericID, namedID, name, texture.name, texture.meta || texture.data || 0, params.texture, armorType, params.armor, params.durability, params.knockbackResist || 0);
-        item.setMaxStackSize(params.stack || 1);
+        Item.setMaxStackSize(numericID, params.stack || 1);
         if (!params.isTech) {
             Player.addItemCreativeInv(numericID, 1, 0);
         }
         if (params.category !== undefined) {
-            Item.setCategoryForId(numericID, params.category);
+            Item.setCategory(numericID, params.category);
         }
         return item;
     },
@@ -2340,13 +2316,10 @@ var ItemRegistry = {
             params = {};
         }
         params.stack = params.stack || 64;
-        var numericID = this.idSource[namedID];
-        if (!numericID) {
-            Logger.Log("Invalid item namedID: " + namedID, "ERROR");
-            return false;
-        }
+        var numericID = Item.getNumericId(namedID);
+        if (numericID == -1) return false;
         var item = Item.createThrowableItem(numericID, namedID, name, texture.name, texture.meta || texture.data || 0);
-        item.setMaxStackSize(params.stack || 64);
+        Item.setMaxStackSize(numericID, params.stack || 64);
         if (!params.isTech) {
             Player.addItemCreativeInv(numericID, 1, 0);
         }
@@ -2355,32 +2328,12 @@ var ItemRegistry = {
     isNativeItem: function(id) {
         return IDRegistry.isVanilla(id);
     },
-    getMaxDamage: function(id) {
-        return Item.getMaxDamage(id);
-    },
-    getMaxStack: function(id, data) {
-        return Item.getMaxStackSize(id, data);
-    },
-    getName: function(id, data, extra) {
-        return Item.getName(id, data, extra);
-    },
-    getArmorValue: function(id) {
-        return Item.getArmorValue(id);
-    },
-    isValid: function(id, data) {
-        return Item.isValid(id);
-    },
     addToCreative: function(id, count, data, extra) {
-        id = this.getNumericId(id);
+        id = Item.getNumericId(id);
         if (id == -1) {
             return;
         }
         Player.addItemCreativeInv(id, count, data, extra);
-    },
-    addCreativeGroup: function(name, displayedName, ids) {
-        for (var i in ids) {
-            Item.addToCreativeGroup(name, displayedName, ids[i]);
-        }
     },
     describeItem: function(numericID, description) {
         this.setCategory(numericID, description.category || 0);
@@ -2398,64 +2351,12 @@ var ItemRegistry = {
             this.setEnchantType(numericID, description.enchant.type, description.enchant.value);
         }
     },
-    setCategory: function(id, category) {
-        Item.setCategoryForId(id, category);
-    },
-    setEnchantType: function(id, enchant, value) {
-        this.getItemById(id).setEnchantType(enchant || 0, value || 0);
-    },
-    setArmorDamageable: function(id, val) {
-        this.getItemById(id).setArmorDamageable(val);
-    },
-    setShouldDespawn: function(id, val) {
-        this.getItemById(id).setShouldDespawn(val);
-    },
-    setFireResistant: function(id, val) {
-        this.getItemById(id).setFireResistant(val);
-    },
-    setExplodable: function(id, val) {
-        this.getItemById(id).setExplodable(val);
-    },
-
-    addRepairItemIds: function(id, items) {
-        var item = this.getItemById(id);
-        for (var i in items) {
-            item.addRepairItem(items[i]);
-        }
-    },
-    setToolRender: function(id, enabled) {
-        this.getItemById(id).setHandEquipped(enabled);
-    },
-    setMaxDamage: function(id, maxdamage) {
-        this.getItemById(id).setMaxDamage(maxdamage);
-    },
-    setGlint: function(id, enabled) {
-        this.getItemById(id).setGlint(enabled);
-    },
-    setLiquidClip: function(id, enabled) {
-        this.getItemById(id).setLiquidClip(enabled);
-    },
-    setStackedByData: function(id, enabled) {
-        this.getItemById(id).setStackedByData(enabled);
-    },
-    setAllowedInOffhand: function(id, allowed) {
-        this.getItemById(id).setAllowedInOffhand(allowed);
-    },
-    setProperties: function(id, props) {
-        this.getItemById(id).setProperties(props);
-    },
-    setUseAnimation: function(id, animType) {
-        this.getItemById(id).setUseAnimation(animType || 0);
-    },
-    setMaxUseDuration: function(id, duration) {
-        this.getItemById(id).setMaxUseDuration(duration);
-    },
     registerUseFunctionForID: function(numericID, useFunc) {
         this.useFunctions[numericID] = useFunc;
         return true;
     },
     registerUseFunction: function(namedID, useFunc) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
@@ -2472,7 +2373,7 @@ var ItemRegistry = {
         return true;
     },
     registerThrowableFunction: function(namedID, useFunc) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
@@ -2486,7 +2387,7 @@ var ItemRegistry = {
     },
     iconOverrideFunctions: {},
     registerIconOverrideFunction: function(namedID, func) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
@@ -2503,14 +2404,14 @@ var ItemRegistry = {
         }
     },
     nameOverrideFunctions: {},
-    setItemNameOverrideCallbackForced: requireMethodFromNativeAPI("api.NativeAPI", "setItemNameOverrideCallbackForced"),
+    setItemNameOverrideCallbackForced: Item.setNameOverrideCallbackForced,
     registerNameOverrideFunction: function(namedID, func, preventForcing) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
         if (!preventForcing) {
-            this.setItemNameOverrideCallbackForced(numericID, true);
+            Item.setNameOverrideCallbackForced(numericID, true);
         }
         this.nameOverrideFunctions[numericID] = func;
     },
@@ -2525,7 +2426,7 @@ var ItemRegistry = {
     },
     noTargetUseFunctions: {},
     registerNoTargetUseFunction: function(namedID, func) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
@@ -2539,7 +2440,7 @@ var ItemRegistry = {
     },
     usingReleasedFunctions: {},
     registerUsingReleasedFunction: function(namedID, func) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
@@ -2553,7 +2454,7 @@ var ItemRegistry = {
     },
     usingCompleteFunctions: {},
     registerUsingCompleteFunction: function(namedID, func) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
@@ -2567,7 +2468,7 @@ var ItemRegistry = {
     },
     dispenseFunctions: {},
     registerDispenseFunction: function(namedID, func) {
-        var numericID = this.getNumericId(namedID);
+        var numericID = Item.getNumericId(namedID);
         if (numericID == -1) {
             return false;
         }
@@ -2609,7 +2510,7 @@ var ItemRegistry = {
             Callback.invokeCallback("ItemUse", coords, item, block, false, entity);
         }
         if (noModCallback || !MCSystem.isDefaultPrevented()) {
-            Item.invokeItemUseOn(item.id, item.count, item.data, item.extra, coords.x, coords.y, coords.z, coords.side || 0, vec.x, vec.y, vec.z, entity);
+            Item.invokeUseItemOn(item.id, item.count, item.data, item.extra, coords.x, coords.y, coords.z, coords.side || 0, vec.x, vec.y, vec.z, entity);
         }
     },
     invokeItemUseNoTarget: function(item, noModCallback) {
@@ -2617,10 +2518,11 @@ var ItemRegistry = {
             Callback.invokeCallback("ItemUseNoTarget", item);
         }
         if (noModCallback || !MCSystem.isDefaultPrevented()) {
-            Item.invokeItemUseNoTarget(item.id, item.count, item.data, item.extra);
+            Item.invokeUseItemNoTarget(item.id, item.count, item.data, item.extra);
         }
     }
 };
+injectBindingsIntoScope("Item", ItemRegistry, false);
 Callback.addCallback("ProjectileHit", function(projectile, item, target) {
     if (item) {
         ItemRegistry.onProjectileHit(projectile, item, target);
@@ -2651,18 +2553,16 @@ Callback.addCallback("ItemDispensed", function(coords, item, region, slot) {
 });
 var ArmorRegistry = {
     registerFuncs: function(id, funcs) {
-        id = ItemRegistry.getNumericId(id);
-        if (id == -1) {
-            return;
+        id = Item.getNumericId(id);
+        if (id != -1) {
+            Armor.registerCallbacks(id, funcs);
         }
-        Armor.registerCallbacks(id, funcs);
     },
     preventDamaging: function(id) {
-        id = ItemRegistry.getNumericId(id);
-        if (id == -1) {
-            return;
+        id = Item.getNumericId(id);
+        if (id != -1) {
+            Armor.preventDamaging(id);
         }
-        Armor.preventDamaging(id);
     },
     registerOnTickListener: function(id, listener) {
         Armor.registerOnTickListener(id, listener);
@@ -2736,12 +2636,15 @@ var ToolAPI = {
         }
         this.toolData[id] = params;
         if (!params.isNative) {
-            ItemRegistry.setMaxDamage(id, params.toolMaterial.durability);
+            Item.setMaxDamage(id, params.toolMaterial.durability);
         }
     },
     registerSword: function(id, toolMaterial, params) {
         params = params || {};
         params.isWeapon = true;
+        if (params.damage === undefined) {
+            params.damage = 4;
+        }
         this.registerTool(id, toolMaterial, ["fibre"], params);
     },
     registerBlockMaterial: function(uid, materialName, level, isNative) {
@@ -2933,7 +2836,10 @@ var ToolAPI = {
                     item.id = toolData.brokenId;
                     item.count = 1;
                     item.data = 0;
-                    WorldAPI.playSoundAtEntity(player, "random.break", 1);
+                    var region = BlockSource.getDefaultForActor(player);
+                    if (region) {
+                        region.playSoundAtEntity(player, "random.break");
+                    }
                 }
             }
             Entity.setCarriedItem(player, item.id, item.count, item.data, item.extra);
@@ -2964,7 +2870,10 @@ var ToolAPI = {
                     item.id = toolData.brokenId;
                     item.count = 1;
                     item.data = 0;
-                    WorldAPI.playSoundAtEntity(attacker, "random.break", 1);
+                    var region = BlockSource.getDefaultForActor(attacker);
+                    if (region) {
+                        region.playSoundAtEntity(attacker, "random.break");
+                    }
                 }
             }
             var damage = toolData.damage + toolData.toolMaterial.damage;
@@ -3393,65 +3302,7 @@ var WorldAPI = {
         Level.setBlockChangeCallbackEnabled(id, enabled);
     },
     blockChangeCallbacks: [],
-    serverStateChangeCallbacks: [],
-    localStateChangeCallbacks: [],
 
-    addListenerChunkStateChanged: function(listener, states) {
-        for(let i in states){
-            let state = states[i];
-
-            let listeners =  this.serverStateChangeCallbacks[state] || [];
-            listeners.push(listener);
-            this.serverStateChangeCallbacks[state] = listeners;
-
-            Level.setChunkStateChangeCallbackEnabled(state);
-        }
-    },
-    onChunkLoadingStateChanged: function(chunkX, chunkZ, dimension, preState, state, discarded) {
-        let listeners = this.serverStateChangeCallbacks[state];
-
-        for(let i in listeners)
-            listeners[i](chunkX, chunkZ, dimension, preState, state, discarded);
-    },
-
-    addLocalListenerChunkStateChanged: function(listener, states) {
-        for(let i in states){
-            let state = states[i];
-
-            let listeners =  this.localStateChangeCallbacks[state] || [];
-            listeners.push(listener);
-            this.localStateChangeCallbacks[state] = listeners;
-
-            Level.setChunkStateChangeCallbackEnabled(state);
-        }
-    },
-    onLocalChunkLoadingStateChanged: function(chunkX, chunkZ, dimension, preState, state, discarded) {
-        let listeners = this.localStateChangeCallbacks[state];
-        
-        for(let i in listeners)
-            listeners[i](chunkX, chunkZ, dimension, preState, state, discarded);
-    },
-
-    registerBlockChangeCallback: function(ids, callback) {
-        if (!Array.isArray(ids)) {
-            ids = [ids];
-        }
-        for (var i in ids) {
-            var id = ids[i];
-            if (typeof(id) == "string") {
-                var numericID = BlockRegistry.getNumericId(id);
-                if (numericID == -1) {
-                    Logger.Log("invalid block name id " + id);
-                    continue;
-                }
-                id = numericID;
-            }
-            Level.setBlockChangeCallbackEnabled(id, true);
-            var callbacks = this.blockChangeCallbacks[id] || [];
-            callbacks.push(callback);
-            this.blockChangeCallbacks[id] = callbacks;
-        }
-    },
     registerBlockChangeCallback: function(ids, callback) {
         if (!Array.isArray(ids)) {
             ids = [ids];
@@ -3664,6 +3515,9 @@ var WorldAPI = {
             }
             Level.playSoundEnt(entity, name, volume, pitch);
         },
+        stopSound: function(name) {
+            Level.stopSound(name);
+        },
         getWorldDir: function() {
             return Level.getWorldDir();
         },
@@ -3756,24 +3610,23 @@ var WorldAPI = {
         },
         playSound: function(x, y, z, name, volume, pitch) {},
         playSoundAtEntity: function(entity, name, volume, pitch) {}
-    }
+    },
+
+    // ====deprecated====
+    serverStateChangeCallbacks: [],
+    localStateChangeCallbacks: [],
+
+    addListenerChunkStateChanged() {},
+    onChunkLoadingStateChanged() {},
+
+    addLocalListenerChunkStateChanged() {},
+    onLocalChunkLoadingStateChanged() {}
+
 };
 WorldAPI.setLoaded(true); // always keep it loaded, for God sake, native will handle unloaded case
 
 Callback.addCallback("BlockChanged", function(coords, block1, block2, int1, int2, region) {
     WorldAPI.onBlockChanged(coords, block1, block2, region, int1, int2);
-});
-
-Callback.addCallback("ChunkLoadingStateChanged", function(chunkX, chunkZ, dimension, preState, state, discarded){
-    if(discarded)
-        WorldAPI.onChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, -1, discarded);
-    WorldAPI.onChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, state, discarded);
-});
-
-Callback.addCallback("LocalChunkLoadingStateChanged", function(chunkX, chunkZ, dimension, preState, state, discarded){
-    if(discarded)
-        WorldAPI.onLocalChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, -1, discarded);
-    WorldAPI.onLocalChunkLoadingStateChanged(chunkX, chunkZ, dimension, preState, state, discarded);
 });
 
 var AnimatorToken = {
@@ -5397,7 +5250,7 @@ var PlayerAPI = {
             count = 1;
         }
         var carried = this.getCarriedItem(true, true);
-        this.setCarriedItem(carried.id, carried.count - count, carried.data, carried.extra);
+        Player.setCarriedItem(carried.id, carried.count - count, carried.data, carried.extra);
     },
     getInventorySlot: function(slot) {
         return Player.getInventorySlot(slot);
@@ -5430,7 +5283,7 @@ var PlayerAPI = {
     },
     addPosition: function(x, y, z) {
         var pos = this.getPosition();
-        this.setPosition(pos.x + x, pos.y + y, pos.z + z);
+        Entity.setPosition(getPlayerEnt(), pos.x + x, pos.y + y, pos.z + z);
     },
     setVelocity: function(x, y, z) {
         Entity.setVelocity(getPlayerEnt(), x, y, z);
@@ -5445,7 +5298,7 @@ var PlayerAPI = {
     },
     addVelocity: function(x, y, z) {
         var vel = this.getVelocity();
-        this.setVelocity(vel.x + x, vel.y + y, vel.z + z);
+        Entity.setVelocity(getPlayerEnt(), vel.x + x, vel.y + y, vel.z + z);
     },
     experience: function() {
         return {
@@ -5477,7 +5330,7 @@ var PlayerAPI = {
         Player.setLevel(level);
     },
     addLevel: function(level) {
-        this.setLevel(this.getLevel() + level);
+        Player.setLevel(Player.getLevel() + level);
     },
     flying: function() {
         return {
@@ -5555,12 +5408,6 @@ var PlayerAPI = {
     getScore: function() {
         return Player.getScore();
     },
-    setFov: function(fov) {
-        Player.setFov(fov);
-    },
-    resetFov: function() {
-        Player.resetFov();
-    },
     setCameraEntity: function(ent) {
         Player.setCameraEntity(ent);
     },
@@ -5577,6 +5424,7 @@ var PlayerAPI = {
         return Player.getBooleanAbility(ability);
     }
 };
+injectBindingsIntoScope("Player", PlayerAPI, false);
 var ANIMATION_BASE_ENTITY = 10;
 var AnimationRegistry = {
     animationList: [],
@@ -5852,7 +5700,7 @@ function AnimationItem(x, y, z) {
         var lastMesh = this.__itemMesh;
 
         var itemModel = ItemModel.getForWithFallback(item.id, item.data);
-        var glint = item.glint || Item.isGlintItemInstance(item.id, item.data, item.extra);
+        var glint = item.glint || Item.isGlint(item.id, item.data, item.extra);
         var material = glint ? itemModel.getWorldGlintMaterialName() : itemModel.getWorldMaterialName();
         this.__itemMesh = itemModel.getItemRenderMesh(item.count > 1 ? (item.count > 20 ? 3 : 2) : 1, !item.notRandomize);
 
@@ -5985,13 +5833,32 @@ Callback.addCallback("EntityAdded", function(entity) {
 // ------------------------------------------------------
 
 var EntityAPI = {
+    isSleeping: function(ent) {
+        return Entity.isSleeping(ent);
+    },
+    playAnimation: function(ent, name, time, controller, query, hz) {
+        Entity.playAnimation(ent, name, time, controller || "__runtime_controller", query || "query.any_animation_finished", hz || "default");
+    },
+    getAABB: function(ent) {
+        var aabb = Entity.getAABB(ent);
+        return {
+            x1: aabb[0],
+            y1: aabb[1],
+            z1: aabb[2],
+            x2: aabb[3],
+            y2: aabb[4],
+            z2: aabb[5]
+        };
+    },
     getAll: function() {
         return Entity.getAll();
     },
     getAllJS: function() {
         return Entity.getAll();
     },
-    playAnimation() {},//client only
+    getAllLocal: function() {
+        return Entity.getAllLocal();
+    },
     getExtra: function(ent, name) {
         logDeprecation("Entity.getExtra");
         return null;
@@ -6019,7 +5886,7 @@ var EntityAPI = {
         return {
             level: Entity.getEffectLevel(ent, effectId),
             duration: Entity.getEffectDuration(ent, effectId)
-        }
+        };
     },
     clearEffect: function(ent, id) {
         Entity.removeEffect(ent, id);
@@ -6144,7 +6011,7 @@ var EntityAPI = {
         return Entity.setTarget(ent, target);
     },
     getMobile: function(ent, mobile) {
-        Entity.isImmobile(ent);
+        return !Entity.isImmobile(ent);
     },
     setMobile: function(ent, mobile) {
         Entity.setImmobile(ent, !mobile);
@@ -6164,19 +6031,19 @@ var EntityAPI = {
     setFire: function(ent, fire, force) {
         Entity.setFireTicks(ent, fire || 0, force);
     },
-    health: function(entity) {
+    health: function(ent) {
         return {
             get: function() {
-                return this.getHealth(entity);
+                return Entity.getHealth(ent);
             },
             set: function(health) {
-                this.setHealth(entity, health);
+                Entity.setHealth(ent, health);
             },
             getMax: function() {
-                return this.getMaxHealth(entity);
+                return Entity.getMaxHealth(ent);
             },
             setMax: function(health) {
-                this.setMaxHealth(entity, health);
+                Entity.setMaxHealth(ent, health);
             }
         };
     },
@@ -6205,7 +6072,7 @@ var EntityAPI = {
     },
     addPosition: function(ent, x, y, z) {
         var pos = this.getPosition(ent);
-        this.setPosition(ent, pos.x + x, pos.y + y, pos.z + z);
+        Entity.setPosition(ent, pos.x + x, pos.y + y, pos.z + z);
     },
     setVelocity: function(ent, x, y, z) {
         Entity.setVelocity(ent, x, y, z);
@@ -6220,7 +6087,7 @@ var EntityAPI = {
     },
     addVelocity: function(ent, x, y, z) {
         var vel = this.getVelocity(ent);
-        this.setVelocity(ent, vel.x + x, vel.y + y, vel.z + z);
+        Entity.setVelocity(ent, vel.x + x, vel.y + y, vel.z + z);
     },
     getDistanceBetweenCoords: function(coords1, coords2) {
         return Math.sqrt(Math.pow(coords1.x - coords2.x, 2) + Math.pow(coords1.y - coords2.y, 2) + Math.pow(coords1.z - coords2.z, 2));
@@ -6439,19 +6306,30 @@ Callback.addCallback("NativeCommand", function(commandString) {
 });
 
 var CONSTANT_REPLACEABLE_TILES = {
-    0: true,
-    8: true,
-    9: true,
-    10: true,
-    11: true,
-    31: true,
-    51: true,
-    78: true,
-    106: true
+    0: true, // air
+    8: true, 9: true, // water
+    10: true, 11: true, // lava
+    31: true, // tallgrass (fern)
+    32: true, // deadbush
+    51: true, // fire
+    106: true, // vine
+
+    // 1.11+
+    385: true, // seagrass
+
+    // 1.16+
+    497: true, // crimson roots
+    509: true, // light block
+    512: true, // nether sprouts
+    540: true, // structure void
+    554: true, // warped roots
 };
 
 function canTileBeReplaced(id, data) {
+    // 175: double plant (tall grass)
     if (id === 175 && (data % 8 === 2 || data % 8 === 3)) return true;
+    // 78: snow layer (1st layer + 2nd-7th which is bug)
+    if (id === 78 && data <= 6) return true;
     return CONSTANT_REPLACEABLE_TILES[id] || false;
 }
 
@@ -6460,56 +6338,65 @@ var CONSTANT_VANILLA_UI_TILES = {
     25: true, // note block
     26: true, // bed
     54: true, // chest
-    58: true, // workbench
+    58: true, // crafting table
     61: true, 62: true, // furnace
-    64: true, // door
+    64: true, 193: true, 194: true, 195: true, 196: true, 197: true, // wooden doors
     69: true, // lever
     77: true, // stone button
     84: true, // jukebox
     92: true, // cake
     93: true, 94: true, // repeater
-    96: true, // wooden trapdoor
-    107: true, // fence gate
+    96: true, 400: true, 401: true, 402: true, 403: true, 404: true, // wooden trapdoors
+    107: true, 183: true, 184: true, 185: true, 186: true, 187: true, // fence gates
     116: true, // enchanting table
     117: true, // brewing stand
     122: true, // dragon egg
     125: true, // dropper
     130: true, // ender chest
+    137: true, 188: true, 189: true, // command blocks
     138: true, // beacon
-    143: true, // wooden button
+    143: true, 395: true, 396: true, 397: true, 398: true, 399: true, // wooden buttons
     145: true, // anvil
     146: true, // trapped chest
     149: true, 150: true, // comparator
-    151: true, 178: true, // day light detector
+    151: true, 178: true, // daylight detector
     154: true, // hopper
-    183: true, 184: true, 185: true, 186: true, 187: true, // fence gates
-    193: true, 194: true, 195: true, 196: true, 197: true, // wooden doors
+    199: true, // item frame
     205: true, 218: true, // shulker box
-    395: true, 396: true, 397: true, 398: true, 399: true, // wooden buttons
-    400: true, 401: true, 402: true, 403: true, 404: true, // wooden trapdoors
+    247: true, // nether reactor
+    252: true, // structure block
+
+    // 1.11+
     449: true, // lectern
     450: true, // grindstone
     451: true, 469: true, // blast furnace
     452: true, // stonecutter
     453: true, 454: true, // smoker
     455: true, // cartography table
-    457: true, // smiting table
+    457: true, // smithing table
     458: true, // barrel
     459: true, // loom
     461: true, // bell
-    499: true, // crimson door
-    500: true, // warped door
-    559: true, // crimson trapdoor
-    502: true, // warped trapdoor
-    513: true, // crimson fence gate
-    514: true, // warped fence gate
-    515: true, // crimson button
-    516: true, // warped button
-    551: true, // polished blackstone button
+    462: true, // sweet berry bush
+    464: true, // campfire
+    466: true, // jigsaw
+
+    // 1.16+
+    487: true, // crimson button
+    488: true, // crimson door
+    491: true, // crimson fence gate
+    502: true, // crimson trapdoor
+    528: true, // respawn anchor
+    530: true, // soul campfire
+    544: true, // warped button
+    545: true, // warped door
+    548: true, // warped fence gate
+    559: true, // warped trapdoor
+    521: true, // polished blackstone button
 };
 
 function doesVanillaTileHasUI(id) {
-    return CONSTANT_VANILLA_UI_TILES[id];
+    return CONSTANT_VANILLA_UI_TILES[id] || false;
 }
 
 function setPlayerItem(id, count, data, extra) {
@@ -6530,48 +6417,83 @@ Callback.addCallback("ItemUse", function(coords, item, block, isExternal, player
     }
 
     if (Entity.isSneaking(player) || !doesVanillaTileHasUI(block.id)) {
-        let placeCoords = null;
+        let inplaceFunc = BlockRegistry.getInplaceFunc(item.id);
         let placeFunc = BlockRegistry.getPlaceFunc(item.id);
-        if (placeFunc) {
-            placeCoords = placeFunc(coords, item, block, player, blockSource);
-        }
 
-        let isTileEntity = TileEntity.isTileEntityBlock(item.id);
-        if (isTileEntity) {
-            if (!placeFunc) {
-                if (canTileBeReplaced(block.id, block.data)) {
-                    placeCoords = coords;
+        if (inplaceFunc || placeFunc) {
+            let placeCoords = null;
+            if (canTileBeReplaced(block.id, block.data)) {
+                placeCoords = coords;
+            } else {
+                let tile = blockSource.getBlock(coords.relative.x, coords.relative.y, coords.relative.z);
+                if (canTileBeReplaced(tile.id, tile.data)) {
+                    placeCoords = coords.relative;
+                }
+            }
+
+            let previousItemCount = item.count;
+            if (inplaceFunc) {
+                // Modern approach to directly determine when block is actually being set
+                placeCoords = inplaceFunc(coords, placeCoords, item, block, player, blockSource);
+            } else if (placeCoords) {
+                let relativeBlock = null;
+                if (coords.x != placeCoords.x || coords.y != placeCoords.y || coords.z != placeCoords.z) {
+                    relativeBlock = blockSource.getBlock(placeCoords.x, placeCoords.y, placeCoords.z);
+                }
+
+                // Allow place function to be called only if specified location is not obstructed
+                let preferredCoords = ModAPI.cloneObject(coords, true);
+                preferredCoords.relative = { x: placeCoords.x, y: placeCoords.y, z: placeCoords.z };
+                preferredCoords = placeFunc(preferredCoords, item, block, player, blockSource);
+
+                // Block is explicitly set on specified coords
+                if (preferredCoords) {
+                    placeCoords = preferredCoords;
+
+                    // Observing dedupe, actually unchanged location, stealing unconsumed items
                 } else {
-                    let tile = blockSource.getBlock(coords.relative.x, coords.relative.y, coords.relative.z);
-                    if (canTileBeReplaced(tile.id, tile.data)) {
-                        placeCoords = coords.relative;
+                    // Block set is being forcibly cancelled by increasing item count
+                    if (item.count > previousItemCount) {
+                        item.count--;
+                        placeCoords = null;
+                    } else {
+                        let newItem = Entity.getCarriedItem(player);
+                        if (item.count >= previousItemCount && newItem.count >= previousItemCount) {
+                            // Manually recheck that block is being changed or cancelled within function
+                            let newBlock = blockSource.getBlock(coords.x, coords.y, coords.z);
+                            if (block == newBlock) {
+                                let newRelativeBlock = relativeBlock ? blockSource.getBlock(placeCoords.x, placeCoords.y, placeCoords.z) : null;
+                                if (!newRelativeBlock || newRelativeBlock == relativeBlock) {
+                                    placeCoords = null;
+                                }
+                            }
+                        }
                     }
                 }
-                if (placeCoords) {
-                    blockSource.setBlock(placeCoords.x, placeCoords.y, placeCoords.z, item.id, item.data);
-                }
             }
+
             if (placeCoords) {
-                TileEntity.addTileEntity(placeCoords.x, placeCoords.y, placeCoords.z, blockSource);
+                if (TileEntity.isTileEntityBlock(item.id)) {
+                    TileEntity.addTileEntity(placeCoords.x, placeCoords.y, placeCoords.z, blockSource);
+                }
+                if (GameAPI.isItemSpendingAllowed(player)) {
+                    if (item.count > 1) {
+                        Entity.setCarriedItem(player, item.id, item.count - 1, item.data, item.extra);
+                    } else {
+                        Entity.setCarriedItem(player, 0, 0, 0);
+                    }
+                } else {
+                    Entity.setCarriedItem(player, item.id, previousItemCount, item.data, item.extra);
+                }
+                blockSource.playSound(placeCoords.x, placeCoords.y, placeCoords.z, "dig.stone", 1, 0.8);
+                preventDefault();
+                return;
             }
         }
 
-        if (placeCoords) {
-            if (GameAPI.isItemSpendingAllowed(player)) {
-                if (item.count > 1) {
-                    Entity.setCarriedItem(player, item.id, item.count - 1, item.data, item.extra);
-                } else {
-                    Entity.setCarriedItem(player, 0, 0, 0);
-                }
-            }
-            blockSource.playSound(placeCoords.x, placeCoords.y, placeCoords.z, "dig.stone", 1, 0.8);
-            preventDefault();
-        } else {
-            ItemRegistry.onItemUsed(coords, item, block, player);
-        }
+        ItemRegistry.onItemUsed(coords, item, block, player);
     }
 });
-
 var EntityDataRegistry = {
     isLevelLoaded: false,
     entityData: {},
@@ -7152,9 +7074,14 @@ var CoreAPI = {
     Saver: SaverAPI,
     World: WorldAPI,
     Entity: EntityAPI,
+    PathNavigation: PathNavigation, // codegen
     AddonEntityRegistry: AddonEntityRegistry,
     Player: PlayerAPI,
     Game: GameAPI,
+    GameController: GameController,
+
+    SamplingProfiler: SamplingProfiler,
+
     Render: RenderAPI,
     Texture: Texture,
     EntityModel: ModelAPI,
@@ -7170,6 +7097,7 @@ var CoreAPI = {
         Swim: EntityAISwim,
         PanicWatcher: EntityAIPanicWatcher
     },
+
     GenerationUtils: WorldGenerationUtils,
     Animation: {
         base: AnimationBase,

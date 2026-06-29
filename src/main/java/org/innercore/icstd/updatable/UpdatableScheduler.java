@@ -3,7 +3,9 @@ package org.innercore.icstd.updatable;
 import org.innercore.icstd.annotations.ApiBinding;
 import com.zhekasmirnov.innercore.api.gen.UpdatableSchedulerBindGenBase;
 import com.zhekasmirnov.innercore.api.runtime.Updatable;
+import org.innercore.icstd.annotations.ArgOverload;
 import org.innercore.icstd.script.ScriptObjectComponent;
+import org.innercore.icstd.updatable.impl.UpdatableSchedulerScopeImpl;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -13,6 +15,52 @@ import java.util.Arrays;
 @ApiBinding("UpdatableScheduler")
 public class UpdatableScheduler extends UpdatableSchedulerBindGenBase {
     private static UpdatableSchedulerScope[] scopes = new UpdatableSchedulerScope[4];
+
+    @ApiBinding
+    public static void clearAllImpl(int scopeId) {
+        UpdatableSchedulerScopeImpl.clearAllImpl(scopeId);
+    }
+
+    @ApiBinding
+    public static int createNewScopeImpl(String scopeName) {
+        return UpdatableSchedulerScopeImpl.createNewScopeImpl(scopeName);
+    }
+
+    @ApiBinding
+    public static long createHandle(int scopeId) {
+        return UpdatableSchedulerScopeImpl.create(scopeId);
+    }
+
+    @ApiBinding
+    public static boolean destroyHandle(long handleId) {
+        return UpdatableSchedulerScopeImpl.destroy(handleId);
+    }
+
+    @ApiBinding
+    public static boolean isRawHandleAlive(long handleId) {
+        return UpdatableSchedulerScopeImpl.isRawHandleAlive(handleId);
+    }
+
+    @ApiBinding
+    public static void scheduleByRawHandle(long handleId, int tickAt, @ArgOverload("-1") int tickUntil) {
+        UpdatableSchedulerScopeImpl.scheduleByRawHandle(handleId, tickAt, tickUntil);
+    }
+
+    @ApiBinding
+    public static void setRecurringScheduleByRawHandle(long handleId, int tickAt, @ArgOverload("-1") int tickUntil) {
+        UpdatableSchedulerScopeImpl.setRecurringScheduleByRawHandle(handleId, tickAt, tickUntil);
+    }
+
+    @ApiBinding
+    public static void clearScheduleByRawHandle(long handleId) {
+        UpdatableSchedulerScopeImpl.clearScheduleByRawHandle(handleId);
+    }
+
+    @ApiBinding
+    public static void setCurrentTickImpl(int scopeId, int tickNo) {
+        UpdatableSchedulerScopeImpl.setCurrentTickImpl(scopeId, tickNo);
+    }
+
 
     @ApiBinding("createNewScope")
     public static UpdatableSchedulerScope createNewScope(String name) {

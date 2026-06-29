@@ -31,7 +31,6 @@ import com.reider745.hooks.item.ItemUtils;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockBreakResult;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.StaticEntity;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.mcpe.NativeStaticUtils;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.innercore.api.NativeAPI;
@@ -102,8 +101,8 @@ public class BlockSource extends BlockSourceBindGenBase {
 
     @ApiBinding
     @ClientOnly
-    public static NativeBlockSource getCurrentClientRegion() {
-        InnerCoreServer.useIncomprehensibleMethod("NativeBlockSource.getCurrentClientRegion()");
+    public static BlockSource getCurrentClientRegion() {
+        InnerCoreServer.useIncomprehensibleMethod("BlockSource.getCurrentClientRegion()");
         return null;
     }
 
@@ -151,7 +150,7 @@ public class BlockSource extends BlockSourceBindGenBase {
     public BlockSource(long ptr, boolean isFinalizable) {
         Level level = Server.getInstance().getLevel((int) ptr);
         if (level == null) {
-            throw new RuntimeException("cannot pass null pointer to NativeBlockSource constructor");
+            throw new RuntimeException("cannot pass null pointer to BlockSource constructor");
         }
         this.level = level;
     }

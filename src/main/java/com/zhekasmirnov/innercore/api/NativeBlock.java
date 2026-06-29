@@ -10,7 +10,6 @@ import com.zhekasmirnov.apparatus.ecs.core.ComponentCollection;
 import com.zhekasmirnov.apparatus.ecs.core.EntityManager;
 import com.zhekasmirnov.apparatus.ecs.types.ECSTags;
 import com.zhekasmirnov.apparatus.ecs.types.block.BlockComponent;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
 import com.zhekasmirnov.innercore.api.unlimited.BlockShape;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;

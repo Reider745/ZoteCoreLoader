@@ -1,7 +1,9 @@
 package org.innercore.icstd.updatable;
 
+import com.zhekasmirnov.apparatus.minecraft.enums.EnumsContainer;
 import org.innercore.icstd.annotations.ApiBinding;
 import com.zhekasmirnov.innercore.api.gen.UpdatableSchedulerScopeBindGenBase;
+import org.innercore.icstd.updatable.impl.UpdatableSchedulerScopeImpl;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -28,7 +30,7 @@ public class UpdatableSchedulerScope extends UpdatableSchedulerScopeBindGenBase 
 
     @ApiBinding
     public void setCurrentTick(int tickNo) {
-        setCurrentTickImpl(scopeId, tickNo);
+        UpdatableScheduler.setCurrentTickImpl(scopeId, tickNo);
         curTick = tickNo;
     }
 
@@ -39,7 +41,7 @@ public class UpdatableSchedulerScope extends UpdatableSchedulerScopeBindGenBase 
 
     public long createRawHandle(UpdatableComponent updatable) {
         synchronized (this) {
-            long handle = createHandle(scopeId);
+            long handle = UpdatableScheduler.createHandle(scopeId);
             int idx = (int) (handle & 0xFFFFFFL);
             if (list.length <= idx) {
                 list = Arrays.copyOf(list, Math.max(idx + 16, list.length * 3 / 2 + 1));
@@ -85,7 +87,7 @@ public class UpdatableSchedulerScope extends UpdatableSchedulerScopeBindGenBase 
     @ApiBinding("clearAll")
     public void clearAll() {
         synchronized (this) {
-            clearAllImpl(scopeId);
+            UpdatableScheduler.clearAllImpl(scopeId);
             list = new UpdatableComponent[0];
             tickingArray = new int[128];
         }
@@ -155,6 +157,11 @@ public class UpdatableSchedulerScope extends UpdatableSchedulerScopeBindGenBase 
         executeTickForScope(tickNo, timeLimitUs, null);
     }
 
-    private static native int[] nativeExecuteTickForScope(int scopeId, int[] toTick);
-    private static native void nativeMarkTicked(int scopeId, int[] toTick, int begin, int end);
+    private static int[] nativeExecuteTickForScope(int scopeId, int[] toTick) {
+        return UpdatableSchedulerScopeImpl.nativeExecuteTickForScope(scopeId, toTick);
+    }
+
+    private static void nativeMarkTicked(int scopeId, int[] toTick, int begin, int end) {
+        UpdatableSchedulerScopeImpl.nativeMarkTicked(scopeId, toTick, begin, end);
+    }
 }

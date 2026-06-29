@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.item.ItemUtils;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
@@ -94,7 +93,7 @@ public class NativeTileEntity implements BlockEntityComponent {
 
     @Deprecated(since = "Zote")
     public static NativeTileEntity getTileEntity(int x, int y, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getNativeBlockEntity(x, y, z);
+        return BlockSource.getCurrentWorldGenRegion().getNativeBlockEntity(x, y, z);
     }
 
     /*

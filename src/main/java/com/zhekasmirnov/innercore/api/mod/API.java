@@ -4,6 +4,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.annotations.APIIgnore;
 import com.zhekasmirnov.innercore.api.annotations.APIStaticModule;
 import com.zhekasmirnov.innercore.api.constants.ConstantRegistry;
+import com.zhekasmirnov.innercore.api.gen.ApiModuleMap;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.PreferencesWindowAPI;
@@ -14,13 +15,12 @@ import com.zhekasmirnov.innercore.api.runtime.Callback;
 import com.zhekasmirnov.innercore.mod.build.Mod;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import com.zhekasmirnov.innercore.mod.executable.Executable;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.NativeJavaClass;
-import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.*;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -71,6 +71,46 @@ public abstract class API extends ScriptableObject {
         if (func != null) {
             Callback.addCallback(callbackName, func, 0);
         }
+    }
+
+    @JSStaticFunction
+    public static void injectBindingsIntoScope(String moduleName, Scriptable object, boolean allowOverrides) {
+        Class<?> moduleClass = ApiModuleMap.MODULES.get(moduleName);
+        if (moduleClass == null) {
+            Logger.error(LOGGER_TAG, "cannot inject bindings of " + moduleName + " into " + ScriptRuntime.toString(object) + " since module does not exist!");
+            return;
+        }
+        try {
+            Method injectJsStaticMethod = moduleClass.getMethod("injectJsStatic", Scriptable.class, boolean.class);
+            injectJsStaticMethod.invoke(null, object, allowOverrides);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Cannot inject bindings of " + moduleName + " because invocation exception has thrown during call!", e);
+        }
+    }
+
+    @JSStaticFunction
+    public static void injectModuleIntoScope(String moduleName, Scriptable scope, boolean allowOverrides) {
+        Scriptable module = ScriptableObjectHelper.getScriptableProperty(scope, moduleName, null);
+        if (module == null) {
+            Class<?> moduleClass = ApiModuleMap.MODULES.get(moduleName);
+            if (moduleClass == null) {
+                Logger.error(LOGGER_TAG, "cannot inject bindings of " + moduleName + " into scope since module does not exist!");
+                return;
+            }
+            try {
+                Method createEmptyModuleObjectMethod = moduleClass.getMethod("createEmptyModuleObject");
+                module = (Scriptable) createEmptyModuleObjectMethod.invoke(null);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException("Cannot inject bindings of " + moduleName + " because invocation exception has thrown during call!", e);
+            }
+        }
+        injectBindingsIntoScope(moduleName, module, allowOverrides);
+        scope.put(moduleName, scope, module);
+    }
+
+    @JSStaticFunction
+    public static void injectModulesIntoScope(Scriptable scope, boolean allowOverrides) {
+        ApiModuleMap.MODULES.forEach((name, module) -> injectModuleIntoScope(name, scope, allowOverrides));
     }
 
     @JSStaticFunction
