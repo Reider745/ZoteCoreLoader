@@ -44,12 +44,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
+import org.innercore.icstd.common.BlockPos;
 import org.innercore.icstd.common.script.GenericScriptPos3;
 import org.innercore.icstd.event.Events;
 import org.innercore.icstd.inventory.ItemInstance;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.innercore.icstd.region.BlockSource;
 import org.innercore.icstd.region.BlockState;
+import org.innercore.icstd.scene.GameObjectManager;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -196,6 +198,8 @@ public class NativeCallback {
     private static long serverTickDisabledDueToErrorMillis = 0;
     private static int globalServerTickCounter = 0;
 
+    private static HashMap<Integer, Boolean> serverSideDimensionIsLoaded = new HashMap<>();
+
     // this is called, when ServerLevel is constructed
     public static void onLevelCreated() {
         // reset server tick
@@ -257,8 +261,26 @@ public class NativeCallback {
         Callback.invokeAPICallback("LevelLoaded", isServer);
         Callback.invokeAPICallback("ServerLevelLoaded");
 
+        GameObjectManager.getGlobalForServer().setScopeLoaded(true);
+        for (Integer dimensionId : serverSideDimensionIsLoaded.keySet())
+            if (serverSideDimensionIsLoaded.get(dimensionId))
+                GameObjectManager.getGlobalForServer().setScopeLoaded(true);
+
         // setup server tick priority
         setupThreadPriorityFromConfig();
+    }
+
+    public static void onDimensionLoaded(int id) {
+        Callback.invokeAPICallback("DimensionLoadedServer", id);
+        serverSideDimensionIsLoaded.put(id, true);
+
+        GameObjectManager.getForDimension(id).setScopeLoaded(true);
+    }
+
+    public static void onDimensionUnloaded(int id) {
+        Callback.invokeAPICallback("DimensionUnloadedServer", id);
+        GameObjectManager.getForDimension(id).setScopeLoaded(false);
+        serverSideDimensionIsLoaded.put(id, false);
     }
 
     public static void onGameStopped(boolean isServer) {
@@ -290,6 +312,11 @@ public class NativeCallback {
         // new pre-left callback
         Callback.invokeAPICallback("ServerLevelPreLeft");
 
+        GameObjectManager.getGlobalForServer().setScopeLoaded(false);
+        for (GameObjectManager mgr : GameObjectManager.getForAllExistingDimensions().values())
+            mgr.setScopeLoaded(false);
+        GameObjectManager.getGlobalForServer().setScopeLoaded(false);
+
         // reset networking
         Network.getSingleton().shutdownServer();
         NativeNetworking.onLevelLeft(isServer);
@@ -298,6 +325,8 @@ public class NativeCallback {
 
         // on server side save all data
         WorldDataSaverHandler.getInstance().onLevelLeft();
+
+        GameObjectManager.clearAllDefaultServerScenes(false);
 
         // legacy callback for server left
         if (callLegacyCallback) {
@@ -403,6 +432,8 @@ public class NativeCallback {
 
         // call server player handlers
         NetworkPlayerRegistry.getSingleton().onTick();
+
+        GameObjectManager.runTickForDefaultsOnServer();
 
         // execute all stuff posted on server thread
         MainThreadQueue.serverThread.executeQueue();
@@ -858,6 +889,7 @@ public class NativeCallback {
 
     public static void onChunkLoaded(int dimension, int chunkX, int chunkZ) {
         Callback.invokeAPICallback("ChunkLoaded", dimension, chunkX, chunkZ);
+        GameObjectManager.getForDimension(dimension).markChunkForUpdate(chunkX, chunkZ);
     }
 
     @ClientOnly
@@ -867,6 +899,7 @@ public class NativeCallback {
 
     public static void onChunkDiscarded(int dimension, int chunkX, int chunkZ) {
         Callback.invokeAPICallback("ChunkDiscarded", dimension, chunkX, chunkZ);
+        GameObjectManager.getForDimension(dimension).markChunkForUpdate(chunkX, chunkZ);
     }
 
 

@@ -65,4 +65,10 @@ public class FakeDimensions {
                 .filter(level -> level.getDimension() == fakeId)
                 .findFirst().orElse(null);
     }
+
+    public static void unload(Level level) {
+        if(fakeIdForLevelId.containsKey(level.getId())) {
+            levelForFakeId.remove(fakeIdForLevelId.remove(level.getId()));
+        }
+    }
 }

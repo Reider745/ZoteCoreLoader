@@ -439,7 +439,7 @@ public class BlockSource extends BlockSourceBindGenBase {
     @ApiBinding
     public GameObjectManager getScene() {
         if (scene == null) {
-            scene = isServerSide() ? GameObjectManager.getForDimension(getDimension()) : GameObjectManager.getClientSide();
+            scene = GameObjectManager.getForDimension(getDimension());
         }
         return scene;
     }

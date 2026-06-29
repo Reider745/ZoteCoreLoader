@@ -119,8 +119,8 @@ class UpdatableScheduler {
         try {
             if (!exists(ref) || tickIn <= 0) return;
             UpdatableRecord u = updatables.get(ref.getIdx());
-            u.scheduledAtBegin = Math.min(u.scheduledAtBegin, curTick + tickIn);
-            u.scheduledAtEnd   = Math.min(u.scheduledAtEnd,   curTick + tickUntil);
+            u.scheduledAtBegin = u.scheduledAtBegin < 0 ? curTick + tickIn : Math.min(u.scheduledAtBegin, curTick + tickIn);
+            u.scheduledAtEnd   = u.scheduledAtEnd < 0 ? curTick + tickUntil : Math.min(u.scheduledAtEnd,   curTick + tickUntil);
         } finally {
             extLock.readLock().unlock();
         }

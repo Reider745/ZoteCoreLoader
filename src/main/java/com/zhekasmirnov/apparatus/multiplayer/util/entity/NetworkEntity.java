@@ -146,7 +146,7 @@ public class NetworkEntity {
 
     private boolean isRemoved = false;
 
-    private final ModdedClient clientInstance = Network.getSingleton().getClient();
+    //private final ModdedClient clientInstance = Network.getSingleton().getClient();
     private final ConnectedClientList clients = new ConnectedClientList();
 
     private JobExecutor clientExecutor = Network.getSingleton().getClientThreadJobExecutor();
@@ -264,13 +264,8 @@ public class NetworkEntity {
             if (isRemoved) {
                 return;
             }
-            if (isServer) {
-                ThreadTypeMarker.assertServerThread();
-                clients.send("system.entity.packet#" + this.name + "#" + name, data);
-            } else {
-                ThreadTypeMarker.assertClientThread();
-                clientInstance.send("system.entity.packet#" + this.name + "#" + name, data);
-            }
+            ThreadTypeMarker.assertServerThread();
+            clients.send("system.entity.packet#" + this.name + "#" + name, data);
         }
     }
 
