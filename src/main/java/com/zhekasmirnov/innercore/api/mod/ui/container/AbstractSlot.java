@@ -1,6 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.ui.container;
 
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 public interface AbstractSlot {
     int getId();
@@ -9,9 +9,9 @@ public interface AbstractSlot {
 
     int getData();
 
-    NativeItemInstanceExtra getExtra();
+    ItemInstanceExtra getExtra();
 
-    void set(int id, int count, int data, NativeItemInstanceExtra extra);
+    void set(int id, int count, int data, ItemInstanceExtra extra);
 
     void validate();
 }

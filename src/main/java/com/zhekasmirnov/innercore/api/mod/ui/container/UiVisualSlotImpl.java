@@ -1,6 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.ui.container;
 
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 @Deprecated(since = "Zote")
 public interface UiVisualSlotImpl {
@@ -10,5 +10,5 @@ public interface UiVisualSlotImpl {
 
     int getData();
 
-    NativeItemInstanceExtra getExtra();
+    ItemInstanceExtra getExtra();
 }

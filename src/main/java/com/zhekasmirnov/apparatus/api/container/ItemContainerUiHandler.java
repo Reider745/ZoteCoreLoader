@@ -1,7 +1,9 @@
 package com.zhekasmirnov.apparatus.api.container;
 
 import com.zhekasmirnov.apparatus.multiplayer.Network;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemContainer;
+import org.innercore.icstd.inventory.ItemContainerSlot;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiAbstractContainer;
 import com.zhekasmirnov.innercore.api.mod.ui.container.UiVisualSlotImpl;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
@@ -14,7 +16,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-@Deprecated(since = "Zote")
 public class ItemContainerUiHandler implements UiAbstractContainer {
     private final ItemContainer container;
 
@@ -108,7 +109,7 @@ public class ItemContainerUiHandler implements UiAbstractContainer {
             }
 
             @Override
-            public NativeItemInstanceExtra getExtra() {
+            public ItemInstanceExtra getExtra() {
                 if (slot == null) {
                     slot = container.getSlot(name);
                 }
@@ -179,14 +180,14 @@ public class ItemContainerUiHandler implements UiAbstractContainer {
         }
     }
 
-    void setBindingByComposedName(String name, Object value) {
+    public void setBindingByComposedName(String name, Object value) {
         String[] parts = name.split("::");
         if (parts.length == 2) {
             setBinding(parts[0], parts[1], value);
         }
     }
 
-    void receiveBindingsFromServer(JSONObject bindings) {
+    public void receiveBindingsFromServer(JSONObject bindings) {
         if (bindings == null) {
             return;
         }

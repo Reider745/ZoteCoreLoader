@@ -1,10 +1,10 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.furnace;
 
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.RecipeEntry;
 import com.zhekasmirnov.innercore.utils.FileTools;
+import org.innercore.icstd.inventory.ItemInstance;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -114,7 +114,7 @@ public class FurnaceRecipeRegistry {
 
         for (FurnaceRecipe recipe : allRecipes) {
             ItemInstance result = recipe.getResult();
-            if (result.getId() == id && (aux == -1 || result.getData() == aux) || recipe.isMatchingPrefix(prefix)) {
+            if (result.id == id && (aux == -1 || result.data == aux) || recipe.isMatchingPrefix(prefix)) {
                 found.add(recipe);
             }
         }

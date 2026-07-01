@@ -1,12 +1,11 @@
 package com.zhekasmirnov.apparatus.mcpe;
 
 import com.reider745.hooks.item.ItemUtils;
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.apparatus.api.container.ItemContainerSlot;
 import com.zhekasmirnov.apparatus.util.Java8BackComp;
 import com.zhekasmirnov.innercore.api.NativeItemInstance;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
+import com.zhekasmirnov.innercore.api.mod.ui.container.AbstractSlot;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchField;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
@@ -37,12 +36,12 @@ public class NativeWorkbenchContainer implements WorkbenchField {
 
     // basic slot logic
 
-    ItemStack getSlot(int i) {
+    ItemInstance getSlot(int i) {
         NativeWorkbenchContainerSlot slot = i >= 0 && i < slots.length ? this.slots[i] : null;
-        return slot != null ? new ItemStack(slot.id, slot.count, slot.data, slot.extra) : new ItemStack();
+        return slot != null ? new org.innercore.icstd.inventory.ItemInstance(slot.id, slot.count, slot.data, slot.extra) : new ItemInstance();
     }
 
-    void setSlot(int i, ItemStack item) {
+    void setSlot(int i, ItemInstance item) {
         NativeWorkbenchContainerSlot slot = i >= 0 && i < slots.length ? this.slots[i] : null;
         if (slot != null) {
             slot.set(item);
@@ -51,7 +50,7 @@ public class NativeWorkbenchContainer implements WorkbenchField {
 
     public void updateSlots() {
         for (int i = 0; i < slots.length; i++) {
-            slots[i] = new NativeWorkbenchContainerSlot(new NativeItemInstance(pointer.getItem(i)));
+            slots[i] = new NativeWorkbenchContainerSlot(getSlot(i));
         }
     }
 
@@ -65,12 +64,12 @@ public class NativeWorkbenchContainer implements WorkbenchField {
     }
 
     @Override
-    public ItemContainerSlot getFieldSlot(int slot) {
+    public AbstractSlot getFieldSlot(int slot) {
         return slot >= 0 && slot < slots.length ? this.slots[slot] : Java8BackComp.getOrDefault(slotPlaceholders, slot, new NativeWorkbenchContainerSlot());
     }
 
     @Override
-    public ItemContainerSlot getFieldSlot(int x, int y) {
+    public AbstractSlot getFieldSlot(int x, int y) {
         if (x >= 0 && y >= 0 && x < size && y < size) {
             return getFieldSlot(y * size + x);
         } else {
@@ -107,7 +106,7 @@ public class NativeWorkbenchContainer implements WorkbenchField {
         return null;
     }
 
-    public void setSlot(String name, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void setSlot(String name, int id, int count, int data, ItemInstanceExtra extra) {
         NativeWorkbenchContainerSlot slot = getSlot(name);
         if (slot != null) {
             slot.set(id, count, data, extra);
@@ -133,27 +132,27 @@ public class NativeWorkbenchContainer implements WorkbenchField {
         return getRecipe("");
     }
 
-    public ItemStack getPreviewResult(String prefix) {
+    public ItemInstance getPreviewResult(String prefix) {
         WorkbenchRecipe recipe = getRecipe(prefix);
         if (recipe != null) {
             ItemInstance result = recipe.getResult();
             if (result != null) {
-                return new ItemStack(result);
+                return new ItemInstance(result);
             }
         }
         return null;
     }
 
-    public ItemStack getPreviewResult() {
+    public ItemInstance getPreviewResult() {
         return getPreviewResult("");
     }
 
-    public ItemStack provideRecipe(String prefix) {
+    public ItemInstance provideRecipe(String prefix) {
         ItemInstance result = WorkbenchRecipeRegistry.provideRecipeForPlayer(this, prefix, owningPlayer);
-        return result != null ? new ItemStack(result) : null;
+        return result != null ? new ItemInstance(result) : null;
     }
 
-    public ItemStack provideRecipe() {
+    public ItemInstance provideRecipe() {
         return provideRecipe("");
     }
 }

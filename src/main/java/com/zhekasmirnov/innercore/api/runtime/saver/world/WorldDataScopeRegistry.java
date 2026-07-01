@@ -1,8 +1,11 @@
 package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+import org.innercore.icstd.serialization.IScopedReader;
+import org.innercore.icstd.serialization.IScopedWriter;
+import org.innercore.internal.serialization.JsonIO;
+import org.innercore.icstd.serialization.SerializationContext;
 import org.json.JSONObject;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -38,16 +41,8 @@ public class WorldDataScopeRegistry {
 
 
     public interface SaverScope {
-        void readJson(Object json) throws Exception;
-        Object saveAsJson() throws Exception;
-    }
-
-    public interface SavesErrorHandler {
-        void handle(String name, Throwable error);
-    }
-
-    public interface MissingScopeHandler {
-        void handle(String name, Object data);
+        void read(IScopedReader io, SerializationContext ctx);
+        void write(IScopedWriter io, SerializationContext ctx);
     }
 
 
@@ -63,33 +58,39 @@ public class WorldDataScopeRegistry {
         scopeMap.put(name, scope);
     }
 
-    public void readAllScopes(JSONObject json, SavesErrorHandler errorHandler, MissingScopeHandler missingScopeHandler) {
+    public void readAllScopes(JSONObject json, SerializationContext ctx, Map<String, Object> outMissingScopes) {
         for (Map.Entry<String, SaverScope> entry : scopeMap.entrySet()) {
             String key = entry.getKey();
             Object data = json.opt(key);
-            if(key.isEmpty()) continue;
-            Logger.debug("Loaded save "+key);
+            JsonIO.ScopedReader reader = null;
             try {
-                entry.getValue().readJson(data);
+                reader = new JsonIO.ScopedReader(data);
+                entry.getValue().read(reader, ctx);
             } catch (Throwable err) {
-                errorHandler.handle(key, err);
+                ctx.addError(err, data, "global saves scope failed to read: " + key);
+            }
+            if (reader != null) {
+                reader.forceEndScope(ctx);
             }
         }
 
         for (Iterator<String> it = json.keys(); it.hasNext(); ) {
             String key = it.next();
             if (!scopeMap.containsKey(key)) {
-                missingScopeHandler.handle(key, json.opt(key));
+                outMissingScopes.put(key, json.opt(key));
             }
         }
     }
 
-    public void saveAllScopes(JSONObject json, SavesErrorHandler handler) {
+    public void saveAllScopes(JSONObject json, SerializationContext ctx) {
         for (Map.Entry<String, SaverScope> entry : scopeMap.entrySet()) {
             try {
-                json.put(entry.getKey(), entry.getValue().saveAsJson());
+                JsonIO.ScopedWriter writer = new JsonIO.ScopedWriter();
+                entry.getValue().write(writer, ctx);
+                writer.forceEndScope(ctx);
+                json.put(entry.getKey(), writer.getResult());
             } catch (Throwable err) {
-                handler.handle(entry.getKey(), err);
+                ctx.addError(err, null, "global saves scope failed to read: " + entry.getKey());
             }
         }
     }

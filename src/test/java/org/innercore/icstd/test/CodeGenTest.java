@@ -40,5 +40,15 @@ public class CodeGenTest {
         self.put("test", self, 1);
 
         assert (other.call(null, null, self, new Object[]{"test", "5", self})).toString().equals("test51");
+
+        self.put("test", self, null);
+
+        assert (other.call(null, null, self, new Object[]{"test", "5", self})).toString().equals("test50");
+
+        self.put("test", self, null);
+
+        assert (other.call(null, null, self, new Object[]{"test", "5", self})).toString().equals("test50");
+
+        self.put("test2", self, null);
     }
 }

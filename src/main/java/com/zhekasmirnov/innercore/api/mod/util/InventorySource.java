@@ -1,6 +1,6 @@
 package com.zhekasmirnov.innercore.api.mod.util;
 
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -37,7 +37,7 @@ public class InventorySource {
         return slots[slotId];
     }
 
-    public static void setSource(int slotId, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setSource(int slotId, int id, int count, int data, ItemInstanceExtra extra) {
         ScriptableObject slot = getSource(slotId);
         slot.put("id", slot, id);
         slot.put("count", slot, count);

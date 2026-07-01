@@ -7,10 +7,9 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.MathHelper;
 import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.NukkitRandom;
-import cn.nukkit.math.Vector3;
 import com.reider745.api.CallbackHelper;
 import com.reider745.world.dimensions.NoiseOctaveMethods;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
+import org.innercore.icstd.region.BlockSource;
 
 import java.util.ArrayList;
 
@@ -24,7 +23,7 @@ public class GenerationUtilsMethods {
     }
 
     public static boolean canSeeSky(int x, int y, int z){
-        return NativeBlockSource.getCurrentWorldGenRegion().canSeeSky(x, y, z);
+        return BlockSource.getCurrentWorldGenRegion().canSeeSky(x, y, z);
     }
 
     private static final ArrayList<Integer> blackListSurface = new ArrayList<>();

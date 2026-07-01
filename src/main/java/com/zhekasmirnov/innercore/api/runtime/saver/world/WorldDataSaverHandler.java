@@ -1,8 +1,7 @@
 package com.zhekasmirnov.innercore.api.runtime.saver.world;
 
-import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
 import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.utils.OperationTimeLogger;
@@ -27,12 +26,10 @@ public class WorldDataSaverHandler {
     private long previousAutoSave = 0;
 
     public void fetchParamsFromConfig() {
-        final int auto_save_period = InnerCoreServer.getAutoSavePeriod();
-
         setParams(
-                auto_save_period >= 40,
-                InnerCoreServer.canAutoSaveWorld(),
-                auto_save_period * 1000
+                EngineConfig.getBoolean("background.auto_save", true),
+                EngineConfig.getBoolean("background.auto_save_world", true),
+                EngineConfig.getInt("background.auto_save_period", 30) * 1000
         );
     }
 
@@ -136,6 +133,6 @@ public class WorldDataSaverHandler {
     }
 
     private void reportUnexpectedStateError(String message) {
-        Logger.debug("UNEXPECTED WORLD SAVER STATE", message);
+        UserDialog.dialog("UNEXPECTED WORLD SAVER STATE", message);
     }
 }

@@ -19,6 +19,8 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.constants.PlayerAbility;
 import com.zhekasmirnov.innercore.api.runtime.LevelInfo;
 import com.zhekasmirnov.innercore.mod.resource.ResourceStorage;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
+import org.innercore.icstd.region.BlockSource;
 
 public class NativeAPI {
 
@@ -123,26 +125,27 @@ public class NativeAPI {
     }
 
     public static void invokeUseItemNoTarget(int id, int count, int data, Item extra) {
-        invokeUseItemNoTarget(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        invokeUseItemNoTarget(id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void invokeUseItemNoTarget(int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void invokeUseItemNoTarget(int id, int count, int data, ItemInstanceExtra extra) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.invokeUseItemNoTarget(id, count, data, extra)");
     }
 
     public static void invokeUseItemOn(int id, int count, int data, Item extra, int x, int y, int z, int side, float vx,
             float vy, float vz, long entity) {
-        invokeUseItemOn(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz, entity);
+        invokeUseItemOn(id, count, data, ItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz, entity);
     }
 
-    public static void invokeUseItemOn(int id, int count, int data, NativeItemInstanceExtra extra, int x, int y, int z, int side, float vx,
+    public static void invokeUseItemOn(int id, int count, int data, ItemInstanceExtra extra, int x, int y, int z, int side, float vx,
             float vy, float vz, long entity) {
         EntityMethod.invokeUseItemOn(id, count, data, extra, x, y, z, side, vx, vy, vz, entity);
     }
 
     @Deprecated(since = "Zote")
+    @ClientOnly
     public static void playSound(String name, float x, float y, float z, float f1, float f2) {
-        NativeBlockSource region = NativeBlockSource.getDefault();
+        BlockSource region = BlockSource.getDefault();
         if (region != null)
             region.playSound(x, y, z, name, f1, f2);
         InnerCoreServer.useClientMethod("NativeAPI.playSound(name, x, y, z, f1, f2)");
@@ -348,12 +351,14 @@ public class NativeAPI {
         return new long[0];
     }
 
+    @Deprecated
     public static long getEntityArmor(long entity, int slot) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityArmor(entity, slot)");
         // return EntityMethod.getEntityArmor(entity, slot);
         return 0;
     }
 
+    @Deprecated
     public static long getEntityCarriedItem(long entity) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.getEntityCarriedItem(entity)");
         // return EntityMethod.getEntityCarriedItem(entity);
@@ -576,14 +581,14 @@ public class NativeAPI {
     }
 
     public static boolean isGlintItemInstance(int id, int data) {
-        return isGlintItemInstance(id, data, (NativeItemInstanceExtra) null);
+        return isGlintItemInstance(id, data, (ItemInstanceExtra) null);
     }
 
     public static boolean isGlintItemInstance(int id, int data, Item extra) {
-        return isGlintItemInstance(id, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        return isGlintItemInstance(id, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static boolean isGlintItemInstance(int id, int data, NativeItemInstanceExtra extra) {
+    public static boolean isGlintItemInstance(int id, int data, ItemInstanceExtra extra) {
         InnerCoreServer.useNotCurrentSupport("NativeAPI.isGlintItemInstance(id, data, extra)");
         return false;
     }
@@ -703,26 +708,26 @@ public class NativeAPI {
     }
 
     public static void setEntityArmor(long entity, int slot, int id, int count, int data, Item extra) {
-        setEntityArmor(entity, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setEntityArmor(entity, slot, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setEntityArmor(long entity, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setEntityArmor(long entity, int slot, int id, int count, int data, ItemInstanceExtra extra) {
         EntityMethod.setEntityArmor(entity, slot, id, count, data, extra);
     }
 
     public static void setEntityCarriedItem(long entity, int id, int count, int data, Item extra) {
-        setEntityCarriedItem(entity, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setEntityCarriedItem(entity, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setEntityCarriedItem(long entity, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setEntityCarriedItem(long entity, int id, int count, int data, ItemInstanceExtra extra) {
         EntityMethod.setEntityCarriedItem(entity, id, count, data, extra);
     }
 
     public static void setEntityOffhandItem(long entity, int id, int count, int data, Item extra) {
-        setEntityOffhandItem(entity, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setEntityOffhandItem(entity, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setEntityOffhandItem(long entity, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setEntityOffhandItem(long entity, int id, int count, int data, ItemInstanceExtra extra) {
         EntityMethod.setEntityOffhandItem(entity, id, count, data, extra);
     }
 
@@ -760,10 +765,10 @@ public class NativeAPI {
     }
 
     public static void setItemToDrop(long entity, int id, int count, int data, Item extra) {
-        setItemToDrop(entity, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setItemToDrop(entity, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setItemToDrop(long entity, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setItemToDrop(long entity, int id, int count, int data, ItemInstanceExtra extra) {
         EntityMethod.setItemToDrop(entity, id, count, data, extra);
     }
 
@@ -854,7 +859,7 @@ public class NativeAPI {
     }
 
     public static void setRespawnCoords(int x, int y, int z) {
-        NativeBlockSource region = NativeBlockSource.getDefault();
+        BlockSource region = BlockSource.getDefault();
         if (region != null)
             region.setRespawnCoords(x, y, z);
     }
@@ -977,11 +982,11 @@ public class NativeAPI {
 
     @Deprecated(since = "Zote")
     public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, Item extra) {
-        return spawnDroppedItem(x, y, z, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        return spawnDroppedItem(x, y, z, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
     @Deprecated(since = "Zote")
-    public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static long spawnDroppedItem(float x, float y, float z, int id, int count, int data, ItemInstanceExtra extra) {
         NativeBlockSource region = NativeBlockSource.getCurrentWorldGenRegion();
         if (region != null)
             return region.spawnDroppedItem(x, y, z, id, count, data, extra);

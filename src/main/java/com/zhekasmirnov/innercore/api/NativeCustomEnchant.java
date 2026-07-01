@@ -1,11 +1,11 @@
 package com.zhekasmirnov.innercore.api;
 
 import com.reider745.item.CustomEnchantment;
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.apparatus.mod.ContentIdSource;
 
 import cn.nukkit.item.enchantment.Enchantment;
 
+import org.innercore.icstd.inventory.ItemInstance;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
 import java.util.HashMap;
@@ -142,7 +142,7 @@ public class NativeCustomEnchant {
     }
 
     public interface DoPostAttackListener {
-        void doPostAttack(ItemStack item, int damage, long actor1, long actor2);
+        void doPostAttack(ItemInstance item, int damage, long actor1, long actor2);
     }
 
     private DoPostAttackListener doPostAttackListener;
@@ -174,7 +174,7 @@ public class NativeCustomEnchant {
     }
 
     public interface DoPostHurtListener {
-        void doPostHurt(ItemStack item, int damage, long actor1, long actor2);
+        void doPostHurt(ItemInstance item, int damage, long actor1, long actor2);
     }
 
     private DoPostHurtListener doPostHurtListener;

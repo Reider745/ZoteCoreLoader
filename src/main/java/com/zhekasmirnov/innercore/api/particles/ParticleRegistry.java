@@ -2,8 +2,8 @@ package com.zhekasmirnov.innercore.api.particles;
 
 import com.reider745.InnerCoreServer;
 import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.innercore.api.commontypes.Coords;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectWrapper;
+import org.innercore.icstd.common.script.GenericScriptPos3;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -276,8 +276,8 @@ public class ParticleRegistry {
         public void release() {
         }
 
-        public Coords getPosition() {
-            return new Coords(0, 0, 0);
+        public GenericScriptPos3 getPosition() {
+            return new GenericScriptPos3(0, 0, 0);
         }
 
         public float[] getPositionArray() {

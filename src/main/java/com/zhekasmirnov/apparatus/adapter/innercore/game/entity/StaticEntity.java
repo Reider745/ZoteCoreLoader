@@ -1,11 +1,12 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.entity;
 
+import com.reider745.InnerCoreServer;
+import com.reider745.api.ClientOnly;
 import com.reider745.entity.EntityMethod;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.common.Vector3;
 import com.zhekasmirnov.innercore.api.NativeAPI;
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.innercore.api.NativeItemInstance;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 public class StaticEntity {
 
@@ -23,8 +24,8 @@ public class StaticEntity {
         return NativeAPI.isValidEntity(entity);
     }
 
-    public static ItemStack getCarriedItem(long entity) {
-        return new ItemStack(new NativeItemInstance(EntityMethod.getEntityCarriedItem(entity)));
+    public static ItemInstance getCarriedItem(long entity) {
+        return ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(entity));
     }
 
     public static int getType(long entity) {
@@ -37,17 +38,18 @@ public class StaticEntity {
         return new Vector3(position);
     }
 
-    public static ItemStack getDroppedItem(long entity) {
-        return new ItemStack(new NativeItemInstance(EntityMethod.getItemFromDrop(entity)));
+    public static ItemInstance getDroppedItem(long entity) {
+        return ItemInstance.makeFrom(EntityMethod.getItemFromDrop(entity));
     }
 
     public static int getExperienceOrbValue(long entity) {
         return EntityMethod.getExperienceOrbValue(entity);
     }
 
-    @Deprecated(since = "Zote")
+    @ClientOnly
     public static EntityActor newDroppedItem(float x, float y, float z, int id, int count, int data,
-            NativeItemInstanceExtra extra) {
+                                             ItemInstanceExtra extra) {
+        InnerCoreServer.useNotSupport("StaticEntity.newDroppedItem");
         return new EntityActor(NativeAPI.spawnDroppedItem(x, y, z, id, count, data, extra));
     }
 }

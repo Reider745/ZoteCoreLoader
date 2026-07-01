@@ -1,8 +1,8 @@
 package com.zhekasmirnov.innercore.api.mod.recipes;
 
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.recipes.furnace.FurnaceRecipe;
@@ -22,11 +22,11 @@ import java.util.HashMap;
 public class RecipeRegistry {
     static final String LOGGER_TAG = "INNERCORE-RECIPES";
 
-    private static String tryGetReadableStringFromResult(ItemInstance result) {
-        int id = result.getId();
+    private static String tryGetReadableStringFromResult(org.innercore.icstd.inventory.ItemInstance result) {
+        int id = result.id;
         String name = IDRegistry.getNameByID(id);
         name = name != null ? name : Integer.toString(id);
-        return result.getCount() + "x " + name + "#" + result.getData() + (result.getExtraValue() != null ? "[+extra]" : "");
+        return result.count + "x " + name + "#" + result.data + (result.extra != null ? "[+extra]" : "");
     }
 
     private static void reportComponentArrayError(Object[] components, String errorPrefix) {
@@ -122,14 +122,16 @@ public class RecipeRegistry {
     }
 
     @JSStaticFunction
-    public static WorkbenchShapedRecipe addShapedGeneric(ScriptableObject result, NativeArray mask, NativeArray data, Function func, String prefix, boolean vanilla) {
-        int id = ScriptableObjectHelper.getIntProperty(result, "id", 0);
+    public static WorkbenchShapedRecipe addShapedGeneric(Scriptable result, NativeArray mask, NativeArray data, Function func, String prefix, boolean vanilla) {
+        Object rawId = ScriptableObjectHelper.getProperty(result, "id", null);
+        int id;
+        if (!(rawId instanceof Number) || (id = ((Number) rawId).intValue()) == 0) {
+            ICLog.i("ERROR", "shaped recipe id is invalid: " + rawId);
+            return null;
+        }
         int count = ScriptableObjectHelper.getIntProperty(result, "count", 1);
         int aux = ScriptableObjectHelper.getIntProperty(result, "data", 0);
-        NativeItemInstanceExtra extra = NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
-        if (id == 0) {
-            throw new IllegalArgumentException("recipe id is 0");
-        }
+        ItemInstanceExtra extra = ItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
 
         WorkbenchShapedRecipe recipe = new WorkbenchShapedRecipe(id, count, aux, extra);
         recipe.setCallback(func);
@@ -170,14 +172,16 @@ public class RecipeRegistry {
     }
 
     @JSStaticFunction
-    public static WorkbenchShapelessRecipe addShapelessGeneric(ScriptableObject result, NativeArray data, Function func, String prefix, boolean vanilla) {
-        int id = ScriptableObjectHelper.getIntProperty(result, "id", 0);
+    public static WorkbenchShapelessRecipe addShapelessGeneric(Scriptable result, NativeArray data, Function func, String prefix, boolean vanilla) {
+        Object rawId = ScriptableObjectHelper.getProperty(result, "id", null);
+        int id;
+        if (!(rawId instanceof Number) || (id = ((Number) rawId).intValue()) == 0) {
+            ICLog.i("ERROR", "shapeless recipe id is invalid: " + rawId);
+            return null;
+        }
         int count = ScriptableObjectHelper.getIntProperty(result, "count", 1);
         int aux = ScriptableObjectHelper.getIntProperty(result, "data", 0);
-        NativeItemInstanceExtra extra = NativeItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
-        if (id == 0) {
-            throw new IllegalArgumentException("recipe id is 0");
-        }
+        ItemInstanceExtra extra = ItemInstanceExtra.unwrapObject(ScriptableObjectHelper.getProperty(result, "extra", 0));
 
         WorkbenchShapelessRecipe recipe = new WorkbenchShapelessRecipe(id, count, aux, extra);
         recipe.setCallback(func);
@@ -334,7 +338,7 @@ public class RecipeRegistry {
     }
 
     @JSStaticFunction
-    public static ScriptableObject getFurnaceRecipeResult(int id, int data, String prefix) {
+    public static Scriptable getFurnaceRecipeResult(int id, int data, String prefix) {
         FurnaceRecipe recipe = FurnaceRecipeRegistry.getRecipe(id, data, prefix);
         return recipe != null ? recipe.getResult() : null;
     }

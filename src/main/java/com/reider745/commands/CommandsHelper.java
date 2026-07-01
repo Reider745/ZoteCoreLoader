@@ -14,7 +14,6 @@ public class CommandsHelper {
         map.register(tag, new StateCommand());
         map.register(tag, new InnerCoreNetworkCommand());
         map.register(tag, new GenChunksCommands());
-        map.register(tag, new CallbackProfilingCommand());
         map.register(tag, new GetAllPlayersIdCommand());
         map.register(tag, new DimensionsList());
         map.register(tag, new TpsCommand());

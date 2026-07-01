@@ -96,7 +96,7 @@ public class SyncedNetworkData implements ConnectedClientList.Listener {
     private final String name;
     private final boolean isServer;
 
-    private final ModdedClient clientInstance = Network.getSingleton().getClient();
+    //private final ModdedClient clientInstance = Network.getSingleton().getClient();
     private ConnectedClientList clients = new ConnectedClientList();
 
     private final Map<String, Object> data = new HashMap<>();
@@ -176,13 +176,8 @@ public class SyncedNetworkData implements ConnectedClientList.Listener {
     public void apply() {
         if (!dirtyData.isEmpty()) {
             synchronized (dirtyData) {
-                if (isServer) {
-                    ThreadTypeMarker.assertServerThread();
-                    clients.send("system.synced_data.data#" + name, new JSONObject(dirtyData));
-                } else {
-                    ThreadTypeMarker.assertClientThread();
-                    clientInstance.send("system.synced_data.data#" + name, new JSONObject(dirtyData));
-                }
+                ThreadTypeMarker.assertServerThread();
+                clients.send("system.synced_data.data#" + name, new JSONObject(dirtyData));
                 dirtyData.clear();
             }
         }

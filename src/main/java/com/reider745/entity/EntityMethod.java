@@ -31,12 +31,11 @@ import com.reider745.InnerCoreServer;
 import com.reider745.event.EventListener;
 import com.reider745.hooks.entity.EntityOverrides;
 import com.reider745.hooks.item.ItemUtils;
-import com.reider745.world.BlockSourceMethods;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.constants.EntityType;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
+import org.innercore.icstd.region.BlockSource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -208,8 +207,12 @@ public class EntityMethod {
     }
 
     public static void playSoundEnt(long entityUid, String name, float volume, float pitch) {
-        validateThen(entityUid, entity -> BlockSourceMethods.playSound(entity.getLevel(), name, (int) entity.x,
-                (int) entity.y, (int) entity.z, volume, pitch, null));
+        validateThen(entityUid, entity -> {
+            BlockSource blockSource = BlockSource.getDefaultForDimension(FakeDimensions.getFakeIdForLevel(entity.level));
+            if(blockSource != null) {
+                blockSource.playSound((float) entity.x, (float) entity.y, (float) entity.z, name, volume, pitch);
+            }
+        });
     }
 
     public static int getHealth(long entityUid) {
@@ -243,11 +246,11 @@ public class EntityMethod {
 
     public static void setEntityCarriedItem(long entityUid, int id, int count, int data,
             Item extra) {
-        setEntityCarriedItem(entityUid, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setEntityCarriedItem(entityUid, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
     public static void setEntityCarriedItem(long entityUid, int id, int count, int data,
-            NativeItemInstanceExtra extra) {
+                                            ItemInstanceExtra extra) {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         validateInventoryThen(entityUid, (enity, inv) -> inv.setItemInHand(ItemUtils.get(id, count, data, extra)), null);
@@ -255,11 +258,11 @@ public class EntityMethod {
 
     public static void setEntityOffhandItem(long entityUid, int id, int count, int data,
             Item extra) {
-        setEntityOffhandItem(entityUid, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setEntityOffhandItem(entityUid, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
     public static void setEntityOffhandItem(long entityUid, int id, int count, int data,
-            NativeItemInstanceExtra extra) {
+                                            ItemInstanceExtra extra) {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
 
@@ -268,11 +271,11 @@ public class EntityMethod {
 
     public static void setEntityArmor(long entityUid, int slot, int id, int count, int data,
             Item extra) {
-        setEntityArmor(entityUid, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setEntityArmor(entityUid, slot, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
     public static void setEntityArmor(long entityUid, int slot, int id, int count, int data,
-            NativeItemInstanceExtra extra) {
+                                      ItemInstanceExtra extra) {
         // TODO: Human actually player, there is no way to check/replace
         // TODO: regular entity, properties hardcoded at spawn.
         validateInventoryThen(entityUid, (enity, inv) -> inv.setArmorItem(slot, ItemUtils.get(id, count, data, extra)), null);
@@ -338,10 +341,10 @@ public class EntityMethod {
     }
 
     public static void setItemToDrop(long entityUid, int id, int count, int data, Item extra) {
-        setItemToDrop(entityUid, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setItemToDrop(entityUid, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setItemToDrop(long entityUid, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setItemToDrop(long entityUid, int id, int count, int data, ItemInstanceExtra extra) {
         // TODO: It will actually doesn't update item, hardcode again.
         validateThen(entityUid, entity -> {
             if (entity instanceof EntityItem drop) {
@@ -558,11 +561,11 @@ public class EntityMethod {
 
     public static void invokeUseItemOn(int id, int count, int data, Item extra, int x, int y, int z,
             int side, float vx, float vy, float vz, long entityUid) {
-        invokeUseItemOn(id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz,
+        invokeUseItemOn(id, count, data, ItemInstanceExtra.getExtraOrNull(extra), x, y, z, side, vx, vy, vz,
                 entityUid);
     }
 
-    public static void invokeUseItemOn(int id, int count, int data, NativeItemInstanceExtra extra, int x, int y, int z,
+    public static void invokeUseItemOn(int id, int count, int data, ItemInstanceExtra extra, int x, int y, int z,
             int side, float vx, float vy, float vz, long entityUid) {
         validateThen(entityUid, entity -> {
             synchronized (EventListener.DEALING_LOCK) {
@@ -576,7 +579,7 @@ public class EntityMethod {
 
     public static void transferToDimension(long entityUid, int dimension) {
         validateThen(entityUid, entity -> entity
-                .setPosition(entity.getPosition().setLevel(BlockSourceMethods.getLevelForDimension(dimension))));
+                .setPosition(entity.getPosition().setLevel(FakeDimensions.getLevelForFakeId(dimension))));
     }
 
     public static int getExperienceOrbValue(long entityUid) {

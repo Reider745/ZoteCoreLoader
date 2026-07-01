@@ -5,8 +5,6 @@ import java.util.HashMap;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.hooks.item.ItemUtils;
-import com.reider745.world.BlockSourceMethods;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
@@ -16,12 +14,17 @@ import cn.nukkit.blockentity.BlockEntityContainer;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
+import org.innercore.icstd.blockentity.BlockEntityComponent;
+import org.innercore.icstd.blockentity.BlockEntityType;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
+import org.innercore.icstd.region.BlockSource;
+import org.innercore.icstd.scene.GameObjectHandle;
 
 /**
  * Created by zheka on 26.07.2017.
  */
 
-public class NativeTileEntity {
+public class NativeTileEntity implements BlockEntityComponent {
     public static final boolean isContainer = false;
 
     private BlockEntity blockEntity;
@@ -59,13 +62,13 @@ public class NativeTileEntity {
     public void setSlot(int slot, int id, int count, int data, Object extra) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot(blockEntity, slot, id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
+        setSlot(blockEntity, slot, id, count, data, ItemInstanceExtra.unwrapObject(extra));
     }
 
     public void setSlot(int slot, int id, int count, int data) {
         if (slot < 0 || slot >= size)
             return;
-        setSlot(blockEntity, slot, id, count, data, (NativeItemInstanceExtra) null);
+        setSlot(blockEntity, slot, id, count, data, (ItemInstanceExtra) null);
     }
 
     public void setSlot(int slot, NativeItemInstance item) {
@@ -90,7 +93,7 @@ public class NativeTileEntity {
 
     @Deprecated(since = "Zote")
     public static NativeTileEntity getTileEntity(int x, int y, int z) {
-        return NativeBlockSource.getCurrentWorldGenRegion().getBlockEntity(x, y, z);
+        return BlockSource.getCurrentWorldGenRegion().getNativeBlockEntity(x, y, z);
     }
 
     /*
@@ -165,10 +168,10 @@ public class NativeTileEntity {
     }
 
     public static void setSlot(BlockEntity blockEntity, int slot, int id, int count, int data, Item extra) {
-        setSlot(blockEntity, slot, id, count, data, NativeItemInstanceExtra.getExtraOrNull(extra));
+        setSlot(blockEntity, slot, id, count, data, ItemInstanceExtra.getExtraOrNull(extra));
     }
 
-    public static void setSlot(BlockEntity blockEntity, int slot, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public static void setSlot(BlockEntity blockEntity, int slot, int id, int count, int data, ItemInstanceExtra extra) {
         Item item = ItemUtils.get(id, count, data, extra);
         if (blockEntity instanceof InventoryHolder holder) {
             holder.getInventory().setItem(slot, item);
@@ -206,7 +209,11 @@ public class NativeTileEntity {
 
     @Deprecated(since = "Zote")
     public static BlockEntity getInWorld(int x, int y, int z) {
-        return BlockSourceMethods.getBlockEntity(NativeBlockSource.getCurrentWorldGenRegion().getPointer(), x, y, z);
+        BlockSource source = BlockSource.getCurrentWorldGenRegion();
+        if(source == null) return null;
+
+        NativeTileEntity tileEntity = source.getNativeBlockEntity(x, y, z);
+        return tileEntity != null ? tileEntity.blockEntity : null;
     }
 
     @Deprecated(since = "Zote")
@@ -227,5 +234,15 @@ public class NativeTileEntity {
     @Deprecated(since = "Zote")
     public static void setCompoundTag(BlockEntity pointer, long tag) {
         InnerCoreServer.useNotSupport("NativeTileEntity.setCompoundTag(pointer, tag)");
+    }
+
+    @Override
+    public GameObjectHandle getObjectHandle() {
+        return null;
+    }
+
+    @Override
+    public BlockEntityType getBlockEntityType() {
+        return null;
     }
 }

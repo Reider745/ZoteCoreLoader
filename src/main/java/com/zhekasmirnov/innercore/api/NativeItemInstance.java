@@ -6,6 +6,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.hooks.item.ItemUtils;
 import com.reider745.item.NukkitIdConverter;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 /**
  * Created by zheka on 26.07.2017.
@@ -14,7 +15,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 public class NativeItemInstance {
     private Item item;
     public int id, count, data;
-    public NativeItemInstanceExtra extra;
+    public ItemInstanceExtra extra;
 
     public boolean isValid = false;
 
@@ -64,7 +65,7 @@ public class NativeItemInstance {
             }
             CompoundTag tag = item.getOrCreateNamedTag();
             if (extra != null && !extra.isEmpty()) {
-                tag = extra.getValue().getNamedTag();
+                tag = extra.getItem().getNamedTag();
                 extra.bind(item);
             } else {
                 tag.remove(ItemUtils.INNER_CORE_TAG_NAME);
@@ -117,12 +118,12 @@ public class NativeItemInstance {
         if (item == null) {
             return null;
         }
-        NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
-        return extra != null ? extra.getValue() : null;
+        ItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
+        return extra != null ? extra.getItem() : null;
     }
 
     public static void setExtra(Item item, int ench) {
-        NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
+        ItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
         if (extra != null) {
             extra.addEnchant(ench, 1);
         }

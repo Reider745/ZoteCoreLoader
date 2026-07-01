@@ -1,8 +1,8 @@
 package com.zhekasmirnov.apparatus.adapter.innercore.game.entity;
 
 import com.reider745.entity.EntityMethod;
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
 import com.zhekasmirnov.innercore.api.NativeAPI;
+import org.innercore.icstd.inventory.ItemInstance;
 
 public class EntityActor {
     private final long uid;
@@ -31,19 +31,19 @@ public class EntityActor {
 
     // inventory
 
-    public ItemStack getCarriedItem() {
-        return ItemStack.fromPtr(EntityMethod.getEntityCarriedItem(uid));
+    public ItemInstance getCarriedItem() {
+        return ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(uid));
     }
 
-    public ItemStack getOffhandItem() {
-        return ItemStack.fromPtr(EntityMethod.getEntityOffhandItem(uid));
+    public ItemInstance getOffhandItem() {
+        return ItemInstance.makeFrom(EntityMethod.getEntityOffhandItem(uid));
     }
 
-    public ItemStack getArmorSlot(int slot) {
-        return ItemStack.fromPtr(EntityMethod.getEntityArmor(uid, slot));
+    public ItemInstance getArmorSlot(int slot) {
+        return ItemInstance.makeFrom(EntityMethod.getEntityArmor(uid, slot));
     }
 
-    public void setArmorSlot(int slot, ItemStack stack) {
+    public void setArmorSlot(int slot, ItemInstance stack) {
         NativeAPI.setEntityArmor(uid, slot, stack.id, stack.count, stack.data, stack.extra);
     }
 }

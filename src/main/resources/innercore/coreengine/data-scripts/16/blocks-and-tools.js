@@ -397,7 +397,10 @@ BlockRegistry.registerDropFunctionForID(VanillaTileID.grass, function(coords, id
 BlockRegistry.setDestroyLevelForID(VanillaTileID.cobblestone, 1);
 
 BlockRegistry.registerDropFunctionForID(VanillaTileID.gravel, function(coords, id, data, level, enchant) {
-    if (Math.random() < 1 / (10 - enchant.fortune * 3)) {
+    if (enchant.silk) {
+        return [[id, 1, 0]];
+    }
+    if (enchant.fortune > 2 || Math.random() < 1 / (10 - enchant.fortune * 3)) {
         return [[VanillaItemID.flint, 1, 0]];
     }
     return [[id, 1, 0]];
@@ -409,7 +412,7 @@ BlockRegistry.registerDropFunctionForID(VanillaTileID.gold_ore, function(coords,
             ToolAPI.dropOreExp(coords, 2, 3, enchant.experience, blockSource);
             return [[VanillaItemID.gold_ingot, 1, 0]];
         } else {
-            return [[VanillaTileID.gold_ore, 1, 0]]
+            return [[VanillaTileID.gold_ore, 1, 0]];
         }
     }
     return [];
@@ -421,7 +424,7 @@ BlockRegistry.registerDropFunctionForID(VanillaTileID.iron_ore, function(coords,
             ToolAPI.dropOreExp(coords, 2, 2, enchant.experience, blockSource);
             return [[VanillaItemID.iron_ingot, 1, 0]];
         } else {
-            return [[VanillaTileID.iron_ore, 1, 0]]
+            return [[VanillaTileID.iron_ore, 1, 0]];
         }
     }
     return [];
@@ -621,7 +624,7 @@ BlockRegistry.setDestroyLevelForID(VanillaTileID.end_stone, 1);
 BlockRegistry.setDestroyLevelForID(VanillaTileID.dropper, 1, true);
 BlockRegistry.setDestroyLevelForID(VanillaTileID.sandstone_stairs, 1, true);
 
-BlockRegistry.registerDropFunctionForID(VanillaTileID.emerald_block, function(coords, id, data, level, enchant, item, blockSource) {
+BlockRegistry.registerDropFunctionForID(VanillaTileID.emerald_ore, function(coords, id, data, level, enchant, item, blockSource) {
     if (level >= 3) {
         if (enchant.silk) {
             return [[id, 1, data]];
@@ -937,7 +940,10 @@ BlockRegistry.setDestroyLevelForID(VanillaTileID.crying_obsidian, 4);
 
 BlockRegistry.registerDropFunctionForID(VanillaTileID.gilded_blackstone, function(coords, id, data, level, enchant) {
     if (level >= 1) {
-        if (Math.random() < 1 / (10 - enchant.fortune * 3)) {
+        if (enchant.silk) {
+            return [[BlockRegistry.convertBlockToItemId(id), 1, 0]];
+        }
+        if (enchant.fortune > 2 || Math.random() < 1 / (10 - enchant.fortune * 3)) {
             let drop = [];
             let count = 2 + Math.floor(Math.random() * 4);
             for (let i = 0; i < count; i++) {
@@ -1003,12 +1009,12 @@ BlockRegistry.setDestroyLevelForID(VanillaTileID.soul_lantern, 1, true);
 BlockRegistry.setDestroyLevelForID(VanillaTileID.respawn_anchor, 4, true);
 
 BlockRegistry.registerDropFunctionForID(VanillaTileID.web, function(coords, id, data, level, enchant, item) {
-    if(enchant.silk){
+    if (enchant.silk){
         return [[id, 1, 0]];
-    } 
-    if(level >= 1){
+    }
+    if (level >= 1){
         var toolData = ToolAPI.getToolData(item.id);
-        if(toolData && toolData.isWeapon){
+        if (toolData && toolData.isWeapon){
             return [[VanillaItemID.string, 1, 0]];
         } else {
             return [[id, 1, 0]];

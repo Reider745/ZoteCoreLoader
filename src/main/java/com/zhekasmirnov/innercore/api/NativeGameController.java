@@ -3,7 +3,6 @@ package com.zhekasmirnov.innercore.api;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 import org.mozilla.javascript.annotations.JSStaticFunction;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 
 @Deprecated
 @ClientOnly

@@ -1,10 +1,10 @@
 package com.zhekasmirnov.innercore.api.mod.recipes.workbench;
 
-import com.zhekasmirnov.apparatus.adapter.innercore.game.item.ItemStack;
-import com.zhekasmirnov.apparatus.api.container.ItemContainer;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
+import org.innercore.icstd.inventory.ItemContainer;
+import org.innercore.icstd.inventory.ItemInstance;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -133,7 +133,7 @@ public class WorkbenchRecipeListProcessor {
         this.listener = listener;
     }
 
-    public int processRecipeListPacket(ItemContainer container, JSONObject packet) {
+    public int processRecipeListPacket(org.innercore.icstd.inventory.ItemContainer container, JSONObject packet) {
         if (container.isServer) {
             throw new IllegalArgumentException("requires client container");
         }
@@ -147,7 +147,7 @@ public class WorkbenchRecipeListProcessor {
                     long uid = recipe.optLong("id");
                     JSONObject resultJson = recipe.optJSONObject("result");
                     if (resultJson != null && uid != 0) {
-                        ItemStack result = ItemStack.parse(resultJson);
+                        ItemInstance result = ItemInstance.parse(resultJson, true);
                         if (result != null) {
                             result.id = IdConversionMap.serverToLocal(result.id);
                             container.setSlot(PREFIX + index, result.id, result.count, result.data, result.extra);

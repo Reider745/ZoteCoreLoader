@@ -9,10 +9,10 @@ import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 import com.reider745.entity.EntityMethod;
 import com.reider745.item.CustomItem;
+import com.zhekasmirnov.apparatus.adapter.innercore.EngineConfig;
 import com.zhekasmirnov.apparatus.adapter.innercore.game.entity.EntityActor;
 import com.zhekasmirnov.apparatus.api.player.armor.ActorArmorHandler;
 import com.zhekasmirnov.apparatus.ecs.core.*;
-import com.zhekasmirnov.apparatus.mcpe.NativeBlockSource;
 import com.zhekasmirnov.apparatus.mcpe.NativePlayer;
 import com.zhekasmirnov.apparatus.minecraft.version.MinecraftVersions;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
@@ -22,7 +22,6 @@ import com.zhekasmirnov.apparatus.multiplayer.util.list.ConnectedClientList;
 import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.api.*;
 import com.zhekasmirnov.innercore.api.annotations.*;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.commontypes.ScriptableParams;
 import com.zhekasmirnov.innercore.api.constants.EntityType;
 import com.zhekasmirnov.innercore.api.dimensions.CustomDimensionGenerator;
@@ -59,6 +58,10 @@ import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
 import com.zhekasmirnov.innercore.ui.LoadingUI;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.innercore.utils.UIUtils;
+import org.innercore.icstd.entity.PathNavigation;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
+import org.innercore.icstd.serialization.SerializationContext;
 import org.json.JSONException;
 import org.mozilla.javascript.*;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -106,6 +109,11 @@ public class AdaptedScriptAPI extends API {
     @Override
     public void prepareExecutable(Executable executable) {
         super.prepareExecutable(executable);
+
+        if (isLoaded) {
+            ScriptableObject scope = executable.getScope();
+            injectModulesIntoScope(scope, true);
+        }
     }
 
     @JSStaticFunction
@@ -126,6 +134,13 @@ public class AdaptedScriptAPI extends API {
     @JSStaticFunction
     public static void logDeprecation(String functionName) {
         ICLog.d("WARNING", "using deprecated or unimplemented method " + functionName + "()");
+    }
+
+    @JSStaticFunction
+    public static void logIndevDeprecation(String functionName) {
+        if (EngineConfig.isDeveloperMode()) {
+            logDeprecation(functionName);
+        }
     }
 
     @JSStaticFunction
@@ -386,7 +401,7 @@ public class AdaptedScriptAPI extends API {
                 return -1;
             }
             return NativeAPI.spawnDroppedItem((float) x, (float) y, (float) z, id, count, data,
-                    NativeItemInstanceExtra.unwrapObject(extra));
+                    ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -641,8 +656,7 @@ public class AdaptedScriptAPI extends API {
 
     @APIStaticModule
     public static class Entity {
-
-        static long unwrapEntity(Object ent) {
+        public static long unwrapEntity(Object ent) {
             return (long) (ent instanceof Wrapper ? ((Wrapper) ent).unwrap() : ((Number) ent).longValue());
         }
 
@@ -902,62 +916,62 @@ public class AdaptedScriptAPI extends API {
 
         @JSStaticFunction
         public static ItemInstance getDroppedItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getItemFromDrop(unwrapEntity(entity))));
+            return ItemInstance.makeFrom(EntityMethod.getItemFromDrop(unwrapEntity(entity)));
         }
 
         @JSStaticFunction
         public static ItemInstance getProjectileItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getItemFromProjectile(unwrapEntity(entity))));
+            return ItemInstance.makeFrom(EntityMethod.getItemFromProjectile(unwrapEntity(entity)));
         }
 
         @JSStaticFunction
         @Indev
         public static void setDroppedItem(Object entity, int id, int count, int data, Object extra) {
-            NativeAPI.setItemToDrop(unwrapEntity(entity), id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
+            NativeAPI.setItemToDrop(unwrapEntity(entity), id, count, data, ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         public static ItemInstance getCarriedItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityCarriedItem(unwrapEntity(entity))));
+            return ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(unwrapEntity(entity)));
         }
 
         @JSStaticFunction
         public static ItemInstance getOffhandItem(Object entity) {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityOffhandItem(unwrapEntity(entity))));
+            return ItemInstance.makeFrom(EntityMethod.getEntityOffhandItem(unwrapEntity(entity)));
         }
 
         @JSStaticFunction
         public static void setCarriedItem(Object entity, int id, int count, int data, Object extra) {
             NativeAPI.setEntityCarriedItem(unwrapEntity(entity), id, count, data,
-                    NativeItemInstanceExtra.unwrapObject(extra));
+                    ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         public static void setOffhandItem(Object entity, int id, int count, int data, Object extra) {
             NativeAPI.setEntityOffhandItem(unwrapEntity(entity), id, count, data,
-                    NativeItemInstanceExtra.unwrapObject(extra));
+                    ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         public static ItemInstance getArmor(Object entity, int slot) {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityArmor(unwrapEntity(entity), slot)));
+            return ItemInstance.makeFrom(EntityMethod.getEntityArmor(unwrapEntity(entity), slot));
         }
 
         @JSStaticFunction
         public static void setArmor(Object entity, int slot, int id, int count, int data, Object extra) {
             NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data,
-                    NativeItemInstanceExtra.unwrapObject(extra));
+                    ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         public static ItemInstance getArmorSlot(Object entity, int slot) {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityArmor(unwrapEntity(entity), slot)));
+            return ItemInstance.makeFrom(EntityMethod.getEntityArmor(unwrapEntity(entity), slot));
         }
 
         @JSStaticFunction
         public static void setArmorSlot(Object entity, int slot, int id, int count, int data, Object extra) {
             NativeAPI.setEntityArmor(unwrapEntity(entity), slot, id, count, data,
-                    NativeItemInstanceExtra.unwrapObject(extra));
+                    ItemInstanceExtra.unwrapObject(extra));
         }
 
         // other
@@ -1084,8 +1098,8 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static NativePathNavigation getPathNavigation(Object entity) {
-            return NativePathNavigation.getNavigation(unwrapEntity(entity));
+        public static PathNavigation getPathNavigation(Object entity) {
+            return PathNavigation.getNavigation(unwrapEntity(entity));
         }
 
         @JSStaticFunction
@@ -1166,7 +1180,7 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Deprecated
         public static ItemInstance getInventorySlot(int slot) {
-            return new ItemInstance(new NativeItemInstance(NativeAPI.getInventorySlot(slot)));
+            return new ItemInstance();
         }
 
         @JSStaticFunction
@@ -1178,37 +1192,37 @@ public class AdaptedScriptAPI extends API {
         @JSStaticFunction
         @Deprecated
         public static ItemInstance getArmorSlot(int slot) {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityArmor(get(), slot)));
+            return ItemInstance.makeFrom(EntityMethod.getEntityArmor(get(), slot));
         }
 
         @JSStaticFunction
         @Deprecated
         public static void setArmorSlot(int slot, int id, int count, int data, Object extra) {
-            EntityMethod.setEntityArmor(get(), slot, id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
+            EntityMethod.setEntityArmor(get(), slot, id, count, data, ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         @Deprecated
         public static ItemInstance getCarriedItem() {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityCarriedItem(get())));
+            return ItemInstance.makeFrom(EntityMethod.getEntityCarriedItem(get()));
         }
 
         @JSStaticFunction
         @Deprecated
         public static ItemInstance getOffhandItem() {
-            return new ItemInstance(new NativeItemInstance(EntityMethod.getEntityOffhandItem(get())));
+            return ItemInstance.makeFrom(EntityMethod.getEntityOffhandItem(get()));
         }
 
         @JSStaticFunction
         @Deprecated
         public static void setCarriedItem(int id, int count, int data, Object extra) {
-            EntityMethod.setEntityCarriedItem(get(), id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
+            EntityMethod.setEntityCarriedItem(get(), id, count, data, ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
         @Deprecated
         public static void setOffhandItem(int id, int count, int data, Object extra) {
-            EntityMethod.setEntityOffhandItem(get(), id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
+            EntityMethod.setEntityOffhandItem(get(), id, count, data, ItemInstanceExtra.unwrapObject(extra));
         }
 
         @JSStaticFunction
@@ -1619,65 +1633,6 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-    @APIStaticModule
-    public static class Item extends NativeItem {
-        protected Item(int id, long ptr, String nameId, String nameToDisplay) {
-            super(id, CustomItem.getItemManager(id), nameId, nameToDisplay);
-        }
-
-        @JSStaticFunction
-        public static NativeItem createFoodItem(int id, String nameId, String name, String iconName, int iconIndex,
-                int food) {
-            NativeItem item = NativeItem.createFoodItem(id, nameId, name, iconName, iconIndex, food);
-            item.setMaxUseDuration(32);
-            return item;
-        }
-
-        @JSStaticFunction
-        public static String getName(int id, int data, Object extra) {
-            return getNameForId(id, data, NativeItemInstanceExtra.unwrapObject(extra));
-        }
-
-        @JSStaticFunction
-        public static int getMaxDamage(int id) {
-            return getMaxDamageForId(id, 0);
-        }
-
-        @JSStaticFunction
-        public static int getMaxStackSize(int id, int data) {
-            return getMaxStackForId(id, data);
-        }
-
-        @JSStaticFunction
-        @Deprecated(since = "Zote")
-        public static void setRequiresIconOverride(int id, boolean enabled) {
-            NativeItem.setItemRequiresIconOverride(id, enabled);
-        }
-
-        @JSStaticFunction
-        @Deprecated(since = "Zote")
-        public static void overrideCurrentIcon(String name, int index) {
-            NativeItem.overrideItemIcon(name, index);
-        }
-
-        @JSStaticFunction
-        @Deprecated(since = "Zote")
-        public static void overrideCurrentName(String name) {
-            NativeAPI.overrideItemName(name);
-        }
-
-        @JSStaticFunction
-        public static void invokeItemUseOn(int id, int count, int data, Object extra, int x, int y, int z, int side,
-                double vx, double vy, double vz, Object entity) {
-            NativeAPI.invokeUseItemOn(id, count, data, NativeItemInstanceExtra.unwrapObject(extra), x, y, z, side,
-                    (float) vx, (float) vy, (float) vz, Entity.unwrapEntity(entity));
-        }
-
-        public static void invokeItemUseNoTarget(int id, int count, int data, Object extra) {
-            NativeAPI.invokeUseItemNoTarget(id, count, data, NativeItemInstanceExtra.unwrapObject(extra));
-        }
-    }
-
     // keep old methods, but now inherit from apparatus api
     public static class Armor extends ActorArmorHandler {
         private Armor(EntityActor actor) {
@@ -1696,12 +1651,12 @@ public class AdaptedScriptAPI extends API {
         }
     }
 
-    public static class ItemExtraData extends NativeItemInstanceExtra {
-        public ItemExtraData(cn.nukkit.item.Item extra) {
-            super(extra != null ? constructClone(extra) : null);
+    public static class ItemExtraData extends ItemInstanceExtra {
+        public ItemExtraData(long extra) {
+            super(extra != 0 ? constructClone(extra) : 0);
         }
 
-        public ItemExtraData(NativeItemInstanceExtra extra) {
+        public ItemExtraData(ItemInstanceExtra extra) {
             super(extra);
         }
 
@@ -2194,7 +2149,7 @@ public class AdaptedScriptAPI extends API {
     @APIStaticModule
     public static class Saver {
         @APIIgnore
-        public static interface IScopeSaver {
+        public interface IScopeSaver {
             void read(Object scope);
             Object save();
             default Scriptable getDefaultSaves(){
@@ -2203,7 +2158,7 @@ public class AdaptedScriptAPI extends API {
         }
 
         @APIIgnore
-        public static interface IObjectSaver {
+        public interface IObjectSaver {
             Object read(ScriptableObject input);
             ScriptableObject save(Object input);
             Scriptable getDefaultSaves();
@@ -2234,9 +2189,9 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static int registerObjectSaver(final String name, Object scopeSaver) {
+        public static String registerObjectSaver(final String name, Object scopeSaver) {
             final IObjectSaver saver = (IObjectSaver) Context.jsToJava(scopeSaver, IObjectSaver.class);
-            return ObjectSaverRegistry.registerSaver(name, new ObjectSaver() {
+            ObjectSaverRegistry.registerSaver(name, new ObjectSaver() {
                 @Override
                 public Object read(ScriptableObject input) {
                     return saver.read(input);
@@ -2247,36 +2202,30 @@ public class AdaptedScriptAPI extends API {
                     return saver.save(input);
                 }
             });
+            return name;
         }
 
         @JSStaticFunction
         public static String serializeToString(Object param) {
-            return ScriptableSerializer.jsonToString(ScriptableSerializer.scriptableToJson(param, null));
+            SerializationContext ctx = new SerializationContext();
+            return ScriptableSerializer.scriptableToJsonString(param, ctx);
         }
 
         @JSStaticFunction
         public static Object deserializeFromString(String param) {
-            try {
-                return ScriptableSerializer.scriptableFromJson(ScriptableSerializer.stringToJson(param));
-            } catch (JSONException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            SerializationContext ctx = new SerializationContext();
+            return ScriptableSerializer.scriptableFromJsonString(param, ctx, false);
         }
 
         @JSStaticFunction
-        public static void registerObject(Object obj, int saverId) {
+        public static void registerObject(Object obj, String saverId) {
             ObjectSaverRegistry.registerObject(obj, saverId);
         }
 
         @JSStaticFunction
         public static void setObjectIgnored(ScriptableObject obj, boolean ignore) {
-            ObjectSaverRegistry.setObjectIgnored(obj, ignore);
-        }
-
-        @JSStaticFunction
-        public static int getObjectSaverId(Object obj) {
-            ObjectSaver saver = ObjectSaverRegistry.getSaverFor(obj);
-            return saver != null ? saver.getSaverId() : -1;
+            // NOTE: This was not working for a long time already
+            logDeprecation("setObjectIgnored");
         }
     }
 
@@ -2776,37 +2725,6 @@ public class AdaptedScriptAPI extends API {
 
         public SyncedNetworkData() {
             super();
-        }
-    }
-
-    public static class ItemContainer extends com.zhekasmirnov.apparatus.api.container.ItemContainer {
-        public ItemContainer() {
-            super();
-        }
-
-        @Deprecated(since = "Zote")
-        public ItemContainer(com.zhekasmirnov.innercore.api.mod.ui.container.Container container) {
-            super(container);
-        }
-    }
-
-    public static class BlockSource extends NativeBlockSource {
-        public BlockSource(int dimension, boolean b1, boolean b2) {
-            super(dimension, b1, b2);
-        }
-
-        public BlockSource(int dimension) {
-            super(dimension);
-        }
-    }
-
-    public static class BlockState extends com.zhekasmirnov.apparatus.adapter.innercore.game.block.BlockState {
-        public BlockState(int id, int data) {
-            super(id, data);
-        }
-
-        public BlockState(int id, Object scriptable) {
-            super(id, (Scriptable) scriptable);
         }
     }
 

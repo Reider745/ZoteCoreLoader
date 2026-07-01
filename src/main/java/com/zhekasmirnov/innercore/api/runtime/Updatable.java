@@ -1,16 +1,19 @@
 package com.zhekasmirnov.innercore.api.runtime;
 
-import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.apparatus.adapter.innercore.UserDialog;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
-import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
-import com.zhekasmirnov.innercore.api.runtime.saver.world.ScriptableSaverScope;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
+import org.innercore.icstd.script.ScriptObjectComponent;
+import org.innercore.icstd.updatable.UpdatableComponent;
+import org.innercore.icstd.serialization.*;
+import org.innercore.icstd.updatable.*;
 import org.mozilla.javascript.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by zheka on 10.08.2017.
@@ -18,86 +21,127 @@ import java.util.List;
 
 public class Updatable {
     private static final Object[] EMPTY_ARGS = new Object[]{};
+    private final Object[] DT_SCRIPT_ARGS = new Object[1]; // 1 instance per scope
 
-    private final List<ScriptableObject> updatableObjects = new ArrayList<>();
-    private final List<ScriptableObject> disabledDueToError = new ArrayList<>();
+    private final List<LegacyScriptUpdatable> updatableObjects = new ArrayList<>();
 
+    public final UpdatableSchedulerScope updatableScope;
     private Context currentContext = null;
 
-    private Updatable() {}
+    private Updatable(String scopeName) {
+        updatableScope = UpdatableScheduler.createNewScope(scopeName);
+    }
 
     public List<ScriptableObject> getAllUpdatableObjects() {
-        return updatableObjects;
+        return updatableObjects.stream().map(u -> u.updatable).collect(Collectors.toList());
     }
 
-    public void addUpdatable(ScriptableObject obj) {
-        Object _update = obj.get("update", obj);
-        if (_update instanceof Function) {
-            updatableObjects.add(obj);
-        } else {
-            throw new IllegalArgumentException("cannot add updatable object: <obj>.update must be a function, not " + (_update != null ? _update.getClass() : null) + " " + _update);
+    private void removeUpdatable(LegacyScriptUpdatable updatable) {
+        if (updatableObjects.get(updatable.index) != updatable)
+            throw new IllegalStateException();
+        LegacyScriptUpdatable last = updatableObjects.get(updatableObjects.size() - 1);
+        if (last != updatable) {
+            updatableObjects.set(updatable.index, last);
+            last.index = updatable.index;
         }
+        updatableObjects.remove(updatableObjects.size() - 1);
     }
 
-    public void onTick() {
-        if (currentContext == null) {
-            currentContext = Compiler.assureContextForCurrentThread();
+
+    public class LegacyScriptUpdatable implements UpdatableComponent, ScriptObjectComponent
+    {
+        ScriptableObject updatable;
+        UpdatableHandle handle;
+        int index;
+        boolean isDisabledDueToError = false;
+        Object[] scriptDtArgs = new Object[] { 1 };
+
+        LegacyScriptUpdatable(ScriptableObject updatable, int index) {
+            this.updatable = updatable;
+            this.index = index;
+            Object _update = updatable.get("update", updatable);
+            if (!(_update instanceof Function)) {
+                throw new IllegalArgumentException("cannot add updatable object: <obj>.update must be a function, not " + (_update != null ? _update.getClass() : null) + " " + _update);
+            }
+            this.handle = updatableScope.create(this).setRecurringSchedule(1).schedule(1);
+            updatable.put("_handle", updatable, this.handle);
         }
 
-        // Keep amount to update a fixed number of objects, excluding new ones; as before, they will be executed on next game tick
-        int updatableAmount = updatableObjects.size();
-        for (int offset = 0; currentContext != null && offset < updatableAmount; offset++) {
-            ScriptableObject updatable = updatableObjects.get(offset);
-
+        @Override
+        public void update(int dt) {
+            if (currentContext == null) {
+                currentContext = Compiler.assureContextForCurrentThread();
+            }
             if (!ScriptableObjectHelper.getBooleanProperty(updatable, "noupdate", false)) {
                 try {
-                    ((Function) updatable.get("update")).call(currentContext, updatable.getParentScope(), updatable, EMPTY_ARGS);
+                    DT_SCRIPT_ARGS[0] = dt;
+                    ((Function) updatable.get("update")).call(currentContext, updatable.getParentScope(), updatable, DT_SCRIPT_ARGS);
                 } catch (Throwable e) {
-                    updatableObjects.remove(offset--);
-                    updatableAmount--;
-                    disabledDueToError.add(updatable);
-
+                    isDisabledDueToError = true;
+                    handle.destroy();
                     Object _handle_error = updatable.get("_handle_error");
                     if (_handle_error instanceof Function) {
                         Function handle_error = (Function) _handle_error;
                         try {
                             handle_error.call(currentContext, handle_error.getParentScope(), updatable, new Object[] { e });
-                            continue;
+                            return;
                         } catch (Throwable th) {
-                            Logger.error("UPDATABLE ERROR", "Error occurred in error handler for " + updatableToString(currentContext, updatable) + " hash=" + updatable.hashCode(), th);
+                            UserDialog.insignificantError("Error occurred in error handler for " + updatableToString(currentContext, updatable) + " hash=" + updatable.hashCode(), th, true);
                         }
                     }
 
                     reportError(e, updatableToString(currentContext, updatable));
-                    continue;
+                    return;
                 }
             }
 
             if (ScriptableObjectHelper.getBooleanProperty(updatable, "remove", false)) {
-                updatableObjects.remove(offset--);
-                updatableAmount--;
+                handle.destroy();
+                removeUpdatable(this);
             }
         }
+
+        @Override
+        public Object getScriptObject() {
+            return updatable;
+        }
+
+    }
+
+    public void addUpdatable(ScriptableObject obj) {
+        updatableObjects.add(new LegacyScriptUpdatable(obj, updatableObjects.size()));
     }
 
     public void cleanUp() {
         updatableObjects.clear();
-        disabledDueToError.clear();
         currentContext = null;
+        updatableScope.clearAll();
+        updatableScope.setCurrentTick(0);
+    }
+
+    public void onTick(int tickNo) {
+        updatableScope.executeTickForScope(tickNo, -1);
     }
 
     // for backward compatibility
+
     @Deprecated
-    public void onPostTick() {}
+    public void onTick() {
+        throw new RuntimeException("Deprecated");
+    }
+
+    @Deprecated
+    public void onPostTick() {
+        throw new RuntimeException("Deprecated");
+    }
 
     @Deprecated
     public void onTickSingleThreaded() {
-        onTick();
-        onPostTick();
+        throw new RuntimeException("Deprecated");
     }
 
-    private static final Updatable serverInstance = new Updatable();
-    private static final Updatable clientInstance = new Updatable();
+    private static final Updatable serverInstance = new Updatable("server");
+    private static final Updatable clientInstance = new Updatable("local");
 
     public static Updatable getForServer() {
         return serverInstance;
@@ -108,7 +152,7 @@ public class Updatable {
     }
 
     public static void reportError(Throwable err, String updatableStr) {
-        Logger.error("UPDATABLE ERROR", "Updatable " + updatableStr + " was disabled due to error, corresponding object will be disabled. To re-enable it re-enter the world.", err);
+        UserDialog.dialog("UPDATABLE ERROR", "Updatable " + updatableStr + " was disabled due to error, corresponding object will be disabled. To re-enable it re-enter the world.", err, true);
     }
 
     private static String updatableToString(Context ctx, Scriptable obj) {
@@ -141,45 +185,41 @@ public class Updatable {
         throw new IllegalArgumentException("invalid updatable engine mode: " + mode);
     }
 
+    public static void loadClass() {}
+
     static {
-        WorldDataScopeRegistry.getInstance().addScope("_updatables", new ScriptableSaverScope() {
+        WorldDataScopeRegistry.getInstance().addScope("_updatables", new WorldDataScopeRegistry.SaverScope() {
             @Override
-            public ScriptableObject save() {
-                ArrayList<ScriptableObject> updatableObjectsToSave = new ArrayList<>();
-                for (ScriptableObject updatable : getForServer().updatableObjects) {
-                    if (ObjectSaverRegistry.getSaverFor(updatable) != null) {
-                        updatableObjectsToSave.add(updatable);
+            public void write(IScopedWriter io, SerializationContext ctx) {
+                IArrayWriter array = io.asArray();
+                for (LegacyScriptUpdatable updatable : getForServer().updatableObjects) {
+                    if (ObjectSerializer.getSerializerTypeIdFromObject(updatable.updatable) != null) {
+                        ObjectSerializer.serializeObject(array.beginScope(), updatable.updatable, ctx, true);
                     }
                 }
-                for (ScriptableObject updatable : getForServer().disabledDueToError) {
-                    if (ObjectSaverRegistry.getSaverFor(updatable) != null && !ScriptableObjectHelper.getBooleanProperty(updatable, "remove", false)) {
-                        updatableObjectsToSave.add(updatable);
-                    }
-                }
-                return new NativeArray(updatableObjectsToSave.toArray());
+                io.endScope();
             }
 
             @Override
-            public void read(Object scope) {
+            public void read(IScopedReader io, SerializationContext ctx) {
+                IArrayReader array = io.asArray();
                 int successfullyLoaded = 0;
-                if (scope instanceof NativeArray) {
-                    Object[] updatableObjectsToRead = ((NativeArray) scope).toArray();
-                    for (Object possibleUpdatable : updatableObjectsToRead) {
-                        if (possibleUpdatable instanceof ScriptableObject) {
-                            ScriptableObject scriptableUpdatable = (ScriptableObject) possibleUpdatable;
-                            if (scriptableUpdatable.get("update") instanceof Function) {
-                                getForServer().addUpdatable(scriptableUpdatable);
-                                successfullyLoaded++;
-                                continue;
-                            }
+                for (int i = 0; i < array.size(); i++) {
+                    Object possibleUpdatable = ObjectSerializer.deserializeObject(array.beginScope(i), Object.class, ctx, true);
+                    if (possibleUpdatable instanceof ScriptableObject) {
+                        ScriptableObject scriptableUpdatable = (ScriptableObject) possibleUpdatable;
+                        if (scriptableUpdatable.get("update") instanceof Function) {
+                            getForServer().addUpdatable(scriptableUpdatable);
+                            successfullyLoaded++;
+                            continue;
                         }
-                        ICLog.i("UPDATABLE", "loaded updatable data is not a scriptable object or it does not have update function, loading failed. obj=" + possibleUpdatable);
                     }
-                } else {
-                    ICLog.i("UPDATABLE", "assertion failed: updatable scope is not an array, loading failed");
+                    if (possibleUpdatable != null) {
+                        ctx.addError(null, possibleUpdatable, "loaded updatable data is not a scriptable object or it does not have update function, loading failed");
+                    }
                 }
-
-                ICLog.d("UPDATABLE", "successfully loaded updatables: " + successfullyLoaded);
+                ICLog.d("UPDATABLE", "successfully loaded " + successfullyLoaded + "/" + array.size() + " updatables");
+                io.endScope();
             }
         });
     }

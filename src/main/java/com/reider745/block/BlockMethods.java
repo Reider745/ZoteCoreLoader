@@ -80,6 +80,7 @@ public class BlockMethods {
     }
 
     public static int getMaterial(int id) {
+        InnerCoreServer.useNotCurrentSupport("BlockMethods.getMaterial");
         return 0;
     }
 

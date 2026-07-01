@@ -1,14 +1,22 @@
 package com.zhekasmirnov.innercore.api.mod.ui.container;
 
-import com.reider745.InnerCoreServer;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import com.zhekasmirnov.innercore.api.NativeAPI;
+import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import com.zhekasmirnov.innercore.api.log.DialogHelper;
+import com.zhekasmirnov.innercore.api.mod.ScriptableObjectWrapper;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchField;
 import com.zhekasmirnov.innercore.api.mod.ui.elements.UIElement;
+import com.zhekasmirnov.innercore.api.mod.ui.elements.UISlotElement;
 import com.zhekasmirnov.innercore.api.mod.ui.window.IWindow;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+import com.zhekasmirnov.innercore.api.runtime.MainThreadQueue;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaver;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
+
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.modules.ItemModule;
+import org.innercore.icstd.serialization.*;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -20,28 +28,95 @@ import java.util.HashMap;
  * Created by zheka on 02.08.2017.
  */
 
-@Deprecated(since = "Zote")
-public class Container implements WorkbenchField, UiAbstractContainer, ObjectSaverRegistry.IHashSaver {
+public class Container implements WorkbenchField, UiAbstractContainer, ISerializableObject {
     public static final boolean isContainer = true;
 
-    private static final int saverId;
-    static {
-        saverId = ObjectSaverRegistry.registerSaver("_container", new ObjectSaver() {
-            @Override
-            public Object read(ScriptableObject input) {
-                Container con = new Container();
-                con.slots = input;
-                return con;
-            }
-
-            @Override
-            public ScriptableObject save(Object input) {
-                if (input instanceof Container) {
-                    return ((Container) input).slots;
-                }
+    private static final String saverId = ObjectSerializer.registerType("ic:old_container", Container.class, new IObjectSerializer<Container>() {
+        @Override
+        public Container read(IScopedReader reader, SerializationContext ctx, String typeId) {
+            Container container = new Container();
+            IObjectReader slots = reader.asObject();
+            if (slots == null) {
+                ctx.addError("container serializer expected a slot map");
+                reader.endScope();
                 return null;
             }
-        });
+            for (String name : slots.iterKeys()) {
+                IArrayReader slot = slots.beginScope(name).asArray();
+                if (slot != null && slot.size() > 2) {
+                    ScriptableObject s = (ScriptableObject) container.getSlot(name);
+                    s.put("id", s, slot.getInt(0, 0));
+                    s.put("count", s, slot.getInt(1, 0));
+                    s.put("data", s, slot.getInt(2, 0));
+                    if (slot.size() > 3) {
+                        ItemInstanceExtra extra = ObjectSerializer.deserializeObject(slot.beginScope(3), ItemInstanceExtra.class, ctx, true);
+                        if (extra != null) {
+                            s.put("extra", s, extra);
+                        }
+                    }
+                } else if (slot != null && slot.size() == 0) {
+                    container.getSlot(name);
+                } else {
+                    ctx.addError("invalid container slot format " + name);
+                }
+                slots.endChildScope();
+            }
+            reader.endScope();
+            return container;
+        }
+
+        @Override
+        public void write(IScopedWriter writer, Container container, SerializationContext ctx, String typeId) {
+            if (container == null) throw new IllegalArgumentException("container is null");
+            IObjectWriter slots = writer.asObject();
+            for (Object key : container.slots.getIds()) {
+                if (!(key instanceof String)) continue;
+                Object s_ = container.getSlot((String) key);
+                if (!(s_ instanceof ScriptableObject)) continue;
+
+                ScriptableObject s = (ScriptableObject) s_;
+                int id = ScriptableObjectHelper.getIntProperty(s, "id", 0);
+                int count = ScriptableObjectHelper.getIntProperty(s, "count", 0);
+                int data = ScriptableObjectHelper.getIntProperty(s, "data", 0);
+                Object extra = ScriptableObjectHelper.getProperty(s, "extra", null);
+
+                IArrayWriter slot = slots.beginScope((String) key).asArray();
+                if (id == 0 && count == 0 && data == 0) {
+                    slot.endScope(); // empty slot
+                    continue;
+                }
+                slot.addInt(id);
+                slot.addInt(count);
+                slot.addInt(data);
+                if (extra instanceof ItemInstanceExtra) {
+                    ObjectSerializer.serializeObject(slot.beginScope(), extra, ctx, true);
+                }
+                slot.endScope();
+            }
+            writer.endScope();
+        }
+    });
+
+    private static final String legacySaverId = ObjectSaverRegistry.registerSaverStr("_container", new ObjectSaver() {
+        @Override
+        public Object read(ScriptableObject input) {
+            Container con = new Container();
+            con.slots = input;
+            return con;
+        }
+
+        @Override
+        public ScriptableObject save(Object input) {
+            if (input instanceof Container) {
+                return ((Container) input).slots;
+            }
+            return null;
+        }
+    });
+
+    @Override
+    public String getSerializationTypeId() {
+        return saverId;
     }
 
     public static void initSaverId() {
@@ -49,7 +124,6 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
     }
 
     public Container() {
-        ObjectSaverRegistry.registerObject(this, saverId);
     }
 
     public Object parent, tileEntity;
@@ -74,6 +148,7 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
         }
     };
 
+
     public Object getSlot(String name) {
         if (slots.has(name, slots)) {
             return slots.get(name);
@@ -88,7 +163,8 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
             Object _slot = slots.get(name);
             if (_slot instanceof Slot) {
                 return (Slot) _slot;
-            } else if (_slot instanceof ScriptableObject) {
+            }
+            else if (_slot instanceof ScriptableObject) {
                 return new Slot((ScriptableObject) _slot);
             }
         }
@@ -104,7 +180,36 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
 
     @Override
     public void handleInventoryToSlotTransaction(int inventorySlotId, String slotName, int amount0) {
-        InnerCoreServer.useClientMethod("Container.handleInventoryToSlotTransaction(inventorySlotId, slotName, amount0)");
+        MainThreadQueue.serverThread.enqueue(() -> {
+            int amount = amount0;
+            UIElement element = getElement(slotName);
+            UISlotElement slotElement = element instanceof UISlotElement ? (UISlotElement) element : null;
+            if (amount > 0 && (slotElement == null || !slotElement.isVisual)) {
+                Object slotObj = getSlot(slotName);
+                if (slotObj instanceof ScriptableObject) {
+                    ItemInstance invSlot = ItemInstance.makeFromPointer(NativeAPI.getInventorySlot(inventorySlotId));
+                    ScriptableObjectWrapper slot = new ScriptableObjectWrapper((ScriptableObject) slotObj);
+                    if (slot.getInt("id") == 0 || slot.getInt("id") == invSlot.id && slot.getInt("data") == invSlot.data && slot.get("extra") == null) {
+                        if (amount > invSlot.count) {
+                            amount = invSlot.count;
+                        }
+                        if (slotElement == null || slotElement.isValidItem(invSlot.id, invSlot.count, invSlot.data, invSlot.extra)) {
+                            int maxStackSize = slotElement != null && slotElement.maxStackSize > 0 ? slotElement.maxStackSize : ItemModule.getMaxStack(invSlot.id, invSlot.data);
+                            amount = Math.min(amount, Math.min(invSlot.count, maxStackSize - slot.getInt("count")));
+                            slot.put("count", slot.getInt("count") + amount);
+                            slot.put("id", invSlot.id);
+                            slot.put("data", invSlot.data);
+                            slot.put("extra", ItemInstanceExtra.cloneExtra(invSlot.extra));
+                            if (amount < invSlot.count) {
+                                NativeAPI.setInventorySlot(inventorySlotId, invSlot.id, invSlot.count - amount, invSlot.data, ItemInstanceExtra.getValueOrNullPtr(invSlot.extra));
+                            } else {
+                                NativeAPI.setInventorySlot(inventorySlotId, 0, 0, 0, 0);
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -114,14 +219,41 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
 
     @Override
     public void handleSlotToInventoryTransaction(String slotName, int amount0) {
-        InnerCoreServer.useClientMethod("Container.handleSlotToInventoryTransaction(slotName, amount0)");
+        MainThreadQueue.serverThread.enqueue(() -> {
+            int amount = amount0;
+            UIElement element = getElement(slotName);
+            UISlotElement slotElement = element instanceof UISlotElement ? (UISlotElement) element : null;
+            if (amount > 0 && (slotElement == null || !slotElement.isVisual)) {
+                Object slotObj = getSlot(slotName);
+                if (slotObj instanceof ScriptableObject) {
+                    ScriptableObjectWrapper slot = new ScriptableObjectWrapper((ScriptableObject) slotObj);
+                    int id = slot.getInt("id");
+                    int count = slot.getInt("count");
+                    int data = slot.getInt("data");
+                    ItemInstanceExtra extra = ItemInstanceExtra.unwrapObject(slot.get("extra"));
+                    if (id != 0 && count > 0) {
+                        amount = Math.min(amount, count);
+                        count -= amount;
+                        NativeAPI.addItemToInventory(id, amount, data, ItemInstanceExtra.getValueOrNullPtr(extra), true);
+                        if (count <= 0) {
+                            id = data = count = 0;
+                            extra = null;
+                        }
+                        slot.put("id", id);
+                        slot.put("count", count);
+                        slot.put("data", data);
+                        slot.put("extra", extra);
+                    }
+                }
+            }
+        });
     }
 
     public void setSlot(String name, int id, int count, int data) {
         getFullSlot(name).set(id, count, data);
     }
 
-    public void setSlot(String name, int id, int count, int data, NativeItemInstanceExtra extra) {
+    public void setSlot(String name, int id, int count, int data, ItemInstanceExtra extra) {
         getFullSlot(name).set(id, count, data, extra);
     }
 
@@ -154,6 +286,8 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
             }
         }
     }
+
+
 
     private boolean isOpened = false;
     private IWindow window;
@@ -208,18 +342,6 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
         }
     }
 
-    private int id;
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public interface OnCloseListener {
         void onClose(Container c, IWindow win);
     }
@@ -270,6 +392,7 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
             callOnCloseEvent(true);
         }
     }
+
 
     public boolean isOpened() {
         return this.window != null && this.window.isOpened();
@@ -334,6 +457,8 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
         }
     }
 
+
+
     public void setScale(String name, float value) {
         setBinding(name, "value", value);
     }
@@ -354,6 +479,7 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
         UIElement element = getElement(name);
         return element != null && element.isTouched;
     }
+
 
     public void invalidateUIElements(boolean onCurrentThread) {
         if (window != null) {
@@ -386,11 +512,11 @@ public class Container implements WorkbenchField, UiAbstractContainer, ObjectSav
         invalidateUI(false);
     }
 
-    public void refreshSlots() {
-    }
 
-    public void applyChanges() {
-    }
+    public void refreshSlots() {}
+
+    public void applyChanges() {}
+
 
     private String wbSlotNamePrefix = "slot";
 

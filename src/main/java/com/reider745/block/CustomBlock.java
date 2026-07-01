@@ -158,7 +158,7 @@ public class CustomBlock extends BlockSolidMeta implements RandomTick {
         customBlocks.put(textId, id);
 
         CustomManager.put(id, manager);
-        NativeItem.newNativeItem(id, manager, textId, name);
+        NativeItem.constructBlock(id, manager, textId, name);
         return manager;
     }
 

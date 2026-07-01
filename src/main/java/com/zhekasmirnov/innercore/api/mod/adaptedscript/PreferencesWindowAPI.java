@@ -11,6 +11,7 @@ import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.mod.executable.Compiler;
 import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.innercore.utils.IMessageReceiver;
+import org.innercore.icstd.inventory.ItemContainer;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -178,16 +179,13 @@ public class PreferencesWindowAPI extends AdaptedScriptAPI {
         }
     }
 
-    public static class WorkbenchRecipeListBuilder
-            extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListBuilder {
-        public WorkbenchRecipeListBuilder(long player,
-                com.zhekasmirnov.apparatus.api.container.ItemContainer container) {
+    public static class WorkbenchRecipeListBuilder extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListBuilder {
+        public WorkbenchRecipeListBuilder(long player, ItemContainer container) {
             super(player, container);
         }
     }
 
-    public static class WorkbenchRecipeListProcessor
-            extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListProcessor {
+    public static class WorkbenchRecipeListProcessor extends com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeListProcessor {
         public WorkbenchRecipeListProcessor(ScriptableObject target) {
             super(target);
         }

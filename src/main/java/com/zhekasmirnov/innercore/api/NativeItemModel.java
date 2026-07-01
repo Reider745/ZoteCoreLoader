@@ -1,7 +1,7 @@
 package com.zhekasmirnov.innercore.api;
 
 import android.graphics.Bitmap;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
+import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.innercore.api.mod.adaptedscript.AdaptedScriptAPI.ICRender;
 import com.zhekasmirnov.innercore.api.mod.ui.GuiBlockModel;
 import com.zhekasmirnov.innercore.api.mod.ui.GuiRenderMesh;
@@ -9,6 +9,8 @@ import com.zhekasmirnov.innercore.api.mod.ui.ItemModelCacheManager;
 import com.zhekasmirnov.innercore.api.unlimited.BlockRegistry;
 import com.zhekasmirnov.innercore.api.unlimited.BlockVariant;
 import com.zhekasmirnov.innercore.mod.resource.ResourcePackManager;
+import org.innercore.icstd.inventory.ItemInstance;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.annotations.JSStaticFunction;
 
@@ -509,7 +511,8 @@ public class NativeItemModel {
 
     private IOverrideCallback mModelOverrideCallback = null;
 
-    public NativeItemModel getModelForItemInstance(int id, int count, int data, NativeItemInstanceExtra extra) {
+    @ClientOnly
+    public NativeItemModel getModelForItemInstance(int id, int count, int data, ItemInstanceExtra extra) {
         if (mModelOverrideCallback != null) {
             return mModelOverrideCallback.overrideModel(new ItemInstance(id, count, data, extra));
         }

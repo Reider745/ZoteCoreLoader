@@ -5,7 +5,7 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Level;
-import com.reider745.world.BlockSourceMethods;
+import com.reider745.world.FakeDimensions;
 
 public class GenChunksCommands extends Command {
     public GenChunksCommands() {
@@ -40,7 +40,7 @@ public class GenChunksCommands extends Command {
 
         Level level;
         try {
-            level = BlockSourceMethods.getLevelForDimension(dimension);
+            level = FakeDimensions.getLevelForFakeId(dimension);
         } catch (UnsupportedOperationException e) {
             return false;
         }

@@ -1,8 +1,10 @@
 package com.zhekasmirnov.innercore.api.dimensions;
 
 import com.reider745.InnerCoreServer;
+import com.reider745.api.ClientOnly;
 import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.innercore.api.log.ICLog;
+import org.innercore.icstd.modules.DimensionsModule;
 
 import java.util.HashMap;
 
@@ -42,9 +44,59 @@ public class CustomDimension {
 
     private boolean hasSkyLight = true;
 
+    public CustomDimension setEvaporatesLiquids(boolean value) {
+        DimensionsModule.setEvaporatesLiquids(id, value);
+        return this;
+    }
+
+    public CustomDimension setWeatherSeasons(boolean value) {
+        DimensionsModule.setWeatherSeasons(id, value);
+        return this;
+    }
+
     public CustomDimension setHasSkyLight(boolean value) {
         InnerCoreServer.useNotCurrentSupport("CustomDimension.setHasSkyLight(value)");
         this.hasSkyLight = value;
+        return this;
+    }
+
+    public CustomDimension setBedExplodesOnSleep(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setBedExplodesOnSleep(value)");
+        return this;
+    }
+
+    public CustomDimension setSkyAtmosphereEnabled(boolean value) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setSkyAtmosphereEnabled(value)");
+        return this;
+    }
+
+    @ClientOnly
+    public CustomDimension setCloudHeight(int height) {
+        return this;
+    }
+
+    public CustomDimension setTimeOfDay(float interval) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setTimeOfDay(value)");
+        return this;
+    }
+
+    public CustomDimension setTimeOfDayAmplifier(float amplifier) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setTimeOfDay(value)");
+        return this;
+    }
+
+    public CustomDimension resetTimeOfDay() {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.resetTimeOfDay(value)");
+        return this;
+    }
+
+    public CustomDimension setStarBrightness(float interval) {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.setStarBrightness(value)");
+        return this;
+    }
+
+    public CustomDimension resetStarBrightness() {
+        InnerCoreServer.useNotCurrentSupport("CustomDimension.resetStarBrightness(value)");
         return this;
     }
 

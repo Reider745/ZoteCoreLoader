@@ -17,10 +17,7 @@ import cn.nukkit.event.entity.*;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
-import cn.nukkit.event.level.ChunkLoadEvent;
-import cn.nukkit.event.level.ChunkPopulateEvent;
-import cn.nukkit.event.level.ChunkUnloadEvent;
-import cn.nukkit.event.level.LevelUnloadEvent;
+import cn.nukkit.event.level.*;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.plugin.PluginDisableEvent;
 import cn.nukkit.event.plugin.PluginEnableEvent;
@@ -71,7 +68,7 @@ import com.reider745.item.NukkitIdConverter.EntryItem;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import com.zhekasmirnov.innercore.api.NativeCallback;
-import com.zhekasmirnov.innercore.api.NativeItemInstanceExtra;
+import org.innercore.icstd.inventory.ItemInstanceExtra;
 
 public class EventListener implements Listener {
     public static final Object DEALING_LOCK = new Object();
@@ -186,7 +183,7 @@ public class EventListener implements Listener {
         final Vector3 hit = mop != null ? mop.hitVector : entity.getPosition();
         long id = EntityMethod.getIdForEntity(entity);
         final Item item = EntityMethod.getItemFromProjectile(id);
-        final NativeItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
+        final ItemInstanceExtra extra = ItemUtils.getItemInstanceExtra(item);
 
         consumeEvent(event,
                 () -> NativeCallback.onThrowableHit(id, (float) hit.x, (float) hit.y, (float) hit.z,
@@ -618,8 +615,17 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onLoadLevel(LevelLoadEvent event) {
+        NativeCallback.onDimensionLoaded(FakeDimensions.getFakeIdForLevel(event.getLevel()));
+    }
+
+    @EventHandler
     public void onUnloadLevel(LevelUnloadEvent event){
-        RedstoneSystem.onUnloadLevel(event.getLevel());
+        final Level level = event.getLevel();
+
+        RedstoneSystem.onUnloadLevel(level);
+        NativeCallback.onDimensionUnloaded(FakeDimensions.getFakeIdForLevel(level));
+        FakeDimensions.unload(level);
     }
 
     @ZoteOnly

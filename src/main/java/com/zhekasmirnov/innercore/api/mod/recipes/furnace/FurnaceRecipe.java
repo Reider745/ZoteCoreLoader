@@ -3,8 +3,8 @@ package com.zhekasmirnov.innercore.api.mod.recipes.furnace;
 import android.util.Pair;
 import com.zhekasmirnov.apparatus.minecraft.addon.recipe.AddonRecipeParser;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
-import com.zhekasmirnov.innercore.api.commontypes.ItemInstance;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.RecipeEntry;
+import org.innercore.icstd.inventory.ItemInstance;
 import org.json.JSONObject;
 
 /**
