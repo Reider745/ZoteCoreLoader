@@ -7,6 +7,7 @@ import org.innercore.icstd.common.BlockPos;
 import org.innercore.icstd.common.BlockPosAndSide;
 import org.innercore.icstd.common.Vec3f;
 import org.innercore.icstd.common.Vec3i;
+import org.jetbrains.annotations.Nullable;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -17,8 +18,10 @@ public class GenericScriptPos3 extends GenericPos3BindGenBase {
     @ApiBinding public double z;
     @ApiBinding public int side;
 
-    @ApiBinding public GenericScriptPos3 vec = null;
-    @ApiBinding public GenericScriptPos3 relative = null;
+    @ApiBinding @Nullable
+    public GenericScriptPos3 vec = null;
+    @ApiBinding @Nullable
+    public GenericScriptPos3 relative = null;
 
     @ApiBinding
     public GenericScriptPos3(double x, double y, double z, int side) {
@@ -90,11 +93,10 @@ public class GenericScriptPos3 extends GenericPos3BindGenBase {
 
     @ApiBinding
     public static GenericScriptPos3 parse(Object o, boolean nullable) {
-        if (o instanceof GenericScriptPos3) {
-            return (GenericScriptPos3) o;
+        if (o instanceof GenericScriptPos3 s) {
+            return s;
         }
-        if (o instanceof Scriptable) {
-            Scriptable s = (Scriptable) o;
+        if (o instanceof Scriptable s) {
             double x = ScriptableObjectHelper.getDoubleProperty(s, "x", 0);
             double y = ScriptableObjectHelper.getDoubleProperty(s, "y", 0);
             double z = ScriptableObjectHelper.getDoubleProperty(s, "z", 0);

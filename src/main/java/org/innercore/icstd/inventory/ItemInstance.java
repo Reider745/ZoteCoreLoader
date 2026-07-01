@@ -9,6 +9,7 @@ import org.innercore.icstd.annotations.ApiBinding;
 import com.zhekasmirnov.innercore.api.gen.ItemInstanceBindGenBase;
 import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import org.innercore.icstd.modules.ItemModule;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Scriptable;
@@ -20,10 +21,10 @@ public class ItemInstance extends ItemInstanceBindGenBase {
     @ApiBinding public int id = 0;
     @ApiBinding public int count = 0;
     @ApiBinding public int data = 0;
-    @ApiBinding public ItemInstanceExtra extra = null;
+    @ApiBinding @Nullable public ItemInstanceExtra extra = null;
 
     @ApiBinding
-    public ItemInstance(int id, int count, int data, ItemInstanceExtra extra) {
+    public ItemInstance(int id, int count, int data, @Nullable ItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;

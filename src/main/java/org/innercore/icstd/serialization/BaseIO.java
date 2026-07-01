@@ -3,13 +3,15 @@ package org.innercore.icstd.serialization;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
+
 public class BaseIO {
 
     public static ESerializedType getSerializedTypeFromObject(Object value) {
         if (value instanceof Number) {
             if (value instanceof Integer) {
                 return ESerializedType.INT;
-            } else if (value instanceof Double) {
+            } else if (value instanceof Double || value instanceof BigDecimal) {
                 return ESerializedType.DOUBLE;
             } else if (value instanceof Long) {
                 return ESerializedType.LONG;
@@ -29,7 +31,7 @@ public class BaseIO {
         } else if (value == null || value == JSONObject.NULL) {
             return ESerializedType.EMPTY_SCOPE;
         }
-        throw new IllegalArgumentException("unknown serialized value type: " + value.getClass());
+        throw new IllegalArgumentException("unknown serialized value type: " + value.getClass() + " " + value);
     }
 
     public static abstract class ScopedWriter implements IScopedWriter {

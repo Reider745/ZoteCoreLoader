@@ -17,13 +17,13 @@ public class ItemContainerSlot extends ItemContainerSlotBindGenBase implements A
     @ApiBinding public int id;
     @ApiBinding public int count;
     @ApiBinding public int data;
-    @ApiBinding public ItemInstanceExtra extra;
+    @ApiBinding @Nullable public ItemInstanceExtra extra;
 
     private String name;
     private ItemContainer container;
     private Boolean isSavingEnabled = null;
 
-    @ApiHidden public ItemContainerSlot(int id, int count, int data, ItemInstanceExtra extra) {
+    @ApiHidden public ItemContainerSlot(int id, int count, int data, @Nullable ItemInstanceExtra extra) {
         this.id = id;
         this.count = count;
         this.data = data;
