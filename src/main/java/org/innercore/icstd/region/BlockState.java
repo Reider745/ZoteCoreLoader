@@ -80,7 +80,9 @@ public class BlockState extends BlockStateBindGenBase {
     }
 
     @ApiBinding
-    public static native int getBlockStateCapacity(int id);
+    public static int getBlockStateCapacity(int id) {
+        return CAPACITY_STATES.getOrDefault(id, 0);
+    }
 
     @ApiBinding public final int id;
     @ApiBinding public final int data;
