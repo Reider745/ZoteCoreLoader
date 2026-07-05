@@ -35,6 +35,7 @@ import com.zhekasmirnov.innercore.utils.FileTools;
 import com.zhekasmirnov.mcpe161.InnerCore;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptRuntime;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -199,6 +200,10 @@ public class InnerCoreServer {
 
     public void preload(Server server) throws Exception {
         final long startupMillis = System.currentTimeMillis();
+
+        org.mozilla.javascript.Logger.DEBUG = Logger::debug;
+        Class.forName("org.mozilla.javascript.Context");
+        ScriptRuntime.GET_MESSAGES = () -> FileTools.getAssetInputStream("rhino/Messages.properties");
 
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");
