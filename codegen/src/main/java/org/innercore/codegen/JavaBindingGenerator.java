@@ -989,7 +989,7 @@ public final class JavaBindingGenerator {
             return expr + " instanceof Wrapper ? (long) ((Wrapper) " + expr + ").unwrap() : ((Number) "
                     + expr + ").longValue()";
         } else if (arg.type.equals(BASE_TYPE_STRING)) {
-            return expr + " instanceof String ? " + expr + ".toString() : (" + expr + " != null && " + expr
+            return expr + " instanceof CharSequence ? " + expr + ".toString() : (" + expr + " != null && " + expr
                     + " != Undefined.instance ? ScriptRuntime.toString(" + expr + ") : " + nullCase + ")";
         } else if (arg.type.equals(BASE_TYPE_BOOL)) {
             return expr + " instanceof Boolean ? (Boolean) " + expr + " : ScriptRuntime.toBoolean(" + expr + ")";

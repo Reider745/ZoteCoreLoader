@@ -189,12 +189,10 @@ public class Compiler {
             jarInputStream.close();
         } catch (IOException e) {
         }
-        System.out.println(script + " " + jarFile.getAbsolutePath());
         return script;
     }
 
     public static Script loadScriptFromDex(File dexFile) throws IOException {
-        System.out.println("GOIDAAA " + dexFile.getAbsolutePath());
         String dexFileAbsolute = dexFile.getAbsolutePath();
         File jarFile = new File(
                 (dexFileAbsolute.endsWith(".dex") ? dexFileAbsolute.substring(0, dexFileAbsolute.length() - 4)

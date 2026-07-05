@@ -10,6 +10,7 @@ import com.reider745.behavior.BehaviorPack;
 import com.reider745.commands.CommandsHelper;
 import com.reider745.event.EventListener;
 import com.reider745.event.InnerCorePlugin;
+import com.reider745.hooks.ZoteClassLoaderPool;
 import com.reider745.hooks.item.RuntimeItemsHooks;
 import com.reider745.hooks.SnowfallEverywhere;
 import com.reider745.item.CustomItem;
@@ -204,6 +205,7 @@ public class InnerCoreServer {
         org.mozilla.javascript.Logger.DEBUG = Logger::debug;
         Class.forName("org.mozilla.javascript.Context");
         ScriptRuntime.GET_MESSAGES = () -> FileTools.getAssetInputStream("rhino/Messages.properties");
+        Context.BUILD_LOADER = ZoteClassLoaderPool::new;
 
         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         server.getLogger().info("Initiating target directory '" + server.getDataPath() + "'");

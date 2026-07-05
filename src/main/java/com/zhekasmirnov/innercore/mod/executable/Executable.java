@@ -171,7 +171,6 @@ public class Executable implements Runnable {
                     result = new NativeJavaClass(parent, ZoteClassLoaderPool.forName(name), false);
                 } catch (ClassNotFoundException e) {
                     result = new NativeJavaPackage(name);
-                    ICLog.e("WRAP_JAVA", e.getMessage(), e);
                 }
                 javaWrapCache.put(name, result);
                 return result;
