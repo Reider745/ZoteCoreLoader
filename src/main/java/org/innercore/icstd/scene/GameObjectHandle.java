@@ -7,20 +7,18 @@ import org.innercore.icstd.common.script.GenericScriptPos3;
 import org.innercore.icstd.script.ScriptObjectComponent;
 
 
+// NOTE: hashCode and equals are deliberately not overridden! handles are unique objects stored in a corresponding scope map
 @ApiBinding
 public class GameObjectHandle extends GameObjectHandleBindGenBase {
-    final GameObjectManager scene;
-    final long rawHandle;
+    final long value;
+    final GameObjectScope scope;
+    GameObjectManager scene = null;
+    int slotIdx = -1;
+    boolean isExpired = false;
 
-    GameObjectHandle(GameObjectManager scene, long handle) {
-        this.scene = scene;
-        this.rawHandle = handle;
-    }
-
-    @ApiBinding
-    public GameObjectHandle placeAsGlobal() {
-        scene.placeAsGlobal(rawHandle);
-        return this;
+    GameObjectHandle(GameObjectScope scope, long handle) {
+        this.scope = scope;
+        this.value = handle;
     }
 
     @ApiBinding
@@ -28,8 +26,29 @@ public class GameObjectHandle extends GameObjectHandleBindGenBase {
         return scene;
     }
 
+    @ApiBinding
+    public long getHandleValue() {
+        return value;
+    }
+
+    public GameObjectScope getScope() {
+        return scope;
+    }
+
+    @ApiBinding
+    public GameObjectHandle placeAsGlobal() {
+        if (slotIdx < 0) {
+            throw new IllegalStateException("placeAsGlobal on dead handle");
+        }
+        scene.placeAsGlobal(slotIdx);
+        return this;
+    }
+
     public GameObjectHandle placeAtBlockPos(BlockPos pos) {
-        scene.placeAtBlockPos(rawHandle, pos);
+        if (slotIdx < 0) {
+            throw new IllegalStateException("placeAtBlockPos on dead handle");
+        }
+        scene.placeAtBlockPos(slotIdx, pos);
         return this;
     }
 
@@ -39,51 +58,75 @@ public class GameObjectHandle extends GameObjectHandleBindGenBase {
     }
 
     @ApiBinding
-    public GameObjectHandle setObject(Object object) {
-        scene.setObject(rawHandle, object);
+    public GameObjectHandle transferToScene(GameObjectManager toScene) {
+        if (slotIdx < 0) {
+            throw new IllegalStateException("transferTo on dead handle");
+        }
+        if (scene == toScene) {
+            return this;
+        }
+        if (toScene.getObjectScope() != scope) {
+            throw new IllegalArgumentException("transferTo scene with different scope");
+        }
+        Object o = scene.unlinkObject(slotIdx);
+        assert slotIdx < 0; // must be unlinked at this point
+        toScene.createImpl(this, o);
+        assert slotIdx >= 0; // verify it is re-linked again
         return this;
     }
 
     @ApiBinding
-    public boolean destroyNow() { return scene.destroyNow(rawHandle); }
+    public GameObjectHandle setObject(Object object) {
+        if (slotIdx < 0) {
+            throw new IllegalStateException("placeAtBlockPos on dead handle");
+        }
+        scene.setObject(slotIdx, object);
+        return this;
+    }
 
     @ApiBinding
-    public void destroyDeferred() { scene.destroyDeferred(rawHandle); }
+    public boolean destroyNow() {
+        return slotIdx >= 0 && scene.destroyNow(slotIdx);
+    }
 
-    public Object discard() { return scene.discard(rawHandle); }
+    @ApiBinding
+    public void destroyDeferred() {
+        if (slotIdx >= 0)
+            scene.destroyDeferred(slotIdx);
+    }
 
-    @ApiBinding("discard")
-    public Object discardForScript() {
-        Object discarded = discard();
+    public Object discardNow() { return slotIdx >= 0 ? scene.discardNow(slotIdx) : null; }
+
+    @ApiBinding("discardNow")
+    public Object discardNowForScript() {
+        Object discarded = discardNow();
         return discarded instanceof ScriptObjectComponent ? ((ScriptObjectComponent) discarded).getScriptObject() : discarded;
     }
 
     @ApiBinding
-    public boolean isAlive() { return scene.isAlive(rawHandle); }
+    public boolean isExpired() { return isExpired; }
 
     @ApiBinding
-    public boolean isLoaded() { return scene.isLoaded(rawHandle); }
+    public boolean isAlive() { return slotIdx >= 0; }
 
-    public BlockPos getBlockPos() { return scene.getBlockPos(rawHandle); }
+    @ApiBinding
+    public boolean isLoaded() { return slotIdx >= 0 && scene.isLoaded(slotIdx); }
+
+    public BlockPos getBlockPos() { return slotIdx >= 0 ? scene.getBlockPos(slotIdx) : null; }
 
     @ApiBinding("getBlockPos")
     public GenericScriptPos3 getBlockPosForScript() { return new GenericScriptPos3(getBlockPos()); }
 
-    public Object getObject() { return scene.getObject(rawHandle); }
+    public Object getObject() { return slotIdx >= 0 ? scene.getObject(slotIdx) : null; }
 
     @ApiBinding("getObject")
     public Object getObjectForScript() {
-        Object object = scene.getObject(rawHandle);
+        Object object = getObject();
         return object instanceof ScriptObjectComponent ? ((ScriptObjectComponent) object).getScriptObject() : object;
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
-        GameObjectHandle that = (GameObjectHandle) object;
-        return rawHandle == that.rawHandle;
+    public String toString() {
+        return "[Handle " + value + "]";
     }
-
-    @Override
-    public int hashCode() { return (int) rawHandle; }
 }

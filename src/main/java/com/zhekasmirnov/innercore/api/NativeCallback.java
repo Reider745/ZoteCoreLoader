@@ -52,6 +52,7 @@ import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.innercore.icstd.region.BlockSource;
 import org.innercore.icstd.region.BlockState;
 import org.innercore.icstd.scene.GameObjectManager;
+import org.innercore.icstd.scene.GameObjectScope;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -326,7 +327,8 @@ public class NativeCallback {
         // on server side save all data
         WorldDataSaverHandler.getInstance().onLevelLeft();
 
-        GameObjectManager.clearAllDefaultServerScenes(false);
+        GameObjectManager.clearAllDefaultServerScenes(true, false);
+        GameObjectScope.SERVER_SCOPE.expireAllHandles();
 
         // legacy callback for server left
         if (callLegacyCallback) {

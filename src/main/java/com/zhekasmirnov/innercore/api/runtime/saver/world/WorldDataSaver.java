@@ -32,6 +32,8 @@ public class WorldDataSaver {
     private final File worldDirectory;
     private final CriticalDataFile savesFile;
     private final Map<String, Object> missingScopeData = new HashMap<>();
+    private final WorldDataScopeRegistry.RetainedScopeData retainedScopeData = new WorldDataScopeRegistry.RetainedScopeData();
+
 
     private SaverState state = SaverState.IDLE;
     private boolean savingErrorsReportedAsDialog = false;
@@ -79,12 +81,19 @@ public class WorldDataSaver {
             return;
         }
         savingErrorsReportedAsDialog = false;
+        missingScopeData.clear();
+        retainedScopeData.clear();
 
-        JSONObject json = readJsonImpl(savesFile.beginRead());
-        if (json == null) {
-            json = readJsonImpl(savesFile.readBackupAfterMainFailed());
+        JSONObject json;
+        try {
+            json = readJsonImpl(savesFile.beginRead());
+            if (json == null) {
+                json = readJsonImpl(savesFile.readBackupAfterMainFailed());
+            }
+        } finally {
+            savesFile.endRead();
         }
-        savesFile.endRead();
+
         if (json == null) {
             json = readJsonWithLockCheck(worldDirectory, LEGACY_MAIN_SAVES_BACKUP, false);
         }
@@ -93,9 +102,8 @@ public class WorldDataSaver {
         }
 
         state = SaverState.READ;
-        missingScopeData.clear();
         SerializationContext ctx = new SerializationContext();
-        WorldDataScopeRegistry.getInstance().readAllScopes(json, ctx, missingScopeData);
+        WorldDataScopeRegistry.getInstance().readAllScopes(json, ctx, retainedScopeData, missingScopeData);
         state = SaverState.IDLE;
 
         if (showLogOnError) {
@@ -118,11 +126,11 @@ public class WorldDataSaver {
         state = SaverState.SAVE;
         JSONObject json = new JSONObject(missingScopeData);
         SerializationContext ctx = new SerializationContext();
-        WorldDataScopeRegistry.getInstance().saveAllScopes(json, ctx);
+        WorldDataScopeRegistry.getInstance().saveAllScopes(json, ctx, retainedScopeData);
         state = SaverState.IDLE;
 
-        File fileToWrite = savesFile.beginWrite();
         try {
+            File fileToWrite = savesFile.beginWrite();
             ICLog.i("SAVER", "writing saves to " + fileToWrite.getAbsolutePath());
             FileUtils.writeJSON(fileToWrite, json);
             if (!savesFile.endSuccessfulWrite(true))

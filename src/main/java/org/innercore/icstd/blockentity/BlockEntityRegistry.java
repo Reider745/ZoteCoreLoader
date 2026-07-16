@@ -125,7 +125,7 @@ public class BlockEntityRegistry extends BlockEntityRegistryBindGenBase {
 
     public static BlockSource initBlockEntity(BlockEntityComponent blockEntity) {
         GameObjectManager scene = blockEntity.getObjectHandle().getScene();
-        if (scene == null || scene.isDefaultScene()) {
+        if (scene == null || !scene.isDefaultScene()) {
             throw new IllegalStateException("invalid scene " + scene + " for block entity " + blockEntity);
         }
         if (scene.isServerSide()) {

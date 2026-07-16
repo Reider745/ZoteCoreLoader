@@ -57,7 +57,14 @@ public class NativeScales {
                     return;
                 }
                 for (String mobKey : allScales.iterKeys()) {
-                    final long mob = Long.parseLong(mobKey);
+                    final long mob;
+                    try {
+                        mob = Long.parseLong(mobKey);
+                    } catch (NumberFormatException e) {
+                        ctx.addError("invalid mob uid key in scales scope: " + mobKey);
+                        continue;
+                    }
+
                     IObjectReader mobScales = allScales.beginScope(mobKey).asObject();
                     if (mobScales != null) {
                         for (String scaleId : mobScales.iterKeys()) {

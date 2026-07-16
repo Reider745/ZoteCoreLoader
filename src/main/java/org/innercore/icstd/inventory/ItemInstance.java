@@ -37,7 +37,7 @@ public class ItemInstance extends ItemInstanceBindGenBase {
     }
 
     @ApiBinding
-    public ItemInstance(ItemInstance rhs) {
+    public ItemInstance(@Nullable ItemInstance rhs) {
         if (rhs == null) return;
         this.id = rhs.id;
         this.count = rhs.count;
@@ -84,7 +84,7 @@ public class ItemInstance extends ItemInstanceBindGenBase {
     }
 
     @ApiBinding
-    public static ItemInstance parse(Object obj, boolean nullable) {
+    public static ItemInstance parse(@Nullable Object obj, boolean nullable) {
         while (obj instanceof Wrapper) {
             obj = ((Wrapper) obj).unwrap();
         }

@@ -203,6 +203,10 @@ public class Updatable {
             @Override
             public void read(IScopedReader io, SerializationContext ctx) {
                 IArrayReader array = io.asArray();
+                if (array == null) {
+                    io.endScope();
+                    return;
+                }
                 int successfullyLoaded = 0;
                 for (int i = 0; i < array.size(); i++) {
                     Object possibleUpdatable = ObjectSerializer.deserializeObject(array.beginScope(i), Object.class, ctx, true);

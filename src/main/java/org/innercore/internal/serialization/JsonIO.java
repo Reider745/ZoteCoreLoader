@@ -152,7 +152,7 @@ public class JsonIO {
         }
 
         @Override public IArrayWriter addInt(int value) { return addAnyImpl(value); }
-        @Override public IArrayWriter addInt(int idx, int value) { return addAnyImpl(value); }
+        @Override public IArrayWriter addInt(int idx, int value) { return addAnyImpl(idx, value); }
         @Override public IArrayWriter setInt(int idx, int value) { return setAnyImpl(idx, value); }
         @Override public IArrayWriter addLong(long value) { return addAnyImpl(value); }
         @Override public IArrayWriter addLong(int idx, long value) { return addAnyImpl(idx, value); }

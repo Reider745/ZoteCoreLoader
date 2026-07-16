@@ -61,6 +61,7 @@ import com.zhekasmirnov.innercore.utils.UIUtils;
 import org.innercore.icstd.entity.PathNavigation;
 import org.innercore.icstd.inventory.ItemInstance;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
+import org.innercore.icstd.serialization.ObjectSerializer;
 import org.innercore.icstd.serialization.SerializationContext;
 import org.json.JSONException;
 import org.mozilla.javascript.*;
@@ -2194,7 +2195,13 @@ public class AdaptedScriptAPI extends API {
             ObjectSaverRegistry.registerSaver(name, new ObjectSaver() {
                 @Override
                 public Object read(ScriptableObject input) {
-                    return saver.read(input);
+                    Object result = saver.read(input);
+                    // rhino coerces js undefined into the string "undefined" for object-typed
+                    // interface methods, read() returning undefined means null
+                    if ("undefined".equals(result)) {
+                        return null;
+                    }
+                    return result;
                 }
 
                 @Override
@@ -2218,9 +2225,24 @@ public class AdaptedScriptAPI extends API {
         }
 
         @JSStaticFunction
-        public static void registerObject(Object obj, String saverId) {
-            ObjectSaverRegistry.registerObject(obj, saverId);
+        public static void registerObject(Object obj, Object saverId) {
+            String typeId;
+            if (saverId instanceof Number) {
+                // legacy numeric saver id, e.g. stored by an old mod
+                typeId = ObjectSerializer.getTypeIdFromLegacyHashId(((Number) saverId).intValue(), null);
+            } else {
+                typeId = saverId != null ? saverId.toString() : null;
+            }
+            ObjectSaverRegistry.registerObject(obj, typeId);
         }
+
+        @Deprecated
+        @JSStaticFunction
+        public static Object getObjectSaverId(Object obj) {
+            String typeId = ObjectSerializer.getSerializerTypeIdFromObject(obj);
+            return typeId != null ? typeId : -1;
+        }
+
 
         @JSStaticFunction
         public static void setObjectIgnored(ScriptableObject obj, boolean ignore) {
