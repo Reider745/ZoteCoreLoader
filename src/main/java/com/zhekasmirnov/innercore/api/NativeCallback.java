@@ -543,7 +543,24 @@ public class NativeCallback {
         );
     }
 
-    @ZoteOnly
+    @ClientOnly
+    public static void onLocalChatSent() {
+        String message = getStringParam("chat_message");
+        Callback.invokeAPICallback("LocalChatSent", message);
+    }
+
+    @ClientOnly
+    public static void onLocalChatReceived(boolean debounced) {
+        String author = getStringParam("local_chat_author");
+        String message = getStringParam("local_chat_message");
+        Callback.invokeAPICallback("LocalChatReceived", author, message, debounced);
+    }
+
+    public static void onServerChat(String author, String message, long player) {
+        Callback.invokeAPICallback("ServerChat", author, message, player);
+    }
+
+
     public static void onServerCommand(String command, float x, float y, float z, long entity, boolean fromPacket) {
         Callback.invokeAPICallback("ServerCommand", command, new GenericScriptPos3(x, y, z), entity, fromPacket);
     }

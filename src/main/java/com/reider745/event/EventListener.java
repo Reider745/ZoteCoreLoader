@@ -465,6 +465,11 @@ public class EventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
+    public void onChat(PlayerChatEvent event) {
+        consumeEvent(event, () -> NativeCallback.onServerChat(event.getPlayer().getNameTag(), event.getMessage(), EntityMethod.getIdForEntity(event.getPlayer())));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerCommand(ServerCommandEvent event) {
         final CommandSender sender = event.getSender();
         final Position position = sender.getPosition();
