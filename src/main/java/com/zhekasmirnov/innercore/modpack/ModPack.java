@@ -67,6 +67,10 @@ public class ModPack {
         return new File(rootDirectory, "pack_icon.png");
     }
 
+    public File getExternalServersFile() {
+        return new File(rootDirectory, "external_servers.txt");
+    }
+
     public ModPackManifest getManifest() {
         return manifest;
     }

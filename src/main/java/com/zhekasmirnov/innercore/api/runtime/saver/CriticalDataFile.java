@@ -33,14 +33,21 @@ public class CriticalDataFile {
             return null;
         if (state != State.READING)
             throw new IllegalStateException("readBackupAfterMainFailed(): not in correct state " + state);
-        mainFile.delete();
+        // quarantine the corrupt main file for manual recovery - it must not stay in place, or the
+        // next successful write would rotate it into the backup
+        File corruptFile = new File(mainFile.getAbsolutePath() + ".corrupt");
+        corruptFile.delete();
+        if (!mainFile.renameTo(corruptFile)) {
+            mainFile.delete();
+        }
+
         state = State.READING_BACKUP;
         return backupFile;
     }
 
     public synchronized void endRead() {
         if (state != State.READING && state != State.READING_BACKUP)
-            throw new IllegalStateException("endRead(): not in correct state " + state);
+            return;
         state = State.IDLE;
     }
 
@@ -51,10 +58,10 @@ public class CriticalDataFile {
         return tmpFile;
     }
 
+    // NOTE: on failure the state remains WRITING and the caller must call abortWrite()
     public synchronized boolean endSuccessfulWrite(boolean writeToLog) {
         if (state != State.WRITING)
             throw new IllegalStateException("endSuccessfulWrite(): not in correct state " + state);
-        state = State.IDLE;
         if (mainFile.isFile()) { // main file is valid
             backupFile.delete();
             if (!mainFile.renameTo(backupFile)) {
@@ -66,17 +73,18 @@ public class CriticalDataFile {
                 return false;
         }
         if (tmpFile.renameTo(mainFile)) {
+            state = State.IDLE;
             if (writeToLog) ICLog.d("SAVER", "renamed saves file " + tmpFile.getAbsolutePath() + " to " + mainFile.getName());
             return true;
         } else {
-            if (writeToLog) ICLog.d("SAVER", "failed to rename " + mainFile.getAbsolutePath() + " to " + backupFile.getName());
+            if (writeToLog) ICLog.d("SAVER", "failed to rename " + tmpFile.getAbsolutePath() + " to " + mainFile.getName());
             return false;
         }
     }
 
     public synchronized void abortWrite() {
         if (state != State.WRITING)
-            throw new IllegalStateException("abortWrite(): not in correct state " + state);
+            return;
         state = State.IDLE;
         tmpFile.delete();
     }

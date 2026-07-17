@@ -4,6 +4,7 @@ import com.zhekasmirnov.innercore.api.mod.ScriptableObjectHelper;
 import com.zhekasmirnov.innercore.api.runtime.saver.ObjectSaverRegistry;
 import org.json.JSONObject;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
@@ -12,54 +13,77 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ScriptableObjectSerializer implements IObjectSerializer<Object> {
-    private static void writeImpl(IScopedWriter io, Object src, SerializationContext ctx) {
+    // silently convert number scriptable object keys to strings in serializer
+    public static final boolean ALLOW_NUMBER_KEYS_TO_STRING_CONVERSION = true;
+
+    // js arrays are sparse and can have absurd length, writing them as dense json must not hang the save
+    public static final long MAX_SERIALIZED_ARRAY_LENGTH = 0x100000;
+
+    private static void writeImpl(IScopedWriter io, Object src, SerializationContext ctx, boolean ignoreThisSaver) {
         if (src == null || src == Undefined.instance) {
             io.endScope(); // null scope
             return;
         }
-        if (src instanceof ScriptableObject && !ctx.visitedObjects.add(src)) {
-            ctx.addError(null, src, "cyclic reference found");
-            io.endScope();
-            return;
+        boolean addedToVisited = false;
+        if (src instanceof ScriptableObject) {
+            addedToVisited = ctx.visitedObjects.add(src);
+            if (!addedToVisited && !ignoreThisSaver) {
+                ctx.addError(null, src, "cyclic reference found");
+                io.endScope();
+                return;
+            }
         }
-        Object saverId = ObjectSerializer.getSerializerTypeIdFromObject(src);
-        if (saverId != null) {
-            ObjectSerializer.serializeObject(io, src, ctx, /* can fail */ true);
-            ctx.visitedObjects.remove(src);
-            return;
+        if (!ignoreThisSaver) {
+            String saverId = ObjectSerializer.getSerializerTypeIdFromObject(src);
+            if (saverId != null && ObjectSerializer.isTypeRegistered(saverId)) {
+                ObjectSerializer.serializeObject(io, src, ctx, /* can fail */ true);
+                if (addedToVisited) ctx.visitedObjects.remove(src);
+                return;
+            }
         }
         if (src instanceof NativeArray) {
             NativeArray array = (NativeArray) src;
             IArrayWriter writer = io.asArray();
-            for (int i = 0; i < array.getLength(); i++) {
+            long length = array.getLength();
+            if (length > MAX_SERIALIZED_ARRAY_LENGTH) {
+                ctx.addError(null, src, "array is too long to be serialized and will be truncated: length=" + length);
+                length = MAX_SERIALIZED_ARRAY_LENGTH;
+            }
+            for (long i = 0; i < length; i++) {
                 Object o = array.get(i);
                 if (ObjectSerializer.isPrimitiveType(o)) {
                     writer.addAny(o);
                 } else {
-                    writeImpl(writer.beginScope(), o, ctx);
+                    writeImpl(writer.beginScope(), o, ctx, false);
                 }
             }
             io.endScope();
-            ctx.visitedObjects.remove(src);
+            if (addedToVisited) ctx.visitedObjects.remove(src);
             return;
         }
         if (src instanceof ScriptableObject) {
             ScriptableObject scriptable = (ScriptableObject) src;
             IObjectWriter writer = io.asObject();
             for (Object id : scriptable.getIds()) {
-                if (!(id instanceof String)) {
-                    ctx.addError(null, id, "serialized scriptable object can't have integer ids");
-                    continue;
-                }
+                // value must be fetched with the original id: number ids are index slots,
+                // which a string lookup would miss
                 Object o = scriptable.get(id);
+                if (!(id instanceof String)) {
+                    if (ALLOW_NUMBER_KEYS_TO_STRING_CONVERSION) {
+                        id = id + "";
+                    } else {
+                        ctx.addError(null, id, "serialized scriptable object can't have number ids");
+                        continue;
+                    }
+                }
                 if (ObjectSerializer.isPrimitiveType(o)) {
                     writer.putAny((String) id, o);
                 } else {
-                    writeImpl(writer.beginScope((String) id), o, ctx);
+                    writeImpl(writer.beginScope((String) id), o, ctx, false);
                 }
             }
             io.endScope();
-            ctx.visitedObjects.remove(src);
+            if (addedToVisited) ctx.visitedObjects.remove(src);
             return;
         }
         ctx.addError(null, src, "invalid object can't be serialized and will be skipped " + (src != null ? src.getClass() : null));
@@ -67,12 +91,12 @@ public abstract class ScriptableObjectSerializer implements IObjectSerializer<Ob
     }
 
     public static void writeScriptable(IScopedWriter writer, Object object, SerializationContext ctx) {
-        writeImpl(writer, object, ctx);
+        writeImpl(writer, object, ctx, false);
     }
 
     @Override
     public void write(IScopedWriter writer, Object object, SerializationContext ctx, String typeId) {
-        writeImpl(writer, save(object), ctx);
+        writeImpl(writer, save(object), ctx, true);
     }
 
     private static Object readImpl(IScopedReader io, SerializationContext ctx, boolean ignoreThisSaver) {
@@ -101,10 +125,19 @@ public abstract class ScriptableObjectSerializer implements IObjectSerializer<Ob
             IObjectReader reader = io.asObject();
             ScriptableObject object = ScriptableObjectHelper.createEmpty();
             for (String key : reader.iterKeys()) {
+                Object value;
                 if (reader.getValueType(key).isScope()) {
-                    object.put(key, object, readImpl(reader.beginScope(key), ctx, false));
+                    value = readImpl(reader.beginScope(key), ctx, false);
                 } else {
-                    object.put(key, object, reader.getAny(key, null));
+                    value = reader.getAny(key, null);
+                }
+                // number keys (written as strings by ALLOW_NUMBER_KEYS_TO_STRING_CONVERSION) must go
+                // back into index slots, a string put would make them invisible to js element access
+                long index = ScriptRuntime.indexFromString(key);
+                if (index != -1L) {
+                    object.put((int) index, object, value);
+                } else {
+                    object.put(key, object, value);
                 }
             }
             io.endScope();
@@ -126,6 +159,10 @@ public abstract class ScriptableObjectSerializer implements IObjectSerializer<Ob
     @Override
     public Object read(IScopedReader reader, SerializationContext ctx, String typeId) {
         Object result = readImpl(reader, ctx, true);
+        if (result == null) {
+            // nothing was saved (e.g. save() returned null), nothing to restore
+            return null;
+        }
         if (result instanceof ScriptableObject) {
             Object o = read((ScriptableObject) result);
             if (o instanceof Scriptable && ObjectSerializer.getSerializerTypeIdFromObject(o) == null) {

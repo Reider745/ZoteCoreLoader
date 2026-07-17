@@ -52,6 +52,7 @@ import org.innercore.icstd.inventory.ItemInstanceExtra;
 import org.innercore.icstd.region.BlockSource;
 import org.innercore.icstd.region.BlockState;
 import org.innercore.icstd.scene.GameObjectManager;
+import org.innercore.icstd.scene.GameObjectScope;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -326,7 +327,8 @@ public class NativeCallback {
         // on server side save all data
         WorldDataSaverHandler.getInstance().onLevelLeft();
 
-        GameObjectManager.clearAllDefaultServerScenes(false);
+        GameObjectManager.clearAllDefaultServerScenes(true, false);
+        GameObjectScope.SERVER_SCOPE.expireAllHandles();
 
         // legacy callback for server left
         if (callLegacyCallback) {
@@ -541,7 +543,24 @@ public class NativeCallback {
         );
     }
 
-    @ZoteOnly
+    @ClientOnly
+    public static void onLocalChatSent() {
+        String message = getStringParam("chat_message");
+        Callback.invokeAPICallback("LocalChatSent", message);
+    }
+
+    @ClientOnly
+    public static void onLocalChatReceived(boolean debounced) {
+        String author = getStringParam("local_chat_author");
+        String message = getStringParam("local_chat_message");
+        Callback.invokeAPICallback("LocalChatReceived", author, message, debounced);
+    }
+
+    public static void onServerChat(String author, String message, long player) {
+        Callback.invokeAPICallback("ServerChat", author, message, player);
+    }
+
+
     public static void onServerCommand(String command, float x, float y, float z, long entity, boolean fromPacket) {
         Callback.invokeAPICallback("ServerCommand", command, new GenericScriptPos3(x, y, z), entity, fromPacket);
     }

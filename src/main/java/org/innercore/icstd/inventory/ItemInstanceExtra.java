@@ -103,10 +103,13 @@ public class ItemInstanceExtra extends ItemExtraDataBindGenBase implements ISeri
     private static final String saverId = ObjectSerializer.registerType("ic:ii_ext", ItemInstanceExtra.class, new IObjectSerializer<ItemInstanceExtra>() {
         @Override
         public ItemInstanceExtra read(IScopedReader reader, SerializationContext ctx, String typeId) {
-            if (reader.isEmpty())
+            if (reader.isEmpty()) {
+                reader.endScope();
                 return null;
+            }
             if (!reader.isObject()) {
                 ctx.addError("ItemInstanceExtra invalid format");
+                reader.endScope();
                 return null;
             }
             ItemInstanceExtra extra = new ItemInstanceExtra();

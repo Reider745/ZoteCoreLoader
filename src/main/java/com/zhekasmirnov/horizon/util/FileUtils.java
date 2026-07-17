@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,6 +154,14 @@ public class FileUtils {
             } else {
                 copy(srcFile, dstFile);
             }
+        }
+    }
+
+    public static String convertStreamToString(InputStream inputStream) {
+        try {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return "";
         }
     }
 }

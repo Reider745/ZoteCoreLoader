@@ -19,25 +19,28 @@ public class NetworkModule {
     private static final HashMap<String, List<IPacketListener>> clientPacketListeners = new HashMap<>();
     private static final HashMap<String, List<IPacketListener>> serverPacketListeners = new HashMap<>();
 
+    private static void sendPacketData(boolean isServer, NetworkClient toClient, String name, Object data) {
+        if (isServer)
+            ThreadTypeMarker.assertServerThread();
+        else
+            ThreadTypeMarker.assertClientThread();
+        if (isServer) {
+            if (toClient == null) {
+                Network.getSingleton().getServer().sendToAll(name, data);
+            } else {
+                toClient.impl.send(name, data);
+            }
+        } else {
+            Network.getSingleton().getClient().send(name, data);
+        }
+    }
+
     private static IScopedWriter sendPacketImpl(boolean isServer, NetworkClient toClient, String name) {
         return new JsonIO.ScopedWriter() {
             @Override
             public void endScope() {
                 super.endScope();
-                Object data = getResult();
-                if (isServer)
-                    ThreadTypeMarker.assertServerThread();
-                else
-                    ThreadTypeMarker.assertClientThread();
-                if (isServer) {
-                    if (toClient == null) {
-                        Network.getSingleton().getServer().sendToAll(name, data);
-                    } else {
-                        toClient.impl.send(name, data);
-                    }
-                } else {
-                    Network.getSingleton().getClient().send(name, data);
-                }
+                sendPacketData(isServer, toClient, name, getResult());
             }
         };
     }
@@ -54,7 +57,10 @@ public class NetworkModule {
         } else if (!ObjectSerializer.isTypeRegistered(typeId)) {
             throw new IllegalStateException("INetPacket type is not registered: " + typeId);
         }
-        ObjectSerializer.serializeObjectUnpacked(sendPacketImpl(isServer, toClient, typeId), packet, typeId, ctx, true);
+        JsonIO.ScopedWriter writer = new JsonIO.ScopedWriter();
+        if (ObjectSerializer.serializeObjectUnpacked(writer, packet, typeId, ctx, true))
+            sendPacketData(isServer, toClient, typeId, writer.getResult());
+        // TODO: report error
     }
 
     public static IScopedWriter sendToServer(String name) {
@@ -115,12 +121,12 @@ public class NetworkModule {
 
     @ApiHidden
     public static void processPacketImpl(NetworkClient fromClient, String name, Object data, String meta) {
-        if (ObjectSerializer.getSerializerRecordByTypeId(name) == null)
+        ObjectSerializer.SerializerRecord record = ObjectSerializer.getSerializerRecordByTypeId(name);
+        if (record == null)
             return;
-        SerializationContext ctx = new SerializationContext();
         if (data instanceof JSONObject || data instanceof JSONArray || data == null) {
-            Object maybePacket = ObjectSerializer.deserializeObjectUnpacked(new JsonIO.ScopedReader(data), name, Object.class, ctx, true);
             (fromClient != null ? Network.getSingleton().getServerThreadJobExecutor() : Network.getSingleton().getClientThreadJobExecutor()).add(() -> {
+                SerializationContext ctx = new SerializationContext();
                 List<IPacketListener> listeners = (fromClient != null ? serverPacketListeners : clientPacketListeners).get(name);
                 if (listeners != null) {
                     for (IPacketListener listener : listeners) {
@@ -129,8 +135,12 @@ public class NetworkModule {
                         io.forceEndScope(ctx);
                     }
                 }
-                if (maybePacket instanceof INetPacket) {
-                    ((INetPacket) maybePacket).process(fromClient, meta);
+                // run deserializer on the correct thread
+                if (INetPacket.class.isAssignableFrom(record.getObjectType())) {
+                    Object maybePacket = ObjectSerializer.deserializeObjectUnpacked(new JsonIO.ScopedReader(data), name, Object.class, ctx, true);
+                    if (maybePacket instanceof INetPacket) {
+                        ((INetPacket) maybePacket).process(fromClient, meta);
+                    }
                 }
             });
         }

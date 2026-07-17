@@ -22,13 +22,14 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     private static final int STATE_LAZY_LOADED = 1;
     private static final int STATE_LOADED = 2;
 
+    private final GameObjectScope objectScope;
     private final String uniqueName;
     private int dimensionId = -1;
-    private boolean isServerSide = true;
     private boolean isDefaultScene = false;
     private boolean isScopeLoaded = false;
 
-    public GameObjectManager(String uniqueName) {
+    public GameObjectManager(GameObjectScope scope, String uniqueName) {
+        this.objectScope = scope;
         this.uniqueName = uniqueName;
     }
 
@@ -38,11 +39,6 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
 
     public GameObjectManager setDimensionId(int dimensionId) {
         this.dimensionId = dimensionId;
-        return this;
-    }
-
-    public GameObjectManager setServerSide(boolean isServerSide) {
-        this.isServerSide = isServerSide;
         return this;
     }
 
@@ -56,37 +52,55 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     }
 
     public boolean isServerSide() {
-        return isServerSide;
+        return objectScope.isServerSide();
     }
 
     public boolean isDefaultScene() {
         return isDefaultScene;
     }
 
+    public GameObjectScope getObjectScope() {
+        return objectScope;
+    }
+
+
     // ADD/UPDATE
 
 
-    private static final AtomicLong nextUniqueHandleValue = new AtomicLong(1);
-
-    @ApiBinding
-    public GameObjectHandle create(Object object) {
-        GameObjectHandle handle = new GameObjectHandle(this, nextUniqueHandleValue.getAndAdd(1));
+    GameObjectHandle createImpl(GameObjectHandle handle, Object object) {
+        if (handle.isExpired()) {
+            throw new IllegalStateException("handle is expired " + handle);
+        }
+        if (handle.isAlive()) {
+            throw new IllegalStateException("handle is already alive");
+        }
+        if (handle.scope != objectScope) {
+            throw new IllegalStateException("handle is from different scope");
+        }
         int slotIdx = allocateSlot();
-        handleToSlotIdx.put(handle.rawHandle, slotIdx);
-        slots[slotIdx].handle = handle.rawHandle;
-        setSlotObject(slotIdx, object);
+        slots[slotIdx].handle = handle;
+        handle.slotIdx = slotIdx;
+        handle.scene = this;
+        setSlotObjectImpl(slotIdx, object, SetObjectActionType.DESTROY);
         markObjectForUpdate(slotIdx);
         return handle;
     }
 
-    void placeAsGlobal(long rawHandle) {
-        updateObjectPosImpl(rawHandle, slot -> {
+    @ApiBinding
+    public GameObjectHandle create(Object object) {
+        GameObjectHandle handle = objectScope.createUniqueHandle();
+        createImpl(handle, object);
+        return handle;
+    }
+
+    void placeAsGlobal(int slotIdx) {
+        updateObjectPosImpl(slotIdx, slot -> {
             slot.posType = POS_TYPE_GLOBAL;
         });
     }
 
-    void placeAtBlockPos(long rawHandle, BlockPos pos) {
-        updateObjectPosImpl(rawHandle, slot -> {
+    void placeAtBlockPos(int slotIdx, BlockPos pos) {
+        updateObjectPosImpl(slotIdx, slot -> {
             slot.posType = POS_TYPE_BLOCK;
             slot.x = pos.x;
             slot.y = pos.y;
@@ -94,12 +108,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         });
     }
 
-    private void updateObjectPosImpl(long rawHandle, Consumer<ObjectSlot> slotConsumer) {
-        Integer slotIdxOpt = handleToSlotIdx.get(rawHandle);
-        if (slotIdxOpt == null) {
-            return;
-        }
-        int slotIdx = slotIdxOpt;
+    private void updateObjectPosImpl(int slotIdx, Consumer<ObjectSlot> slotConsumer) {
         ObjectSlot slot = slots[slotIdx];
         BlockPos prevBlockPos = slot.getBlockPos();
         ChunkAABB prevAABB = slot.getChunkAABB();
@@ -109,39 +118,31 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         markObjectForUpdate(slotIdx);
     }
 
-    Object discard(long rawHandle) {
-        Integer slotIdxOpt = handleToSlotIdx.remove(rawHandle);
-        if (slotIdxOpt == null) {
-            return null;
-        }
-        return discardSlotObject(slotIdxOpt);
+    Object discardNow(int slotIdx) {
+        return unlinkSlotImpl(slotIdx, SetObjectActionType.DISCARD);
     }
 
-    boolean destroyNow(long rawHandle) {
-        Integer slotIdxOpt = handleToSlotIdx.remove(rawHandle);
-        if (slotIdxOpt == null) {
-            return false;
-        }
-        destroySlotImpl(slotIdxOpt);
+    boolean destroyNow(int slotIdx) {
+        unlinkSlotImpl(slotIdx, SetObjectActionType.DISCARD);
         return true;
     }
 
-    void destroyDeferred(long rawHandle) {
-        Integer slotIdxOpt = handleToSlotIdx.remove(rawHandle);
-        if (slotIdxOpt == null) {
-            return;
-        }
-        int slotIdx = slotIdxOpt;
+    Object unlinkObject(int slotIdx) {
+        return unlinkSlotImpl(slotIdx, SetObjectActionType.UNLINK);
+    }
+
+    void destroyDeferred(int slotIdx) {
         slots[slotIdx].markedForDestroy = true;
         markObjectForUpdate(slotIdx);
     }
 
-    private void destroySlotImpl(int slotIdx) {
+    private Object unlinkSlotImpl(int slotIdx, SetObjectActionType action) {
         ObjectSlot slot = slots[slotIdx];
-        setSlotObject(slotIdx, null);
+        Object o = setSlotObjectImpl(slotIdx, null, action);
         updateObjectBlockPos(slotIdx, slot.getBlockPos(), null);
         updateObjectAABB(slotIdx, slot.getChunkAABB(), null);
-        freeSlot(slotIdx);
+        freeSlot(slotIdx, action != SetObjectActionType.UNLINK);
+        return o;
     }
 
     // SCENE LEVEL STATE
@@ -180,14 +181,17 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     }
 
     @ApiBinding
-    public void clearAllObjects(boolean callDestroyForObjects) {
+    public void clearAllObjects(boolean runLifeCycleCallbacks, boolean isDestroy) {
         for (int slotIdx = 0; slotIdx < slotsSize; slotIdx++) {
-            if (callDestroyForObjects) {
-                setSlotObject(slotIdx, null);
-            } else {
-                discardSlotObject(slotIdx);
-            }
+            GameObjectHandle handle = slots[slotIdx].handle;
+            if (handle == null)
+                continue;
+            if (runLifeCycleCallbacks)
+                setSlotObjectImpl(slotIdx, null, isDestroy ? SetObjectActionType.DESTROY : SetObjectActionType.DISCARD);
+            objectScope.expireHandle(handle);
         }
+        invalidateQueryGeneration();
+
         slots = new ObjectSlot[0];
         slotsSize = 0;
         slotsFreeListHead = -1;
@@ -196,7 +200,6 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         periodicChecksListSize = 0;
         periodicChecksListNextIdx = 0;
 
-        handleToSlotIdx.clear();
         chunks.clear();
         lookupByPos.clear();
         chunksMarkedForUpdate.clear();
@@ -218,38 +221,26 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
 
     // GETTERS
 
-    boolean isAlive(long handle) {
-        return handleToSlotIdx.containsKey(handle);
+    boolean isLoaded(int slotIdx) {
+        return slots[slotIdx].isObjectLoaded;
     }
 
-    boolean isLoaded(long handle) {
-        Integer slotIdxOpt = handleToSlotIdx.get(handle);
-        return slotIdxOpt != null && slots[slotIdxOpt].isObjectLoaded;
+    Object getObject(int slotIdx) {
+        return slots[slotIdx].object;
     }
 
-    Object getObject(long handle) {
-        Integer slotIdxOpt = handleToSlotIdx.get(handle);
-        return slotIdxOpt == null ? null : slots[slotIdxOpt].object;
+    BlockPos getBlockPos(int slotIdx) {
+        return slots[slotIdx].getBlockPos();
     }
 
-    BlockPos getBlockPos(long handle) {
-        Integer slotIdxOpt = handleToSlotIdx.get(handle);
-        return slotIdxOpt == null ? null : slots[slotIdxOpt].getBlockPos();
-    }
-
-    boolean setObject(long handle, Object object) {
-        Integer slotIdxOpt = handleToSlotIdx.get(handle);
-        if (slotIdxOpt == null) {
-            return false;
-        }
-        setSlotObject(slotIdxOpt, object);
-        markObjectForUpdate(slotIdxOpt);
-        return true;
+    void setObject(int slotIdx, Object object) {
+        setSlotObjectImpl(slotIdx, object, SetObjectActionType.DESTROY);
+        if (object != null)
+            markObjectForUpdate(slotIdx);
     }
 
 
     // QUERY
-
 
     private abstract class BaseQueryImpl<T> implements GameObjectQuery<T> {
         @Override
@@ -268,15 +259,18 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         public GameObjectHandle oneHandle() {
             int i = searchSlot(firstSlot());
             if (i == -1) return null;
-            return new GameObjectHandle(GameObjectManager.this, slots[i].handle);
+            return slots[i].handle;
         }
 
         @Override
         public Iterator<T> iterator() {
             return new Iterator<T>() {
+                final int gen = queryValidationGeneration;
                 int i = firstSlot();
-                @Override public boolean hasNext() { i = searchSlot(i); return i != -1; }
+                @Override public boolean hasNext() { validateQueryGeneration(gen); i = searchSlot(i); return i != -1; }
                 @Override public T next() {
+                    validateQueryGeneration(gen);
+                    i = searchSlot(i);
                     if (i == -1) return null;
                     ObjectSlot slot = slots[i];
                     i = getNextSlot(i);
@@ -288,13 +282,16 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         @Override
         public Iterator<GameObjectHandle> iterHandles() {
             return new Iterator<GameObjectHandle>() {
+                final int gen = queryValidationGeneration;
                 int i = firstSlot();
-                @Override public boolean hasNext() { i = searchSlot(i); return i != -1; }
+                @Override public boolean hasNext() { validateQueryGeneration(gen); i = searchSlot(i); return i != -1; }
                 @Override public GameObjectHandle next() {
+                    validateQueryGeneration(gen);
+                    i = searchSlot(i);
                     if (i == -1) return null;
                     ObjectSlot slot = slots[i];
                     i = getNextSlot(i);
-                    return new GameObjectHandle(GameObjectManager.this, slot.handle);
+                    return slot.handle;
                 }
             };
         }
@@ -315,7 +312,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
             List<GameObjectHandle> list = new ArrayList<>();
             int i = searchSlot(firstSlot());
             while (i != -1) {
-                list.add(new GameObjectHandle(GameObjectManager.this, slots[i].handle));
+                list.add(slots[i].handle);
                 i = searchSlot(getNextSlot(i));
             }
             return list;
@@ -326,13 +323,31 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         protected abstract int getNextSlot(int idx);
     }
 
+    private int queryValidationGeneration = 0;
+
+    private void invalidateQueryGeneration() {
+        queryValidationGeneration++;
+    }
+
+    private void validateQueryGeneration(int gen) {
+        if (queryValidationGeneration != gen) {
+            throw new ConcurrentModificationException("game object was destroyed/discarded/moved during query");
+        }
+    }
+
     public GameObjectQuery<Object> queryAtBlock(BlockPos pos) {
         return new BaseQueryImpl<Object>() {
             @Override protected int firstSlot() {
                 Integer idx = lookupByPos.get(pos);
                 return idx != null ? idx : -1;
             }
-            @Override protected int searchSlot(int idx) { return idx; }
+            @Override protected int searchSlot(int i) {
+                ObjectSlot slot;
+                while (i != -1 && ((slot = slots[i]).object) == null) {
+                    i = slot.nextAtPos;
+                }
+                return i;
+            }
             @Override protected int getNextSlot(int idx) { return slots[idx].nextAtPos; }
         };
     }
@@ -371,7 +386,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         return new BaseQueryImpl<T>() {
             @Override protected int firstSlot() { return 0; }
             @Override protected int searchSlot(int i) {
-                for (; i < slotsSize && (slots[i] == null || slots[i].posType != POS_TYPE_GLOBAL || cls.isInstance(slots[i].object)); i++);
+                for (; i < slotsSize && (slots[i] == null || slots[i].posType != POS_TYPE_GLOBAL || !cls.isInstance(slots[i].object)); i++);
                 return i < slotsSize ? i : -1;
             }
             @Override protected int getNextSlot(int idx) { return idx + 1; }
@@ -406,23 +421,30 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         return idx;
     }
 
-    private void freeSlot(int idx) {
+    private void freeSlot(int idx, boolean expireHandle) {
         ObjectSlot slot = slots[idx];
-        setSlotObject(idx, null);
+        Object o = setSlotObjectImpl(idx, null, SetObjectActionType.DESTROY);
+        assert o == null; // must be already cleared when freeSlot is called
         slot.nextAtPos = slotsFreeListHead;
         slot.prevAtPos = -1;
         slot.posType = POS_TYPE_NONE;
-        slot.handle = 0;
+        if (slot.handle != null) {
+            if (expireHandle) {
+                objectScope.expireHandle(slot.handle);
+            }
+            slot.handle = null;
+        }
         slot.markedForDestroy = slot.markedForUpdate = false;
         slotsFreeListHead = idx;
+        invalidateQueryGeneration();
     }
 
     private static final int POS_TYPE_NONE = 0;   // not valid
     private static final int POS_TYPE_GLOBAL = 1; // always loaded if scene loaded
     private static final int POS_TYPE_BLOCK = 2;  // exists at block pos
 
-    private static class ObjectSlot {
-        long handle = 0;
+    static class ObjectSlot {
+        GameObjectHandle handle;
         int x, y, z;
         int posType = POS_TYPE_NONE;
         Object object;
@@ -448,12 +470,6 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
             }
             return null;
         }
-
-        boolean isSerializationNeeded(SerializationContext ctx) {
-            if (object == null)
-                return false;
-            return ObjectSerializer.getSerializerTypeIdFromObject(object) != null;
-        }
     }
 
     private ObjectSlot[] slots = new ObjectSlot[0];
@@ -476,30 +492,25 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         }
     }
 
-    private void setSlotObject(int slotIdx, Object object) {
+    private enum SetObjectActionType {
+        UNLINK,
+        DISCARD,
+        DESTROY
+    }
+
+    private Object setSlotObjectImpl(int slotIdx, Object object, SetObjectActionType action) {
         ObjectSlot slot = slots[slotIdx];
+        Object o = slot.object;
         if (slot.object != object) {
             setSlotLoaded(slotIdx, false);
             if (slot.isObjectInitialized) {
-                ComponentUtils.safeCallDestroyFor(slot.object);
+                if (action == SetObjectActionType.DISCARD)
+                    ComponentUtils.safeCallDiscardFor(slot.object);
+                else if (action == SetObjectActionType.DESTROY)
+                    ComponentUtils.safeCallDestroyFor(slot.object);
             }
             ComponentUtils.safeCallFinalizeObjectFor(slot.object);
             slot.object = object;
-            slot.isObjectInitialized = false;
-        }
-    }
-
-    private Object discardSlotObject(int slotIdx) {
-        ObjectSlot slot = slots[slotIdx];
-        Object o = null;
-        if (slot.object != null) {
-            setSlotLoaded(slotIdx, false);
-            if (slot.isObjectInitialized) {
-                ComponentUtils.safeCallDiscardFor(slot.object);
-            }
-            ComponentUtils.safeCallFinalizeObjectFor(slot.object);
-            o = slot.object;
-            slot.object = null;
             slot.isObjectInitialized = false;
         }
         return o;
@@ -544,7 +555,6 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     }
 
     private HashMap<ChunkPos, Chunk> chunks = new HashMap<>();
-    private HashMap<Long, Integer> handleToSlotIdx = new HashMap<>();
     private HashMap<BlockPos, Integer> lookupByPos = new HashMap<>();
 
     private void updateObjectBlockPos(int slotIdx, BlockPos prevPos, BlockPos newPos) {
@@ -558,11 +568,12 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
             if (slot.prevAtPos != -1) slots[slot.prevAtPos].nextAtPos = slot.nextAtPos;
             if (slot.nextAtPos != -1) slots[slot.nextAtPos].prevAtPos = slot.prevAtPos;
             slot.prevAtPos = slot.nextAtPos = -1;
+            invalidateQueryGeneration();
         }
         if (newPos != null) {
             Integer firstSlotIdx = lookupByPos.get(newPos);
             if (firstSlotIdx != null) {
-                ObjectSlot first = slots[slotIdx];
+                ObjectSlot first = slots[firstSlotIdx];
                 slot.nextAtPos = first.nextAtPos;
                 if (first.nextAtPos != -1) slots[first.nextAtPos].prevAtPos = slotIdx;
                 first.nextAtPos = slotIdx;
@@ -604,7 +615,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         IArrayWriter writer = scope.asArray();
         writer.addInt(slot.posType);
         writer.addString(typeId);
-        writer.addLong(slot.handle);
+        writer.addLong(slot.handle.value);
         ObjectSerializer.serializeObjectUnpacked(writer.beginScope(), slot.object, typeId, ctx, true);
         switch (slot.posType) {
             case POS_TYPE_GLOBAL:
@@ -617,6 +628,16 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     }
 
     private GameObjectHandle deserializeAndInitOneObject(IScopedReader scope, SerializationContext ctx, IArrayWriter unresolvedList) {
+        try {
+            return deserializeAndInitOneObjectImpl(scope, ctx, unresolvedList);
+        } catch (Throwable err) {
+            ctx.addError(err, null, "failed to deserialize game object");
+            scope.forceEndScope(ctx);
+            return null;
+        }
+    }
+
+    private GameObjectHandle deserializeAndInitOneObjectImpl(IScopedReader scope, SerializationContext ctx, IArrayWriter unresolvedList) {
         IArrayReader reader = scope.asArray();
         if (reader == null || reader.size() < 4) {
             ctx.addError("unexpected data format for game object");
@@ -632,9 +653,8 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
             return null;
         }
         if (!ObjectSerializer.isTypeRegistered(typeId)) {
-            // no saver registered for this type, keep serialized object to avoid loosing data
+            // no saver registered for this type, keep serialized object to avoid losing data
             SerializationUtils.readerToWriter(scope, unresolvedList.beginScope());
-            scope.endScope();
             return null;
         }
         Object object = ObjectSerializer.deserializeObjectUnpacked(reader.beginScope(3), typeId, Object.class, ctx, true);
@@ -646,11 +666,12 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         GameObjectHandle handle = null;
         switch (posType) {
             case POS_TYPE_GLOBAL:
-                handle = create(object).placeAsGlobal();
+                handle = createImpl(objectScope.getOrCreateHandle(rawHandle), object).placeAsGlobal();
                 break;
             case POS_TYPE_BLOCK:
                 if (reader.size() < 7) {
                     ctx.addError("failed to deserialize object block pos");
+                    scope.endScope();
                     return null;
                 }
                 int x = reader.getInt(4, Integer.MAX_VALUE);
@@ -658,9 +679,10 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
                 int z = reader.getInt(6, Integer.MAX_VALUE);
                 if (x == Integer.MAX_VALUE || y == Integer.MAX_VALUE || z == Integer.MAX_VALUE) {
                     ctx.addError("failed to deserialize object block pos");
+                    scope.endScope();
                     return null;
                 }
-                handle = create(object).placeAtBlockPos(new BlockPos(x, y, z));
+                handle = createImpl(objectScope.getOrCreateHandle(rawHandle), object).placeAtBlockPos(new BlockPos(x, y, z));
                 break;
         }
         if (handle != null) {
@@ -763,7 +785,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         for (int slotIdx : objectsMarkedForUpdate) {
             ObjectSlot slot = slots[slotIdx];
             if (slot.markedForDestroy) {
-                destroySlotImpl(slotIdx);
+                unlinkSlotImpl(slotIdx, SetObjectActionType.DESTROY);
                 continue;
             }
             if (slot.markedForUpdate) {
@@ -809,8 +831,9 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         int numChecks = Math.min(maxChecksAbs, Math.max(1, (int) (periodicChecksListSize * maxChecksRel)));
         if (numChecks <= 0 || periodicChecksListSize == 0)
             return;
+        long endTimeNs = maxTimeUs > 0 ? System.nanoTime() + maxTimeUs * 1000L : Long.MAX_VALUE;
         periodicChecksListNextIdx %= periodicChecksListSize;
-        for (int i = 0; i < numChecks; i++) {
+        for (int i = 0; i < numChecks && periodicChecksListSize > 0; i++) {
             int idx = periodicChecksListNextIdx;
             int slotIdx = periodicChecksList[idx];
             ObjectSlot slot = slots[slotIdx];
@@ -823,6 +846,8 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
             }
             if (periodicChecksListNextIdx >= periodicChecksListSize)
                 periodicChecksListNextIdx = 0;
+            if (System.nanoTime() >= endTimeNs)
+                break;
         }
     }
 
@@ -836,12 +861,12 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     public static GameObjectManager getForDimension(int dimensionId) {
         GameObjectManager scene = defaultMgrForDimension.get(dimensionId);
         if (scene == null) {
-            defaultMgrForDimension.put(dimensionId, scene = new GameObjectManager("default-" + dimensionId).setDimensionId(dimensionId));
+            defaultMgrForDimension.put(dimensionId, scene = new GameObjectManager(GameObjectScope.SERVER_SCOPE, "default-" + dimensionId).setDimensionId(dimensionId).setDefaultScene(true));
         }
         return scene;
     }
     private static final HashMap<Integer, GameObjectManager> defaultMgrForDimension = new HashMap<>();
-    private static final GameObjectManager defaultServerMgr = new GameObjectManager("default-server-global");
+    private static final GameObjectManager defaultServerMgr = new GameObjectManager(GameObjectScope.SERVER_SCOPE, "default-server-global").setDefaultScene(true);
 
     @ApiBinding
     public static GameObjectManager getGlobalForServer() { return defaultServerMgr; }
@@ -851,18 +876,18 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     // - not loaded on server
     @ApiBinding
     public static GameObjectManager getClientSide() { return clientSideScene; }
-    private static final GameObjectManager clientSideScene = new GameObjectManager("default-client");
+    private static final GameObjectManager clientSideScene = new GameObjectManager(GameObjectScope.CLIENT_SCOPE, "default-client").setDefaultScene(true);
 
-    public static void clearAllDefaultServerScenes(boolean callDestroyForObjects) {
+    public static void clearAllDefaultServerScenes(boolean runLifeCycleCallbacks, boolean isDestroy) {
         for (GameObjectManager mgr : defaultMgrForDimension.values()) {
-            mgr.clearAllObjects(callDestroyForObjects);
+            mgr.clearAllObjects(runLifeCycleCallbacks, isDestroy);
         }
         defaultMgrForDimension.clear();
-        defaultServerMgr.clearAllObjects(callDestroyForObjects);
+        defaultServerMgr.clearAllObjects(runLifeCycleCallbacks, isDestroy);
     }
 
-    public static void clearAllDefaultClientScenes(boolean callDestroyForObjects) {
-        clientSideScene.clearAllObjects(callDestroyForObjects);
+    public static void clearAllDefaultClientScenes(boolean runLifeCycleCallbacks, boolean isDestroy) {
+        clientSideScene.clearAllObjects(runLifeCycleCallbacks, isDestroy);
     }
 
     /*
@@ -904,11 +929,15 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         IArrayWriter writer = scope.asArray();
 
         if (!unresolvedSavedObjectsList.isEmpty()) {
-            IArrayReader unresolvedObjectsList = unresolvedSavedObjectsList.beginRead().asArray();
-            for (int i = 0; i < unresolvedObjectsList.size(); i++) {
-                SerializationUtils.readerToWriter(unresolvedObjectsList.beginScope(i), writer.beginScope());
+            IScopedReader unresolvedScope = unresolvedSavedObjectsList.beginRead();
+            try {
+                IArrayReader unresolvedObjectsList = unresolvedScope.asArray();
+                for (int i = 0; i < unresolvedObjectsList.size(); i++) {
+                    SerializationUtils.readerToWriter(unresolvedObjectsList.beginScope(i), writer.beginScope());
+                }
+            } finally {
+                unresolvedScope.forceEndScope(ctx);
             }
-            unresolvedObjectsList.endScope();
         }
 
         for (int i = 0; i < slotsSize; i++) {

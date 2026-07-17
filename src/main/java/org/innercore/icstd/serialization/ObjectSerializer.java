@@ -12,7 +12,7 @@ public class ObjectSerializer {
     private static final HashMap<Integer, SerializerRecord> legacyHashIdLookup = new HashMap<>();
 
     public static final String SKIP_SERIALIZATION_TYPE_ID = registerType("__serialization_skip", Object.class, new IObjectSerializer<Object>() {
-        @Override public Object read(IScopedReader reader, SerializationContext ctx, String typeId) { return null; }
+        @Override public Object read(IScopedReader reader, SerializationContext ctx, String typeId) { reader.endScope(); return null; }
         @Override public void write(IScopedWriter writer, Object object, SerializationContext ctx, String typeId) { writer.endScope(); }
     }, false);
 
@@ -64,11 +64,6 @@ public class ObjectSerializer {
     public static String getTypeIdFromLegacyHashId(int legacyHashId, String fallback) {
         SerializerRecord rec = getSerializerRecordByLegacyHashId(legacyHashId);
         return rec != null ? rec.typeId : fallback;
-    }
-
-    public static String getTypeIdFromLegacyHashIdNotNull(int legacyHashId) {
-        String typeId = getTypeIdFromLegacyHashId(legacyHashId, null);
-        return typeId != null ? typeId : "__unknown_hash_id:" + legacyHashId;
     }
 
     public static int getLegacyHashIdFromTypeId(String typeId, int fallback) {
@@ -135,23 +130,26 @@ public class ObjectSerializer {
         }
     }
 
-    // NOTE: returns null and leaves reader untouched, if it is not a packed object
+    // NOTE: returns null and leaves reader untouched, if it is not a packed object.
+    // Objects packed with a type id that is not registered are also reported as not packed, so
+    // generic readers fall through to reading them as plain data - the raw payload (including the
+    // type marker) then survives load/save cycles while its saver mod is missing or disabled
     public static PackedObjectReader unpackObjectAndTypeId(IScopedReader reader, SerializationContext ctx) {
         IArrayReader array = reader.asArray();
         String typeId = null;
         IScopedReader target = reader;
         if (array != null && array.size() == 2 && array.getValueType(0).isString() && array.getValueType(1).isScope()) {
             String str = array.getString(0, "");
-            if (str.startsWith("_t:")) {
+            if (str.startsWith("_t:") && isTypeRegistered(str.substring(3))) {
                 typeId = str.substring(3);
                 target = array.beginScope(1);
             }
         }
-        if (ctx.hasLegacyFormat) {
+        if (typeId == null && ctx.hasLegacyFormat) {
             IObjectReader object = reader.asObject();
             if (object != null && object.getValueType(ObjectSaverRegistry.PROPERTY_SAVER_ID).isNumber()) {
                 int legacyTypeId = object.getInt(ObjectSaverRegistry.PROPERTY_SAVER_ID, 0);
-                typeId = getTypeIdFromLegacyHashIdNotNull(legacyTypeId);
+                typeId = getTypeIdFromLegacyHashId(legacyTypeId, null);
             }
         }
         if (typeId == null) {
@@ -178,6 +176,8 @@ public class ObjectSerializer {
         }
     }
 
+    // NOTE: returns null both when the object has no saver mark at all and when its legacy hash id
+    // does not resolve to a registered type - callers must not assume a non-null result is registered
     public static String getSerializerTypeIdFromObject(Object src) {
         if (src instanceof ISerializableObject) {
             String typeId = ((ISerializableObject) src).getSerializationTypeId();
@@ -185,16 +185,28 @@ public class ObjectSerializer {
                 return typeId;
         }
         if (src instanceof ObjectSaverRegistry.IHashSaver) {
-            int hashId = ((ObjectSaverRegistry.IHashSaver) src).getObjectSaverId();
-            return getTypeIdFromLegacyHashIdNotNull(hashId);
+            try {
+                int hashId = ((ObjectSaverRegistry.IHashSaver) src).getObjectSaverId();
+                return getTypeIdFromLegacyHashId(hashId, null);
+            } catch (Throwable err) {
+                ICLog.e("SAVER", "legacy saver id lookup failed for " + src.getClass(), err);
+                return null;
+            }
         } else if (src instanceof Scriptable) {
             Scriptable scriptable = (Scriptable) src;
-            Object saverId = scriptable.get(ObjectSaverRegistry.PROPERTY_SAVER_ID, scriptable);
+            Object saverId;
+            try {
+                // property access can run a script getter, it must not break serialization
+                saverId = scriptable.get(ObjectSaverRegistry.PROPERTY_SAVER_ID, scriptable);
+            } catch (Throwable err) {
+                ICLog.e("SAVER", "saver id property lookup failed for " + scriptable.getClass(), err);
+                saverId = Scriptable.NOT_FOUND;
+            }
             if (saverId != Scriptable.NOT_FOUND) {
                 if (saverId instanceof CharSequence) {
                     return saverId.toString();
                 } else if (saverId instanceof Number) {
-                    return getTypeIdFromLegacyHashIdNotNull(((Number) saverId).intValue());
+                    return getTypeIdFromLegacyHashId(((Number) saverId).intValue(), null);
                 }
             }
         } else if (src instanceof JSONObject) {
@@ -202,7 +214,7 @@ public class ObjectSerializer {
             if (saverId instanceof String) {
                 return (String) saverId;
             } else if (saverId instanceof Number) {
-                return getTypeIdFromLegacyHashIdNotNull(((Number) saverId).intValue());
+                return getTypeIdFromLegacyHashId(((Number) saverId).intValue(), null);
             }
         } else if (src instanceof Wrapper) {
             return getSerializerTypeIdFromObject(((Wrapper) src).unwrap());
@@ -267,12 +279,17 @@ public class ObjectSerializer {
             return false;
         }
         IScopedWriter writer = packObjectAndTypeId(io, typeId, ctx);
-        boolean success;
+        boolean success = false;
         try {
             success = serializeObjectUnpacked(writer, o, typeId, ctx, optional);
         } finally {
-            if (writer != io)
+            if (writer != io && io.isInScope()) {
+                // break the packed shape of a failed object, so on load its partial payload is
+                // preserved as plain data instead of being reconstructed into garbage half-object
+                if (!success)
+                    io.asArray().addAny("__corrupted");
                 io.endScope();
+            }
         }
         return success;
     }
@@ -298,7 +315,7 @@ public class ObjectSerializer {
             else throw new IllegalArgumentException("deserializeObjectUnpacked(): " + msg);
             return null;
         }
-        if (!cls.isAssignableFrom(rec.objectType)) {
+        if (!cls.isAssignableFrom(rec.objectType) && !rec.objectType.isAssignableFrom(cls)) {
             io.endScope();
             String msg = "read() of serializer " + rec.serializer.getClass() + " returns " + rec.objectType + " but expected " + cls;
             if (optional) ctx.addError(msg);

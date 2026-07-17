@@ -594,7 +594,9 @@ var GameObjectRegistry = {
             read: function(obj) {
                 var gameobject = gameObjectClass.instantiate();
                 for (var name in obj) {
-                    gameobject[name] = data[name];
+                    if (typeof gameobject[name] != "function") {
+                        gameobject[name] = obj[name];
+                    }
                 }
                 gameobject.isDeployed = false;
                 gameobject.isInstance = true;
