@@ -64,7 +64,7 @@ public class ItemContainerSlot extends ItemContainerSlotBindGenBase implements A
         return container;
     }
 
-    @ApiHidden public ScriptableObject asScriptable() {
+    @ApiBinding public ScriptableObject asScriptable() {
         ScriptableObject object = ScriptableObjectHelper.createEmpty();
         object.put("id", object, id);
         object.put("count", object, count);
