@@ -1,10 +1,7 @@
 package com.zhekasmirnov.innercore.modpack;
 
 import com.zhekasmirnov.horizon.util.FileUtils;
-import com.zhekasmirnov.innercore.modpack.installation.ExternalZipFileInstallationSource;
-import com.zhekasmirnov.innercore.modpack.installation.ModpackInstallationSource;
-import com.zhekasmirnov.innercore.modpack.installation.ZipFileExtractionTarget;
-import com.zhekasmirnov.innercore.modpack.installation.ZipFileInstallationSource;
+import com.zhekasmirnov.innercore.modpack.installation.*;
 import org.json.JSONException;
 
 import java.io.File;
@@ -85,6 +82,33 @@ public class ModPackStorage {
     public boolean isDefaultModPack(ModPack modPack) {
         return defaultModPackDirectory.equals(modPack.getRootDirectory());
     }
+
+    public ModPack getModPackByDirectory(File directory) {
+        if (defaultModPackDirectory.equals(directory)) {
+            return defaultModPack;
+        }
+        for (ModPack modPack : modPacks) {
+            if (modPack != null && modPack.getRootDirectory().equals(directory)) {
+                return modPack;
+            }
+        }
+        return null;
+    }
+
+    public ModPack clonePack(ModPack modPack, ModPack.TaskReporter taskReporter) throws InterruptedException {
+        if (!modPack.reloadAndValidateManifest() || modPack.getManifest().getPackName() == null) {
+            ModPack.interruptTask("failed to load pack manifest");
+        }
+
+        try (DirectoryInstallationSource installationSource = new DirectoryInstallationSource(modPack)) {
+            return installNewModPack(installationSource, taskReporter);
+        } catch (IOException exception) {
+            taskReporter.reportError("failed to create installation source", exception, false);
+            ModPack.interruptTask(exception, "failed to create installation source");
+            return null;
+        }
+    }
+
 
     private static String normalizeFileName(String name) {
         if (name == null || name.equals("")) {

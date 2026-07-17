@@ -16,6 +16,7 @@ public abstract class ModpackInstallationSource {
     }
 
     public abstract String getManifestContent() throws IOException;
+    public abstract String getExternalServersContent() throws IOException;
 
     public ModPackManifest getTempManifest() throws IOException, JSONException {
         ModPackManifest manifest = new ModPackManifest();

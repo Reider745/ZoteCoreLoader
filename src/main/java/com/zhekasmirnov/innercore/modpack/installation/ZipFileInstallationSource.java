@@ -1,5 +1,6 @@
 package com.zhekasmirnov.innercore.modpack.installation;
 
+import com.zhekasmirnov.horizon.util.FileUtils;
 import com.zhekasmirnov.innercore.utils.FileTools;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.util.zip.ZipFile;
 
 public class ZipFileInstallationSource extends ModpackInstallationSource {
     protected ZipFile file;
-    protected String manifestContent;
+    protected String manifestContent, externalServersContent;
 
     public ZipFileInstallationSource(ZipFile file) {
         setFile(file);
@@ -37,6 +38,18 @@ public class ZipFileInstallationSource extends ModpackInstallationSource {
             manifestContent = FileTools.convertStreamToString(file.getInputStream(entry));
         }
         return manifestContent;
+    }
+
+    @Override
+    public String getExternalServersContent() throws IOException {
+        if (externalServersContent == null) {
+            ZipEntry entry = file.getEntry("external_servers.txt");
+            if (entry == null) {
+                throw new IOException("modpack zip file does not contain external_servers.txt");
+            }
+            externalServersContent = FileUtils.convertStreamToString(file.getInputStream(entry));
+        }
+        return externalServersContent;
     }
 
     @Override
