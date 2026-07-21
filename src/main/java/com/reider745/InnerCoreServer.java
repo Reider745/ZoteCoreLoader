@@ -316,7 +316,9 @@ public class InnerCoreServer {
         pluginManager.getPlugins().put(plugin.getDescription().getName(), plugin);
 
         Logger.info("Registering ZoteCore events...");
-        pluginManager.registerEvents(new EventListener(), plugin);
+        final EventListener eventListener = new EventListener();
+        pluginManager.registerEvents(eventListener, plugin);
+        eventListener.load();
         if (SnowfallEverywhere.isActive) {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }

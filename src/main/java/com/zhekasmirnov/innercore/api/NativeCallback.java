@@ -327,8 +327,8 @@ public class NativeCallback {
         // on server side save all data
         WorldDataSaverHandler.getInstance().onLevelLeft();
 
-        GameObjectManager.clearAllDefaultServerScenes(true, false);
-        GameObjectScope.SERVER_SCOPE.expireAllHandles();
+        //GameObjectManager.clearAllDefaultServerScenes(true, false);
+        //GameObjectScope.SERVER_SCOPE.expireAllHandles();
 
         // legacy callback for server left
         if (callLegacyCallback) {

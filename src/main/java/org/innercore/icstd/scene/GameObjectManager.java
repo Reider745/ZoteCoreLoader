@@ -952,7 +952,8 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
 
     private final OpaqueSerializedData unresolvedSavedObjectsList = new OpaqueSerializedData();
 
-    void deserializeAllObjectsAndKeepUnresolved(IScopedReader scope, SerializationContext ctx) {
+    @ApiHidden
+    public void deserializeAllObjectsAndKeepUnresolved(IScopedReader scope, SerializationContext ctx) {
         if (scope.isArray()) {
             unresolvedSavedObjectsList.clear();
             IArrayWriter unresolvedList = unresolvedSavedObjectsList.beginWrite().asArray();
@@ -962,8 +963,9 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         scope.endScope();
     }
 
-    void serializeAllObjectsAndAddUnresolved(IScopedWriter scope, SerializationContext ctx) {
-        IArrayWriter writer = scope.asArray();
+    @ApiHidden
+    public void serializeAllObjectsAndAddUnresolved(IScopedWriter scope, SerializationContext ctx) {
+        IArrayWriter writer = scope.asArray();;
 
         if (!unresolvedSavedObjectsList.isEmpty()) {
             IScopedReader unresolvedScope = unresolvedSavedObjectsList.beginRead();
@@ -1001,15 +1003,6 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
                 for (String key : defaultScopes.iterKeys()) {
                     if (key.equals("global")) {
                         defaultServerMgr.deserializeAllObjectsAndKeepUnresolved(defaultScopes.beginScope(key), ctx);
-                    } else if (key.startsWith("dim-")) {
-                        int dimensionId;
-                        try {
-                            dimensionId = Integer.parseInt(key.substring(4));
-                        } catch (NumberFormatException e) {
-                            ctx.addError("invalid key in default game object scopes " + key);
-                            continue;
-                        }
-                        getForDimension(dimensionId).deserializeAllObjectsAndKeepUnresolved(defaultScopes.beginScope(key), ctx);
                     }
                 }
             }
@@ -1018,9 +1011,6 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
             public void write(IScopedWriter io, SerializationContext ctx) {
                 IObjectWriter defaultScopes = io.asObject();
                 defaultServerMgr.serializeAllObjectsAndAddUnresolved(defaultScopes.beginScope("global"), ctx);
-                for (GameObjectManager mgr : defaultMgrForDimension.values()) {
-                    mgr.serializeAllObjectsAndAddUnresolved(defaultScopes.beginScope("dim-" + mgr.dimensionId), ctx);
-                }
                 io.endScope();
             }
         });
