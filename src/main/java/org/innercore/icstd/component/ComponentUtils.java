@@ -4,7 +4,7 @@ import com.zhekasmirnov.innercore.api.log.DialogHelper;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import org.innercore.icstd.common.BlockPos;
 import org.innercore.icstd.region.BlockSource;
-import org.innercore.icstd.scene.*;
+import org.innercore.icstd.scene.GameObjectHandle;
 import org.innercore.icstd.world.DestroyBlockContext;
 
 public class ComponentUtils {
@@ -14,37 +14,73 @@ public class ComponentUtils {
         ICLog.e("ComponentUtils", msg, err);
     }
 
-    public static boolean safeCallCreateObjectFor(Object o, GameObjectHandle handle) {
-        if (o instanceof CreateObjectComponent) {
+    public static boolean safeCallAddedToScene(Object o, GameObjectHandle handle) {
+        if (o instanceof SceneHandleListenerComponent) {
             try {
-                ((CreateObjectComponent) o).createObject(handle);
+                ((SceneHandleListenerComponent) o).onAddedToScene(handle);
                 return true;
             } catch (Throwable err) {
-                ComponentUtils.reportComponentCallError(o, err, "createObject");
+                ComponentUtils.reportComponentCallError(o, err, "onAddedToScene");
             }
         }
         return false;
     }
 
-    public static boolean safeCallInitFor(Object o) {
-        if (o instanceof InitObjectComponent) {
+    public static boolean safeCallRemovedFromScene(Object o, GameObjectHandle handle) {
+        if (o instanceof SceneHandleListenerComponent) {
             try {
-                ((InitObjectComponent) o).init();
+                ((SceneHandleListenerComponent) o).onRemovedFromScene(handle);
                 return true;
             } catch (Throwable err) {
-                ComponentUtils.reportComponentCallError(o, err, "init");
+                ComponentUtils.reportComponentCallError(o, err, "onRemovedFromScene");
+            }
+        }
+        return false;
+    }
+
+    public static boolean safeCallCreatedFor(Object o) {
+        if (o instanceof ObjectCreateComponent) {
+            try {
+                ((ObjectCreateComponent) o).onCreated();
+                return true;
+            } catch (Throwable err) {
+                ComponentUtils.reportComponentCallError(o, err, "onCreated");
             }
         }
         return false;
     }
 
     public static boolean safeCallDestroyFor(Object o) {
-        if (o instanceof DestroyObjectComponent) {
+        if (o instanceof ObjectCreateComponent) {
             try {
-                ((DestroyObjectComponent) o).destroy();
+                ((ObjectCreateComponent) o).onDestroyed();
                 return true;
             } catch (Throwable err) {
-                ComponentUtils.reportComponentCallError(o, err, "destroy");
+                ComponentUtils.reportComponentCallError(o, err, "onDestroyed");
+            }
+        }
+        return false;
+    }
+
+    public static boolean safeCallInitFor(Object o) {
+        if (o instanceof ObjectInitComponent) {
+            try {
+                ((ObjectInitComponent) o).onInit();
+                return true;
+            } catch (Throwable err) {
+                ComponentUtils.reportComponentCallError(o, err, "onInit");
+            }
+        }
+        return false;
+    }
+
+    public static boolean safeCallDiscardFor(Object o) {
+        if (o instanceof ObjectInitComponent) {
+            try {
+                ((ObjectInitComponent) o).onDiscard();
+                return true;
+            } catch (Throwable err) {
+                ComponentUtils.reportComponentCallError(o, err, "onDiscard");
             }
         }
         return false;
@@ -62,40 +98,16 @@ public class ComponentUtils {
         return false;
     }
 
-    public static boolean safeCallDiscardFor(Object o) {
-        if (o instanceof DiscardObjectComponent) {
-            try {
-                ((DiscardObjectComponent) o).discard();
-                return true;
-            } catch (Throwable err) {
-                ComponentUtils.reportComponentCallError(o, err, "discard");
-            }
-        }
-        return false;
-    }
-
-    public static boolean safeCallFinalizeObjectFor(Object o) {
-        if (o instanceof FinalizeObjectComponent) {
-            try {
-                ((FinalizeObjectComponent) o).finalizeObject();
-                return true;
-            } catch (Throwable err) {
-                ComponentUtils.reportComponentCallError(o, err, "finalizeObject");
-            }
-        }
-        return false;
-    }
-
     public static boolean safeCallLoadOrUnloadFor(Object o, boolean isLoaded) {
-        if (o instanceof LoadableComponent) {
+        if (o instanceof ObjectLoadComponent) {
             try {
                 if (isLoaded)
-                    ((LoadableComponent) o).load();
+                    ((ObjectLoadComponent) o).onLoad();
                 else
-                    ((LoadableComponent) o).unload();
+                    ((ObjectLoadComponent) o).onUnload();
                 return true;
             } catch (Throwable err) {
-                ComponentUtils.reportComponentCallError(o, err, isLoaded ? "load" : "unload");
+                ComponentUtils.reportComponentCallError(o, err, isLoaded ? "onLoad" : "onUnload");
             }
         }
         return false;

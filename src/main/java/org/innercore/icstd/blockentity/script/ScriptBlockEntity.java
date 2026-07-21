@@ -11,21 +11,20 @@ import org.innercore.icstd.common.ChunkPos;
 import org.innercore.icstd.common.Vec3f;
 import org.innercore.icstd.common.script.GenericScriptPos3;
 import org.innercore.icstd.component.ContainerComponent;
-import org.innercore.icstd.component.DiscardObjectComponent;
 import org.innercore.icstd.component.ItemUseListenerComponent;
 import org.innercore.icstd.inventory.ItemInstance;
 import org.innercore.icstd.region.BlockSource;
-import org.innercore.icstd.scene.FinalizeObjectComponent;
 import org.innercore.icstd.scene.GameObjectHandle;
 import org.innercore.icstd.script.ScriptObjectComponent;
 import org.innercore.icstd.serialization.*;
 import org.innercore.icstd.updatable.UpdatableComponent;
 import org.innercore.icstd.world.DestroyBlockContext;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-public class ScriptBlockEntity extends BlockEntityBase implements SerializationMethodsComponent, UpdatableComponent, ContainerComponent, ItemUseListenerComponent, ScriptObjectComponent, FinalizeObjectComponent, DiscardObjectComponent {
+public class ScriptBlockEntity extends BlockEntityBase implements SerializationMethodsComponent, UpdatableComponent, ContainerComponent, ItemUseListenerComponent, ScriptObjectComponent {
     private final ScriptableObject scriptObject;
     private final Scriptable parentScope;
 
@@ -39,8 +38,8 @@ public class ScriptBlockEntity extends BlockEntityBase implements SerializationM
     }
 
     @Override
-    public void createObject(GameObjectHandle handle) {
-        super.createObject(handle);
+    public void onAddedToScene(GameObjectHandle handle) {
+        super.onAddedToScene(handle);
         scriptObject.put("_objHandle", scriptObject, objHandle);
         scriptObject.put("blockSource", scriptObject, region);
         callMethod("_createdImpl", NO_ARGS);
@@ -50,15 +49,21 @@ public class ScriptBlockEntity extends BlockEntityBase implements SerializationM
     }
 
     @Override
-    public void finalizeObject() {
-        callMethod("finalized", NO_ARGS);
+    public void onRemovedFromScene(GameObjectHandle handle) {
+        super.onRemovedFromScene(handle);
         // this is a legacy callback only for script block entities, it is meant as finalization
         Callback.invokeAPICallback("TileEntityRemoved", scriptObject);
     }
 
     @Override
-    public void load() {
-        super.load();
+    public void onCreated() {
+        super.onCreated();
+        callMethod("created", NO_ARGS);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
         updHandle.schedule(1).setRecurringSchedule(1);
         scriptObject.put("isLoaded", scriptObject, true);
         scriptObject.put("_handle", scriptObject, updHandle);
@@ -66,8 +71,8 @@ public class ScriptBlockEntity extends BlockEntityBase implements SerializationM
     }
 
     @Override
-    public void unload() {
-        super.unload();
+    public void onUnload() {
+        super.onUnload();
         scriptObject.put("isLoaded", scriptObject, false);
         callMethod("unload", NO_ARGS);
     }
@@ -81,24 +86,23 @@ public class ScriptBlockEntity extends BlockEntityBase implements SerializationM
     private boolean isDestroyCalled = false;
 
     @Override
-    protected void doDestroy(DestroyBlockContext ctx) {
-        ONE_ARG[0] = ctx; // FIXME: DestroyBlockContext must use codegen
+    protected void doDestroy(DestroyBlockContext ctx, boolean fromDestroyBlock) {
         if (!isDestroyCalled)
-            callMethod("_destroyImpl", new Object[]{ctx, true});
+            callMethod("_destroyImpl", new Object[]{Context.javaToJS(ctx, scriptObject.getParentScope()), fromDestroyBlock});
         isDestroyCalled = true;
-        super.doDestroy(ctx);
+        super.doDestroy(ctx, fromDestroyBlock);
     }
 
     @Override
-    public void destroy() {
+    public void onDestroyed() {
         if (!isDestroyCalled)
             callMethod("_destroyImpl", new Object[]{null, false});
         isDestroyCalled = true;
-        super.destroy();
+        super.onDestroyed();
     }
 
     @Override
-    public void discard() {
+    public void onDiscard() {
         callMethod("discard", NO_ARGS);
     }
 
@@ -127,13 +131,13 @@ public class ScriptBlockEntity extends BlockEntityBase implements SerializationM
 
     @Override
     public void doPeriodicObjectCheck() {
-        super.doPeriodicObjectCheck();
+        // don't call super.doPeriodicObjectCheck(), it doesn't have blockID field re-check logic
         int blockId = region.getBlockId(blockPos.x, blockPos.y, blockPos.z);
         if (blockId != type.getBlockId() && region.isChunkLoaded(new ChunkPos(blockPos))) {
             // scripts can override it
             int typeBlockId = ScriptableObjectHelper.getIntProperty(scriptObject, "blockID", type.getBlockId());
             if (blockId != typeBlockId) {
-                doDestroy(new DestroyBlockContext());
+                doDestroy(new DestroyBlockContext(), false);
             }
         }
         // onCheckerTick in script tile entities is never used, so don't try to call it
@@ -141,7 +145,11 @@ public class ScriptBlockEntity extends BlockEntityBase implements SerializationM
 
     @Override
     public void onItemUse(BlockSource source, BlockPosAndSide pos, ItemInstance item, long playerUid, Vec3f exactPos) {
-        callMethod("onItemClick", new Object[]{item.id, item.count, item.data, new GenericScriptPos3(pos), playerUid, item.extra});
+        GenericScriptPos3 scriptPos = new GenericScriptPos3(pos);
+        scriptPos.relative = scriptPos.makeRelativePos();
+        scriptPos.vec = new GenericScriptPos3(exactPos);
+        // TODO: actually use this component and drop ItemUse handling in JS
+        // callMethod("onItemClick", new Object[]{item.id, item.count, item.data, scriptPos, playerUid, item.extra});
     }
 
     @Override

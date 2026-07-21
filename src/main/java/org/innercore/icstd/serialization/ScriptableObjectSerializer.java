@@ -134,7 +134,7 @@ public abstract class ScriptableObjectSerializer implements IObjectSerializer<Ob
                 // number keys (written as strings by ALLOW_NUMBER_KEYS_TO_STRING_CONVERSION) must go
                 // back into index slots, a string put would make them invisible to js element access
                 long index = ScriptRuntime.indexFromString(key);
-                if (index != -1L) {
+                if (index >= 0 && index <= Integer.MAX_VALUE) {
                     object.put((int) index, object, value);
                 } else {
                     object.put(key, object, value);

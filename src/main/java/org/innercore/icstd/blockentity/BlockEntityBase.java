@@ -1,24 +1,21 @@
 package org.innercore.icstd.blockentity;
 
+import org.innercore.icstd.component.*;
 import org.innercore.icstd.inventory.ItemContainer;
 import org.innercore.icstd.common.BlockPos;
 import org.innercore.icstd.common.ChunkPos;
-import org.innercore.icstd.component.ContainerComponent;
-import org.innercore.icstd.component.DestroyBlockListenerComponent;
-import org.innercore.icstd.component.DestroyObjectComponent;
-import org.innercore.icstd.component.InitObjectComponent;
-import org.innercore.icstd.scene.CreateObjectComponent;
 import org.innercore.icstd.region.BlockSource;
 import org.innercore.icstd.scene.GameObjectHandle;
-import org.innercore.icstd.scene.LoadableComponent;
-import org.innercore.icstd.scene.PeriodicObjectCheckComponent;
+import org.innercore.icstd.component.ObjectLoadComponent;
+import org.innercore.icstd.component.PeriodicObjectCheckComponent;
+import org.innercore.icstd.component.SceneHandleListenerComponent;
 import org.innercore.icstd.serialization.ISerializableObject;
 import org.innercore.icstd.updatable.UpdatableComponent;
 import org.innercore.icstd.updatable.UpdatableHandle;
 import org.innercore.icstd.updatable.UpdatableScheduler;
 import org.innercore.icstd.world.DestroyBlockContext;
 
-public class BlockEntityBase implements BlockEntityComponent, CreateObjectComponent, LoadableComponent, ISerializableObject, PeriodicObjectCheckComponent, DestroyBlockListenerComponent, DestroyObjectComponent, InitObjectComponent {
+public class BlockEntityBase implements BlockEntityComponent, SceneHandleListenerComponent, ObjectLoadComponent, ISerializableObject, PeriodicObjectCheckComponent, DestroyBlockListenerComponent, ObjectCreateComponent, ObjectInitComponent {
     public final boolean isServerSide;
 
     protected GameObjectHandle objHandle;
@@ -49,7 +46,7 @@ public class BlockEntityBase implements BlockEntityComponent, CreateObjectCompon
     }
 
     @Override
-    public void createObject(GameObjectHandle handle) {
+    public void onAddedToScene(GameObjectHandle handle) {
         objHandle = handle;
         region = BlockEntityRegistry.initBlockEntity(this);
         blockPos = handle.getBlockPos();
@@ -58,14 +55,8 @@ public class BlockEntityBase implements BlockEntityComponent, CreateObjectCompon
     }
 
     @Override
-    public void init() {
-        /* if (type.netEntityType != null) {
-            netEntity = new NetworkEntity(type.netEntityType);
-        } */
-    }
-
-    @Override
-    public void destroy() {
+    public void onRemovedFromScene(GameObjectHandle handle) {
+        // clear container network entity (script tile entities create is as soon as they create an object)
         if (this instanceof ContainerComponent) {
             ItemContainer container = ((ContainerComponent) this).getContainer();
             if (container != null) {
@@ -73,16 +64,34 @@ public class BlockEntityBase implements BlockEntityComponent, CreateObjectCompon
                 container.removeEntity();
             }
         }
+    }
+
+    @Override
+    public void onInit() {
+        /* if (type.netEntityType != null) {
+            netEntity = new NetworkEntity(type.netEntityType);
+        } */
+    }
+
+    @Override
+    public void onDiscard() {
+
+    }
+
+    @Override
+    public void onCreated() {
+
+    }
+
+    @Override
+    public void onDestroyed() {
         /* if (netEntity != null) {
             netEntity.remove();
             netEntity = null;
         } */
     }
 
-    protected void doDestroy(DestroyBlockContext ctx) {
-        if (updHandle != null) {
-            updHandle.destroy();
-        }
+    protected void doDestroy(DestroyBlockContext ctx, boolean fromDestroyBlock ) {
         objHandle.destroyNow();
     }
 
@@ -90,17 +99,17 @@ public class BlockEntityBase implements BlockEntityComponent, CreateObjectCompon
     public void doPeriodicObjectCheck() {
         int blockId = region.getBlockId(blockPos.x, blockPos.y, blockPos.z);
         if (blockId != type.blockId && region.isChunkLoaded(new ChunkPos(blockPos))) {
-            doDestroy(new DestroyBlockContext());
+            doDestroy(new DestroyBlockContext(), false);
         }
     }
 
     @Override
     public void onBlockDestroyed(BlockSource region, BlockPos pos, DestroyBlockContext ctx) {
-        doDestroy(ctx);
+        doDestroy(ctx, true);
     }
 
     @Override
-    public void load() {
+    public void onLoad() {
         isLoaded = true;
         if (this instanceof UpdatableComponent && updHandle == null) {
             updHandle = (isServerSide ? UpdatableScheduler.createOnServer((UpdatableComponent) this) : UpdatableScheduler.createOnClient((UpdatableComponent) this));
@@ -109,7 +118,7 @@ public class BlockEntityBase implements BlockEntityComponent, CreateObjectCompon
     }
 
     @Override
-    public void unload() {
+    public void onUnload() {
         isLoaded = false;
         if (updHandle != null) {
             updHandle.destroy();

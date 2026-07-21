@@ -214,8 +214,7 @@ public class NativePlayer {
         return PlayerActorMethods.isFlying(player);
     }
 
-    @ZoteOnly
-    public String getUserName() {
+    public String getName() {
         return PlayerActorMethods.getUserName(player);
     }
 }

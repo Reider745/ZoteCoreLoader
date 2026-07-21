@@ -97,8 +97,7 @@ public class BlockEntityRegistry extends BlockEntityRegistryBindGenBase {
     @ApiBinding
     public static void addExistingScriptBlockEntityToServerScene(String typeName, ScriptableObject scriptObj, int dimensionId, int x, int y, int z) {
         ScriptBlockEntity blockEntity = new ScriptBlockEntity(lookupType(typeName), scriptObj, true);
-        GameObjectHandle handle = GameObjectManager.getForDimension(dimensionId).create(blockEntity).placeAtBlockPos(x, y, z);
-        ComponentUtils.safeCallCreateObjectFor(blockEntity, handle);
+        GameObjectManager.getForDimension(dimensionId).addCreatedObject(blockEntity).placeAtBlockPos(x, y, z);
     }
 
     public static BlockEntityComponent createForBlock(int blockId) {
@@ -118,8 +117,7 @@ public class BlockEntityRegistry extends BlockEntityRegistryBindGenBase {
         if (blockEntity == null) {
             return null;
         }
-        GameObjectHandle handle = scene.create(blockEntity).placeAtBlockPos(pos);
-        ComponentUtils.safeCallCreateObjectFor(blockEntity, handle);
+        scene.create(blockEntity).placeAtBlockPos(pos);
         return blockEntity;
     }
 

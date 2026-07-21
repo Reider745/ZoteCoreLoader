@@ -1,26 +1,47 @@
 package org.innercore.icstd.scene;
 
-import org.jetbrains.annotations.Nullable;
 import org.innercore.icstd.annotations.ApiBinding;
 import com.zhekasmirnov.innercore.api.gen.GameObjectManagerBindGenBase;
-import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
+import org.innercore.icstd.annotations.ApiHidden;
 import org.innercore.icstd.common.BlockPos;
 import org.innercore.icstd.common.ChunkAABB;
 import org.innercore.icstd.common.ChunkPos;
 import org.innercore.icstd.component.*;
 import org.innercore.icstd.region.BlockSource;
 import org.innercore.icstd.serialization.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+
+/*
+Game object lifecycle:
+1. onAddedToScene is called, when object is placed on scene (placeAs* methods, object load, etc.)
+2. onCreated is called, if it is the first time object is created
+3. onInit is called immediately before object becomes loaded first time this session
+4. onLoad is called, as object becomes loaded
+5. onUnload is called, as object becomes unloaded or before removal, from here it can wait to become loaded again, or proceed further
+6. onDiscarded is called (opposite to onInit)
+7. onDestroyed is called, if it is object destruction (opposite to onCreated) (e.g. block entity is destroyed by something)
+8. onRemovedFromScene is called, as object is removed from scene
+*/
 
 @ApiBinding
 public class GameObjectManager extends GameObjectManagerBindGenBase {
     private static final int STATE_NOT_LOADED = 0;
     private static final int STATE_LAZY_LOADED = 1;
     private static final int STATE_LOADED = 2;
+
+    private static final int POS_TYPE_NONE = 0;   // not valid
+    private static final int POS_TYPE_GLOBAL = 1; // always loaded if scene loaded
+    private static final int POS_TYPE_BLOCK = 2;  // exists at block pos
+
+    static final int OBJECT_STATE_DEAD = 0; // initial state
+    static final int OBJECT_STATE_CREATED = 1; // onCreated called
+    static final int OBJECT_STATE_INIT = 2; // onInit called
+    static final int OBJECT_STATE_LOADED = 3; // onLoaded called
+
 
     private final GameObjectScope objectScope;
     private final String uniqueName;
@@ -47,15 +68,15 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         return this;
     }
 
-    public int getDimensionId() {
+    @ApiBinding public int getDimensionId() {
         return dimensionId;
     }
 
-    public boolean isServerSide() {
+    @ApiBinding public boolean isServerSide() {
         return objectScope.isServerSide();
     }
 
-    public boolean isDefaultScene() {
+    @ApiBinding public boolean isDefaultScene() {
         return isDefaultScene;
     }
 
@@ -67,7 +88,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     // ADD/UPDATE
 
 
-    GameObjectHandle createImpl(GameObjectHandle handle, Object object) {
+    GameObjectHandle createImpl(GameObjectHandle handle, Object object, int initialObjectState) {
         if (handle.isExpired()) {
             throw new IllegalStateException("handle is expired " + handle);
         }
@@ -81,7 +102,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         slots[slotIdx].handle = handle;
         handle.slotIdx = slotIdx;
         handle.scene = this;
-        setSlotObjectImpl(slotIdx, object, SetObjectActionType.DESTROY);
+        setSlotObjectImpl(slotIdx, object, OBJECT_STATE_DEAD, initialObjectState);
         markObjectForUpdate(slotIdx);
         return handle;
     }
@@ -89,7 +110,14 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     @ApiBinding
     public GameObjectHandle create(Object object) {
         GameObjectHandle handle = objectScope.createUniqueHandle();
-        createImpl(handle, object);
+        createImpl(handle, object, OBJECT_STATE_DEAD);
+        return handle;
+    }
+
+    @ApiHidden
+    public GameObjectHandle addCreatedObject(Object object) {
+        GameObjectHandle handle = objectScope.createUniqueHandle();
+        createImpl(handle, object, OBJECT_STATE_CREATED);
         return handle;
     }
 
@@ -110,39 +138,28 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
 
     private void updateObjectPosImpl(int slotIdx, Consumer<ObjectSlot> slotConsumer) {
         ObjectSlot slot = slots[slotIdx];
+        boolean wasPlaced = slot.isPlacedOnScene();
         BlockPos prevBlockPos = slot.getBlockPos();
         ChunkAABB prevAABB = slot.getChunkAABB();
         slotConsumer.accept(slot);
         updateObjectAABB(slotIdx, prevAABB, slot.getChunkAABB());
         updateObjectBlockPos(slotIdx, prevBlockPos, slot.getBlockPos());
+        if (wasPlaced != slot.isPlacedOnScene() && slot.object != null) {
+            if (wasPlaced) {
+                ComponentUtils.safeCallRemovedFromScene(slot.object, slot.handle);
+            } else {
+                ComponentUtils.safeCallAddedToScene(slot.object, slot.handle);
+            }
+        }
+        if (slot.objectState < OBJECT_STATE_CREATED && slot.object != null) {
+            setSlotObjectState(slotIdx, OBJECT_STATE_CREATED);
+        }
         markObjectForUpdate(slotIdx);
-    }
-
-    Object discardNow(int slotIdx) {
-        return unlinkSlotImpl(slotIdx, SetObjectActionType.DISCARD);
-    }
-
-    boolean destroyNow(int slotIdx) {
-        unlinkSlotImpl(slotIdx, SetObjectActionType.DISCARD);
-        return true;
-    }
-
-    Object unlinkObject(int slotIdx) {
-        return unlinkSlotImpl(slotIdx, SetObjectActionType.UNLINK);
     }
 
     void destroyDeferred(int slotIdx) {
         slots[slotIdx].markedForDestroy = true;
         markObjectForUpdate(slotIdx);
-    }
-
-    private Object unlinkSlotImpl(int slotIdx, SetObjectActionType action) {
-        ObjectSlot slot = slots[slotIdx];
-        Object o = setSlotObjectImpl(slotIdx, null, action);
-        updateObjectBlockPos(slotIdx, slot.getBlockPos(), null);
-        updateObjectAABB(slotIdx, slot.getChunkAABB(), null);
-        freeSlot(slotIdx, action != SetObjectActionType.UNLINK);
-        return o;
     }
 
     // SCENE LEVEL STATE
@@ -187,7 +204,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
             if (handle == null)
                 continue;
             if (runLifeCycleCallbacks)
-                setSlotObjectImpl(slotIdx, null, isDestroy ? SetObjectActionType.DESTROY : SetObjectActionType.DISCARD);
+                setSlotObjectImpl(slotIdx, null, isDestroy ? OBJECT_STATE_DEAD : OBJECT_STATE_CREATED, OBJECT_STATE_DEAD);
             objectScope.expireHandle(handle);
         }
         invalidateQueryGeneration();
@@ -221,8 +238,8 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
 
     // GETTERS
 
-    boolean isLoaded(int slotIdx) {
-        return slots[slotIdx].isObjectLoaded;
+    int getObjectState(int slotIdx) {
+        return slots[slotIdx].objectState;
     }
 
     Object getObject(int slotIdx) {
@@ -232,13 +249,6 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     BlockPos getBlockPos(int slotIdx) {
         return slots[slotIdx].getBlockPos();
     }
-
-    void setObject(int slotIdx, Object object) {
-        setSlotObjectImpl(slotIdx, object, SetObjectActionType.DESTROY);
-        if (object != null)
-            markObjectForUpdate(slotIdx);
-    }
-
 
     // QUERY
 
@@ -423,25 +433,24 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
 
     private void freeSlot(int idx, boolean expireHandle) {
         ObjectSlot slot = slots[idx];
-        Object o = setSlotObjectImpl(idx, null, SetObjectActionType.DESTROY);
+        Object o = setSlotObjectImpl(idx, null, OBJECT_STATE_DEAD, OBJECT_STATE_DEAD);
         assert o == null; // must be already cleared when freeSlot is called
         slot.nextAtPos = slotsFreeListHead;
         slot.prevAtPos = -1;
         slot.posType = POS_TYPE_NONE;
+        slot.objectState = OBJECT_STATE_DEAD;
         if (slot.handle != null) {
             if (expireHandle) {
                 objectScope.expireHandle(slot.handle);
             }
+            slot.handle.scene = null;
+            slot.handle.slotIdx = -1;
             slot.handle = null;
         }
         slot.markedForDestroy = slot.markedForUpdate = false;
         slotsFreeListHead = idx;
         invalidateQueryGeneration();
     }
-
-    private static final int POS_TYPE_NONE = 0;   // not valid
-    private static final int POS_TYPE_GLOBAL = 1; // always loaded if scene loaded
-    private static final int POS_TYPE_BLOCK = 2;  // exists at block pos
 
     static class ObjectSlot {
         GameObjectHandle handle;
@@ -450,13 +459,17 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         Object object;
         boolean markedForUpdate = false;
         boolean markedForDestroy = false;
-        boolean isObjectInitialized = false;
-        boolean isObjectLoaded = false;
+        int objectState = OBJECT_STATE_DEAD;
 
         int nextAtPos = -1;
         int prevAtPos = -1;
 
         int periodicChecksListIdx = -1;
+
+        boolean isObjectLoaded() { return objectState >= OBJECT_STATE_LOADED; }
+        boolean isPlacedOnScene() {
+            return posType != POS_TYPE_NONE;
+        }
 
         BlockPos getBlockPos() {
             if (posType == POS_TYPE_BLOCK) return new BlockPos(x, y, z);
@@ -476,45 +489,72 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
     int slotsSize = 0;
     int slotsFreeListHead = -1;
 
+
+    private void setSlotObjectState(int slotIdx, int state) {
+        ObjectSlot slot = slots[slotIdx];
+        if (slot.objectState == state)
+            return;
+        assert slot.object != null || state == OBJECT_STATE_DEAD;
+        boolean wasLoaded = slot.isObjectLoaded();
+        if (slot.objectState < state) {
+            while (slot.objectState < state) {
+                slot.objectState++;
+                switch (slot.objectState) {
+                    case OBJECT_STATE_CREATED: { ComponentUtils.safeCallCreatedFor(slot.object); break; }
+                    case OBJECT_STATE_INIT: { ComponentUtils.safeCallInitFor(slot.object); break; }
+                    case OBJECT_STATE_LOADED: { ComponentUtils.safeCallLoadOrUnloadFor(slot.object, true); break; }
+                }
+            }
+        } else if (slot.objectState > state) {
+            while (slot.objectState > state) {
+                slot.objectState--;
+                switch (slot.objectState + 1) {
+                    case OBJECT_STATE_CREATED: { ComponentUtils.safeCallDestroyFor(slot.object); break; }
+                    case OBJECT_STATE_INIT: { ComponentUtils.safeCallDiscardFor(slot.object); break; }
+                    case OBJECT_STATE_LOADED: { ComponentUtils.safeCallLoadOrUnloadFor(slot.object, false); break; }
+                }
+            }
+        }
+        if (slot.isObjectLoaded() != wasLoaded)
+            setPeriodicChecksEnables(slotIdx, slot, slot.isObjectLoaded() && slot.object instanceof PeriodicObjectCheckComponent);
+    }
+
     private void setSlotLoaded(int slotIdx, boolean isLoaded) {
         ObjectSlot slot = slots[slotIdx];
-        if (slot.isObjectLoaded != isLoaded) {
-            // ICLog.d("GameObjectManager", "setSlotLoaded idx=" + slotIdx + " o=" + slots[slotIdx].object + " loaded=" + isLoaded + " callInit=" + (isLoaded && !slot.isObjectInitialized) + " pos=" + slots[slotIdx].getBlockPos());
-            Object o = slot.object;
-            if (isLoaded && !slot.isObjectInitialized) {
-                // make sure object is initialized before being loaded
-                ComponentUtils.safeCallInitFor(o);
-                slot.isObjectInitialized = true;
-            }
-            slot.isObjectLoaded = isLoaded;
-            ComponentUtils.safeCallLoadOrUnloadFor(o, isLoaded);
-            setPeriodicChecksEnables(slotIdx, slot, isLoaded && o instanceof PeriodicObjectCheckComponent);
+        if (isLoaded) {
+            if (slot.object != null)
+                setSlotObjectState(slotIdx, OBJECT_STATE_LOADED);
+        } else if (slot.objectState >= OBJECT_STATE_LOADED) {
+            setSlotObjectState(slotIdx, OBJECT_STATE_INIT);
         }
     }
 
-    private enum SetObjectActionType {
-        UNLINK,
-        DISCARD,
-        DESTROY
-    }
-
-    private Object setSlotObjectImpl(int slotIdx, Object object, SetObjectActionType action) {
+    private Object setSlotObjectImpl(int slotIdx, Object object, int reduceToState, int newObjectState) {
         ObjectSlot slot = slots[slotIdx];
         Object o = slot.object;
         if (slot.object != object) {
-            setSlotLoaded(slotIdx, false);
-            if (slot.isObjectInitialized) {
-                if (action == SetObjectActionType.DISCARD)
-                    ComponentUtils.safeCallDiscardFor(slot.object);
-                else if (action == SetObjectActionType.DESTROY)
-                    ComponentUtils.safeCallDestroyFor(slot.object);
+            setSlotObjectState(slotIdx, Math.min(slot.objectState, reduceToState));
+            if (slot.isPlacedOnScene()) {
+                ComponentUtils.safeCallRemovedFromScene(slot.object, slot.handle);
             }
-            ComponentUtils.safeCallFinalizeObjectFor(slot.object);
             slot.object = object;
-            slot.isObjectInitialized = false;
+            slot.objectState = newObjectState;
+            if (slot.isPlacedOnScene()) {
+                ComponentUtils.safeCallAddedToScene(slot.object, slot.handle);
+            }
         }
         return o;
     }
+
+    Object unlinkSlotImpl(int slotIdx, int reduceToState) {
+        ObjectSlot slot = slots[slotIdx];
+        Object o = setSlotObjectImpl(slotIdx, null, reduceToState, OBJECT_STATE_DEAD);
+        updateObjectBlockPos(slotIdx, slot.getBlockPos(), null);
+        updateObjectAABB(slotIdx, slot.getChunkAABB(), null);
+        freeSlot(slotIdx, reduceToState == OBJECT_STATE_DEAD);
+        return o;
+    }
+
 
     public class Chunk {
         ChunkPos pos;
@@ -666,7 +706,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         GameObjectHandle handle = null;
         switch (posType) {
             case POS_TYPE_GLOBAL:
-                handle = createImpl(objectScope.getOrCreateHandle(rawHandle), object).placeAsGlobal();
+                handle = createImpl(objectScope.getOrCreateHandle(rawHandle), object, OBJECT_STATE_CREATED).placeAsGlobal();
                 break;
             case POS_TYPE_BLOCK:
                 if (reader.size() < 7) {
@@ -682,11 +722,8 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
                     scope.endScope();
                     return null;
                 }
-                handle = createImpl(objectScope.getOrCreateHandle(rawHandle), object).placeAtBlockPos(new BlockPos(x, y, z));
+                handle = createImpl(objectScope.getOrCreateHandle(rawHandle), object, OBJECT_STATE_CREATED).placeAtBlockPos(new BlockPos(x, y, z));
                 break;
-        }
-        if (handle != null) {
-            ComponentUtils.safeCallCreateObjectFor(object, handle);
         }
         scope.endScope();
         return handle;
@@ -742,13 +779,13 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
                 return updateObjectLoadedStateInChunk(slotIdx, chunk, slot.getChunkAABB());
             }
             // should not happen
-            return slot.isObjectLoaded;
+            return slot.isObjectLoaded();
         } else if (slot.posType == POS_TYPE_GLOBAL) {
             setSlotLoaded(slotIdx, isScopeLoaded);
         } else if (slot.posType == POS_TYPE_NONE) {
             setSlotLoaded(slotIdx, false);
         }
-        return slot.isObjectLoaded;
+        return slot.isObjectLoaded();
     }
 
     private boolean updateAllMarkedChunks(BlockSource region) {
@@ -785,7 +822,7 @@ public class GameObjectManager extends GameObjectManagerBindGenBase {
         for (int slotIdx : objectsMarkedForUpdate) {
             ObjectSlot slot = slots[slotIdx];
             if (slot.markedForDestroy) {
-                unlinkSlotImpl(slotIdx, SetObjectActionType.DESTROY);
+                unlinkSlotImpl(slotIdx, OBJECT_STATE_DEAD);
                 continue;
             }
             if (slot.markedForUpdate) {

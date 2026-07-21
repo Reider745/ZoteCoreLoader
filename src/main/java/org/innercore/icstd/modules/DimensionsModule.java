@@ -51,4 +51,13 @@ public class DimensionsModule extends DimensionsBindGenBase {
     @ApiBinding
     @ClientOnly
     public static void setShouldRenderClouds(int dimensionId, boolean enabled) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void setStarBrightness(int dimensionId, float brightness) {}
+
+    @ApiBinding
+    @ClientOnly
+    public static void resetStarBrightness(int dimensionId) {}
+
 }

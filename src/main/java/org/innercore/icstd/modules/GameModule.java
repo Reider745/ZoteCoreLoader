@@ -8,12 +8,15 @@ import com.zhekasmirnov.innercore.api.gen.GameBindGenBase;
 public class GameModule extends GameBindGenBase
 {
     @ClientOnly
+    @ApiBinding
     public static void addWorldToCache(String path) {}
 
     @ClientOnly
+    @ApiBinding
     public static void updateWorlds() {}
 
     @ClientOnly
+    @ApiBinding
     public static int getWorldsCount() {
         return 0;
     }

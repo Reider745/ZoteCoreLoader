@@ -68,39 +68,28 @@ public class GameObjectHandle extends GameObjectHandleBindGenBase {
         if (toScene.getObjectScope() != scope) {
             throw new IllegalArgumentException("transferTo scene with different scope");
         }
-        Object o = scene.unlinkObject(slotIdx);
+        int objectState = scene.getObjectState(slotIdx);
+        objectState = Math.min(GameObjectManager.OBJECT_STATE_INIT, objectState);
+        Object o = scene.unlinkSlotImpl(slotIdx, objectState);
         assert slotIdx < 0; // must be unlinked at this point
-        toScene.createImpl(this, o);
+        toScene.createImpl(this, o, objectState);
         assert slotIdx >= 0; // verify it is re-linked again
         return this;
     }
 
     @ApiBinding
-    public GameObjectHandle setObject(Object object) {
-        if (slotIdx < 0) {
-            throw new IllegalStateException("placeAtBlockPos on dead handle");
-        }
-        scene.setObject(slotIdx, object);
-        return this;
-    }
-
-    @ApiBinding
     public boolean destroyNow() {
-        return slotIdx >= 0 && scene.destroyNow(slotIdx);
+        if (slotIdx < 0)
+            return false;
+        scene.unlinkSlotImpl(slotIdx, GameObjectManager.OBJECT_STATE_DEAD);
+        return true;
     }
 
     @ApiBinding
     public void destroyDeferred() {
-        if (slotIdx >= 0)
-            scene.destroyDeferred(slotIdx);
-    }
-
-    public Object discardNow() { return slotIdx >= 0 ? scene.discardNow(slotIdx) : null; }
-
-    @ApiBinding("discardNow")
-    public Object discardNowForScript() {
-        Object discarded = discardNow();
-        return discarded instanceof ScriptObjectComponent ? ((ScriptObjectComponent) discarded).getScriptObject() : discarded;
+        if (slotIdx < 0)
+            return;
+        scene.destroyDeferred(slotIdx);
     }
 
     @ApiBinding
@@ -110,7 +99,7 @@ public class GameObjectHandle extends GameObjectHandleBindGenBase {
     public boolean isAlive() { return slotIdx >= 0; }
 
     @ApiBinding
-    public boolean isLoaded() { return slotIdx >= 0 && scene.isLoaded(slotIdx); }
+    public boolean isLoaded() { return slotIdx >= 0 && scene.getObjectState(slotIdx) >= GameObjectManager.OBJECT_STATE_LOADED; }
 
     public BlockPos getBlockPos() { return slotIdx >= 0 ? scene.getBlockPos(slotIdx) : null; }
 
