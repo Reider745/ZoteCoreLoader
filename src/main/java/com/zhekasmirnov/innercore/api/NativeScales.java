@@ -5,6 +5,7 @@ import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
+import org.innercore.icstd.entity.EntityModule;
 import org.innercore.icstd.serialization.*;
 import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -79,10 +80,8 @@ public class NativeScales {
 
     public static void onDeath(long deaths) {
         for(String key : getAllScales()) {
-            for(long mob : getAllMobs()) {
-                final ScaleDescription description = SCALES.get(key);
-                setServerScaleValue(mob, key, description.defaultValue);
-            }
+            final ScaleDescription description = SCALES.get(key);
+            setServerScaleValue(deaths, key, description.defaultValue);
         }
     }
 
@@ -94,6 +93,11 @@ public class NativeScales {
     public static void setScaleValue(long player, String ptr, double value) {
         final Map<String, Double> values = SCALE_VALUES.computeIfAbsent(player, (k) -> new ConcurrentHashMap<>());
         values.put(ptr, value);
+
+        EntityModule.writeUserData(player,  "ic_" + ptr)
+                .asArray()
+                .addDouble(value)
+                .endScope();
     }
     public static double getScaleValue(long player, String ptr) {
         final Map<String, Double> values = SCALE_VALUES.computeIfAbsent(player, (k) -> new ConcurrentHashMap<>());
