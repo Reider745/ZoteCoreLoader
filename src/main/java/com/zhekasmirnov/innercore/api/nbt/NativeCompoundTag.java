@@ -31,7 +31,7 @@ public class NativeCompoundTag {
     }
 
     public NativeCompoundTag(CompoundTag tag) {
-        this.tag = tag != null ? tag.copy() : new CompoundTag();
+        this.tag = tag != null ? tag : new CompoundTag();
     }
 
     @Deprecated(since = "Zote")

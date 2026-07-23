@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.inventory.CraftingGrid;
 import cn.nukkit.level.Level;
 
+import cn.nukkit.nbt.tag.CompoundTag;
 import com.reider745.InnerCoreServer;
 import com.reider745.api.ClientOnly;
 import com.reider745.api.ZoteOnly;
@@ -34,6 +35,7 @@ import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipe;
 import com.zhekasmirnov.innercore.api.mod.recipes.workbench.WorkbenchRecipeRegistry;
 import com.zhekasmirnov.innercore.api.mod.util.InventorySource;
 import com.zhekasmirnov.innercore.api.mod.util.ScriptableFunctionImpl;
+import com.zhekasmirnov.innercore.api.nbt.NativeCompoundTag;
 import com.zhekasmirnov.innercore.api.runtime.*;
 import com.zhekasmirnov.innercore.api.runtime.other.ArmorRegistry;
 import com.zhekasmirnov.innercore.api.runtime.other.NameTranslation;
@@ -46,6 +48,7 @@ import java.util.function.Consumer;
 
 import org.innercore.icstd.common.BlockPos;
 import org.innercore.icstd.common.script.GenericScriptPos3;
+import org.innercore.icstd.entity.EntityModule;
 import org.innercore.icstd.event.Events;
 import org.innercore.icstd.inventory.ItemInstance;
 import org.innercore.icstd.inventory.ItemInstanceExtra;
@@ -53,6 +56,11 @@ import org.innercore.icstd.region.BlockSource;
 import org.innercore.icstd.region.BlockState;
 import org.innercore.icstd.scene.GameObjectManager;
 import org.innercore.icstd.scene.GameObjectScope;
+import org.innercore.icstd.serialization.ObjectSerializer;
+import org.innercore.icstd.serialization.SerializationContext;
+import org.innercore.internal.serialization.JsonIO;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -925,6 +933,54 @@ public class NativeCallback {
     @ClientOnly
     public static void onLocalChunkStateChaged(int dimension, int chunkX, int chunkZ, int state, int preState, boolean discarded) {
        // Callback.invokeAPICallback("LocalChunkLoadingStateChanged", chunkX, chunkZ, dimension, preState, state, discarded);
+    }
+
+    public static void onLoadEntity(long actorUid, CompoundTag nbt) {
+        final NativeCompoundTag compoundTag = new NativeCompoundTag(nbt);
+
+        if(compoundTag.contains("scope")) {
+            try {
+                EntityModule.EntityUserData data = new EntityModule.EntityUserData();
+
+                JSONObject savedData = new JSONObject(compoundTag.getString("scope"));
+                JSONObject scopeClasses = new JSONObject(compoundTag.getString("scope_classes"));
+
+                Iterator<String> keys = savedData.keys();
+                while (keys.hasNext()) {
+                    String scope = keys.next();
+                    data.setValue(scope, ObjectSerializer.deserializeObjectUnpacked(
+                            new JsonIO.ScopedReader(savedData.get(scope)),
+                            scopeClasses.getString(scope),
+                            Object.class,
+                            new SerializationContext(), false
+                    ));
+                }
+
+                EntityModule.getEntityUserData().put(actorUid, data);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        Callback.invokeAPICallback("EntityLoad", actorUid, compoundTag);
+    }
+
+    public static void onSaveEntity(long actorUid, CompoundTag nbt) {
+        final NativeCompoundTag compoundTag = new NativeCompoundTag(nbt);
+
+        compoundTag.setFinalizable(false);
+
+        EntityModule.EntityUserData data = EntityModule.getEntityUserData().get(actorUid);
+        if(data != null) {
+            JSONObject savedData = data.getSavedData();
+
+            if(!savedData.isEmpty()) {
+                compoundTag.putString("scope", savedData.toString());
+                compoundTag.putString("scope_classes", data.getSavedTypedId().toString());
+            }
+        }
+
+        Callback.invokeAPICallback("EntitySave", actorUid, compoundTag);
     }
 
     /* NETWORK CALLBACKS */

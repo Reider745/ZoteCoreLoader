@@ -1,6 +1,7 @@
 package com.zhekasmirnov.apparatus;
 
 import com.reider745.InnerCoreServer;
+import org.innercore.icstd.entity.EntityModule;
 import org.innercore.icstd.inventory.ItemContainer;
 import com.zhekasmirnov.apparatus.api.player.NetworkPlayerRegistry;
 import com.zhekasmirnov.apparatus.multiplayer.mod.IdConversionMap;
@@ -20,6 +21,7 @@ public class Apparatus {
         ItemContainer.loadClass();
         GameObjectManager.loadClass();
         Updatable.loadClass();
+        EntityModule.loadClass();
     }
 
     public static void loadClasses() {

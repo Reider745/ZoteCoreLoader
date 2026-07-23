@@ -47,48 +47,6 @@ public class NativeScales {
                 } catch (Exception ignore) {}
             }
         });
-
-        WorldDataScopeRegistry.getInstance().addScope("_ic.scales", new WorldDataScopeRegistry.SaverScope() {
-            @Override
-            public void read(IScopedReader io, SerializationContext ctx) {
-                IObjectReader allScales = io.asObject();
-                if (allScales == null) {
-                    io.endScope();
-                    return;
-                }
-                for (String mobKey : allScales.iterKeys()) {
-                    final long mob;
-                    try {
-                        mob = Long.parseLong(mobKey);
-                    } catch (NumberFormatException e) {
-                        ctx.addError("invalid mob uid key in scales scope: " + mobKey);
-                        continue;
-                    }
-
-                    IObjectReader mobScales = allScales.beginScope(mobKey).asObject();
-                    if (mobScales != null) {
-                        for (String scaleId : mobScales.iterKeys()) {
-                            setScaleValue(mob, scaleId, mobScales.getDouble(scaleId, 0.));
-                        }
-                    }
-                    allScales.endChildScope();
-                }
-                io.endScope();
-            }
-
-            @Override
-            public void write(IScopedWriter io, SerializationContext ctx) {
-                IObjectWriter allScales = io.asObject();
-                for (long mob : getAllMobs()) {
-                    IObjectWriter mobScales = allScales.beginScope(String.valueOf(mob)).asObject();
-                    for (String scaleId : getAllScales()) {
-                        mobScales.putDouble(scaleId, getScaleValue(mob, scaleId));
-                    }
-                    mobScales.endScope();
-                }
-                allScales.endScope();
-            }
-        });
     }
 
     public static void setServerScaleValue(long player, String scaleId, double value) {

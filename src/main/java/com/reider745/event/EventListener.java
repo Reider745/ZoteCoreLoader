@@ -262,6 +262,8 @@ public class EventListener implements Listener {
 
         ENTITIES.add(id);
         NativeCallback.onEntityAdded(id);
+
+        NativeCallback.onLoadEntity(id, entity.namedTag);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
