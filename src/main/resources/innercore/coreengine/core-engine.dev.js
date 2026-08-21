@@ -785,13 +785,13 @@ var TileEntityBasePrototype = {
         if (this.container.isLegacyContainer()) {
             if (this.useNetworkItemContainer) {
                 // noinspection JSCheckFunctionSignatures
-                print("[" + entityTypeName + "] upgrading legacy container")
+                print("[" + this.networkEntityTypeName + "] upgrading legacy container")
                 this.container = new ItemContainer(this.container);
             }
         } else {
             if (!this.useNetworkItemContainer) {
                 // noinspection JSCheckFunctionSignatures
-                print("[" + entityTypeName + "] downgrading to legacy container")
+                print("[" + this.networkEntityTypeName + "] downgrading to legacy container")
                 this.container = this.container.asLegacyContainer();
             }
         }

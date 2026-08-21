@@ -182,6 +182,9 @@ public class IDRegistry {
         approvedIds.add(fullNameId);
         if (blockIdShortcut.containsKey(name)) {
             numericId = blockIdShortcut.get(name);
+        } else if (numericId == 0 && blockIdShortcut.containsKey(fullNameId)) {
+            numericId = blockIdShortcut.get(fullNameId);
+            putId(name, numericId);
         } else {
             if (numericId == 0) {
                 while (isOccupied(blockIdIterator)) {
@@ -256,6 +259,9 @@ public class IDRegistry {
         approvedIds.add(fullNameId);
         if (itemIdShortcut.containsKey(name)) {
             numericId = itemIdShortcut.get(name);
+        } else if (numericId == 0 && itemIdShortcut.containsKey(fullNameId)) {
+            numericId = itemIdShortcut.get(fullNameId);
+            putId(name, numericId);
         } else {
             if (numericId == 0) {
                 while (isOccupied(itemIdIterator)) {

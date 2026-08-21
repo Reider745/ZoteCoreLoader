@@ -430,21 +430,48 @@ public class ItemInstanceExtra extends ItemExtraDataBindGenBase implements ISeri
 
     // CUSTOM DATA
 
+    private static JSONObject parseCustomDataRaw(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        try {
+            JSONObject obj = new JSONObject(raw);
+            if (obj.length() == 1 && obj.opt("data") instanceof String) {
+                try {
+                    JSONObject inner = new JSONObject(obj.getString("data"));
+                    return inner;
+                } catch (JSONException ignore) {
+                }
+            }
+            return obj;
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
     @ApiBinding
     public String getAllCustomData() {
         if (item != null) {
             CompoundTag tag = item.getNamedTag();
-            return tag != null ? tag.getString(ItemUtils.INNER_CORE_TAG_NAME) : null;
+            if (tag != null) {
+                String raw = tag.getString(ItemUtils.INNER_CORE_TAG_NAME);
+                JSONObject parsed = parseCustomDataRaw(raw);
+                return parsed != null ? parsed.toString() : null;
+            }
         }
         return null;
     }
 
     @ApiBinding
     public void setAllCustomData(String extra) {
-        customData = new JSONObject(extra);
+        try {
+            customData = parseCustomDataRaw(extra);
+        } catch (Exception e) {
+            customData = null;
+        }
         if (item != null) {
             CompoundTag tag = item.getOrCreateNamedTag();
-            if (!customData.isEmpty()) {
+            if (customData != null && !customData.isEmpty()) {
                 tag.putString(ItemUtils.INNER_CORE_TAG_NAME, customData.toString());
             } else {
                 tag.remove(ItemUtils.INNER_CORE_TAG_NAME);

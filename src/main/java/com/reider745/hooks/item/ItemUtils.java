@@ -271,6 +271,9 @@ public class ItemUtils implements HookClass {
     public static final String INNER_CORE_TAG_NAME = "$mod";
 
     public static Item get(int id, int count, int meta, ItemInstanceExtra extra) {
+        if (extra != null) {
+            extra.getValue();
+        }
         Item item = get(id, count, meta, extra != null ? extra.getItem() : null);
         if (extra != null) {
             extra.bind(item);
