@@ -531,21 +531,67 @@ public class BlockPalette {
         return getOrCreateRuntimeId(ProtocolInfo.CURRENT_PROTOCOL, legacyId >> 4, legacyId & 0xf);
     }
 
+    private static final String[] COLOR_NAMES = {
+            "white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray",
+            "silver", "cyan", "purple", "blue", "brown", "green", "red", "black"
+    };
+
+    private static Integer getColorIndex(String value) {
+        for (int i = 0; i < COLOR_NAMES.length; i++)
+            if (COLOR_NAMES[i].equals(value))
+                return i;
+        return null;
+    }
+
+    private static int getDamageFromState(NbtMap vanilla) {
+        final NbtMap states = vanilla.getCompound("states", NbtMap.EMPTY);
+        final Object color = states.get("color");
+        if (color instanceof Integer) {
+            return (Integer) color;
+        }
+        if (color instanceof String) {
+            final Integer index = getColorIndex((String) color);
+            if (index != null) {
+                return index;
+            }
+        }
+        return 0;
+    }
+
     @Inject(className = "cn.nukkit.level.format.leveldb.BlockStateMapping")
     public static BlockStateSnapshot getStateUnsafe(BlockStateMapping self, NbtMap vanilla) {
         String id = vanilla.getString("name");
+        if (id.startsWith("minecraft:")) id = id.substring("minecraft:".length());
         if(CustomBlock.customBlocks.containsKey(id)) {
             BlockStateSnapshot snapshot = CACHE_PALETTE.get(vanilla);
 
             if(snapshot == null) {
                 var customVanilla = vanilla.toBuilder();
+                customVanilla.putString("name", id);
                 customVanilla.putInt("version", VERSION_STATE);
+
+                final NbtMap states = vanilla.getCompound("states", NbtMap.EMPTY);
+                final NbtMapBuilder statesBuilder = states.toBuilder();
+                boolean normalized = false;
+                for (String key : states.keySet()) {
+                    final Object value = states.get(key);
+                    if (value instanceof String && key.equals("color")) {
+                        final Integer index = getColorIndex((String) value);
+                        if (index != null) {
+                            statesBuilder.putInt(key, index);
+                            normalized = true;
+                        }
+                    }
+                }
+                if (normalized) {
+                    customVanilla.putCompound("states", statesBuilder.build());
+                }
 
                 snapshot = paletteMap.get(customVanilla.build());
                 if(snapshot != null) {
                     CACHE_PALETTE.put(vanilla, snapshot);
                 } else {
-                    int damage = self.getState(self.updateVanillaState(vanilla)).getLegacyData();
+                    int damage = getDamageFromState(vanilla);
 
                     for (NbtMap key : paletteMap.keySet()) {
                         if (key.getString("name").equals(id) && damage == levelDbRuntimeIdToData.getOrDefault(key, 0)) {

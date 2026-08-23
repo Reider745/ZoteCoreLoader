@@ -21,6 +21,7 @@ import com.reider745.network.BasePacket;
 import com.reider745.network.InnerCorePacket;
 import com.zhekasmirnov.apparatus.mcpe.NativeNetworking;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
+import com.zhekasmirnov.apparatus.multiplayer.ThreadTypeMarker;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -289,6 +290,7 @@ public class RakNetPlayerSessionHooks extends RakNetPlayerSession {
     }
 
     public void serverTick() {
+        ThreadTypeMarker.markThreadAs(ThreadTypeMarker.Mark.SERVER);
         DataPacket packet;
         while ((packet = this.inbound.poll()) != null) {
             try {

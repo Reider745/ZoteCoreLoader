@@ -21,6 +21,7 @@ import com.reider745.world.dimensions.DimensionsMethods;
 import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.zhekasmirnov.innercore.api.NativeAPI;
 import com.zhekasmirnov.innercore.api.NativeCallback;
 import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
@@ -73,9 +74,18 @@ public class InnerCoreServer {
     }
 
     public static String getStringParam(String name) {
+        String levelName = "world";
+        try {
+            final cn.nukkit.utils.Config properties = Server.getInstance().getProperties();
+            if (properties.exists("level-name") && !properties.get("level-name").toString().isEmpty()) {
+                levelName = properties.get("level-name").toString();
+            }
+        } catch (Throwable e) {
+            levelName = "world";
+        }
         return switch (name) {
-            case "world_dir", "world_name" -> "world";
-            case "path_for_world" -> "worlds";
+            case "world_dir", "world_name" -> levelName;
+            case "path_for_world" -> new File(dataPath, "worlds/" + levelName).getPath();
             default -> null;
         };
     }
@@ -212,6 +222,7 @@ public class InnerCoreServer {
         // BiomesHooks.init();
 
         dataPath = server.getDataPath();
+        NativeAPI.setWorldsPathOverride(new File(dataPath, "worlds").getPath());
         final File dataFolderFile = new File(dataPath);
 
         CallbackHelper.init();
