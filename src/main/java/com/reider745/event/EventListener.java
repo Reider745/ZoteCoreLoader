@@ -23,6 +23,7 @@ import cn.nukkit.event.plugin.PluginDisableEvent;
 import cn.nukkit.event.plugin.PluginEnableEvent;
 import cn.nukkit.event.redstone.RedstoneUpdateEvent;
 import cn.nukkit.event.server.ServerCommandEvent;
+import cn.nukkit.event.server.ServerEvent;
 import cn.nukkit.event.server.ServerStopEvent;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseModal;
@@ -49,10 +50,19 @@ import com.zhekasmirnov.apparatus.mcpe.NativeWorkbench;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.innercore.api.NativeScales;
 import com.zhekasmirnov.innercore.api.runtime.Callback;
+import com.zhekasmirnov.innercore.utils.FileTools;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import org.innercore.icstd.scene.GameObjectManager;
+import org.innercore.icstd.serialization.SerializationContext;
+import org.innercore.internal.serialization.JsonIO;
 import oshi.hardware.NetworkIF;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -252,6 +262,8 @@ public class EventListener implements Listener {
 
         ENTITIES.add(id);
         NativeCallback.onEntityAdded(id);
+
+        NativeCallback.onLoadEntity(id, entity.namedTag);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -589,6 +601,8 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void stopServer(ServerStopEvent event){
+        save();
+
         try {
             ServerHooks.innerCoreServer.left();
         } catch (Exception e) {
@@ -620,17 +634,65 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onSaveLeveL(LevelSaveEvent event) {
+        save(event.getLevel());
+    }
+
+    @EventHandler
     public void onLoadLevel(LevelLoadEvent event) {
-        NativeCallback.onDimensionLoaded(FakeDimensions.getFakeIdForLevel(event.getLevel()));
+        final Level level = event.getLevel();
+
+        NativeCallback.onDimensionLoaded(FakeDimensions.getFakeIdForLevel(level));
+
+        load(level);
     }
 
     @EventHandler
     public void onUnloadLevel(LevelUnloadEvent event){
         final Level level = event.getLevel();
 
+        save(level);
+
         RedstoneSystem.onUnloadLevel(level);
         NativeCallback.onDimensionUnloaded(FakeDimensions.getFakeIdForLevel(level));
         FakeDimensions.unload(level);
+    }
+
+    public void load() {
+        for(Level level : Server.getInstance().getLevels().values()){
+            load(level);
+        }
+    }
+
+    private void load(Level level) {
+        File file = Paths.get(level.getProvider().getPath(), "blockentities.json").toFile();
+
+        if(file.exists()) {
+            try {
+                GameObjectManager.getForDimension(FakeDimensions.getFakeIdForLevel(level))
+                        .deserializeAllObjectsAndKeepUnresolved(new JsonIO.ScopedReader(FileTools.readJSONArray(file)), new SerializationContext());
+            } catch (IOException e) {
+                Logger.error("Failed to load block entities.", e);
+            }
+        }
+    }
+
+    public void save() {
+        for(Level level : Server.getInstance().getLevels().values()){
+            save(level);
+        }
+    }
+
+    private void save(Level level) {
+        final JsonIO.ScopedWriter writer = new JsonIO.ScopedWriter();
+
+        GameObjectManager.getForDimension(FakeDimensions.getFakeIdForLevel(level))
+                .serializeAllObjectsAndAddUnresolved(writer, new SerializationContext());
+        try {
+            Files.writeString(Paths.get(level.getProvider().getPath(), "blockentities.json"), writer.getResult().toString());
+        } catch (IOException e) {
+            Logger.error("Failed to save level block entities", e);
+        }
     }
 
     @ZoteOnly

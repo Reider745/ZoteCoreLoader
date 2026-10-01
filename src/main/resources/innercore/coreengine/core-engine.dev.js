@@ -6288,6 +6288,7 @@ var EntityAPI = {
         return Entity.getEntitiesInsideBox(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, type, flag || false);
     }
 };
+injectBindingsIntoScope("Entity", EntityAPI, true);
 Callback.addCallback("LevelLeft", function() {
     ResetInGameAPIs();
 });

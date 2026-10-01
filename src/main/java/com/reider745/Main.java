@@ -104,7 +104,7 @@ public class Main {
         add("com.reider745.network.CraftingTransactionPacket");
 
         //entity
-        add("com.reider745.hooks.entity.EntityOverrides");
+        add("com.reider745.hooks.entity.EntityHooks");
         add("com.reider745.hooks.entity.PlayerHooks");
 
         //technical

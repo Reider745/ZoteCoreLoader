@@ -5,6 +5,7 @@ import com.reider745.api.ClientOnly;
 import com.zhekasmirnov.apparatus.multiplayer.Network;
 import com.zhekasmirnov.apparatus.multiplayer.server.ConnectedClient;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataScopeRegistry;
+import org.innercore.icstd.entity.EntityModule;
 import org.innercore.icstd.serialization.*;
 import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSStaticFunction;
@@ -47,48 +48,6 @@ public class NativeScales {
                 } catch (Exception ignore) {}
             }
         });
-
-        WorldDataScopeRegistry.getInstance().addScope("_ic.scales", new WorldDataScopeRegistry.SaverScope() {
-            @Override
-            public void read(IScopedReader io, SerializationContext ctx) {
-                IObjectReader allScales = io.asObject();
-                if (allScales == null) {
-                    io.endScope();
-                    return;
-                }
-                for (String mobKey : allScales.iterKeys()) {
-                    final long mob;
-                    try {
-                        mob = Long.parseLong(mobKey);
-                    } catch (NumberFormatException e) {
-                        ctx.addError("invalid mob uid key in scales scope: " + mobKey);
-                        continue;
-                    }
-
-                    IObjectReader mobScales = allScales.beginScope(mobKey).asObject();
-                    if (mobScales != null) {
-                        for (String scaleId : mobScales.iterKeys()) {
-                            setScaleValue(mob, scaleId, mobScales.getDouble(scaleId, 0.));
-                        }
-                    }
-                    allScales.endChildScope();
-                }
-                io.endScope();
-            }
-
-            @Override
-            public void write(IScopedWriter io, SerializationContext ctx) {
-                IObjectWriter allScales = io.asObject();
-                for (long mob : getAllMobs()) {
-                    IObjectWriter mobScales = allScales.beginScope(String.valueOf(mob)).asObject();
-                    for (String scaleId : getAllScales()) {
-                        mobScales.putDouble(scaleId, getScaleValue(mob, scaleId));
-                    }
-                    mobScales.endScope();
-                }
-                allScales.endScope();
-            }
-        });
     }
 
     public static void setServerScaleValue(long player, String scaleId, double value) {
@@ -121,10 +80,8 @@ public class NativeScales {
 
     public static void onDeath(long deaths) {
         for(String key : getAllScales()) {
-            for(long mob : getAllMobs()) {
-                final ScaleDescription description = SCALES.get(key);
-                setServerScaleValue(mob, key, description.defaultValue);
-            }
+            final ScaleDescription description = SCALES.get(key);
+            setServerScaleValue(deaths, key, description.defaultValue);
         }
     }
 
@@ -136,6 +93,11 @@ public class NativeScales {
     public static void setScaleValue(long player, String ptr, double value) {
         final Map<String, Double> values = SCALE_VALUES.computeIfAbsent(player, (k) -> new ConcurrentHashMap<>());
         values.put(ptr, value);
+
+        EntityModule.writeUserData(player,  "ic_" + ptr)
+                .asArray()
+                .addDouble(value)
+                .endScope();
     }
     public static double getScaleValue(long player, String ptr) {
         final Map<String, Double> values = SCALE_VALUES.computeIfAbsent(player, (k) -> new ConcurrentHashMap<>());

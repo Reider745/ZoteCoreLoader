@@ -29,7 +29,7 @@ import cn.nukkit.utils.Identifier;
 
 import com.reider745.InnerCoreServer;
 import com.reider745.event.EventListener;
-import com.reider745.hooks.entity.EntityOverrides;
+import com.reider745.hooks.entity.EntityHooks;
 import com.reider745.hooks.item.ItemUtils;
 import com.reider745.world.FakeDimensions;
 import com.zhekasmirnov.apparatus.minecraft.enums.GameEnums;
@@ -348,7 +348,7 @@ public class EntityMethod {
         // TODO: It will actually doesn't update item, hardcode again.
         validateThen(entityUid, entity -> {
             if (entity instanceof EntityItem drop) {
-                EntityOverrides.setItemDrop(drop, ItemUtils.get(id, count, data, extra));
+                EntityHooks.setItemDrop(drop, ItemUtils.get(id, count, data, extra));
             }
         });
     }

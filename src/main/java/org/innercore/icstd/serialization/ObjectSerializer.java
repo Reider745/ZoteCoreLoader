@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.*;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public class ObjectSerializer {
     private static final HashMap<String, SerializerRecord> serializerMap = new HashMap<>();
@@ -218,6 +219,8 @@ public class ObjectSerializer {
             }
         } else if (src instanceof Wrapper) {
             return getSerializerTypeIdFromObject(((Wrapper) src).unwrap());
+        } else if(isPrimitiveType(src)) {
+            return src.getClass().getName();
         }
         return null;
     }
@@ -386,4 +389,38 @@ public class ObjectSerializer {
     public static<T> T deserializeObjectStrict(IScopedReader io, Class<T> cls) {
         return deserializeObject(io, cls, new SerializationContext(), false);
     }
+
+    static {
+        registerPrimitive(Byte.class, IArrayWriter::addByte, reader -> reader.getByte(0, (byte) 0));
+        registerPrimitive(Short.class, IArrayWriter::addShort, reader -> reader.getShort(0, (short) 0));
+        registerPrimitive(Integer.class, IArrayWriter::addInt, reader -> reader.getInt(0, 0));
+        registerPrimitive(Long.class, IArrayWriter::addLong, reader -> reader.getLong(0, 0));
+
+        registerPrimitive(Double.class, IArrayWriter::addDouble, reader -> reader.getDouble(0, 0));
+        registerPrimitive(Float.class, IArrayWriter::addFloat, reader -> reader.getFloat(0, 0));
+
+        registerPrimitive(String.class, IArrayWriter::addString, reader -> reader.getString(0, null));
+
+        registerPrimitive(Boolean.class, IArrayWriter::addBoolean, reader -> reader.getBoolean(0, false));
+    }
+
+    private static <T>void registerPrimitive(Class<T> clazz, BiConsumer<IArrayWriter, T> put, java.util.function.Function<IArrayReader, T> get) {
+        registerType(clazz.getName(), clazz, new IObjectSerializer<T>() {
+            @Override
+            public T read(IScopedReader reader, SerializationContext ctx, String typeId) {
+                IArrayReader arrayReader = reader.asArray();
+                T value = get.apply(arrayReader);
+                arrayReader.endScope();
+                return value;
+            }
+
+            @Override
+            public void write(IScopedWriter writer, T object, SerializationContext ctx, String typeId) {
+                IArrayWriter arrayWriter = writer.asArray();
+                put.accept(arrayWriter, object);
+                arrayWriter.endScope();
+            }
+        });
+    }
+
 }
