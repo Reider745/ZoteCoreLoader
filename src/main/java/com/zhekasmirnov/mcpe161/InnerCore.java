@@ -28,7 +28,6 @@ import java.util.List;
 
 public class InnerCore {
     public static final String LOGGER_TAG = "INNERCORE-LAUNHER";
-    public static final boolean isLicenceVersion = false;
 
     private static InnerCore instance;
     private static JavaEnvironment javaEnvironment;
@@ -62,7 +61,7 @@ public class InnerCore {
     }
 
     public static boolean checkLicence(Activity activity) {
-        return !isLicenceVersion;
+        throw new UnsupportedOperationException("InnerCore.checkLicence(activity)");
     }
 
     public void load() {

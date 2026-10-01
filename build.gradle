@@ -10,6 +10,20 @@ application {
 
 repositories {
     mavenCentral()
+    google()
+    ivy {
+        name 'dex2jarV24Release'
+        url 'https://github.com/pxb1988/dex2jar/releases/download'
+        patternLayout {
+            artifact 'v[revision]/[artifact]-v[revision].[ext]'
+        }
+        metadataSources {
+            artifact()
+        }
+        content {
+            includeModule 'com.googlecode.dex2jar', 'dex-tools'
+        }
+    }
     maven {
         url 'https://repo.lanink.com/repository/maven-public/'
     }
@@ -28,15 +42,35 @@ repositories {
 configurations {
     // Isolated classpath for the forked codegen JVM (the :codegen subproject + JavaParser).
     codegenClasspath
+    // The official v2.4 distribution is not published as a Maven module.
+    dex2jarV24Distribution
 }
+
+def dex2jarV24Directory = file("$buildDir/dependencies/dex2jar-v2.4")
+def dex2jarV24Jars = [
+        'd2j-base-cmd-v2.4.jar',
+        'dex-ir-v2.4.jar',
+        'dex-reader-api-v2.4.jar',
+        'dex-reader-v2.4.jar',
+        'dex-tools-v2.4.jar',
+        'dex-translator-v2.4.jar',
+        'dex-writer-v2.4.jar',
+        'asm-9.5.jar',
+        'asm-analysis-9.5.jar',
+        'asm-commons-9.5.jar',
+        'asm-tree-9.5.jar',
+        'asm-util-9.5.jar'
+]
+def dex2jarV24ArchiveSha256 = 'ee7c45eb3c1d2474a6145d8d447e651a736a22d9664b6d3d3be5a5a817dda23a'
 
 dependencies {
     codegenClasspath project(':codegen')
+    dex2jarV24Distribution('com.googlecode.dex2jar:dex-tools:2.4@zip') {
+        transitive = false
+    }
 
-    // https://repo.lanink.cn/#browse/browse:maven-public:cn/nukkit/Nukkit/MOT-SNAPSHOT
-    /*implementation (group: 'cn.nukkit', name: 'Nukkit', version: 'MOT-20240213.074103-139') {
-        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
-    }*/
+    // The repository POM is packaging=pom, so the JAR artifact must be explicit.
+    implementation 'com.reider745.nukkit-mot:Nukkit-MOT:1.5.0-SNAPSHOT@jar'
 
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
     implementation 'org.jetbrains:annotations:26.0.1'
@@ -47,11 +81,17 @@ dependencies {
     // https://central.sonatype.com/artifact/org.json/json/versions
     implementation group: 'org.json', name: 'json', version: '20231013'
 
+    implementation 'com.cedarsoftware:json-io:4.9.12'
+    implementation fileTree(dir: dex2jarV24Directory, include: '*.jar')
+    implementation 'org.javassist:javassist:3.29.1-GA'
+
+    // Generated API-only Android compatibility stubs. This is the only
+    // intentionally vendored JAR; rebuild it with rebuildAndroidStubs.
+    implementation files('iclibs/android.jar')
+    compileOnly 'com.android.support:support-annotations:25.3.1'
+
     compileOnly("org.projectlombok:lombok:1.18.44")
     annotationProcessor("org.projectlombok:lombok:1.18.44")
-
-    implementation fileTree (dir: 'iclibs', include: '*.jar')
-    implementation fileTree (dir: 'iclibs/dex2jar', include: '*.jar')
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -78,7 +118,9 @@ jar {
     manifest {
         attributes 'Main-Class': application.mainClass
     }
-    from configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 run {
@@ -95,6 +137,40 @@ def apiGenOutputDir = layout.projectDirectory.dir('src/main/java/com/zhekasmirno
 
 def apiGenSourceTestRoot = file('src/test/java/org/innercore')
 def apiGenOutputTestDir = layout.projectDirectory.dir('src/test/java/com/zhekasmirnov/innercore/api/gen')
+
+tasks.register('prepareDex2jarV24', Sync) {
+    group = 'build setup'
+    description = 'Downloads and extracts the exact dex2jar v2.4 libraries used by the legacy build.'
+
+    def distribution = configurations.dex2jarV24Distribution
+    inputs.files(distribution)
+    from {
+        distribution.collect { zipTree(it) }
+    }
+    include dex2jarV24Jars.collect { "**/lib/$it" }
+    eachFile { details ->
+        details.path = details.name
+    }
+    includeEmptyDirs = false
+    into dex2jarV24Directory
+
+    doFirst {
+        def archive = distribution.singleFile
+        def checksumProperty = 'dex2jarV24ArchiveSha256Actual'
+        ant.checksum(file: archive, algorithm: 'SHA-256', property: checksumProperty)
+        def actualSha256 = ant.project.properties[checksumProperty]
+        if (actualSha256 != dex2jarV24ArchiveSha256) {
+            throw new GradleException("Unexpected dex2jar v2.4 archive SHA-256: $actualSha256")
+        }
+    }
+
+    doLast {
+        def missing = dex2jarV24Jars.findAll { !file("$dex2jarV24Directory/$it").isFile() }
+        if (!missing.isEmpty()) {
+            throw new GradleException("dex2jar v2.4 archive is missing expected libraries: $missing")
+        }
+    }
+}
 
 tasks.register('generateApiBindingsTest', JavaExec) {
     group = 'codegen'
@@ -129,7 +205,7 @@ tasks.register('generateApiBindings', JavaExec) {
 }
 
 tasks.named('compileJava') {
-    dependsOn 'generateApiBindings'
+    dependsOn 'generateApiBindings', 'prepareDex2jarV24'
 }
 
 task rebuildAndroidStubs(type: JavaExec, dependsOn: classes) {
