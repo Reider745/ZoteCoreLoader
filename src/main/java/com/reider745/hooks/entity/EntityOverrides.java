@@ -96,9 +96,10 @@ public class EntityOverrides {
             signature = "(Ljava/lang/String;Lcn/nukkit/level/format/FullChunk;Lcn/nukkit/nbt/tag/CompoundTag;[Ljava/lang/Object;)Lcn/nukkit/entity/Entity;"
     )
     public static Entity createEntity(String name, FullChunk chunk, CompoundTag nbt, Object... args) {
+        if (name == null || name.isEmpty()) return null;
         final String identifier = Character.toLowerCase(name.charAt(0)) + name.substring(1);
         final Map<String, Class<? extends Entity>> knownEntities = ReflectHelper.getField(Entity.class, "knownEntities");
-
+        for (Object arg : args) if (arg instanceof Entity shooter) nbt.putLong("BehaviorShooter", shooter.getId());
         EntityContentFactory factory = EntityContentFactory.factoryMap.get(name);
         if(factory != null) {
             nbt.putString("___id___", name);
@@ -107,6 +108,12 @@ public class EntityOverrides {
         factory = EntityContentFactory.factoryMap.get(identifier);
         if(factory != null) {
             nbt.putString("___id___", identifier);
+            return new CustomEntity(chunk, nbt);
+        }
+
+        factory = EntityContentFactory.factoryMap.get("minecraft:" + identifier);
+        if (factory != null) {
+            nbt.putString("___id___", factory.description.identifier);
             return new CustomEntity(chunk, nbt);
         }
 
@@ -134,6 +141,18 @@ public class EntityOverrides {
             );
         }
         return null;
+    }
+
+    @Inject(className = "cn.nukkit.entity.Entity",
+            signature = "(ILcn/nukkit/level/format/FullChunk;Lcn/nukkit/nbt/tag/CompoundTag;[Ljava/lang/Object;)Lcn/nukkit/entity/Entity;")
+    public static Entity createEntity(int type, FullChunk chunk, CompoundTag nbt, Object... args) {
+        EntityDefinition definition = EntityManager.get().getDefinition(type);
+        String identifier = definition == null ? Entity.getEntityRuntimeMapping(com.reider745.InnerCoreServer.PROTOCOL).get(type)
+                : definition.getIdentifier();
+        if (identifier != null && EntityContentFactory.factoryMap.containsKey(identifier)) {
+            return createEntity(identifier, chunk, nbt, args);
+        }
+        return createEntity(String.valueOf(type), chunk, nbt, args);
     }
 
     @ShadowSetField(className = "cn.nukkit.entity.item.EntityItem", field = "item")

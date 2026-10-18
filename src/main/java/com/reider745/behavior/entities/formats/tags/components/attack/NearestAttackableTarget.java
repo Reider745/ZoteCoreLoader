@@ -24,7 +24,7 @@ public class NearestAttackableTarget extends ComponentsTag implements IUpdateEnt
         private final String other, value;
 
         public IsFamilyCondition(JSONObject obj){
-            other = obj.getString("subject");
+            other = obj.optString("subject", "other");
             value = obj.getString("value");
         }
 
@@ -45,10 +45,11 @@ public class NearestAttackableTarget extends ComponentsTag implements IUpdateEnt
         public ArrayList<Condition> filters = new ArrayList<>();
 
         public Filters(JSONObject json){
-            max_dist = json.getInt("max_dist");
+            max_dist = json.optInt("max_dist", 16);
             attack_interval = json.optInt("attack_interval", 40);
 
-            final JSONArray any_of = json.getJSONObject("filters").optJSONArray("any_of", null);
+            final JSONObject filterObject = json.optJSONObject("filters");
+            final JSONArray any_of = filterObject == null ? null : filterObject.optJSONArray("any_of");
             if(any_of != null){
                 for(int i = 0;i < any_of.length();i++){
                     JSONObject condition = any_of.getJSONObject(i);
@@ -57,7 +58,7 @@ public class NearestAttackableTarget extends ComponentsTag implements IUpdateEnt
                         case "is_family" ->
                                 filters.add(new IsFamilyCondition(condition));
                         default ->
-                                throw new RuntimeException("Not support NearestAttackableTarget.Filters");
+                                { /* Evaluated by MobFilters in the entity runtime. */ }
                     }
                 }
             }
@@ -85,9 +86,9 @@ public class NearestAttackableTarget extends ComponentsTag implements IUpdateEnt
         if(json instanceof JSONObject object){
             NearestAttackableTarget self = new NearestAttackableTarget();
 
-            self.priority = object.getInt("priority");
-            final JSONArray entity_types = object.getJSONArray("entity_types");
-            for(int i = 0;i < entity_types.length();i++)
+            self.priority = object.optInt("priority", 0);
+            final JSONArray entity_types = object.optJSONArray("entity_types");
+            for(int i = 0; entity_types != null && i < entity_types.length(); i++)
                 self.list.add(new Filters(entity_types.getJSONObject(i)));
 
             factory.nearestAttackableTarget = self;

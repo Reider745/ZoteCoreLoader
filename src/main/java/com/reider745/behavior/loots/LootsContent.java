@@ -11,11 +11,11 @@ public class LootsContent extends BehaviorContent {
 
     @Override
     public String getDefaultDirectory() {
-        return "loots_tables";
+        return "loot_tables";
     }
 
     @Override
     public void load(JSONObject json, String file) {
-
+        MobLoot.register(file, json);
     }
 }

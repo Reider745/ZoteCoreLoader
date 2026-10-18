@@ -26,9 +26,8 @@ public class SpawnRulesContent extends BehaviorContent {
     @Override
     public void load(JSONObject json, String file) {
         final String version_name = json.getString("format_version");
-        final SpawnRulesVersion version = versions.get(version_name);
-        if(version == null)
-            throw new RuntimeException("Not support spawn rules version "+version_name);
+        com.reider745.behavior.BehaviorVersion.requireSupported(version_name, "1.8");
+        final SpawnRulesVersion version = versions.get("1.8.0");
         version.load(json.getJSONObject(getTagName()), file);
     }
 }

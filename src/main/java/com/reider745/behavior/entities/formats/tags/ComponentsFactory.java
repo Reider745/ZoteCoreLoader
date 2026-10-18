@@ -17,6 +17,7 @@ import com.reider745.behavior.entities.formats.tags.components.life.FireImmuneCo
 import com.reider745.behavior.entities.formats.tags.components.life.HealthComponent;
 import com.reider745.behavior.entities.formats.tags.components.navigation.*;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.reider745.behavior.entities.runtime.MobComponents;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import java.util.Iterator;
 
 public class ComponentsFactory extends TagContentFactory {
     public static HashMap<String, ComponentsTag> tags = new HashMap<>();
+    private static final java.util.Set<String> warned = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     private static void add(ComponentsTag tag){
         tags.put(tag.getNameTag(), tag);
@@ -67,7 +69,10 @@ public class ComponentsFactory extends TagContentFactory {
             final String key = it.next();
             final ComponentsTag tag = tags.get(key);
             if(tag == null){
-                Logger.warning("Not support entities ComponentsFactory "+key);
+                String identifier = entityFactory.description == null ? "unknown" : entityFactory.description.identifier;
+                if (!MobComponents.supports(key) && warned.add(identifier + ":" + key)) {
+                    Logger.warning("Unsupported entity component " + key + " on " + identifier);
+                }
                 continue;
             }
 

@@ -6,7 +6,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONObject;
 
 public class CollisionComponent extends ComponentsTag {
-    public int width = 1, height = 2;
+    public float width = 1, height = 2;
 
     @Override
     public String getNameTag() {
@@ -18,8 +18,9 @@ public class CollisionComponent extends ComponentsTag {
         if(json instanceof JSONObject object){
             CollisionComponent component = new CollisionComponent();
 
-            component.width = object.getInt("width");
-            component.height = object.getInt("height");
+            component.width = object.optFloat("width", 1);
+            component.height = object.optFloat("height", 2);
+            if (component.width <= 0 || component.height <= 0) throw new IllegalArgumentException("Invalid collision box");
 
             factory.collision = component;
         }else

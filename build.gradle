@@ -84,6 +84,8 @@ dependencies {
     implementation 'com.cedarsoftware:json-io:4.9.12'
     implementation fileTree(dir: dex2jarV24Directory, include: '*.jar')
     implementation 'org.javassist:javassist:3.29.1-GA'
+    // MIT-licensed Molang parser/interpreter; entity code supplies the Bedrock query bindings.
+    implementation 'team.unnamed:mocha:3.0.1'
 
     // Generated API-only Android compatibility stubs. This is the only
     // intentionally vendored JAR; rebuild it with rebuildAndroidStubs.
@@ -95,12 +97,16 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation 'org.mockito:mockito-core:5.14.2'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
     dependsOn 'generateApiBindingsTest'
     useJUnitPlatform()
+    // Nukkit/Inner Core write logs relative to the process working directory.
+    workingDir layout.buildDirectory.dir('test-work').get().asFile
+    doFirst { workingDir.mkdirs() }
 }
 
 def targetJavaVersion = 17

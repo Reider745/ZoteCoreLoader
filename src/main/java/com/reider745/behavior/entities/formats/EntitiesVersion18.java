@@ -6,6 +6,8 @@ import com.reider745.behavior.entities.TagContentFactory;
 import com.reider745.behavior.entities.formats.tags.ComponentsFactory;
 import com.reider745.behavior.entities.formats.tags.DescriptionsFactory;
 import org.json.JSONObject;
+import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.reider745.behavior.entities.runtime.MobDefinition;
 
 import java.util.ArrayList;
 
@@ -29,6 +31,16 @@ public class EntitiesVersion18 extends EntitiesVersion {
         for(TagContentFactory factory : tags){
             if(json.has(factory.getNameTag())){
                 factory.loadJSON(entityFactory, json.getJSONObject(factory.getNameTag()));
+            }
+        }
+
+        if (entityFactory.description == null) {
+            throw new IllegalArgumentException("Entity description is required");
+        }
+        entityFactory.definition = new MobDefinition(json, null);
+        for (String key : json.keySet()) {
+            if (!java.util.Set.of("description", "components", "component_groups", "events").contains(key)) {
+                Logger.warning("Unsupported entity section " + key + ", " + entityFactory.description.identifier);
             }
         }
 

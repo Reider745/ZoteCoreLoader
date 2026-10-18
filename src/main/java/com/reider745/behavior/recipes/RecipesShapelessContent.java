@@ -10,8 +10,7 @@ import com.zhekasmirnov.horizon.runtime.logger.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 public class RecipesShapelessContent extends RecipesShapedContent {
     @Override
@@ -21,36 +20,34 @@ public class RecipesShapelessContent extends RecipesShapedContent {
 
     @Override
     public void load(JSONObject content, String file) {
-        final JSONObject json = content.getJSONObject(this.getTagName());
-        final JSONArray ingredientsJson = json.getJSONArray("ingredients");
-
-        final Item result = parse(json.get("result"));
-        final Collection<ItemDescriptor> ingredients = new ArrayList<>();
-
-        for (int i = 0; i < ingredientsJson.length(); i++) {
-            Item item = parse(ingredientsJson.get(i));
-            if(item.isNull()) {
-                Logger.warning("Invalid ingredient " + ingredientsJson.get(i));
-                return;
-            }
-            ingredients.add(new DefaultDescriptor(item));
+        JSONObject json = content.getJSONObject(getTagName());
+        Item result = RecipeItems.result(json.get("result"));
+        Collection<ItemDescriptor> ingredients = new ArrayList<>();
+        JSONArray input = json.getJSONArray("ingredients");
+        int count = 0;
+        for (int i = 0; i < input.length(); i++) {
+            Item item = parse(input.get(i));
+            count += item.getCount();
+            int amount = item.getCount();
+            if (count > 9) throw new IllegalArgumentException("Shapeless recipes require 1 to 9 items");
+            item.setCount(1);
+            for (int n = 0; n < amount; n++) ingredients.add(new DefaultDescriptor(item.clone()));
         }
-
-        if(result.isNull()){
-            Logger.warning("Invalid result " + json.get("result"));
-            return;
-        }
-
-        final JSONArray tags = json.getJSONArray("tags");
-        for(int i = 0; i < tags.length(); i++) {
-            final String tag = tags.getString(i);
-            final String id = String.valueOf(RECIPE_ID--);
-            final int priority = json.optInt("priority", 1);
-
-            switch(tag) {
+        if (count < 1 || count > 9) throw new IllegalArgumentException("Shapeless recipes require 1 to 9 items");
+        String id = recipeId(json);
+        int priority = json.optInt("priority", 0);
+        Set<String> seen = new HashSet<>();
+        JSONArray tags = json.getJSONArray("tags");
+        for (int i = 0; i < tags.length(); i++) {
+            String tag = tags.getString(i);
+            if (!seen.add(tag)) continue;
+            switch (tag) {
                 case "crafting_table" -> RecipeRegistry.registerShapelessRecipe(new ShapelessRecipe(id, priority, result, ingredients));
-                case "stonecutter" -> RecipeRegistry.addStonecutterRecipe(new StonecutterRecipe(id, priority, result, ingredients));
-                default -> Logger.warning("Not implemented yet: " + tag + ", " + file);
+                case "stonecutter" -> {
+                    if (count != 1) throw new IllegalArgumentException("Stonecutter recipes require one item");
+                    RecipeRegistry.addStonecutterRecipe(new StonecutterRecipe(id, priority, result, ingredients));
+                }
+                default -> Logger.warning("Unsupported recipe station " + tag + ", " + file);
             }
         }
     }

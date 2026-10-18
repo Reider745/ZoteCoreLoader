@@ -33,8 +33,8 @@ public class NavigationRandomStroll extends NavigationComponentsTag {
         if(json instanceof JSONObject object){
             NavigationRandomStroll stroll = new NavigationRandomStroll();
 
-            stroll.priority = object.getInt("priority");
-            stroll.speed_multiplier = object.optInt("speed_multiplier", 1);
+            stroll.priority = object.optInt("priority", 0);
+            stroll.speed_multiplier = object.optDouble("speed_multiplier", 1);
 
             factory.navigationRandomStroll = stroll;
         }else

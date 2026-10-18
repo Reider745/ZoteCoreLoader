@@ -8,15 +8,16 @@ import org.json.JSONObject;
 public class DescriptionsFactory extends TagContentFactory {
     public static class DescriptionTag extends TagContentEntities{
         public String identifier;
+        public String runtimeIdentifier;
         public boolean isSpawnable, isSummonable, isExperimental;
 
         private DescriptionTag(JSONObject json){
             identifier = json.getString("identifier");
 
-            // TODO: Не поддерживается
-            isSpawnable = json.getBoolean("is_spawnable");
-            isSummonable = json.getBoolean("is_summonable");
-            isExperimental = json.getBoolean("is_experimental");
+            runtimeIdentifier = json.optString("runtime_identifier", null);
+            isSpawnable = json.optBoolean("is_spawnable", false);
+            isSummonable = json.optBoolean("is_summonable", false);
+            isExperimental = json.optBoolean("is_experimental", false);
         }
     }
 

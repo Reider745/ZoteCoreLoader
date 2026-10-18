@@ -24,8 +24,11 @@ public class CustomItem {
 
     public static void init() {
         items.forEach((key, value) -> Item.list[key] = value.getClazz());
-        foods.forEach(
-                (key, value) -> Food.registerFood(new FoodNormal(value, 4), InnerCoreServer.plugin).addRelative(key));
+        foods.forEach((key, value) -> {
+            CustomManager manager = getItemManager(key);
+            float saturation = manager == null ? 4 : manager.get("behavior_food_saturation", 4f);
+            Food.registerFood(new FoodNormal(value, saturation), InnerCoreServer.plugin).addRelative(key);
+        });
         CustomBlock.blocks.forEach((id, manager) -> Item.list[id] = manager.getClazz());
     }
 

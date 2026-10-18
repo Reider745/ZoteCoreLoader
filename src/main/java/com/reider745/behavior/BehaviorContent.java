@@ -6,4 +6,8 @@ public abstract class BehaviorContent {
     public abstract String getTagName();
     public abstract String getDefaultDirectory();
     public abstract void load(JSONObject json, String file);
+
+    public boolean isRecipe() {
+        return false;
+    }
 }

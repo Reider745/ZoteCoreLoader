@@ -11,6 +11,6 @@ public class GravityComponent extends ComponentsTag {
 
     @Override
     public void load(EntityContentFactory factory, Object json) {
-        factory.isPhysics = true;
+        factory.isPhysics = !(json instanceof org.json.JSONObject object) || object.optBoolean("has_gravity", true);
     }
 }

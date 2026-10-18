@@ -5,8 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -229,6 +234,20 @@ public class ModLoader {
 
     private List<MinecraftPack> minecraftPacks = new ArrayList<>();
 
+    /** Original sources take precedence over copies with the same manifest UUID. */
+    public List<File> getBehaviorPackDirectories() {
+        Set<File> directories = new LinkedHashSet<>(behaviorPackDirs);
+        for (MinecraftPack pack : minecraftPacks) {
+            if (pack.type == MinecraftPackType.BEHAVIOR) directories.add(pack.directory);
+        }
+        File[] standalone = new File(FileTools.DIR_HORIZON, "behavior_packs").listFiles(File::isDirectory);
+        if (standalone != null) {
+            Arrays.sort(standalone, Comparator.comparing(File::getName));
+            Collections.addAll(directories, standalone);
+        }
+        return new ArrayList<>(directories);
+    }
+
     private void loadMinecraftPacksIntoDirectory(MinecraftPackType type, File targetDir, List<File> files, boolean compression) {
         if (targetDir.isDirectory()) {
             FileUtils.clearFileTree(targetDir, false);
@@ -357,7 +376,13 @@ public class ModLoader {
     public void loadResourceAndBehaviorPacks() {
         minecraftPacks.clear();
         loadMinecraftPacksIntoDirectory(MinecraftPackType.RESOURCE, new File(FileTools.DIR_HORIZON, "resource_packs"), resourcePackDirs, true);
-        loadMinecraftPacksIntoDirectory(MinecraftPackType.BEHAVIOR, new File(FileTools.DIR_HORIZON, "behavior_packs"), behaviorPackDirs, false);
+        // Behavior definitions are read from their source folders. Clearing the output
+        // directory here would delete standalone packs supplied by the server owner.
+        for (File directory : getBehaviorPackDirectories()) {
+            if (!new File(directory, "manifest.json").isFile()) continue;
+            MinecraftPack pack = MinecraftPack.fromDirectory(directory, MinecraftPackType.BEHAVIOR);
+            if (pack != null) minecraftPacks.add(pack);
+        }
         
         // delete all duplicate packs (with same uuid and version) in world directories
         // duplicate packs can be created by mcpe for some reason

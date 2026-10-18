@@ -13,6 +13,9 @@ import com.reider745.behavior.entities.formats.tags.components.attack.NearestAtt
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationRandomStroll;
 import com.reider745.behavior.entities.formats.tags.components.navigation.NavigationWalkComponent;
 import com.zhekasmirnov.horizon.runtime.logger.Logger;
+import com.reider745.behavior.entities.runtime.MobDefinition;
+import com.reider745.behavior.entities.formats.tags.ComponentsFactory;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +50,17 @@ public class EntityContentFactory {
 
     public static final HashMap<String, EntityContentFactory> factoryMap = new HashMap<>();
     public Vector3 liftForce = new Vector3(0, 0, 0);
+    public MobDefinition definition;
+    private EntityDefinition networkDefinition;
+
+    public EntityContentFactory instance(JSONObject components) {
+        EntityContentFactory instance = new EntityContentFactory();
+        instance.description = description;
+        instance.definition = definition;
+        instance.networkDefinition = getEntityDefinition();
+        new ComponentsFactory().loadJSON(instance, components);
+        return instance;
+    }
 
 
     public void addUpdate(IUpdateEntity tag){
@@ -60,20 +74,26 @@ public class EntityContentFactory {
     }
 
     public EntityDefinition getEntityDefinition() {
-        return new EntityDefinition(
+        if (networkDefinition == null) networkDefinition = new EntityDefinition(
                 description.identifier,
-                null,
-                false,
+                description.runtimeIdentifier,
+                description.isSpawnable,
                 description.identifier,
                 CustomEntity.class
         );
+        return networkDefinition;
     }
 
     public void build(){
         Logger.info("Register entity "+description.identifier);
-
+        EntityContentFactory previous = factoryMap.get(description.identifier);
+        if (previous != null) {
+            // Pack overrides replace behavior while keeping the network identifier stable.
+            networkDefinition = previous.getEntityDefinition();
+        } else {
+            cn.nukkit.Server.getInstance().enableExperimentMode = true;
+            EntityManager.get().registerDefinition(this.getEntityDefinition());
+        }
         factoryMap.put(description.identifier, this);
-        EntityManager.get()
-                .registerDefinition(this.getEntityDefinition());
     }
 }

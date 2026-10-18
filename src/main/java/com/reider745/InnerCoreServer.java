@@ -27,7 +27,9 @@ import com.zhekasmirnov.innercore.api.NativeFurnaceRegistry;
 import com.zhekasmirnov.innercore.api.log.ICLog;
 import com.zhekasmirnov.innercore.api.runtime.LoadingStage;
 import com.zhekasmirnov.innercore.api.runtime.saver.world.WorldDataSaverHandler;
+import com.zhekasmirnov.innercore.api.unlimited.IDRegistry;
 import com.zhekasmirnov.innercore.mod.build.ExtractionHelper;
+import com.zhekasmirnov.innercore.mod.build.ModLoader;
 import com.zhekasmirnov.innercore.modpack.ModPack;
 import com.zhekasmirnov.innercore.modpack.ModPackContext;
 import com.zhekasmirnov.innercore.modpack.ModPackDirectory;
@@ -332,23 +334,25 @@ public class InnerCoreServer {
             pluginManager.registerEvents(new SnowfallEverywhere(), plugin);
         }
 
-        RuntimeItemsHooks.register();
+        List<BehaviorPack> behaviorPacks = BehaviorPack.loadDefinitionsFromDirectories(
+                ModLoader.instance.getBehaviorPackDirectories());
+        IDRegistry.rebuildNetworkIdMap();
         CustomItem.init();
+        RuntimeItemsHooks.register();
         CustomItem.addCreativeItemsBuild();
         CustomItem.addCreativeItemsWeapons();
         CustomItem.addCreativeItems();
         CustomItem.addCreativeItemsNature();
 
-        try{
-            for(File file : Objects.requireNonNull(new File(InnerCoreServer.dataPath, "behavior_packs").listFiles())) {
-                try{
-                    BehaviorPack pack = new BehaviorPack(file.getAbsolutePath());
-                    pack.load();
-                }catch (Exception e) {
-                    Logger.error("Error loaded behavior pack " + file.getAbsolutePath(), e);
-                }
+        for (var factory : com.reider745.behavior.entities.EntityContentFactory.factoryMap.values()) {
+            if (factory.description.isSpawnable) {
+                cn.nukkit.item.Item.addCreativeItem(407, cn.nukkit.item.Item.get(cn.nukkit.item.Item.SPAWN_EGG,
+                        factory.getEntityDefinition().getRuntimeId(), 1));
             }
-        }catch (Exception ignore){}
+        }
+
+        for (BehaviorPack pack : behaviorPacks) pack.loadRecipes();
+        com.reider745.behavior.spawnrules.MobSpawner.start();
 
         NativeWorkbench.init();
         NativeFurnaceRegistry.init();

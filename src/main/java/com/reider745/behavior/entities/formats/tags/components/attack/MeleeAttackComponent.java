@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public class MeleeAttackComponent extends ComponentsTag {
     public int priority;
-    public float speed_multiplier;
+    public float speed_multiplier = 1;
     public boolean track_target;
 
     @Override
@@ -21,7 +21,7 @@ public class MeleeAttackComponent extends ComponentsTag {
             MeleeAttackComponent component = new MeleeAttackComponent();
 
             component.priority = object.optInt("priority", priority);
-            component.speed_multiplier = object.optFloat("speed_multiplier", speed_multiplier);
+            component.speed_multiplier = object.optFloat("speed_multiplier", 1);
             component.track_target = object.optBoolean("track_target", track_target);
 
             factory.meleeAttackComponent = component;

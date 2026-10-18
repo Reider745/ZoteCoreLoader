@@ -18,6 +18,25 @@ Run the assembled kernel by opening the console in the folder with it:
 java -jar ZoteCore-SNAPSHOT.jar -XX:MaxRAMPercentage=95.0
 ```
 
+## Behavior packs 1.16
+
+Extract a pack into `behavior_packs/<pack-name>/` beside the server, with `manifest.json` directly inside that folder. Packs from the selected modpack, mods and Inner Core runtime packs are also loaded. Source directories are read in place and preserved. Duplicate paths and UUIDs are loaded once; registered mod/modpack sources take precedence over the server folder. Restart the server after changing a pack.
+
+Server support is partial:
+
+- Manifest versions 1 and 2, nested directories, optional `contents.json`, UTF-8/BOM and JSON comments. A malformed file is logged without stopping other content.
+- Item formats `1.10` through `1.16.201`, including `1.16.100`: custom namespaces, display names, stack limits, maximum durability, creative categories and basic food nutrition/saturation. Vanilla item overrides are unsupported. Visual components are handled by the client.
+- Shaped/shapeless crafting, shapeless stonecutter recipes and furnace recipes for furnaces, blast furnaces and both campfires. Item strings and objects, metadata, counts, wildcard input data (`-1`/`32767`) and additional shaped results are supported. Every pack registers its items before recipes are loaded.
+- Entity formats `1.8` through `1.16.201`: per-actor components and Molang state, component groups, add/remove events, sequences, weighted randomization, nested filters, timers and environment sensors. Health, groups, variables, equipment and controller state persist in NBT. Both identifier-based creation and numeric spawn eggs are supported, with stable network definitions.
+- Priority-based AI covers target selection, retaliation, melee/ranged attacks, wandering, swimming/flying, avoidance, panic, following, temptation, breeding and looking. Bounded A* routes around obstacles without generating chunks. These are server goal implementations, not exact copies of Bedrock algorithms.
+- Lifecycle support includes fractional collision boxes/scaling, breathing, burning, growing, taming, healing, interactions, passengers, equipment, projectiles, explosions, transformations, entity spawning, despawning, boss bars, loot tables and XP. Natural spawning checks terrain/water, light, height, difficulty, biome, density, weight and herd size every 100 ticks in loaded chunks.
+- Molang uses the MIT-licensed [Mocha 3.0.1](https://github.com/unnamed/mocha) parser/interpreter, with actor queries, persistent variables, temporary variables and math functions. Parsed expressions are cached; nesting is limited to 64 levels and loops to 4096 iterations per evaluation. The license is included as `META-INF/LICENSE-mocha.txt`.
+- Server animation controllers/animations support states, Molang transitions, entry/exit actions, remapped variables and timelines containing events/commands. Bone transforms and rendering remain client-side.
+
+Full parity with the Bedrock 1.16 engine is not guaranteed. Specialized goals/mechanics (villager trading/economy, raids, complete riding inventories/genetics, boss-specific attacks and other missing components/queries), `.mcfunction` files, custom blocks, food effects and smoker-only recipes remain unsupported. Individual AI parameters and natural spawn distributions may differ from Bedrock. Biome tags are mapped to Nukkit biome families; custom biomes are not added. Custom entity registration enables the Nukkit experiment-mode runtime flag. Unsupported content is diagnosed in the log. Install matching textures, models, animations and client item/entity definitions on clients; this loader supplies server logic and does not replace client resources.
+
+See the [Bedrock furnace recipe reference](https://learn.microsoft.com/en-us/minecraft/creator/reference/content/recipereference/examples/recipedefinitions/minecraftrecipe_furnace?view=minecraft-bedrock-stable) for smelting syntax.
+
 ## Configuration
 
 The settings are made using two main files: *server.properties* and *zotecore.yml*. They will be created automatically immediately after the kernel is launched, the documentation for the first one is available in the Nukkit-MOT repository.
